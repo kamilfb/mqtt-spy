@@ -1,0 +1,147 @@
+.tab:selected
+{
+	-fx-font-weight: bold;
+}
+
+.color-picker .color-picker-label .text 
+{
+    -fx-font: 11px "System";
+}
+.command-link-message
+{
+	-fx-font: 15px "System";
+}
+
+.line-1
+{
+	-fx-font: 14px "System";
+}
+
+.line-2
+{
+	-fx-font: 13px "System";
+}
+
+.messageIndex
+{
+	-fx-font-weight: bold;
+}
+
+.filterOff
+{
+	-fx-text-fill: 	black;
+	-fx-stroke: 	black;
+}
+
+.filterOn
+{
+	-fx-text-fill: 	red;
+	-fx-stroke: 	red;
+}
+
+.buttonArea
+{
+	-fx-background-color: white; 
+}
+
+/* Rich text area */
+
+.styled-text-area
+{	
+    -fx-background-color: -fx-shadow-highlight-color, -fx-text-box-border, -fx-control-inner-background;
+    -fx-background-insets: 0, 1, 2;
+    -fx-background-radius: 3, 2, 2;
+    -fx-padding: 4;	
+}
+
+.messageText
+{
+	-fx-font: 11px "System";
+	-fx-font-weight: normal;
+}
+
+.messageTextHighlighted
+{
+	-fx-font: 		11px "System";
+	-fx-fill: 	red;
+	-fx-font-weight: normal;
+}
+
+#connectionList .list-cell:filled:selected {
+   -fx-background-color: -fx-focus-color;   
+}
+
+#connectionList .list-cell:filled:selected .text {
+       -fx-fill: white;
+}
+
+#connectionList .list-cell:filled:odd {
+    /* -fx-control-inner-background: rgba(233, 222, 255, 0.6); */
+    -fx-background-radius: 7;
+}
+
+#connectionList .list-cell:filled:even {
+    /* -fx-control-inner-background: rgba(233, 222, 255, 0.3); */
+    -fx-background-radius: 7;
+}
+
+.table-row-cell:selected {
+	-fx-background-color: -fx-focus-color;
+}
+
+.table-row-cell:selected .text {
+       -fx-fill: white;
+}
+
+/* Connections */
+
+.connection-connected
+{
+	-fx-base: lightgreen;
+}
+
+.connection-disconnected
+{
+	-fx-base: red;
+}
+
+.connection-connecting
+{
+	-fx-base: yellow;
+}
+
+.connection-not-connected
+{
+	-fx-base: white;
+}
+
+.connection-default
+{
+	-fx-base: grey;
+}	
+
+.connection-replay
+{
+	-fx-base: tan;
+}
+
+/* Subscriptions */
+
+.subscribed .text
+{
+	/*-fx-strikethrough: false;*/
+	-fx-underline: false;
+	-fx-font-style: normal;
+}
+
+.unsubscribed
+{
+	-fx-text-fill: 	grey;	
+}
+
+.unsubscribed .text
+{
+	/*-fx-strikethrough: true;*/	
+	-fx-underline: true;
+	-fx-font-style: italic;
+}

@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/***********************************************************************************
+ * 
+ * Copyright (c) 2014 Kamil Baczkowicz
+ * 
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ * 
+ *    Kamil Baczkowicz - initial API and implementation and/or initial documentation
+ *    
+ */
+-->
+<?import javafx.geometry.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.collections.*?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane prefHeight="282.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.baczkowicz.mqttspy.ui.SubscriptionController">
+	<children>
+      <AnchorPane layoutX="-2.0" layoutY="4.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="225.0" AnchorPane.topAnchor="5.0">
+      		<children>
+      			<fx:include fx:id="messageNavigationPane" source="MessageNavigationPane.fxml" />
+    		</children>
+      </AnchorPane>
+      
+      <MenuButton fx:id="formattingMenuButton" focusTraversable="false" mnemonicParsing="false" prefWidth="120.0" text="Settings" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="7.0">
+      	<graphic>
+      		<ImageView fx:id="settingsIcon" fitHeight="18.0" fitWidth="18.0" pickOnBounds="true">
+		         <image>
+		            <Image url="/images/formatting.png"/>
+		         </image>
+		      </ImageView>
+      	</graphic>
+        <items>
+            <Menu fx:id="formatterMenu" mnemonicParsing="false" text="Convert whole message">
+               <items>
+                  <RadioMenuItem mnemonicParsing="false" selected="true" text="Plain">
+                     <toggleGroup>
+                        <ToggleGroup fx:id="wholeMessageFormat" />
+                     </toggleGroup>
+                  </RadioMenuItem>
+                  <RadioMenuItem mnemonicParsing="false" text="Hex decoder" toggleGroup="$wholeMessageFormat" />
+                  <RadioMenuItem mnemonicParsing="false" text="Hex encoder" toggleGroup="$wholeMessageFormat" />
+                  <RadioMenuItem mnemonicParsing="false" text="Base64 decoder" toggleGroup="$wholeMessageFormat" />
+                  <RadioMenuItem mnemonicParsing="false" text="Base64 encoder" toggleGroup="$wholeMessageFormat" />
+                  <Menu fx:id="customFormatterMenu" disable="true" mnemonicParsing="false" text="Custom" /> 
+               </items>
+            </Menu>
+            <Menu mnemonicParsing="false" text="Convert selection only">
+               <items>
+                  <RadioMenuItem mnemonicParsing="false" selected="true" text="Off">
+                     <toggleGroup>
+                        <ToggleGroup fx:id="selectionFormat" />
+                     </toggleGroup>
+                  </RadioMenuItem>
+                  <SeparatorMenuItem mnemonicParsing="false" />
+                  <RadioMenuItem mnemonicParsing="false" text="Plain" toggleGroup="$selectionFormat" />
+                  <RadioMenuItem mnemonicParsing="false" text="Hex decoder" toggleGroup="$selectionFormat" />
+                  <RadioMenuItem mnemonicParsing="false" text="Hex encoder" toggleGroup="$selectionFormat" />
+                  <RadioMenuItem mnemonicParsing="false" text="Base64 decoder" toggleGroup="$selectionFormat" />
+                  <RadioMenuItem mnemonicParsing="false" text="Base64 encoder" toggleGroup="$selectionFormat" />
+                  <Menu fx:id="customFormatterMenu1" disable="true" mnemonicParsing="false" text="Custom" />
+               </items>
+            </Menu>
+        </items>
+         <font>
+            <Font size="11.0" />
+         </font>
+      </MenuButton>
+
+      <ToggleButton fx:id="searchButton" graphicTextGap="6" focusTraversable="false" mnemonicParsing="false" prefHeight="26" prefWidth="90" onAction="#showSearchWindow" text="Search" AnchorPane.rightAnchor="128.0" AnchorPane.topAnchor="7.0">
+       <padding><Insets bottom="1.0" left="1.0" right="1.0" top="1.0" /></padding>
+        <graphic>
+      		<ImageView fx:id="searchIcon" fitHeight="20" fitWidth="20" pickOnBounds="true">
+		         <image>
+		            <Image url="/images/search.png" />
+		         </image>
+		      </ImageView>
+      	</graphic>
+         <font>
+            <Font size="11.0" />
+         </font>
+      </ToggleButton>
+      
+      <SplitPane fx:id="splitPane" layoutX="11.0" layoutY="45.0" orientation="VERTICAL" prefHeight="229.0" AnchorPane.bottomAnchor="-1.0" AnchorPane.leftAnchor="-1.0" AnchorPane.rightAnchor="-1.0" AnchorPane.topAnchor="40.0">
+         <items>
+         <!-- -->
+         	<fx:include fx:id="messagePane" prefHeight="1000.0" source="MessagePane.fxml" />
+         	 
+            <TitledPane fx:id="summaryTitledPane" alignment="TOP_LEFT" animated="false" maxHeight="1000.0" minHeight="26.0" prefHeight="1000.0" text="Received messages summary" SplitPane.resizableWithParent="false">
+              <content>
+              		<fx:include fx:id="summaryTablePane" minHeight="100.0" prefHeight="100" source="SubscriptionSummaryTablePane.fxml" />
+              </content>
+               <padding>
+                  <Insets top="5.0" />
+               </padding>
+            </TitledPane>
+         </items>
+      </SplitPane>    
+      
+	</children>
+</AnchorPane>

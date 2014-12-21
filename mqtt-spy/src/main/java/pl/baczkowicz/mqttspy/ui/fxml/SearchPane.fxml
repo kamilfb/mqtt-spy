@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+/***********************************************************************************
+ * 
+ * Copyright (c) 2014 Kamil Baczkowicz
+ * 
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ * 
+ *    Kamil Baczkowicz - initial API and implementation and/or initial documentation
+ *    
+ */
+-->
+<?import javafx.geometry.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.collections.*?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane prefHeight="400.0" prefWidth="666.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.baczkowicz.mqttspy.ui.SearchPaneController">
+   <children>
+      <AnchorPane prefHeight="95.0" prefWidth="600.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <Label layoutX="14.0" layoutY="28.0" text="Text to find" AnchorPane.leftAnchor="14.0" />
+            <TextField fx:id="searchField" layoutX="101.0" layoutY="23.0" prefHeight="25.0" prefWidth="398.0" promptText="type some text and press Enter to search" AnchorPane.leftAnchor="101.0" AnchorPane.rightAnchor="125.0" AnchorPane.topAnchor="23.0" />
+            
+            <CheckBox fx:id="autoRefreshCheckBox" layoutX="101.0" layoutY="62.0" mnemonicParsing="false" onAction="#toggleAutoRefresh" prefHeight="25.0" prefWidth="240.0" text="Auto-search for new messages" wrapText="true" />
+            <CheckBox fx:id="caseSensitiveCheckBox" layoutX="341.0" layoutY="65.0" mnemonicParsing="false" text="Case sensitive" />
+            
+            <Button fx:id="searchButton" graphicTextGap="10" layoutX="524.0" layoutY="23.0" mnemonicParsing="false" onAction="#search" prefHeight="25.0" prefWidth="100.0" text="Search" AnchorPane.rightAnchor="14.0" AnchorPane.topAnchor="23.0">
+            <padding><Insets bottom="1.0" left="1.0" right="1.0" top="1.0" /></padding>
+	        <graphic>
+	      		<ImageView fx:id="searchIcon" fitHeight="20" fitWidth="20" pickOnBounds="true">
+			         <image>
+			            <Image url="/images/search.png" />
+			         </image>
+			      </ImageView>
+	      	</graphic>
+            </Button>
+         </children>
+      </AnchorPane>
+      <Separator prefWidth="200.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="100.0" />
+      
+      <AnchorPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="100.0">
+         <children>
+   	      <AnchorPane layoutX="-2.0" layoutY="4.0" prefHeight="31.0" prefWidth="554.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="7.0" AnchorPane.topAnchor="5.0">
+   	      		<children>
+   	      			<fx:include fx:id="messageNavigationPane" source="MessageNavigationPane.fxml" />
+   	    		</children>
+   	      </AnchorPane>
+   	      
+   	      <SplitPane fx:id="splitPane" dividerPositions="0.42" layoutX="11.0" layoutY="45.0" orientation="VERTICAL" prefHeight="229.0" prefWidth="636.0" AnchorPane.bottomAnchor="-1.0" AnchorPane.leftAnchor="-2.0" AnchorPane.rightAnchor="-1.0" AnchorPane.topAnchor="38.0">
+   	         <items>
+   	         	<fx:include fx:id="messagePane" prefHeight="1000.0" source="MessagePane.fxml" />
+   	            
+   	            <TitledPane fx:id="summaryTitledPane" alignment="TOP_LEFT" animated="false" maxHeight="1000.0" minHeight="26.0" prefHeight="151.0" prefWidth="626.0" text="Found messages" SplitPane.resizableWithParent="false">
+   	              <content>
+   	              		<fx:include fx:id="messageListTablePane" minHeight="101.0" prefHeight="118.0" prefWidth="624.0" source="MessageListTablePane.fxml" />
+   	              </content>
+   	               <padding>
+   	                  <Insets top="5.0" />
+   	               </padding>
+   	            </TitledPane>
+   	         </items>
+   	      </SplitPane>
+         </children>
+	  </AnchorPane>
+   </children>
+</AnchorPane>
