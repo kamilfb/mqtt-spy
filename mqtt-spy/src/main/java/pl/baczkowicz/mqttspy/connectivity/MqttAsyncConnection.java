@@ -31,6 +31,9 @@ import pl.baczkowicz.mqttspy.scripts.InteractiveScriptManager;
 import pl.baczkowicz.mqttspy.stats.StatisticsManager;
 import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
 
+/**
+ * Asynchronous MQTT connection with the extra UI elements required.
+ */
 public class MqttAsyncConnection extends MqttConnectionWithReconnection
 {
 	private final static Logger logger = LoggerFactory.getLogger(MqttAsyncConnection.class);
