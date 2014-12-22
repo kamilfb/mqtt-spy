@@ -360,9 +360,8 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection
 
 	public void setOpening(boolean isOpening)
 	{
-		eventManager.notifyConnectionStatusChanged(this);
-		
 		this.isOpening = isOpening;
+		eventManager.notifyConnectionStatusChanged(this);
 	}
 
 	public ManagedMessageStoreWithFiltering getStore()

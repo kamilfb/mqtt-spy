@@ -39,6 +39,7 @@ import org.slf4j.LoggerFactory;
 import pl.baczkowicz.mqttspy.configuration.generated.TabbedSubscriptionDetails;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.ui.connections.ConnectionManager;
+import pl.baczkowicz.mqttspy.ui.keyboard.TimeBasedKeyEventFilter;
 import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
 import pl.baczkowicz.mqttspy.utils.MqttUtils;
 
@@ -78,6 +79,8 @@ public class NewSubscriptionController implements Initializable
 
 	private boolean detailedView;
 
+	private TimeBasedKeyEventFilter timeBasedFilter;
+
 	public NewSubscriptionController()
 	{
 		// TODO: subscription colors - move that to a property file
@@ -104,6 +107,8 @@ public class NewSubscriptionController implements Initializable
 
 	public void initialize(URL location, ResourceBundle resources)
 	{
+		timeBasedFilter = new TimeBasedKeyEventFilter(15);
+		
 		colorPicker.setValue(colors.get(0));
 		subscriptionTopicText.setItems(subscriptionTopics);
 		
@@ -116,9 +121,10 @@ public class NewSubscriptionController implements Initializable
 	        	{
 		        	case ENTER:
 		        	{
-		        		if (connected)
-		        		{
+		        		if (connected && timeBasedFilter.processEvent(keyEvent))
+			        	{
 		        			subscribe();
+		    	        	keyEvent.consume();
 		        		}
 		        		break;
 		        	}		        	

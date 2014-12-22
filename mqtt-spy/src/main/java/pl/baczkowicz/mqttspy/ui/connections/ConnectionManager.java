@@ -259,7 +259,10 @@ public class ConnectionManager
 	 */
 	public Collection<MqttAsyncConnection> getConnections()
 	{
-		return connectionControllers.keySet();
+		// TODO: needs to use the connections list, as the controllers are populated later,
+		// so opening doesn't work properly
+		return connections.values();
+		//return connectionControllers.keySet();
 	}
 	
 	/**

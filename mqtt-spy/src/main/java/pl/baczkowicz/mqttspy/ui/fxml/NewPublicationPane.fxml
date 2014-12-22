@@ -79,11 +79,15 @@
 	      	</graphic>
 	      	
 	      	<items>
-                  <RadioMenuItem mnemonicParsing="false" selected="true" text="Publish with no script">
+                  <RadioMenuItem mnemonicParsing="false" selected="true" text="Publish (default)">
                      <toggleGroup>
                         <ToggleGroup fx:id="publishScript" />
                      </toggleGroup>
                   </RadioMenuItem>
+                  <SeparatorMenuItem />
+                  <Menu fx:id="publishWithScriptsMenu" mnemonicParsing="false" text="Publish with script" />
+                  <SeparatorMenuItem />
+                  <Menu fx:id="recentMessagesMenu" mnemonicParsing="false" text="Recent messages" />
             </items>
 		</SplitMenuButton>
 		
