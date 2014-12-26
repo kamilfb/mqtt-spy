@@ -39,6 +39,9 @@ public class Script extends BasicScriptProperties
 	/** The associated script file. */
 	private File scriptFile;
 	
+	/** Definition of the in-line script. */
+	private String scriptContent;
+	
 	/** Script engine instance. */
 	private ScriptEngine scriptEngine;
 
@@ -138,5 +141,25 @@ public class Script extends BasicScriptProperties
 	public ScriptRunner getScriptRunner()
 	{
 		return this.scriptRunner;
+	}
+
+	/**
+	 * Gets the script content.
+	 * 
+	 * @return the scriptContent
+	 */
+	public String getScriptContent()
+	{
+		return scriptContent;
+	}
+
+	/**
+	 * Sets the script content.
+	 *  
+	 * @param scriptContent the scriptContent to set
+	 */
+	public void setScriptContent(final String scriptContent)
+	{
+		this.scriptContent = scriptContent;
 	}
 }

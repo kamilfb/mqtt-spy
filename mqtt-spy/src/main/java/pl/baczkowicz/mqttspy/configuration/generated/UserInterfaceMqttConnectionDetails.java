@@ -57,6 +57,7 @@ import pl.baczkowicz.mqttspy.common.generated.ScriptDetails;
  *         &lt;element name="MinMessagesStoredPerTopic" type="{http://www.w3.org/2001/XMLSchema}int" minOccurs="0"/>
  *         &lt;element name="MaxMessagesStored" type="{http://www.w3.org/2001/XMLSchema}int" minOccurs="0"/>
  *         &lt;element name="PublicationScripts" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
+ *         &lt;element name="SearchScripts" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/>
  *         &lt;element name="BackgroundScript" type="{http://baczkowicz.pl/mqtt-spy/common}ScriptDetails" maxOccurs="unbounded" minOccurs="0"/>
  *       &lt;/sequence>
  *     &lt;/extension>
@@ -79,6 +80,7 @@ import pl.baczkowicz.mqttspy.common.generated.ScriptDetails;
     "minMessagesStoredPerTopic",
     "maxMessagesStored",
     "publicationScripts",
+    "searchScripts",
     "backgroundScript"
 })
 public class UserInterfaceMqttConnectionDetails
@@ -108,6 +110,8 @@ public class UserInterfaceMqttConnectionDetails
     protected Integer maxMessagesStored;
     @XmlElement(name = "PublicationScripts")
     protected String publicationScripts;
+    @XmlElement(name = "SearchScripts")
+    protected String searchScripts;
     @XmlElement(name = "BackgroundScript")
     protected List<ScriptDetails> backgroundScript;
 
@@ -123,7 +127,7 @@ public class UserInterfaceMqttConnectionDetails
      * Fully-initialising value constructor
      * 
      */
-    public UserInterfaceMqttConnectionDetails(final List<PublicationDetails> publication, final List<TabbedSubscriptionDetails> subscription, final UserAuthenticationOptions userAuthentication, final Boolean autoOpen, final Boolean autoConnect, final Boolean autoSubscribe, final Object formatter, final Integer minMessagesStoredPerTopic, final Integer maxMessagesStored, final String publicationScripts, final List<ScriptDetails> backgroundScript) {
+    public UserInterfaceMqttConnectionDetails(final List<PublicationDetails> publication, final List<TabbedSubscriptionDetails> subscription, final UserAuthenticationOptions userAuthentication, final Boolean autoOpen, final Boolean autoConnect, final Boolean autoSubscribe, final Object formatter, final Integer minMessagesStoredPerTopic, final Integer maxMessagesStored, final String publicationScripts, final String searchScripts, final List<ScriptDetails> backgroundScript) {
         this.publication = publication;
         this.subscription = subscription;
         this.userAuthentication = userAuthentication;
@@ -134,6 +138,7 @@ public class UserInterfaceMqttConnectionDetails
         this.minMessagesStoredPerTopic = minMessagesStoredPerTopic;
         this.maxMessagesStored = maxMessagesStored;
         this.publicationScripts = publicationScripts;
+        this.searchScripts = searchScripts;
         this.backgroundScript = backgroundScript;
     }
 
@@ -388,6 +393,30 @@ public class UserInterfaceMqttConnectionDetails
     }
 
     /**
+     * Gets the value of the searchScripts property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getSearchScripts() {
+        return searchScripts;
+    }
+
+    /**
+     * Sets the value of the searchScripts property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setSearchScripts(String value) {
+        this.searchScripts = value;
+    }
+
+    /**
      * Gets the value of the backgroundScript property.
      * 
      * <p>
@@ -469,6 +498,11 @@ public class UserInterfaceMqttConnectionDetails
             toStringBuilder.append("publicationScripts", thePublicationScripts);
         }
         {
+            String theSearchScripts;
+            theSearchScripts = this.getSearchScripts();
+            toStringBuilder.append("searchScripts", theSearchScripts);
+        }
+        {
             List<ScriptDetails> theBackgroundScript;
             theBackgroundScript = this.getBackgroundScript();
             toStringBuilder.append("backgroundScript", theBackgroundScript);
@@ -501,6 +535,7 @@ public class UserInterfaceMqttConnectionDetails
         equalsBuilder.append(this.getMinMessagesStoredPerTopic(), that.getMinMessagesStoredPerTopic());
         equalsBuilder.append(this.getMaxMessagesStored(), that.getMaxMessagesStored());
         equalsBuilder.append(this.getPublicationScripts(), that.getPublicationScripts());
+        equalsBuilder.append(this.getSearchScripts(), that.getSearchScripts());
         equalsBuilder.append(this.getBackgroundScript(), that.getBackgroundScript());
     }
 
@@ -528,6 +563,7 @@ public class UserInterfaceMqttConnectionDetails
         hashCodeBuilder.append(this.getMinMessagesStoredPerTopic());
         hashCodeBuilder.append(this.getMaxMessagesStored());
         hashCodeBuilder.append(this.getPublicationScripts());
+        hashCodeBuilder.append(this.getSearchScripts());
         hashCodeBuilder.append(this.getBackgroundScript());
     }
 
@@ -603,6 +639,12 @@ public class UserInterfaceMqttConnectionDetails
             sourcePublicationScripts = this.getPublicationScripts();
             String copyPublicationScripts = ((String) copyBuilder.copy(sourcePublicationScripts));
             copy.setPublicationScripts(copyPublicationScripts);
+        }
+        {
+            String sourceSearchScripts;
+            sourceSearchScripts = this.getSearchScripts();
+            String copySearchScripts = ((String) copyBuilder.copy(sourceSearchScripts));
+            copy.setSearchScripts(copySearchScripts);
         }
         {
             List<ScriptDetails> sourceBackgroundScript;

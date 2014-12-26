@@ -38,7 +38,7 @@
       </Label>
       
       <!-- Create -->
- 	  <Button fx:id="connectButton" focusTraversable="false" graphicTextGap="15" layoutX="421.0" layoutY="317.0" mnemonicParsing="false" onAction="#createConnection" prefHeight="25.0" prefWidth="302.0" text="Open connection" AnchorPane.bottomAnchor="14.0" AnchorPane.rightAnchor="14.0">
+ 	  <Button fx:id="connectButton" focusTraversable="false" graphicTextGap="15" layoutY="317.0" mnemonicParsing="false" onAction="#createConnection" prefHeight="25.0" prefWidth="302.0" text="Open connection" AnchorPane.bottomAnchor="14.0" AnchorPane.rightAnchor="18.0">
 	   <padding><Insets bottom="1.0" left="1.0" right="1.0" top="1.0" /></padding>
 		    <graphic>
 		  		<ImageView fx:id="searchIcon" fitHeight="22" fitWidth="22" pickOnBounds="true">
@@ -173,13 +173,16 @@
             <Tab text="Publications">
               <content>
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                     <children>
-                        <TableView fx:id="publicationsTable" editable="true" layoutX="6.0" layoutY="4.0" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="50.0" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="14.0" AnchorPane.topAnchor="50.0">
+                     <children>                        
+                        <TextField fx:id="publicationScriptsText" layoutX="279.0" layoutY="15.0" prefHeight="25.0" prefWidth="259.0" AnchorPane.leftAnchor="278.0" AnchorPane.rightAnchor="14.0" />
+                        <Label layoutX="23.0" layoutY="20.0" text="Directory with publication scripts" />
+                     
+                        <TableView fx:id="publicationsTable" editable="true" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="50.0" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="14.0" AnchorPane.topAnchor="50.0">
                           <columns>
                             <TableColumn fx:id="publicationTopicColumn" minWidth="300.0" prefWidth="531.0" text="Topic" />
                           </columns>
                         </TableView>
-                        <Button fx:id="removePublicationButton" disable="true" focusTraversable="false" layoutX="472.0" layoutY="169.0" mnemonicParsing="false" onAction="#removePublication" prefHeight="25.0" prefWidth="100.0" text="Remove" AnchorPane.bottomAnchor="14.0" AnchorPane.leftAnchor="472.0" AnchorPane.rightAnchor="14.0">
+                        <Button fx:id="removePublicationButton" disable="true" focusTraversable="false" layoutY="169.0" mnemonicParsing="false" onAction="#removePublication" prefHeight="25.0" prefWidth="145" text="Remove topic" AnchorPane.bottomAnchor="14.0" AnchorPane.leftAnchor="422.0" AnchorPane.rightAnchor="14.0">
                                     <padding><Insets bottom="1.0" left="1.0" right="1.0" top="1.0" /></padding>
 					        <graphic>
 					      		<ImageView fx:id="searchIcon" fitHeight="16" fitWidth="16" pickOnBounds="true">
@@ -190,7 +193,7 @@
 					      	</graphic>
 		      			</Button>
 		      			
-                        <Button fx:id="addPublicationButton" focusTraversable="false" layoutX="364.0" layoutY="169.0" mnemonicParsing="false" onAction="#addPublication" prefHeight="25.0" prefWidth="100.0" text="Add" AnchorPane.bottomAnchor="14.0">
+                        <Button fx:id="addPublicationButton" focusTraversable="false" layoutY="169.0" mnemonicParsing="false" onAction="#addPublication" prefHeight="25.0" prefWidth="145" text="Add topic" AnchorPane.bottomAnchor="14.0" AnchorPane.rightAnchor="171.0">
                                     <padding><Insets bottom="1.0" left="1.0" right="1.0" top="1.0" /></padding>
 					        <graphic>
 					      		<ImageView fx:id="searchIcon" fitHeight="16" fitWidth="16" pickOnBounds="true">
@@ -200,9 +203,6 @@
 							      </ImageView>
 					      	</graphic>
 			            </Button>
-                        
-                        <TextField fx:id="publicationScriptsText" layoutX="279.0" layoutY="15.0" prefHeight="25.0" prefWidth="259.0" AnchorPane.leftAnchor="278.0" AnchorPane.rightAnchor="14.0" />
-                        <Label layoutX="23.0" layoutY="20.0" text="Directory with publication scripts" />
                      </children>
                   </AnchorPane>
               </content>
@@ -211,7 +211,10 @@
                <content>
                   <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
-                        <TableView fx:id="subscriptionsTable" editable="true" layoutX="6.0" layoutY="4.0" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="50.0" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="14.0" AnchorPane.topAnchor="14.0">
+						<TextField fx:id="searchScriptsText" layoutX="279.0" layoutY="15.0" prefHeight="25.0" prefWidth="259.0" AnchorPane.leftAnchor="278.0" AnchorPane.rightAnchor="14.0" />
+                        <Label layoutX="23.0" layoutY="20.0" text="Directory with search scripts" />						
+                     
+                        <TableView fx:id="subscriptionsTable" editable="true" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="50.0" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="14.0" AnchorPane.topAnchor="50.0">
                            <columns>
                               <TableColumn fx:id="subscriptionTopicColumn" minWidth="150.0" prefWidth="227.0" text="Topic" />
                               <TableColumn fx:id="scriptColumn" prefWidth="150.0" text="Script" />
@@ -219,7 +222,7 @@
                               <TableColumn fx:id="createTabSubscriptionColumn" prefWidth="95.0" text="Create tab" />
                            </columns>
                         </TableView>
-                        <Button fx:id="removeSubscriptionButton" disable="true" focusTraversable="false" layoutX="472.0" layoutY="169.0" mnemonicParsing="false" onAction="#removeSubscription" prefHeight="25.0" prefWidth="100.0" text="Remove" AnchorPane.bottomAnchor="14.0" AnchorPane.leftAnchor="472.0" AnchorPane.rightAnchor="14.0">
+                        <Button fx:id="removeSubscriptionButton" disable="true" focusTraversable="false" layoutY="169.0" mnemonicParsing="false" onAction="#removeSubscription" prefHeight="25.0" prefWidth="145" text="Remove topic" AnchorPane.bottomAnchor="14.0" AnchorPane.leftAnchor="422.0" AnchorPane.rightAnchor="14.0">
                             <padding><Insets bottom="1.0" left="1.0" right="1.0" top="1.0" /></padding>
 					        <graphic>
 					      		<ImageView fx:id="searchIcon" fitHeight="16" fitWidth="16" pickOnBounds="true">
@@ -230,7 +233,7 @@
 					      	</graphic>
 		      			</Button>
 		      			
-                        <Button fx:id="addSubscriptionButton" focusTraversable="false" layoutX="364.0" layoutY="169.0" mnemonicParsing="false" onAction="#addSubscription" prefHeight="25.0" prefWidth="100.0" text="Add" AnchorPane.bottomAnchor="14.0">
+                        <Button fx:id="addSubscriptionButton" focusTraversable="false" layoutY="169.0" mnemonicParsing="false" onAction="#addSubscription" prefHeight="25.0" prefWidth="145" text="Add topic" AnchorPane.bottomAnchor="14.0" AnchorPane.rightAnchor="171.0">
 			                                    <padding><Insets bottom="1.0" left="1.0" right="1.0" top="1.0" /></padding>
 					        <graphic>
 					      		<ImageView fx:id="searchIcon" fitHeight="16" fitWidth="16" pickOnBounds="true">
@@ -255,7 +258,7 @@
                         <Label layoutX="280.0" layoutY="60.0" text="Max messages stored" />
                         <Label layoutX="23.0" layoutY="150.0" text="Message content formatter" />
                         <TextField fx:id="maxMessagesStored" layoutX="484.0" layoutY="56.0" prefHeight="25.0" prefWidth="88.0" />
-                        <ComboBox fx:id="formatter" layoutX="279.0" layoutY="145.0" prefHeight="25.0" prefWidth="296.0" AnchorPane.rightAnchor="11.0" />
+                        <ComboBox fx:id="formatter" layoutX="279.0" layoutY="145.0" prefHeight="25.0" prefWidth="296.0" AnchorPane.rightAnchor="14.0" />
                         <Label layoutX="280.0" layoutY="20.0" text="Min messages per topic" />
                         <TextField fx:id="minMessagesPerTopicStored" layoutX="483.0" layoutY="15.0" prefHeight="25.0" prefWidth="89.0" />
                         <CheckBox fx:id="autoSubscribe" layoutX="238.0" layoutY="97.0" mnemonicParsing="false" selected="true" />

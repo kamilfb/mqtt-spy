@@ -45,6 +45,8 @@ public class ScriptRunner implements Runnable
 	/** The thread running the script. */
 	private Thread runningThread;
 
+	private Object lastReturnValue;
+
 	/**
 	 * Creates a ScriptRunner.
 	 * 
@@ -109,18 +111,32 @@ public class ScriptRunner implements Runnable
 	 */
 	private void runScript() throws FileNotFoundException, ScriptException
 	{
-		final Object returnValue = script.getScriptEngine().eval(new FileReader(script.getScriptFile()));
-		logger.debug("Script {} returned with value {}", script.getName(), returnValue);
+		// Script in a file
+		if (script.getScriptFile() != null)
+		{
+			lastReturnValue = script.getScriptEngine().eval(new FileReader(script.getScriptFile()));
+			logger.debug("Script {} returned with value {}", script.getName(), lastReturnValue);
+		}
+		// In-line script
+		else if (script.getScriptContent() != null)
+		{
+			lastReturnValue = script.getScriptEngine().eval(script.getScriptContent());
+			logger.debug("Script {} returned with value {}", script.getName(), lastReturnValue);
+		}
+		else
+		{
+			logger.warn("No script content defined for script {}", script.getName());
+		}
 		
 		// If nothing returned, assume all good
-		if (returnValue == null)
+		if (lastReturnValue == null)
 		{
 			changeState(ScriptRunningState.FINISHED);
 		}
 		// If boolean returned, check if OK
-		else if (returnValue instanceof Boolean)
+		else if (lastReturnValue instanceof Boolean)
 		{
-			if ((Boolean) returnValue)
+			if ((Boolean) lastReturnValue)
 			{
 				changeState(ScriptRunningState.FINISHED);
 			}
@@ -134,6 +150,16 @@ public class ScriptRunner implements Runnable
 		{
 			changeState(ScriptRunningState.FINISHED);
 		}
+	}
+
+	/**
+	 * Gets the last returned value for the script.
+	 * 
+	 * @return the lastReturnValue
+	 */
+	public Object getLastReturnValue()
+	{
+		return lastReturnValue;
 	}
 
 	/**

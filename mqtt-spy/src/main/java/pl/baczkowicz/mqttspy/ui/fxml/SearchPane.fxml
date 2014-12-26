@@ -28,22 +28,36 @@
    <children>
       <AnchorPane prefHeight="95.0" prefWidth="600.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
-            <Label layoutX="14.0" layoutY="28.0" text="Text to find" AnchorPane.leftAnchor="14.0" />
-            <TextField fx:id="searchField" layoutX="101.0" layoutY="23.0" prefHeight="25.0" prefWidth="398.0" promptText="type some text and press Enter to search" AnchorPane.leftAnchor="101.0" AnchorPane.rightAnchor="125.0" AnchorPane.topAnchor="23.0" />
+            <Label fx:id="textLabel" layoutX="14.0" layoutY="28.0" text="Text to find" AnchorPane.leftAnchor="14.0" />
+            <TextField fx:id="searchField" prefHeight="27.0" promptText="type some text and press Enter to search" AnchorPane.leftAnchor="140" AnchorPane.rightAnchor="170.0" AnchorPane.topAnchor="23.0" />
             
-            <CheckBox fx:id="autoRefreshCheckBox" layoutX="101.0" layoutY="62.0" mnemonicParsing="false" onAction="#toggleAutoRefresh" prefHeight="25.0" prefWidth="240.0" text="Auto-search for new messages" wrapText="true" />
-            <CheckBox fx:id="caseSensitiveCheckBox" layoutX="341.0" layoutY="65.0" mnemonicParsing="false" text="Case sensitive" />
+            <CheckBox fx:id="autoRefreshCheckBox" layoutX="140" layoutY="62.0" mnemonicParsing="false" onAction="#toggleAutoRefresh" prefHeight="25.0" prefWidth="240.0" text="Auto-search for new messages" wrapText="true" />
+            <CheckBox fx:id="caseSensitiveCheckBox" layoutX="380" layoutY="65.0" mnemonicParsing="false" text="Case sensitive" />
             
-            <Button fx:id="searchButton" graphicTextGap="10" layoutX="524.0" layoutY="23.0" mnemonicParsing="false" onAction="#search" prefHeight="25.0" prefWidth="100.0" text="Search" AnchorPane.rightAnchor="14.0" AnchorPane.topAnchor="23.0">
-            <padding><Insets bottom="1.0" left="1.0" right="1.0" top="1.0" /></padding>
-	        <graphic>
-	      		<ImageView fx:id="searchIcon" fitHeight="20" fitWidth="20" pickOnBounds="true">
+            <SplitMenuButton fx:id="searchButton" layoutX="524.0" layoutY="23.0" mnemonicParsing="false" onAction="#search" prefHeight="25.0" prefWidth="130.0" text="Search" AnchorPane.rightAnchor="14.0" AnchorPane.topAnchor="23.0">
+            	
+            	<!-- <padding><Insets bottom="1.0" left="1.0" right="1.0" top="1.0" /></padding> -->
+	        	
+	        	<graphic>
+	      		<ImageView fx:id="searchIcon" fitHeight="17" fitWidth="17" pickOnBounds="true">
 			         <image>
 			            <Image url="/images/search.png" />
 			         </image>
 			      </ImageView>
-	      	</graphic>
-            </Button>
+	      		</graphic>
+	      		
+	      		<items>
+                  <RadioMenuItem fx:id="defaultSearch" mnemonicParsing="false" selected="true" onAction="#onMessagePayloadSearch" text="Search message payload (default)">
+                     <toggleGroup>
+                        <ToggleGroup fx:id="searchMethod" />
+                     </toggleGroup>
+                  </RadioMenuItem>                  
+                  <SeparatorMenuItem />
+                  <Menu fx:id="searchWithScriptsMenu" mnemonicParsing="false" text="Search with script" />
+                  <RadioMenuItem fx:id="inlineScriptSearch" mnemonicParsing="false" toggleGroup="$searchMethod" onAction="#onInlineScriptSearch" text="Search with inline script" />
+            	</items>
+            	
+            </SplitMenuButton>
          </children>
       </AnchorPane>
       <Separator prefWidth="200.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="100.0" />

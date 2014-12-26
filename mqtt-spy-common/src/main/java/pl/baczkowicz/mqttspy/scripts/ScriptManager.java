@@ -49,8 +49,8 @@ public class ScriptManager
 	/** Diagnostic logger. */
 	private final static Logger logger = LoggerFactory.getLogger(ScriptManager.class);
 	
-	/** Mapping between script files and scripts. */
-	private Map<File, Script> scripts = new HashMap<File, Script>();
+	/** Mapping between unique script names and scripts. */
+	private Map<String, Script> scripts = new HashMap<String, Script>();
 	
 	/** Used for notifying events related to script execution. */
 	private IScriptEventManager eventManager;
@@ -91,8 +91,10 @@ public class ScriptManager
 	 * Creates and records a script with the given details.
 	 * 
 	 * @param scriptDetails The script details
+	 * 
+	 * @return Created script
 	 */
-	public void addScript(final ScriptDetails scriptDetails)
+	public Script addScript(final ScriptDetails scriptDetails)
 	{
 		final File scriptFile = new File(scriptDetails.getFile());
 		
@@ -100,10 +102,35 @@ public class ScriptManager
 		
 		final Script script = new Script();
 				
-		createScript(script, scriptName, scriptFile, connection, scriptDetails);
+		createFileBasedScript(script, scriptName, scriptFile, connection, scriptDetails);
 		
 		logger.debug("Adding script {}", scriptDetails.getFile());
-		scripts.put(scriptFile, script);
+		scripts.put(scriptFile.getAbsolutePath(), script);
+		
+		return script;
+	}
+	
+	/**
+	 * Creates and records a script with the given details.
+	 * 
+	 * @param scriptName The script name
+	 * @param content Script's content
+	 * 
+	 * @return Created script
+	 */
+	public Script addInlineScript(final String scriptName, final String content)
+	{
+		final Script script = new Script();
+		script.setScriptContent(content);
+		script.setScriptDetails(new ScriptDetails(false, null));
+				
+		createScript(script, scriptName, connection);
+		
+		logger.debug("Adding in-line script {}", scriptName);
+
+		scripts.put(scriptName, script);
+		
+		return script;
 	}
 	
 	/**
@@ -118,7 +145,7 @@ public class ScriptManager
 			addScript(script);
 		}
 	}
-		
+	
 	/**
 	 * Populates the script object with the necessary values and references.
 	 * 
@@ -128,19 +155,30 @@ public class ScriptManager
 	 * @param connection The connection for which this script will be running
 	 * @param scriptDetails Script details
 	 */
-	public void createScript(final Script script,
-			String scriptName, File scriptFile, final IMqttConnection connection, final ScriptDetails scriptDetails)
+	public void createFileBasedScript(final Script script,
+			final String scriptName, final File scriptFile, final IMqttConnection connection, final ScriptDetails scriptDetails)
+	{
+		createScript(script, scriptName, connection);
+		script.setScriptFile(scriptFile);
+		script.setScriptDetails(scriptDetails);
+	}
+		
+	/**
+	 * Populates the script object with the necessary values and references.
+	 * 
+	 * @param script The script object to be populated
+	 * @param scriptName The name of the script
+	 * @param connection The connection for which this script will be running
+	 */
+	public void createScript(final Script script, final String scriptName, final IMqttConnection connection)
 	{
 		final ScriptEngine scriptEngine = new ScriptEngineManager().getEngineByName("nashorn");										
 		
 		if (scriptEngine != null)
 		{
-			script.setName(scriptName);
-			script.setScriptFile(scriptFile);
+			script.setName(scriptName);			
 			script.setStatus(ScriptRunningState.NOT_STARTED);
-			script.setScriptEngine(scriptEngine);
-			script.setScriptDetails(scriptDetails);
-			
+			script.setScriptEngine(scriptEngine);					
 			script.setPublicationScriptIO(new ScriptIO(connection, eventManager, script, executor));
 			
 			final Map<String, Object> scriptVariables = new HashMap<String, Object>();
@@ -279,7 +317,7 @@ public class ScriptManager
 	 *  
 	 * @return The scripts value
 	 */
-	public Map<File, Script> getScripts()
+	public Map<String, Script> getScripts()
 	{
 		return scripts;
 	}

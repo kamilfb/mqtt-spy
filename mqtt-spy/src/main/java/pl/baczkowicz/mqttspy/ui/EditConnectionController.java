@@ -186,10 +186,13 @@ public class EditConnectionController extends AnchorPane implements Initializabl
 	@FXML
 	private Button removeSubscriptionButton;
 	
-	// Pubs
+	// Pubs / subs
 	
 	@FXML
 	private TextField publicationScriptsText;
+	
+	@FXML
+	private TextField searchScriptsText;
 	
 	// Tables
 	
@@ -341,6 +344,7 @@ public class EditConnectionController extends AnchorPane implements Initializabl
 		lastWillAndTestamentMessageController.getPublicationData().textProperty().addListener(basicOnChangeListener);
 		lastWillAndTestamentMessageController.getPublicationQosChoice().getSelectionModel().selectedIndexProperty().addListener(basicOnChangeListener);
 		lastWillAndTestamentMessageController.getRetainedBox().selectedProperty().addListener(basicOnChangeListener);
+		lastWillAndTestamentMessageController.hidePublishButton();
 		
 		// UI
 		autoConnect.selectedProperty().addListener(basicOnChangeListener);
@@ -417,6 +421,7 @@ public class EditConnectionController extends AnchorPane implements Initializabl
 		});
 		
 		// Subscriptions
+		searchScriptsText.textProperty().addListener(basicOnChangeListener);
 		createTabSubscriptionColumn.setCellValueFactory(new PropertyValueFactory<SubscriptionTopicProperties, Boolean>("show"));
 		createTabSubscriptionColumn.setCellFactory(new Callback<TableColumn<SubscriptionTopicProperties, Boolean>, TableCell<SubscriptionTopicProperties, Boolean>>()
 				{
@@ -855,6 +860,7 @@ public class EditConnectionController extends AnchorPane implements Initializabl
 			connection.getPublication().add(newPublicationDetails);
 		}
 		
+		connection.setSearchScripts(searchScriptsText.getText());
 		for (final SubscriptionTopicProperties subscriptionDetails : subscriptionsTable.getItems())
 		{
 			final TabbedSubscriptionDetails newSubscriptionDetails = new TabbedSubscriptionDetails();
@@ -1102,6 +1108,7 @@ public class EditConnectionController extends AnchorPane implements Initializabl
 		});
 		
 		// Subscriptions
+		searchScriptsText.setText(connection.getSearchScripts());
 		removeSubscriptionButton.setDisable(true);
 		subscriptionsTable.getItems().clear();
 		for (final TabbedSubscriptionDetails sub : connection.getSubscription())

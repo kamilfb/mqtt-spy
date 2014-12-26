@@ -287,7 +287,7 @@ public class PublicationScriptsController implements Initializable, ScriptStateC
 	
 	private void refreshList()
 	{
-		scriptManager.addScripts(connection.getProperties().getConfiguredProperties().getPublicationScripts());
+		scriptManager.addScripts(connection.getProperties().getConfiguredProperties().getPublicationScripts(), ScriptTypeEnum.PUBLICATION);
 		scriptManager.addSubscriptionScripts(connection.getProperties().getConfiguredProperties().getSubscription());
 		
 		// TODO: move this to script manager?

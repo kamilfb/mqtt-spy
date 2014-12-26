@@ -478,6 +478,7 @@ public class SubscriptionController implements Initializable, ClearTabObserver, 
 			searchWindowController = (SearchWindowController) searchLoader.getController();
 			searchWindowController.setStore(store);
 			searchWindowController.setSubscription(subscription);
+			searchWindowController.setConnection(connectionController.getConnection());
 			searchWindowController.setSubscriptionName(subscription != null ? subscription.getTopic() : SubscriptionManager.ALL_SUBSCRIPTIONS_TAB_TITLE);
 			searchWindowController.setEventManager(eventManager);
 			

@@ -46,8 +46,8 @@ public class InteractiveScriptManager extends ScriptManager
 	{
 		super(eventManager, new RunLaterExecutor(), connection);
 	}
-			
-	public void addScripts(final String directory)
+	
+	public void addScripts(final String directory, final ScriptTypeEnum type)
 	{
 		final List<File> files = new ArrayList<File>(); 
 		
@@ -62,7 +62,7 @@ public class InteractiveScriptManager extends ScriptManager
 			files.addAll(getFileNamesForDirectory(ConfigurationManager.getDefaultHomeDirectory(), ".js"));
 		}	
 		
-		populateScriptsFromFileList(files, ScriptTypeEnum.PUBLICATION);
+		populateScriptsFromFileList(files, type);
 	}
 	
 	public void addSubscriptionScripts(final List<TabbedSubscriptionDetails> list)
@@ -92,10 +92,10 @@ public class InteractiveScriptManager extends ScriptManager
 				final PublicationScriptProperties properties = new PublicationScriptProperties();
 				properties.typeProperty().setValue(type);
 				
-				createScript(properties, scriptName, scriptFile, connection, new ScriptDetails(false, scriptFile.getName())); 			
+				createFileBasedScript(properties, scriptName, scriptFile, connection, new ScriptDetails(false, scriptFile.getName())); 			
 				
 				observableScriptList.add(properties);
-				getScripts().put(scriptFile, properties);
+				getScripts().put(scriptFile.getAbsolutePath(), properties);
 			}				
 		}			
 	}
@@ -122,10 +122,10 @@ public class InteractiveScriptManager extends ScriptManager
 					final PublicationScriptProperties properties = new PublicationScriptProperties();
 					properties.typeProperty().setValue(type);
 					
-					createScript(properties, scriptName, scriptFile, connection, details); 			
+					createFileBasedScript(properties, scriptName, scriptFile, connection, details); 			
 					
 					observableScriptList.add(properties);
-					getScripts().put(scriptFile, properties);
+					getScripts().put(scriptFile.getAbsolutePath(), properties);
 				}	
 			}
 		}			

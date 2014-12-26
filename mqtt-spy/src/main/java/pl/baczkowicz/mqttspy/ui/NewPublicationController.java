@@ -258,25 +258,27 @@ public class NewPublicationController implements Initializable, ScriptListChange
 			}
 		}
 		
-		updateScriptList(pubScripts);
+		updateScriptList(pubScripts, publishWithScriptsMenu, publishScript, "Publish with '%s' script", null);
 	}
 	
-	public void updateScriptList(final List<PublicationScriptProperties> scripts)
+	public static void updateScriptList(final List<PublicationScriptProperties> scripts, final Menu scriptsMenu, final ToggleGroup toggleGroup, 
+			final String format, final EventHandler<ActionEvent> eventHandler)
 	{
-		while (publishWithScriptsMenu.getItems().size() > 0)
+		while (scriptsMenu.getItems().size() > 0)
 		{
-			publishWithScriptsMenu.getItems().remove(0);
+			scriptsMenu.getItems().remove(0);
 		}
 		
-		if (scripts.size() > 1)
+		if (scripts.size() > 0)
 		{
 			for (final PublicationScriptProperties script : scripts)
 			{
-				final RadioMenuItem item = new RadioMenuItem("Publish with '" + script.getName() + "' script");
-				item.setToggleGroup(publishScript);
+				final RadioMenuItem item = new RadioMenuItem(String.format(format, script.getName()));
+				item.setOnAction(eventHandler);
+				item.setToggleGroup(toggleGroup);
 				item.setUserData(script);
 				
-				publishWithScriptsMenu.getItems().add(item);
+				scriptsMenu.getItems().add(item);
 			}
 		}
 	}
@@ -600,5 +602,11 @@ public class NewPublicationController implements Initializable, ScriptListChange
 	public void setEventManager(final EventManager eventManager)
 	{
 		this.eventManager = eventManager;
+	}
+
+	public void hidePublishButton()
+	{
+		this.publishButton.setVisible(false);
+		
 	}
 }

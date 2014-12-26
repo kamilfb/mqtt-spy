@@ -19,7 +19,7 @@ package pl.baczkowicz.mqttspy.scripts;
  */
 public enum ScriptTypeEnum
 {
-	PUBLICATION("Script folder"), SUBSCRIPTION("Subscription"), BACKGROUND("Predefined");
+	PUBLICATION("Script folder"), SUBSCRIPTION("Subscription"), BACKGROUND("Predefined"), SEARCH("Search");
 	
 	private final String name;
 

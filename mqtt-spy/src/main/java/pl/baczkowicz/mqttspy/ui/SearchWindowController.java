@@ -34,6 +34,7 @@ import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.connectivity.MqttContent;
 import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
 import pl.baczkowicz.mqttspy.events.EventManager;
@@ -76,6 +77,8 @@ public class SearchWindowController extends AnchorPane implements Initializable,
 	private Stage stage;
 
 	private EventManager eventManager;
+
+	private MqttAsyncConnection connection;
 	
 	public void initialize(URL location, ResourceBundle resources)
 	{
@@ -130,6 +133,7 @@ public class SearchWindowController extends AnchorPane implements Initializable,
 		searchPaneController.setTab(tab);
 		searchPaneController.setEventManager(eventManager);
 		searchPaneController.setStore(store);
+		searchPaneController.setConnection(connection);
 		
 		//TODO: should this be added?
 		//subscriptionPaneEventDispatcher.addObserver(searchPaneController);
@@ -216,5 +220,10 @@ public class SearchWindowController extends AnchorPane implements Initializable,
 	public void setEventManager(final EventManager eventManager)
 	{
 		this.eventManager = eventManager;
+	}
+
+	public void setConnection(MqttAsyncConnection connection)
+	{
+		this.connection = connection;		
 	}
 }
