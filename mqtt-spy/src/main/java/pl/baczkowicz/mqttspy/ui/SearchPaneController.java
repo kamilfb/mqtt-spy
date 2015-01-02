@@ -224,6 +224,7 @@ public class SearchPaneController implements Initializable, MessageFormatChangeO
 		searchField.setText("");
 		searchField.setPromptText("type some text and press Enter to search");
 		searchField.setDisable(false);
+		caseSensitiveCheckBox.setVisible(true);
 	}
 	
 	private void onScriptSearch(final String scriptName)
@@ -231,6 +232,7 @@ public class SearchPaneController implements Initializable, MessageFormatChangeO
 		textLabel.setText("Search with script");
 		searchField.setText(scriptName);
 		searchField.setDisable(true);
+		caseSensitiveCheckBox.setVisible(false);
 	}
 	
 	@FXML
@@ -240,6 +242,7 @@ public class SearchPaneController implements Initializable, MessageFormatChangeO
 		searchField.setText("");
 		searchField.setPromptText("type inline JavaScript and press Enter to search");
 		searchField.setDisable(false);
+		caseSensitiveCheckBox.setVisible(false);
 	}
 	
 	public void requestSearchFocus()
@@ -273,7 +276,15 @@ public class SearchPaneController implements Initializable, MessageFormatChangeO
 			
 			// TODO: run script in true/false mode? Otherwise might look like it's been stopped or sth
 			scriptManager.runScriptFileWithMessage(script, ScriptManager.MESSAGE_PARAMETER, message, false);
-			found = (Boolean) script.getScriptRunner().getLastReturnValue();		
+			
+			if (script.getScriptRunner().getLastReturnValue() != null)
+			{
+				found = (Boolean) script.getScriptRunner().getLastReturnValue();
+			}
+			else
+			{
+				found = false;
+			}			
 		}
 		else
 		{

@@ -111,6 +111,9 @@ public class ScriptRunner implements Runnable
 	 */
 	private void runScript() throws FileNotFoundException, ScriptException
 	{
+		// Clear the last returned value
+		lastReturnValue = null;
+		
 		// Script in a file
 		if (script.getScriptFile() != null)
 		{
