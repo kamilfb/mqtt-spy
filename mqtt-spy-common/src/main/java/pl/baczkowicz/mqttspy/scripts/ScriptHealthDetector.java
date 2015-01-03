@@ -66,6 +66,12 @@ public class ScriptHealthDetector implements Runnable
 		
 		while (script.getStatus().equals(ScriptRunningState.RUNNING))
 		{
+			if (logger.isTraceEnabled())
+			{
+				logger.trace("Checking script {} for responsiveness, last touch = {}, timeout = {}, current time = {}", script.getName(), 
+					script.getPublicationScriptIO().getLastTouch(), script.getScriptTimeout(), TimeUtils.getMonotonicTime());
+			}
+			
 			if (script.getPublicationScriptIO().getLastTouch() + script.getScriptTimeout() < TimeUtils.getMonotonicTime())
 			{
 				logger.warn("Script {} detected as frozen, last touch = {}, current time = {}", script.getName(), 
@@ -78,7 +84,7 @@ public class ScriptHealthDetector implements Runnable
 				break;
 			}
 		}
-		// TODO: what if it freezes for the second time?
+		// TODO: what if it freezes for the second time in the same run?
 		
 		ThreadingUtils.logEnding();
 	}

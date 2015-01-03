@@ -31,7 +31,7 @@ public class Script extends BasicScriptProperties
 	private ScriptRunningState status;
 	
 	/** Number of messages published by the script. */
-	private Long messagesPublished;
+	private long messagesPublished;
 
 	/** Timestamp of the last publication. */
 	private Date lastPublished;
@@ -50,6 +50,9 @@ public class Script extends BasicScriptProperties
 	
 	/** The script runner - dedicated runnable for that script. */
 	private ScriptRunner scriptRunner;
+	
+	/** Observer of any changes to script's properties. */
+	private ScriptChangeObserver observer;
 
 	/**
 	 * Creates a script.
@@ -72,6 +75,17 @@ public class Script extends BasicScriptProperties
 			this.scriptRunner = new ScriptRunner(eventManager, this, executor);
 		}
 	}
+	
+	/**
+	 * Notifies an observer a change has occurred.
+	 */
+	protected void nofityChange()
+	{
+		if (observer != null)
+		{
+			observer.onChange();
+		}
+	}
 
 	// ===============================
 	// === Setters and getters =======
@@ -79,7 +93,20 @@ public class Script extends BasicScriptProperties
 	
 	public void setMessagesPublished(final long messageCount)
 	{
-		this.messagesPublished = messageCount;
+		this.messagesPublished = messageCount;		
+		nofityChange();
+	}
+	
+	public void setLastPublished(final Date lastPublishedDate)
+	{
+		this.lastPublished = lastPublishedDate;
+		nofityChange();
+	}
+	
+	public void setStatus(final ScriptRunningState status)
+	{
+		this.status = status;
+		nofityChange();
 	}
 	
 	public Date getLastPublishedDate()
@@ -87,19 +114,9 @@ public class Script extends BasicScriptProperties
 		return lastPublished;
 	}
 
-	public Long getMessagesPublished()
+	public long getMessagesPublished()
 	{
 		return messagesPublished;
-	}
-
-	public void setLastPublished(final Date lastPublishedDate)
-	{
-		this.lastPublished = lastPublishedDate;
-	}
-	
-	public void setStatus(final ScriptRunningState status)
-	{
-		this.status = status;
 	}
 	
 	public File getScriptFile()
@@ -126,7 +143,6 @@ public class Script extends BasicScriptProperties
 	{
 		return scriptIO;
 	}
-
 
 	public void setScriptEngine(final ScriptEngine scriptEngine)
 	{
@@ -161,5 +177,30 @@ public class Script extends BasicScriptProperties
 	public void setScriptContent(final String scriptContent)
 	{
 		this.scriptContent = scriptContent;
+	}
+	
+	public static String getScriptIdFromFile(final File file)
+	{
+		return file.getAbsolutePath();
+	}
+	
+	public String getScriptId()
+	{
+		if (scriptFile == null)
+		{
+			return null;
+		}
+		
+		return getScriptIdFromFile(scriptFile);
+	}
+
+	/**
+	 * Sets the observer of the script properties.
+	 * 
+	 * @param observer the observer to set
+	 */
+	public void setObserver(ScriptChangeObserver observer)
+	{
+		this.observer = observer;
 	}
 }

@@ -14,22 +14,20 @@
  */
 package pl.baczkowicz.mqttspy.ui.properties;
 
-import java.util.Date;
-
-import pl.baczkowicz.mqttspy.common.generated.ScriptDetails;
-import pl.baczkowicz.mqttspy.scripts.Script;
-import pl.baczkowicz.mqttspy.scripts.ScriptRunningState;
-import pl.baczkowicz.mqttspy.scripts.ScriptTypeEnum;
-import pl.baczkowicz.mqttspy.utils.TimeUtils;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
+import pl.baczkowicz.mqttspy.scripts.Script;
+import pl.baczkowicz.mqttspy.scripts.ScriptChangeObserver;
+import pl.baczkowicz.mqttspy.scripts.ScriptRunningState;
+import pl.baczkowicz.mqttspy.scripts.ScriptTypeEnum;
+import pl.baczkowicz.mqttspy.utils.TimeUtils;
 
 /**
  * This represents a single row displayed in the scripts table.
  */
-public class PublicationScriptProperties extends Script
+public class PublicationScriptProperties implements ScriptChangeObserver
 {
 	private SimpleObjectProperty<ScriptRunningState> statusProperty;
 	
@@ -41,15 +39,31 @@ public class PublicationScriptProperties extends Script
 	
 	private SimpleBooleanProperty repeatProperty;
 	
-	public PublicationScriptProperties()
+	private Script script;
+	
+	public PublicationScriptProperties(final Script script)
 	{
-		super();
+		this.script = script;
 		
 		this.statusProperty = new SimpleObjectProperty<ScriptRunningState>(ScriptRunningState.NOT_STARTED);		
 		this.typeProperty = new SimpleObjectProperty<ScriptTypeEnum>(ScriptTypeEnum.PUBLICATION);
 		this.lastPublishedProperty = new SimpleStringProperty("");
 		this.countProperty = new SimpleLongProperty(0);
 		this.repeatProperty = new SimpleBooleanProperty(false);
+		
+		this.repeatProperty.set(script.getScriptDetails().isRepeat());
+		update();
+	}
+	
+	public void update()
+	{
+		this.countProperty.set(script.getMessagesPublished());
+		this.statusProperty().set(script.getStatus());
+		
+		if (script.getLastPublishedDate() != null)
+		{
+			this.lastPublishedProperty.set(TimeUtils.DATE_WITH_SECONDS_SDF.format(script.getLastPublishedDate()));
+		}
 	}
 	
 	public SimpleObjectProperty<ScriptRunningState> statusProperty()
@@ -77,32 +91,45 @@ public class PublicationScriptProperties extends Script
 		return this.repeatProperty;
 	}
 	
+	/**
+	 * Gets the script name.
+	 * 
+	 * @return Name of the script
+	 */
+	public String getName()
+	{
+		return script.getName();
+	}
+	
+	/**
+	 * Gets the repeat flag.
+	 * 
+	 * @return True is the script is set to repeat
+	 */
 	public boolean isRepeat()
 	{
 		return this.repeatProperty.getValue();
 	}
 	
-	public void setScriptDetails(final ScriptDetails scriptDetails)
-	{
-		super.setScriptDetails(scriptDetails);
-		this.repeatProperty.set(scriptDetails.isRepeat());		
-	}
+	/**
+	 * Sets the repeat value.
+	 * 
+	 * @param value The new repeat value.
+	 */
+    public void setRepeat(final boolean value) 
+    {
+        this.script.getScriptDetails().setRepeat(value);
+        this.repeatProperty.set(script.getScriptDetails().isRepeat());
+    }
 	
-	public void setMessagesPublished(final long messageCount)
+	public Script getScript()
 	{
-		super.setMessagesPublished(messageCount);
-		this.countProperty.set(getMessagesPublished());
+		return script;
 	}
 
-	public void setLastPublished(final Date lastPublished)
+	@Override
+	public void onChange()
 	{
-		super.setLastPublished(lastPublished);	
-		this.lastPublishedProperty.set(TimeUtils.DATE_WITH_SECONDS_SDF.format(lastPublished));
-	}
-	
-	public void setStatus(final ScriptRunningState state)
-	{
-		super.setStatus(state);
-		this.statusProperty().set(getStatus());
+		update();		
 	}
 }

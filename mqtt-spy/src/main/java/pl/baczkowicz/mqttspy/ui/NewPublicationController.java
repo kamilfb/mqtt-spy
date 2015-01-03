@@ -246,22 +246,22 @@ public class NewPublicationController implements Initializable, ScriptListChange
 	@Override
 	public void onScriptListChange()
 	{
-		List<PublicationScriptProperties> scripts = scriptManager.getObservableScriptList();
+		final List<PublicationScriptProperties> scripts = scriptManager.getObservableScriptList();
 		
-		List<PublicationScriptProperties> pubScripts = new ArrayList<>();
+		final List<Script> pubScripts = new ArrayList<>();
 		
-		for (final PublicationScriptProperties script : scripts)
+		for (final PublicationScriptProperties properties : scripts)
 		{
-			if (ScriptTypeEnum.PUBLICATION.equals(script.typeProperty().getValue()))
+			if (ScriptTypeEnum.PUBLICATION.equals(properties.typeProperty().getValue()))
 			{
-				pubScripts.add(script);
+				pubScripts.add(properties.getScript());
 			}
 		}
 		
 		updateScriptList(pubScripts, publishWithScriptsMenu, publishScript, "Publish with '%s' script", null);
 	}
 	
-	public static void updateScriptList(final List<PublicationScriptProperties> scripts, final Menu scriptsMenu, final ToggleGroup toggleGroup, 
+	public static void updateScriptList(final List<Script> scripts, final Menu scriptsMenu, final ToggleGroup toggleGroup, 
 			final String format, final EventHandler<ActionEvent> eventHandler)
 	{
 		while (scriptsMenu.getItems().size() > 0)
@@ -271,7 +271,7 @@ public class NewPublicationController implements Initializable, ScriptListChange
 		
 		if (scripts.size() > 0)
 		{
-			for (final PublicationScriptProperties script : scripts)
+			for (final Script script : scripts)
 			{
 				final RadioMenuItem item = new RadioMenuItem(String.format(format, script.getName()));
 				item.setOnAction(eventHandler);

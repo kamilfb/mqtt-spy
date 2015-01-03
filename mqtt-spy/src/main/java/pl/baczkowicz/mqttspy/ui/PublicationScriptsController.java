@@ -142,10 +142,10 @@ public class PublicationScriptsController implements Initializable, ScriptStateC
 								this.setDisable(false);
 								if (logger.isTraceEnabled())
 								{
-									logger.trace("Setting repeat for {} to {}", item.getName(), checked);
+									logger.trace("Setting repeat for {} to {}", item.getScript().getName(), checked);
 								}
 								
-								item.repeatProperty().setValue(checked);
+								item.setRepeat(checked);
 							}
 							else
 							{
@@ -301,7 +301,7 @@ public class PublicationScriptsController implements Initializable, ScriptStateC
 	
 	public void startScript(final PublicationScriptProperties item)
 	{
-		scriptManager.runScript(item, true);
+		scriptManager.runScript(item.getScript(), true);
 	}
 	
 	public void stopScript(final File file)
@@ -344,7 +344,7 @@ public class PublicationScriptsController implements Initializable, ScriptStateC
 						.getSelectedItem();
 				if (item != null)
 				{
-					stopScript(item.getScriptFile());
+					stopScript(item.getScript().getScriptFile());
 				}
 			}
 		});

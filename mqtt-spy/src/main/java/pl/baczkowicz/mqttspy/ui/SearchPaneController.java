@@ -16,6 +16,7 @@ package pl.baczkowicz.mqttspy.ui;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Queue;
 import java.util.ResourceBundle;
@@ -37,21 +38,17 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.HBox;
-
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.connectivity.MqttContent;
 import pl.baczkowicz.mqttspy.events.EventManager;
-import pl.baczkowicz.mqttspy.events.observers.MessageFormatChangeObserver;
 import pl.baczkowicz.mqttspy.events.observers.MessageAddedObserver;
+import pl.baczkowicz.mqttspy.events.observers.MessageFormatChangeObserver;
 import pl.baczkowicz.mqttspy.events.queuable.ui.MqttSpyUIEvent;
-import pl.baczkowicz.mqttspy.scripts.InteractiveScriptManager;
 import pl.baczkowicz.mqttspy.scripts.Script;
 import pl.baczkowicz.mqttspy.scripts.ScriptManager;
-import pl.baczkowicz.mqttspy.scripts.ScriptTypeEnum;
 import pl.baczkowicz.mqttspy.storage.BasicMessageStore;
 import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
 import pl.baczkowicz.mqttspy.ui.properties.MqttContentProperties;
-import pl.baczkowicz.mqttspy.ui.properties.PublicationScriptProperties;
 import pl.baczkowicz.mqttspy.ui.search.SearchOptions;
 
 /**
@@ -59,8 +56,6 @@ import pl.baczkowicz.mqttspy.ui.search.SearchOptions;
  */
 public class SearchPaneController implements Initializable, MessageFormatChangeObserver, MessageAddedObserver
 {
-	// private final static Logger logger = LoggerFactory.getLogger(SearchPaneController.class);
-	
 	private final static int MAX_SEARCH_VALUE_CHARACTERS = 15;
 	
 	@FXML
@@ -124,7 +119,7 @@ public class SearchPaneController implements Initializable, MessageFormatChangeO
 
 	private MqttAsyncConnection connection;
 
-	private InteractiveScriptManager scriptManager;
+	private ScriptManager scriptManager;
 	
 	public void initialize(URL location, ResourceBundle resources)
 	{
@@ -176,29 +171,31 @@ public class SearchPaneController implements Initializable, MessageFormatChangeO
 		eventManager.registerChangeMessageIndexFirstObserver(messageNavigationPaneController, foundMessageStore);
 		eventManager.registerIncrementMessageIndexObserver(messageNavigationPaneController, foundMessageStore);
 		
-		scriptManager = new InteractiveScriptManager(eventManager, connection);
+		scriptManager = new ScriptManager(null, null, connection);
 		refreshList();
 	}
 	
 	private void refreshList()
 	{
-		scriptManager.addScripts(connection.getProperties().getConfiguredProperties().getSearchScripts(), ScriptTypeEnum.SEARCH);
-		onScriptListChange();
+		final String directory = connection.getProperties().getConfiguredProperties().getSearchScripts();
+		
+		if (directory != null && !directory.isEmpty())
+		{
+			scriptManager.addScripts(directory);
+			onScriptListChange();	
+		}		
 	}
 	
 	public void onScriptListChange()
 	{
 		// TODO: these are not really publication scripts - might need renaming these, or use the SM from common?
-		List<PublicationScriptProperties> scripts = scriptManager.getObservableScriptList();
+		final Collection<Script> scripts = scriptManager.getScripts().values();
 		
-		List<PublicationScriptProperties> pubScripts = new ArrayList<>();
+		final List<Script> pubScripts = new ArrayList<>();
 		
-		for (final PublicationScriptProperties script : scripts)
+		for (final Script script : scripts)
 		{
-			if (ScriptTypeEnum.SEARCH.equals(script.typeProperty().getValue()))
-			{
-				pubScripts.add(script);
-			}
+			pubScripts.add(script);
 		}
 		
 		NewPublicationController.updateScriptList(pubScripts, searchWithScriptsMenu, searchMethod, "Search with '%s' script", new EventHandler<ActionEvent>()
@@ -206,7 +203,7 @@ public class SearchPaneController implements Initializable, MessageFormatChangeO
 			@Override
 			public void handle(ActionEvent event)
 			{				
-				onScriptSearch(((PublicationScriptProperties) searchMethod.getSelectedToggle().getUserData()).getName());				
+				onScriptSearch(((Script) searchMethod.getSelectedToggle().getUserData()).getName());				
 			}
 		});
 	}
@@ -288,7 +285,7 @@ public class SearchPaneController implements Initializable, MessageFormatChangeO
 		}
 		else
 		{
-			final PublicationScriptProperties script = ((PublicationScriptProperties) searchMethod.getSelectedToggle().getUserData());
+			final Script script = ((Script) searchMethod.getSelectedToggle().getUserData());
 			
 			// TODO: run script in true/false mode? Otherwise might look like it's been stopped or sth
 			scriptManager.runScriptFileWithMessage(script, ScriptManager.MESSAGE_PARAMETER, message, false);

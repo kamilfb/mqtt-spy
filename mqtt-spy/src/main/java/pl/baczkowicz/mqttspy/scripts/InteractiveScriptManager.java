@@ -20,25 +20,19 @@ import java.util.List;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import pl.baczkowicz.mqttspy.common.generated.ScriptDetails;
 import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
 import pl.baczkowicz.mqttspy.configuration.generated.TabbedSubscriptionDetails;
 import pl.baczkowicz.mqttspy.connectivity.IMqttConnection;
 import pl.baczkowicz.mqttspy.ui.properties.PublicationScriptProperties;
 import pl.baczkowicz.mqttspy.ui.utils.RunLaterExecutor;
+import pl.baczkowicz.mqttspy.utils.FileUtils;
 
 /**
  * Script manager that interacts with the UI.
  */
 public class InteractiveScriptManager extends ScriptManager
 {
-	/** Diagnostic logger. */
-	private final static Logger logger = LoggerFactory.getLogger(InteractiveScriptManager.class);
-	
 	/** List of scripts, as displayed on the UI. */
 	private final ObservableList<PublicationScriptProperties> observableScriptList = FXCollections.observableArrayList();
 	
@@ -51,15 +45,14 @@ public class InteractiveScriptManager extends ScriptManager
 	{
 		final List<File> files = new ArrayList<File>(); 
 		
-		// Adds new entries to the list of new files are present
 		if (directory != null && !directory.isEmpty())
 		{
-			files.addAll(getFileNamesForDirectory(directory, ".js"));				
+			files.addAll(FileUtils.getFileNamesForDirectory(directory, ".js"));				
 		}
 		else
 		{
 			// If directory defined, use the mqtt-spy's home directory
-			files.addAll(getFileNamesForDirectory(ConfigurationManager.getDefaultHomeDirectory(), ".js"));
+			files.addAll(FileUtils.getFileNamesForDirectory(ConfigurationManager.getDefaultHomeDirectory(), ".js"));
 		}	
 		
 		populateScriptsFromFileList(files, type);
@@ -82,99 +75,34 @@ public class InteractiveScriptManager extends ScriptManager
 	
 	public void populateScriptsFromFileList(final List<File> files, final ScriptTypeEnum type)
 	{
-		for (final File scriptFile : files)
+		final List<Script> addedScripts = populateScriptsFromFileList(files);
+		
+		for (final Script script : addedScripts)
 		{
-			PublicationScriptProperties script = retrievePublicationScriptProperties(observableScriptList, scriptFile);
-			if (script == null)					
-			{
-				final String scriptName = getScriptName(scriptFile);
-				
-				final PublicationScriptProperties properties = new PublicationScriptProperties();
-				properties.typeProperty().setValue(type);
-				
-				createFileBasedScript(properties, scriptName, scriptFile, connection, new ScriptDetails(false, scriptFile.getName())); 			
-				
-				observableScriptList.add(properties);
-				getScripts().put(scriptFile.getAbsolutePath(), properties);
-			}				
-		}			
+			final PublicationScriptProperties properties = new PublicationScriptProperties(script);
+			properties.typeProperty().setValue(type);
+			script.setObserver(properties);
+			observableScriptList.add(properties);
+		}		
 	}
 	
 	public void populateScripts(final List<ScriptDetails> scriptDetails, final ScriptTypeEnum type)
 	{
-		for (final ScriptDetails details : scriptDetails)
-		{
-			final File scriptFile = new File(details.getFile());
-			
-			if (!scriptFile.exists())					
-			{
-				logger.warn("Script {} does not exist!", details.getFile());
-			}
-			else
-			{
-				logger.info("Adding script {}", details.getFile());
-							
-				PublicationScriptProperties script = retrievePublicationScriptProperties(observableScriptList, scriptFile);
-				if (script == null)					
-				{
-					final String scriptName = getScriptName(scriptFile);
-					
-					final PublicationScriptProperties properties = new PublicationScriptProperties();
-					properties.typeProperty().setValue(type);
-					
-					createFileBasedScript(properties, scriptName, scriptFile, connection, details); 			
-					
-					observableScriptList.add(properties);
-					getScripts().put(scriptFile.getAbsolutePath(), properties);
-				}	
-			}
-		}			
-	}
-	
-	private static PublicationScriptProperties retrievePublicationScriptProperties(final List<PublicationScriptProperties> scriptList, final File scriptFile)
-	{
-		for (final PublicationScriptProperties script : scriptList)
-		{
-			if (script.getScriptFile().getAbsolutePath().equals(scriptFile.getAbsolutePath()))
-			{
-				return script;
-			}
-		}
+		final List<Script> addedScripts = populateScripts(scriptDetails);
 		
-		return null;
-	}
-	
-	private static List<File> getFileNamesForDirectory(final String directory, final String extension)
-	{
-		final List<File> files = new ArrayList<File>();
-		
-		final File folder = new File(directory);
-		File[] listOfFiles = folder.listFiles();
-
-		if (listOfFiles != null)
+		for (final Script script : addedScripts)
 		{
-			for (int i = 0; i < listOfFiles.length; i++)
-			{
-				if (listOfFiles[i].isFile())
-				{
-					if (extension == null || extension.isEmpty() ||  listOfFiles[i].getName().endsWith(extension))
-					{
-						files.add(listOfFiles[i]);
-					}
-				}
-			}
+			final PublicationScriptProperties properties = new PublicationScriptProperties(script);
+			properties.typeProperty().setValue(type);
+			script.setObserver(properties);
+			observableScriptList.add(properties);
 		}
-		else
-		{
-			logger.error("No files in {}", directory);
-		}
-		
-		return files;
 	}
 	
 	public void stopScriptFile(final File scriptFile)
 	{
-		final Thread scriptThread = getPublicationScriptProperties(observableScriptList, getScriptName(scriptFile)).getScriptRunner().getThread();
+		final Script script = getPublicationScriptProperties(observableScriptList, getScriptName(scriptFile)).getScript();
+		final Thread scriptThread = script.getScriptRunner().getThread();
 
 		if (scriptThread != null)
 		{
@@ -184,11 +112,11 @@ public class InteractiveScriptManager extends ScriptManager
 	
 	public static PublicationScriptProperties getPublicationScriptProperties(final ObservableList<PublicationScriptProperties> observableScriptList, final String scriptName)
 	{
-		for (final PublicationScriptProperties script : observableScriptList)
+		for (final PublicationScriptProperties properties : observableScriptList)
 		{
-			if (script.getName().equals(scriptName))
+			if (properties.getScript().getName().equals(scriptName))
 			{
-				return script;				
+				return properties;				
 			}
 		}
 		

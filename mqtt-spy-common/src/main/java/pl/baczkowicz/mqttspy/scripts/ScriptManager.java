@@ -15,6 +15,7 @@
 package pl.baczkowicz.mqttspy.scripts;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +35,7 @@ import pl.baczkowicz.mqttspy.connectivity.IMqttConnection;
 import pl.baczkowicz.mqttspy.exceptions.CriticalException;
 import pl.baczkowicz.mqttspy.messages.IMqttMessage;
 import pl.baczkowicz.mqttspy.scripts.io.ScriptIO;
+import pl.baczkowicz.mqttspy.utils.FileUtils;
 
 /**
  * This class manages script creation and execution.
@@ -144,6 +146,98 @@ public class ScriptManager
 		{
 			addScript(script);
 		}
+	}
+	
+	/**
+	 * Adds scripts from the given directory.
+	 * 
+	 * @param directory The directory to search for scripts
+	 */
+	public void addScripts(final String directory)
+	{
+		final List<File> files = new ArrayList<File>(); 
+		
+		if (directory != null && !directory.isEmpty())
+		{
+			files.addAll(FileUtils.getFileNamesForDirectory(directory, ".js"));				
+		}
+		else
+		{
+			logger.error("Given directory is empty");
+		}	
+		
+		populateScriptsFromFileList(files);
+	}
+	
+	/**
+	 * Populates scripts from a list of files.
+	 * 
+	 * @param files List of script files
+	 * 
+	 * @return The list of created script objects
+	 */
+	public List<Script> populateScriptsFromFileList(final List<File> files)
+	{
+		final List<Script> addedScripts = new ArrayList<>();
+		
+		for (final File scriptFile : files)
+		{
+			Script script = scripts.get(Script.getScriptIdFromFile(scriptFile));
+			
+			if (script == null)					
+			{
+				final String scriptName = getScriptName(scriptFile);				
+				script = new Script();
+				
+				createFileBasedScript(script, scriptName, scriptFile, connection, new ScriptDetails(false, scriptFile.getName())); 			
+				
+				addedScripts.add(script);
+				addScript(script);
+			}				
+		}
+		
+		return addedScripts;
+	}
+	
+	/**
+	 * Populates scripts from a list of script details.
+	 * 
+	 * @param scriptDetails List of script details
+	 * 
+	 * @return The list of created script objects
+	 */
+	public List<Script> populateScripts(final List<ScriptDetails> scriptDetails)
+	{
+		final List<Script> addedScripts = new ArrayList<>();
+		
+		for (final ScriptDetails details : scriptDetails)
+		{
+			final File scriptFile = new File(details.getFile());
+			
+			if (!scriptFile.exists())					
+			{
+				logger.warn("Script {} does not exist!", details.getFile());
+			}
+			else
+			{
+				logger.info("Adding script {}", details.getFile());
+							
+				Script script = scripts.get(Script.getScriptIdFromFile(scriptFile));
+				
+				if (script == null)					
+				{
+					final String scriptName = getScriptName(scriptFile);
+					script = new Script();
+					
+					createFileBasedScript(script, scriptName, scriptFile, connection, details); 			
+					
+					addedScripts.add(script);
+					addScript(script);
+				}	
+			}
+		}			
+		
+		return addedScripts;
 	}
 	
 	/**
@@ -320,5 +414,15 @@ public class ScriptManager
 	public Map<String, Script> getScripts()
 	{
 		return scripts;
+	}
+	
+	public void addScript(final Script script)
+	{
+		scripts.put(script.getScriptId(), script);
+	}
+	
+	public boolean containsScript(final Script script)
+	{
+		return scripts.containsKey(script.getScriptId());
 	}
 }
