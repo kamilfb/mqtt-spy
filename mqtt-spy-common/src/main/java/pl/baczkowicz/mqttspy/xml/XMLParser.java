@@ -335,6 +335,10 @@ public class XMLParser
 	{
 		try
 		{
+			// Format the output
+			marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+			
+			// Convert the object to XML
 			marshaller.marshal(objectToSave, file);
 		}
 		catch (JAXBException e)
