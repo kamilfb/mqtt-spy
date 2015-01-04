@@ -324,7 +324,7 @@ public class XMLParser
 	}
 
 	/**
-	 * Marshals and saves the given object to a file.
+	 * Marshals and saves the given object to a file. The generated XML is formatted.
 	 * 
 	 * @param file The file to write to
 	 * @param objectToSave The object to save
@@ -338,7 +338,7 @@ public class XMLParser
 			// Format the output
 			marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
 			
-			// Convert the object to XML
+			// Convert the object to XML, and save to given file
 			marshaller.marshal(objectToSave, file);
 		}
 		catch (JAXBException e)
