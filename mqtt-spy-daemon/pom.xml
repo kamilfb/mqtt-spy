@@ -26,7 +26,7 @@
   		<dependency>
 			<groupId>pl.baczkowicz.mqttspy</groupId>
 			<artifactId>mqtt-spy-common</artifactId>
-			<version>0.0.2</version>
+			<version>0.0.4</version>
 		</dependency>
 
 		<!--=== TEST === -->

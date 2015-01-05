@@ -124,7 +124,7 @@ public class ScriptManager
 	{
 		final Script script = new Script();
 		script.setScriptContent(content);
-		script.setScriptDetails(new ScriptDetails(false, null));
+		script.setScriptDetails(new ScriptDetails(true, false, null));
 				
 		createScript(script, scriptName, connection);
 		
@@ -189,7 +189,7 @@ public class ScriptManager
 				final String scriptName = getScriptName(scriptFile);				
 				script = new Script();
 				
-				createFileBasedScript(script, scriptName, scriptFile, connection, new ScriptDetails(false, scriptFile.getName())); 			
+				createFileBasedScript(script, scriptName, scriptFile, connection, new ScriptDetails(true, false, scriptFile.getName())); 			
 				
 				addedScripts.add(script);
 				addScript(script);

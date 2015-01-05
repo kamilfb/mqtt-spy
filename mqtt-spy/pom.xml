@@ -4,7 +4,7 @@
 
 	<groupId>pl.baczkowicz.mqttspy</groupId>
 	<artifactId>mqtt-spy</artifactId>
-	<version>0.1.5-beta</version>
+	<version>0.1.6-beta</version>
 	<packaging>jar</packaging>
 
 	<name>mqtt-spy</name>
@@ -28,7 +28,7 @@
 		<dependency>
 			<groupId>pl.baczkowicz.mqttspy</groupId>
 			<artifactId>mqtt-spy-common</artifactId>
-			<version>0.0.3</version>
+			<version>0.0.4</version>
 		</dependency>
 
 		<dependency>

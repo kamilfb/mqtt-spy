@@ -70,7 +70,7 @@ public class SimpleMqttConnectionRunnable implements Runnable
 			{	
 				if (neverStarted && subscription.getScriptFile() != null)
 				{
-					scriptManager.addScript(new ScriptDetails(false, subscription.getScriptFile()));
+					scriptManager.addScript(new ScriptDetails(true, false, subscription.getScriptFile()));
 				}
 					
 				connection.subscribe(subscription.getTopic(), subscription.getQos());							

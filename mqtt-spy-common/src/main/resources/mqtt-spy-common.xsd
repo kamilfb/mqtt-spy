@@ -100,6 +100,7 @@
 		<!-- TODO
 		<xs:attribute 	name="name" 				type="xs:string" />
 		-->
+		<xs:attribute 	name="autoStart"			type="xs:boolean" />
 		<xs:attribute 	name="repeat"				type="xs:boolean" />
 	</xs:complexType>
 	

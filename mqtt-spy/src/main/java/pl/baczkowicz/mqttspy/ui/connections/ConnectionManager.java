@@ -48,7 +48,7 @@ import pl.baczkowicz.mqttspy.events.queuable.ui.MqttSpyUIEvent;
 import pl.baczkowicz.mqttspy.exceptions.MqttSpyException;
 import pl.baczkowicz.mqttspy.messages.ReceivedMqttMessage;
 import pl.baczkowicz.mqttspy.scripts.InteractiveScriptManager;
-import pl.baczkowicz.mqttspy.scripts.ScriptTypeEnum;
+import pl.baczkowicz.mqttspy.scripts.Script;
 import pl.baczkowicz.mqttspy.stats.StatisticsManager;
 import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
 import pl.baczkowicz.mqttspy.ui.ConnectionController;
@@ -290,6 +290,12 @@ public class ConnectionManager
 		connectionControllers.remove(connection);
 		connectionTabs.remove(connection);
 		subscriptionManagers.remove(connection);
+		
+		// Stop all scripts
+		for (final Script script : connection.getScriptManager().getScripts().values())
+		{
+			connection.getScriptManager().stopScriptFile(script.getScriptFile());
+		}		
 	}
 	
 	/**
@@ -320,8 +326,9 @@ public class ConnectionManager
 		final InteractiveScriptManager scriptManager = new InteractiveScriptManager(eventManager, connection);
 		connection.setScriptManager(scriptManager);
 		
+		// TODO: Removed, done in the publication scripts controller
 		// TODO: not sure this is the best place for it, and at the moment there is no UI controls to populate that
-		scriptManager.populateScripts(connectionProperties.getConfiguredProperties().getBackgroundScript(), ScriptTypeEnum.BACKGROUND);	
+		// scriptManager.populateScripts(connectionProperties.getConfiguredProperties().getBackgroundScript(), ScriptTypeEnum.BACKGROUND);	
 
 		// Store the created connection
 		connections.put(connectionProperties.getConfiguredProperties().getId(), connection);

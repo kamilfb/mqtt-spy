@@ -3,7 +3,7 @@
 	
 	<groupId>pl.baczkowicz.mqttspy</groupId>
 	<artifactId>mqtt-spy-common</artifactId>
-	<version>0.0.3</version>
+	<version>0.0.4</version>
   
   	<properties>
    		<timestamp>${maven.build.timestamp}</timestamp>

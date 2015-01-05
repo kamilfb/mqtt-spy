@@ -61,8 +61,9 @@ public class MqttEventHandler implements Runnable
 			connection.recordSuccessfulConnection();
 			
 			// This should restore any previously requested subscriptions
-			logger.info("About to resubscribe to all requested topics");
+			logger.info("About to resubscribe to all requested topics");			
 			connection.resubscribeAll(true);
+			connection.startBackgroundScripts();
 		}
 		
 		if (event instanceof MqttDisconnectionAttemptSuccessEvent)

@@ -14,6 +14,7 @@
  */
 package pl.baczkowicz.mqttspy.connectivity;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -24,10 +25,12 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import pl.baczkowicz.mqttspy.common.generated.ScriptDetails;
 import pl.baczkowicz.mqttspy.connectivity.reconnection.ReconnectionManager;
 import pl.baczkowicz.mqttspy.events.EventManager;
 import pl.baczkowicz.mqttspy.events.queuable.ui.MqttSpyUIEvent;
 import pl.baczkowicz.mqttspy.scripts.InteractiveScriptManager;
+import pl.baczkowicz.mqttspy.scripts.Script;
 import pl.baczkowicz.mqttspy.stats.StatisticsManager;
 import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
 
@@ -161,6 +164,34 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection
 			getTopicMatcher().addSubscriptionToStore(subscription.getTopic());
 		}
 	}
+	
+	public void startBackgroundScripts()	
+	{
+		final boolean firstConnection = getConnectionAttempts() == 1;
+		
+		// Attempt starting background scripts
+		if (firstConnection)
+		{
+			for (final ScriptDetails scriptDetails : properties.getConfiguredProperties().getBackgroundScript())
+			{
+				final File scriptFile = new File(scriptDetails.getFile());							
+				final Script script = scriptManager.getScripts().get(Script.getScriptIdFromFile(scriptFile));
+				
+				if (scriptDetails.isAutoStart() && scriptFile.exists() && script != null)
+				{					
+					scriptManager.runScript(script, true);
+				}
+				else if (!scriptFile.exists())
+				{
+					logger.warn("File " + scriptDetails.getFile() + " does not exist");
+				}
+				else if (script == null)
+				{
+					logger.warn("Couldn't retrieve a script for " + scriptDetails.getFile());
+				}					
+			}
+		}
+	}
 
 	public boolean resubscribeAll(final boolean requestedOnly)
 	{
@@ -169,7 +200,8 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection
 				&& connectionDetails.getReconnectionSettings().isResubscribe();
 		
 		final boolean tryAutoSubscribe = firstConnection || resubscribeEnabled;
-				
+			
+		// Attempt re-subscription
 		for (final MqttSubscription subscription : subscriptions.values())
 		{
 			logger.info("Subscription {} status [requestedOnly = {}, firstConnection = {}, resubscribeEnabled = {}, subscriptionRequested = {}", 
@@ -179,7 +211,7 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection
 			{
 				resubscribe(subscription);
 			}
-		}
+		}		
 
 		return true;
 	}

@@ -20,6 +20,10 @@ import java.util.List;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import pl.baczkowicz.mqttspy.common.generated.ScriptDetails;
 import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
 import pl.baczkowicz.mqttspy.configuration.generated.TabbedSubscriptionDetails;
@@ -33,12 +37,28 @@ import pl.baczkowicz.mqttspy.utils.FileUtils;
  */
 public class InteractiveScriptManager extends ScriptManager
 {
+	/** Diagnostic logger. */
+	private final static Logger logger = LoggerFactory.getLogger(InteractiveScriptManager.class);
+	
 	/** List of scripts, as displayed on the UI. */
 	private final ObservableList<PublicationScriptProperties> observableScriptList = FXCollections.observableArrayList();
 	
 	public InteractiveScriptManager(final IScriptEventManager eventManager, final IMqttConnection connection)
 	{
 		super(eventManager, new RunLaterExecutor(), connection);
+	}
+	
+	public void addScripts(final List<ScriptDetails> scriptDetails, final ScriptTypeEnum type)
+	{
+		final List<Script> addedScripts = populateScripts(scriptDetails);
+		
+		for (final Script script : addedScripts)
+		{
+			final PublicationScriptProperties properties = new PublicationScriptProperties(script);
+			properties.typeProperty().setValue(type);
+			script.setObserver(properties);
+			observableScriptList.add(properties);
+		}
 	}
 	
 	public void addScripts(final String directory, final ScriptTypeEnum type)
@@ -66,11 +86,11 @@ public class InteractiveScriptManager extends ScriptManager
 		{
 			if (sub.getScriptFile() != null  && !sub.getScriptFile().trim().isEmpty())
 			{
-				scripts.add(new ScriptDetails(false, sub.getScriptFile()));
+				scripts.add(new ScriptDetails(false, false, sub.getScriptFile()));
 			}
 		}
 		
-		populateScripts(scripts, ScriptTypeEnum.SUBSCRIPTION);
+		addScripts(scripts, ScriptTypeEnum.SUBSCRIPTION);
 	}
 	
 	public void populateScriptsFromFileList(final List<File> files, final ScriptTypeEnum type)
@@ -86,27 +106,20 @@ public class InteractiveScriptManager extends ScriptManager
 		}		
 	}
 	
-	public void populateScripts(final List<ScriptDetails> scriptDetails, final ScriptTypeEnum type)
-	{
-		final List<Script> addedScripts = populateScripts(scriptDetails);
-		
-		for (final Script script : addedScripts)
-		{
-			final PublicationScriptProperties properties = new PublicationScriptProperties(script);
-			properties.typeProperty().setValue(type);
-			script.setObserver(properties);
-			observableScriptList.add(properties);
-		}
-	}
-	
 	public void stopScriptFile(final File scriptFile)
 	{
 		final Script script = getPublicationScriptProperties(observableScriptList, getScriptName(scriptFile)).getScript();
-		final Thread scriptThread = script.getScriptRunner().getThread();
-
-		if (scriptThread != null)
+		
+		logger.debug("Stopping script " + script.getName());
+		
+		if (script.getScriptRunner() != null)
 		{
-			scriptThread.interrupt();
+			final Thread scriptThread = script.getScriptRunner().getThread();
+	
+			if (scriptThread != null)
+			{
+				scriptThread.interrupt();
+			}
 		}
 	}
 	

@@ -40,6 +40,7 @@ import org.jvnet.jaxb2_commons.lang.builder.JAXBToStringBuilder;
  * &lt;complexType name="Task">
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
+ *       &lt;attribute name="autoStart" type="{http://www.w3.org/2001/XMLSchema}boolean" />
  *       &lt;attribute name="repeat" type="{http://www.w3.org/2001/XMLSchema}boolean" />
  *     &lt;/restriction>
  *   &lt;/complexContent>
@@ -57,6 +58,8 @@ import org.jvnet.jaxb2_commons.lang.builder.JAXBToStringBuilder;
 public class Task implements CopyTo, Copyable, Equals, HashCode, ToString
 {
 
+    @XmlAttribute(name = "autoStart")
+    protected Boolean autoStart;
     @XmlAttribute(name = "repeat")
     protected Boolean repeat;
 
@@ -72,8 +75,33 @@ public class Task implements CopyTo, Copyable, Equals, HashCode, ToString
      * Fully-initialising value constructor
      * 
      */
-    public Task(final Boolean repeat) {
+    public Task(final Boolean autoStart, final Boolean repeat) {
+        this.autoStart = autoStart;
         this.repeat = repeat;
+    }
+
+    /**
+     * Gets the value of the autoStart property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link Boolean }
+     *     
+     */
+    public Boolean isAutoStart() {
+        return autoStart;
+    }
+
+    /**
+     * Sets the value of the autoStart property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link Boolean }
+     *     
+     */
+    public void setAutoStart(Boolean value) {
+        this.autoStart = value;
     }
 
     /**
@@ -102,6 +130,11 @@ public class Task implements CopyTo, Copyable, Equals, HashCode, ToString
 
     public void toString(ToStringBuilder toStringBuilder) {
         {
+            Boolean theAutoStart;
+            theAutoStart = this.isAutoStart();
+            toStringBuilder.append("autoStart", theAutoStart);
+        }
+        {
             Boolean theRepeat;
             theRepeat = this.isRepeat();
             toStringBuilder.append("repeat", theRepeat);
@@ -123,6 +156,7 @@ public class Task implements CopyTo, Copyable, Equals, HashCode, ToString
             return ;
         }
         final Task that = ((Task) object);
+        equalsBuilder.append(this.isAutoStart(), that.isAutoStart());
         equalsBuilder.append(this.isRepeat(), that.isRepeat());
     }
 
@@ -139,6 +173,7 @@ public class Task implements CopyTo, Copyable, Equals, HashCode, ToString
     }
 
     public void hashCode(HashCodeBuilder hashCodeBuilder) {
+        hashCodeBuilder.append(this.isAutoStart());
         hashCodeBuilder.append(this.isRepeat());
     }
 
@@ -150,6 +185,12 @@ public class Task implements CopyTo, Copyable, Equals, HashCode, ToString
 
     public Object copyTo(Object target, CopyBuilder copyBuilder) {
         final Task copy = ((target == null)?((Task) createCopy()):((Task) target));
+        {
+            Boolean sourceAutoStart;
+            sourceAutoStart = this.isAutoStart();
+            Boolean copyAutoStart = ((Boolean) copyBuilder.copy(sourceAutoStart));
+            copy.setAutoStart(copyAutoStart);
+        }
         {
             Boolean sourceRepeat;
             sourceRepeat = this.isRepeat();

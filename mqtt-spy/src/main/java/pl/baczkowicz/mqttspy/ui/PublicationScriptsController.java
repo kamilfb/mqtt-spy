@@ -52,7 +52,8 @@ import pl.baczkowicz.mqttspy.ui.properties.PublicationScriptProperties;
  */
 public class PublicationScriptsController implements Initializable, ScriptStateChangeObserver
 {
-	final static Logger logger = LoggerFactory.getLogger(PublicationScriptsController.class);
+	/** Diagnostic logger. */
+	private final static Logger logger = LoggerFactory.getLogger(PublicationScriptsController.class);
 	
 	@FXML
 	private TableView<PublicationScriptProperties> scriptTable;
@@ -281,13 +282,15 @@ public class PublicationScriptsController implements Initializable, ScriptStateC
 		refreshList();
 		scriptTable.setItems(scriptManager.getObservableScriptList());
 		
-		// Note: subscription script don't have context menus because they can't be started/stopped manually - for future, consider enabled/disabled
+		// Note: subscription scripts don't have context menus because they can't be started/stopped manually - for future, consider enabled/disabled
 		contextMenus.put(ScriptTypeEnum.PUBLICATION, createDirectoryTypeScriptTableContextMenu());		
+		contextMenus.put(ScriptTypeEnum.BACKGROUND, createDirectoryTypeScriptTableContextMenu());
 	}
 	
 	private void refreshList()
 	{
 		scriptManager.addScripts(connection.getProperties().getConfiguredProperties().getPublicationScripts(), ScriptTypeEnum.PUBLICATION);
+		scriptManager.addScripts(connection.getProperties().getConfiguredProperties().getBackgroundScript(), ScriptTypeEnum.BACKGROUND);
 		scriptManager.addSubscriptionScripts(connection.getProperties().getConfiguredProperties().getSubscription());
 		
 		// TODO: move this to script manager?

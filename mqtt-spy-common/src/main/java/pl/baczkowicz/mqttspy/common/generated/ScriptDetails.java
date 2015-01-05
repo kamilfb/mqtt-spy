@@ -74,8 +74,8 @@ public class ScriptDetails
      * Fully-initialising value constructor
      * 
      */
-    public ScriptDetails(final Boolean repeat, final String file) {
-        super(repeat);
+    public ScriptDetails(final Boolean autoStart, final Boolean repeat, final String file) {
+        super(autoStart, repeat);
         this.file = file;
     }
 
