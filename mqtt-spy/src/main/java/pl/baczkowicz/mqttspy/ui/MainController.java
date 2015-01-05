@@ -223,6 +223,7 @@ public class MainController
 			editConnectionsController.newConnection();
 		}
 
+		editConnectionsController.updateSelected();
 		editConnectionsStage.showAndWait();		
 		controlPanelPaneController.refreshConnectionsStatus();
 	}

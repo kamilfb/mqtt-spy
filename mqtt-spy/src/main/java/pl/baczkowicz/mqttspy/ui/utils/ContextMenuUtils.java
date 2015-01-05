@@ -23,12 +23,14 @@ import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.Tab;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
+import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
 import pl.baczkowicz.mqttspy.configuration.generated.TabbedSubscriptionDetails;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
 import pl.baczkowicz.mqttspy.events.EventManager;
 import pl.baczkowicz.mqttspy.stats.StatisticsManager;
 import pl.baczkowicz.mqttspy.ui.ConnectionController;
+import pl.baczkowicz.mqttspy.ui.SubscriptionController;
 import pl.baczkowicz.mqttspy.ui.connections.ConnectionManager;
 import pl.baczkowicz.mqttspy.ui.connections.SubscriptionManager;
 
@@ -36,20 +38,23 @@ import pl.baczkowicz.mqttspy.ui.connections.SubscriptionManager;
  * Context menu utils - mainly for creating various context menus.
  */
 public class ContextMenuUtils
-{
+{	
 	/**
 	 * Create context menu for the subscription tab.
 	 * 
 	 * @param connection The connection associated with the tab
 	 * @param subscription The subscription associated with the tab
 	 * @param eventManager The global event manager
-	 * @param subscriptionManager The global subscription manager
+	 * @param subscriptionManager The connection's subscription manager 
+	 * @param configurationManager The global configuration manager
 	 * 
 	 * @return The created context menu
 	 */
 	public static ContextMenu createSubscriptionTabContextMenu(
 			final MqttAsyncConnection connection, final MqttSubscription subscription, 
-			final EventManager eventManager, final SubscriptionManager subscriptionManager)
+			final EventManager eventManager, 
+			final SubscriptionManager subscriptionManager,
+			final ConfigurationManager configurationManager)
 	{
 		final ContextMenu contextMenu = new ContextMenu();
 
@@ -110,6 +115,31 @@ public class ContextMenuUtils
 		// Separator
 		contextMenu.getItems().add(new SeparatorMenuItem());
 		
+		// Adds/updates this subscription in the configuration file
+		final MenuItem addItem = new MenuItem("[Configuration] Add/update this subscription");
+		addItem.setOnAction(new EventHandler<ActionEvent>()
+		{
+			public void handle(ActionEvent e)
+			{
+				configurationManager.updateSubscriptionConfiguration(connection, subscription);
+			}
+		});
+		contextMenu.getItems().add(addItem);
+		
+		// Removes this subscription from the configuration file
+		final MenuItem removeItem = new MenuItem("[Configuration] Remove this subscription");
+		removeItem.setOnAction(new EventHandler<ActionEvent>()
+		{
+			public void handle(ActionEvent e)
+			{
+				configurationManager.deleteSubscriptionConfiguration(connection, subscription);
+			}
+		});
+		contextMenu.getItems().add(removeItem);
+		
+		// Separator
+		contextMenu.getItems().add(new SeparatorMenuItem());
+		
 		// Clear data
 		MenuItem clearItem = new MenuItem("[History] Clear subscription history");
 
@@ -132,11 +162,15 @@ public class ContextMenuUtils
 	 * 
 	 * @param connection The connection associated with this tab
 	 * @param eventManager The global event manager
+	 * @param subscriptionManager The connection's subscription manager 
+	 * @param configurationManager The global configuration manager 
 	 * 
 	 * @return Created context menu
 	 */
 	public static ContextMenu createAllSubscriptionsTabContextMenu(
-			final MqttAsyncConnection connection, final EventManager eventManager)
+			final MqttAsyncConnection connection, final EventManager eventManager,
+			final SubscriptionManager subscriptionManager,
+			final ConfigurationManager configurationManager)
 	{
 		final ContextMenu contextMenu = new ContextMenu();
 
@@ -150,8 +184,7 @@ public class ContextMenuUtils
 		});
 		contextMenu.getItems().add(cancelItem);
 
-		MenuItem resubscribeItem = new MenuItem(
-				"[Subscriptions] Re-subscribe to all non-active subscriptions (if any)");
+		MenuItem resubscribeItem = new MenuItem("[Subscriptions] Re-subscribe to all non-active subscriptions (if any)");
 
 		resubscribeItem.setOnAction(new EventHandler<ActionEvent>()
 		{
@@ -162,6 +195,43 @@ public class ContextMenuUtils
 		});
 		contextMenu.getItems().add(resubscribeItem);
 
+		// Separator
+		contextMenu.getItems().add(new SeparatorMenuItem());
+		
+		// Adds/updates this subscription in the configuration file
+		final MenuItem addItem = new MenuItem("[Configuration] Add/update all shown subscriptions");
+		addItem.setOnAction(new EventHandler<ActionEvent>()
+		{
+			public void handle(ActionEvent e)
+			{
+				for (final SubscriptionController controller : subscriptionManager.getSubscriptionControllers())
+				{
+					if (controller.getSubscription() != null)
+					{
+						configurationManager.updateSubscriptionConfiguration(connection, controller.getSubscription());
+					}
+				}
+			}
+		});
+		contextMenu.getItems().add(addItem);
+		
+		// Removes this subscription from the configuration file
+		final MenuItem removeItem = new MenuItem("[Configuration] Remove all shown subscriptions");
+		removeItem.setOnAction(new EventHandler<ActionEvent>()
+		{
+			public void handle(ActionEvent e)
+			{
+				for (final SubscriptionController controller : subscriptionManager.getSubscriptionControllers())
+				{
+					if (controller.getSubscription() != null)
+					{
+						configurationManager.deleteSubscriptionConfiguration(connection, controller.getSubscription());
+					}
+				}
+			}
+		});
+		contextMenu.getItems().add(removeItem);
+		
 		// Separator
 		contextMenu.getItems().add(new SeparatorMenuItem());
 

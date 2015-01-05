@@ -106,7 +106,7 @@ public class EditConnectionsController extends AnchorPane implements Initializab
 		}
 	}
 	
-	private void updateSelected()	
+	public void updateSelected()	
 	{
 		if (connectionList.getItems().size() > 0 && getSelectedIndex() == -1)
 		{

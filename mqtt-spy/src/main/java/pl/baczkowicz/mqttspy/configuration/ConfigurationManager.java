@@ -34,10 +34,13 @@ import pl.baczkowicz.mqttspy.configuration.generated.Connectivity;
 import pl.baczkowicz.mqttspy.configuration.generated.FormatterDetails;
 import pl.baczkowicz.mqttspy.configuration.generated.Formatting;
 import pl.baczkowicz.mqttspy.configuration.generated.MqttSpyConfiguration;
+import pl.baczkowicz.mqttspy.configuration.generated.TabbedSubscriptionDetails;
 import pl.baczkowicz.mqttspy.configuration.generated.UserAuthenticationOptions;
 import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnectionDetails;
 import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnectionDetailsV010;
 import pl.baczkowicz.mqttspy.connectivity.ConnectionIdGenerator;
+import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
+import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
 import pl.baczkowicz.mqttspy.events.EventManager;
 import pl.baczkowicz.mqttspy.exceptions.XMLException;
 import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
@@ -289,6 +292,73 @@ public class ConfigurationManager extends PropertyFileLoader
 		loadedConfigurationFile = null;
 		lastException =  null;
 		connectionIdGenerator.resetLastUsedId();
+	}
+	
+	public ConfiguredConnectionDetails getMatchingConnection(final int id)
+	{
+		for (final ConfiguredConnectionDetails details : getConnections())
+		{
+			if (details.getId() == id)
+			{
+				return details;
+			}
+		}
+		
+		return null;
+	}
+	
+	public void updateSubscriptionConfiguration(final MqttAsyncConnection connection, final MqttSubscription subscription)	
+	{
+		final ConfiguredConnectionDetails details = getMatchingConnection(connection.getId());
+		
+		boolean matchFound = false;
+		for (final TabbedSubscriptionDetails subscriptionDetails : details.getSubscription())
+		{							
+			if (subscriptionDetails.getTopic().equals(subscription.getTopic()))
+			{
+				subscriptionDetails.setQos(subscription.getQos());
+				subscriptionDetails.setCreateTab(true);
+				subscriptionDetails.setScriptFile(subscription.getDetails().getScriptFile());
+				matchFound = true;
+				break;
+			}
+		}
+		
+		// If no match found, add this subscription
+		if (!matchFound)
+		{
+			final TabbedSubscriptionDetails subscriptionDetails = new TabbedSubscriptionDetails();
+			subscriptionDetails.setTopic(subscription.getTopic());
+			subscriptionDetails.setQos(subscription.getQos());
+			subscriptionDetails.setCreateTab(true);
+			subscriptionDetails.setScriptFile(subscription.getDetails().getScriptFile());
+			details.getSubscription().add(subscriptionDetails);							
+		}					
+		
+		saveConfiguration();
+	}
+	
+	public void deleteSubscriptionConfiguration(final MqttAsyncConnection connection, final MqttSubscription subscription)	
+	{
+		final ConfiguredConnectionDetails details = getMatchingConnection(connection.getId());
+		
+		TabbedSubscriptionDetails itemToRemove = null;
+		
+		for (final TabbedSubscriptionDetails subscriptionDetails : details.getSubscription())
+		{							
+			if (subscriptionDetails.getTopic().equals(subscription.getTopic()))
+			{
+				itemToRemove = subscriptionDetails;
+				break;
+			}
+		}
+		
+		if (itemToRemove != null)
+		{
+			details.getSubscription().remove(itemToRemove);
+		}		
+		
+		saveConfiguration();
 	}
 	
 	// ===============================

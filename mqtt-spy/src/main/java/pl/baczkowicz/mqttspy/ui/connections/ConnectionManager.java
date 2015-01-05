@@ -155,7 +155,7 @@ public class ConnectionManager
 				
 				// TODO: move creation of the context menus outside the FX thread?
 				connectionTab.setContextMenu(ContextMenuUtils.createConnectionMenu(connection, connectionController, connectionManager));
-				subscriptionController.getTab().setContextMenu(ContextMenuUtils.createAllSubscriptionsTabContextMenu(connection, eventManager));
+				subscriptionController.getTab().setContextMenu(ContextMenuUtils.createAllSubscriptionsTabContextMenu(connection, eventManager, subscriptionManager, configurationManager));
 				
 				eventManager.registerConnectionStatusObserver(connectionController, connection);
 				// connection.addObserver(connectionController);											
