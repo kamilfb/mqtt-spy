@@ -40,6 +40,7 @@ import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
 import pl.baczkowicz.mqttspy.configuration.ConfiguredConnectionDetails;
+import pl.baczkowicz.mqttspy.configuration.PropertyFileLoader;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.connectivity.MqttConnectionStatus;
 import pl.baczkowicz.mqttspy.events.EventManager;
@@ -130,7 +131,7 @@ public class ControlPanelController extends AnchorPane implements Initializable,
 	{			
 		try
 		{
-			this.versionManager = new VersionManager(configurationManager);
+			this.versionManager = new VersionManager(configurationManager.getDefaultPropertyFile());
 		}
 		catch (XMLException e)
 		{
@@ -391,7 +392,7 @@ public class ControlPanelController extends AnchorPane implements Initializable,
 			@Override
 			public void handle(ActionEvent event)
 			{				
-				application.getHostServices().showDocument(configurationManager.getProperty(ConfigurationManager.DOWNLOAD_URL));			
+				application.getHostServices().showDocument(configurationManager.getDefaultPropertyFile().getProperty(PropertyFileLoader.DOWNLOAD_URL));			
 			}
 		});
 		
@@ -459,7 +460,7 @@ public class ControlPanelController extends AnchorPane implements Initializable,
 			
 			for (final ReleaseStatus release : versionManager.getVersions().getReleaseStatuses().getReleaseStatus())
 			{
-				if (VersionManager.isInRange(configurationManager.getFullVersionNumber(), release))
+				if (VersionManager.isInRange(configurationManager.getDefaultPropertyFile().getFullVersionNumber(), release))
 				{					
 					controller.setStatus(VersionManager.convertVersionStatus(release));
 					controller.setTitle(release.getUpdateTitle());
@@ -474,7 +475,7 @@ public class ControlPanelController extends AnchorPane implements Initializable,
 			{
 				controller.setStatus(ItemStatus.INFO);
 				controller.setTitle("Couldn't find any information about your version - please check manually.");
-				controller.setDetails("Your version is " + configurationManager.getFullVersionName() + ".");
+				controller.setDetails("Your version is " + configurationManager.getDefaultPropertyFile().getFullVersionName() + ".");
 			}
 		}	
 		else

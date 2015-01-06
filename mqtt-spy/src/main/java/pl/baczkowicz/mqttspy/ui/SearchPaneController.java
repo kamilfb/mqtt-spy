@@ -21,6 +21,9 @@ import java.util.List;
 import java.util.Queue;
 import java.util.ResourceBundle;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -56,6 +59,9 @@ import pl.baczkowicz.mqttspy.ui.search.SearchOptions;
  */
 public class SearchPaneController implements Initializable, MessageFormatChangeObserver, MessageAddedObserver
 {
+	/** Diagnostic logger. */
+	private final static Logger logger = LoggerFactory.getLogger(SearchPaneController.class);
+	
 	private final static int MAX_SEARCH_VALUE_CHARACTERS = 15;
 	
 	@FXML
@@ -142,7 +148,6 @@ public class SearchPaneController implements Initializable, MessageFormatChangeO
 	    });
 	}
 	
-
 	public void init()
 	{
 		eventManager.registerFormatChangeObserver(this, store);
@@ -177,13 +182,24 @@ public class SearchPaneController implements Initializable, MessageFormatChangeO
 	
 	private void refreshList()
 	{
-		final String directory = connection.getProperties().getConfiguredProperties().getSearchScripts();
-		
-		if (directory != null && !directory.isEmpty())
+		if (connection.getProperties() == null)
 		{
-			scriptManager.addScripts(directory);
-			onScriptListChange();	
-		}		
+			logger.warn("Connection's properties are null");
+		}
+		else if (connection.getProperties().getConfiguredProperties() == null)
+		{
+			logger.warn("Connection's configured properties are null");
+		}
+		else
+		{		
+			final String directory = connection.getProperties().getConfiguredProperties().getSearchScripts();
+			
+			if (directory != null && !directory.isEmpty())
+			{
+				scriptManager.addScripts(directory);
+				onScriptListChange();	
+			}
+		}
 	}
 	
 	public void onScriptListChange()

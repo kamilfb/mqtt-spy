@@ -25,6 +25,10 @@ import javafx.stage.Stage;
 
 import org.slf4j.LoggerFactory;
 
+import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
+import pl.baczkowicz.mqttspy.configuration.ConfigurationUtils;
+import pl.baczkowicz.mqttspy.connectivity.ConnectionIdGenerator;
+import pl.baczkowicz.mqttspy.events.EventManager;
 import pl.baczkowicz.mqttspy.ui.MainController;
 import pl.baczkowicz.mqttspy.ui.utils.FxmlUtils;
 
@@ -35,11 +39,11 @@ public class Main extends Application
 {
 	// TODO: this might need changing or moving to a property file.
 	/** Initial and minimal scene/stage width. */	
-	public final static int WIDTH = 800;
+	public final static int DEFAULT_WIDTH = 800;
 
 	// TODO: this might need changing or moving to a property file.
 	/** Initial and minimal scene/stage height. */
-	public final static int HEIGHT = 600;
+	public final static int DEFAULT_HEIGHT = 600;
 	
 	/** Name of the parameter supplied on the command line to indicate where to find the configuration file - optional. */
 	private final static String CONFIGURATION_PARAMETER_NAME = "configuration";
@@ -53,8 +57,13 @@ public class Main extends Application
 	 */
 	public void start(final Stage primaryStage)
 	{
+		final EventManager eventManager = new EventManager();			
+		final ConnectionIdGenerator connectionIdGenerator = new ConnectionIdGenerator();
+				
 		try
 		{
+			final ConfigurationManager configurationManager = new ConfigurationManager(eventManager, connectionIdGenerator);			
+			
 			// Load the main window
 			final URL resource = getClass().getResource(FxmlUtils.FXML_PACKAGE + FxmlUtils.FXML_LOCATION + "MainWindow.fxml");
 			final FXMLLoader loader = new FXMLLoader(resource);
@@ -63,19 +72,25 @@ public class Main extends Application
 			AnchorPane pane = (AnchorPane) loader.load();
 			
 			// Set scene width, height and style
-			final Scene scene = new Scene(pane, WIDTH, HEIGHT);
+			final double height = ConfigurationUtils.getApplicationHeight(configurationManager);
+			final double width = ConfigurationUtils.getApplicationWidth(configurationManager);
+			
+			final Scene scene = new Scene(pane, width, height);
 			scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 			
 			// Get the associated controller
 			final MainController mainController = (MainController) loader.getController();
+			mainController.setEventManager(eventManager);
+			mainController.setConfigurationManager(configurationManager);
+			mainController.setSelectedPerspective(ConfigurationUtils.getApplicationPerspective(configurationManager));
 
 			// Set the stage's properties
 			primaryStage.setScene(scene);			
 			
 			// TODO: not sure we want those minimum values
-			primaryStage.setMinWidth(WIDTH);
-			primaryStage.setMinHeight(HEIGHT / 2);
-			primaryStage.setHeight(HEIGHT);
+			//primaryStage.setMinWidth(width);
+			//primaryStage.setMinHeight(height / 2);
+			//primaryStage.setHeight(height);
 
 			// Initialise resources in the main controller			
 			mainController.setApplication(this);

@@ -14,9 +14,13 @@
  */
 package pl.baczkowicz.mqttspy.configuration;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Properties;
 
 import pl.baczkowicz.mqttspy.exceptions.ConfigurationException;
@@ -36,18 +40,38 @@ public class PropertyFileLoader
 	public static final String DOWNLOAD_URL = "application.download.url";	
 	
 	/** Properties read from the provided file. */
-	private final Properties properties;	
+	private Properties properties;	
 	
 	/**
-	 * Creates the loader and reads a property file into memory.
+	 * Creates the loader.
+	 */
+	public PropertyFileLoader()
+	{
+		// Default constructor
+	}
+	 
+	/**
+	 * Reads a property file into memory.
 	 * 
 	 * @param propertyFileLocation Class path location
 	 * 
 	 * @throws ConfigurationException Thrown when cannot process the file
 	 */
-	public PropertyFileLoader(final String propertyFileLocation) throws ConfigurationException
+	public void readFromClassPath(final String propertyFileLocation) throws ConfigurationException
 	{
-		properties = readPropertyFile(propertyFileLocation);
+		properties = readPropertyFileFromClassPath(propertyFileLocation);
+	}
+	
+	/**
+	 * Reads a property file into a Properties object.
+	 * 
+	 * @param propertyFileLocation Class path location
+	 * 
+	 * @throws ConfigurationException Thrown when cannot process the file
+	 */
+	public void readFromFileSystem(final File propertyFileLocation) throws ConfigurationException
+	{
+		properties = readPropertyFileFromFileSystem(propertyFileLocation);
 	}
 	
 	/**
@@ -58,7 +82,7 @@ public class PropertyFileLoader
 	 * 
 	 * @throws ConfigurationException Thrown when cannot process the file
 	 */
-	public static Properties readPropertyFile(final String propertyFileLocation) throws ConfigurationException
+	public static Properties readPropertyFileFromClassPath(final String propertyFileLocation) throws ConfigurationException
 	{
 		final Properties fileProperties = new Properties();
 	
@@ -78,6 +102,45 @@ public class PropertyFileLoader
 		}
 		return fileProperties;
 	}	
+	
+	/**
+	 * Reads a property file into a Properties object.
+	 * 
+	 * @param propertyFileLocation File system location
+	 * @return Properties file
+	 * 
+	 * @throws ConfigurationException Thrown when cannot process the file
+	 */
+	public static Properties readPropertyFileFromFileSystem(final File propertyFileLocation) throws ConfigurationException
+	{
+		final Properties fileProperties = new Properties();
+	
+		try
+		{		
+			final InputStream inputStream = new FileInputStream(propertyFileLocation);
+			
+			fileProperties.load(inputStream);
+			inputStream.close();		
+		}
+		catch (IOException e)
+		{
+			throw new ConfigurationException("Cannot load the properties file", e);
+		}
+		return fileProperties;
+	}	
+	
+	/**
+	 * Saves the properties to the given file.
+	 * 
+	 * @param propertyFileLocation File system location
+	 * 
+	 * @throws IOException Thrown when cannot save to the given location
+	 */
+	public void saveToFileSystem(final File propertyFileLocation) throws IOException
+	{
+		final OutputStream outputStream = new FileOutputStream(propertyFileLocation);
+		properties.store(outputStream, "=== mqtt-spy UI properties ===");
+	}
 
 	/**
 	 * Retrieve a value of the specified property.
@@ -89,6 +152,17 @@ public class PropertyFileLoader
 	public String getProperty(final String propertyName)
 	{
 		return properties.getProperty(propertyName, "");
+	}
+	
+	/**
+	 * Save a value of the specified property.
+	 *  
+	 * @param propertyName Name of the property to retrieve
+	 * @param propertyValue Value of the property
+	 */
+	public void setProperty(final String propertyName, final String propertyValue)
+	{
+		properties.setProperty(propertyName, propertyValue);
 	}
 		
 	/**

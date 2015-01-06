@@ -207,7 +207,7 @@ public class ControlPanelItemController extends AnchorPane implements Initializa
 	
 	public String replaceTokens(final String value)
 	{
-		return value.replace("[newline]", System.lineSeparator()).replace("[version]", configurationManager.getFullVersionName());
+		return value.replace("[newline]", System.lineSeparator()).replace("[version]", configurationManager.getDefaultPropertyFile().getFullVersionName());
 	}
 	
 	public void setTitle(final String title)

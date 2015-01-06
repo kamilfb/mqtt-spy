@@ -57,7 +57,8 @@ public class ConfigurationLoader extends PropertyFileLoader
 	 */
 	public ConfigurationLoader() throws XMLException
 	{
-		super(DEFAULT_PROPERTIES_FILE_NAME);
+		super();
+		readFromClassPath(DEFAULT_PROPERTIES_FILE_NAME);
 		
 		this.parser = new XMLParser(PACKAGE, new String[] {ConfigurationUtils.COMMON_SCHEMA, SCHEMA});					
 	}

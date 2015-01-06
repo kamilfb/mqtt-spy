@@ -44,7 +44,6 @@ import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
 import pl.baczkowicz.mqttspy.configuration.ConfiguredConnectionDetails;
 import pl.baczkowicz.mqttspy.configuration.generated.TabbedSubscriptionDetails;
 import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnectionDetails;
-import pl.baczkowicz.mqttspy.connectivity.ConnectionIdGenerator;
 import pl.baczkowicz.mqttspy.connectivity.RuntimeConnectionProperties;
 import pl.baczkowicz.mqttspy.events.EventManager;
 import pl.baczkowicz.mqttspy.exceptions.ConfigurationException;
@@ -59,6 +58,7 @@ import pl.baczkowicz.mqttspy.ui.messagelog.TaskWithProgressUpdater;
 import pl.baczkowicz.mqttspy.ui.utils.ConnectivityUtils;
 import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
 import pl.baczkowicz.mqttspy.ui.utils.FxmlUtils;
+import pl.baczkowicz.mqttspy.ui.utils.MqttSpyPerspective;
 
 /**
  * Controller for the main window.
@@ -101,8 +101,8 @@ public class MainController
 
 	private Application application;
 
-	private final ConfigurationManager configurationManager;
-	
+	private ConfigurationManager configurationManager;
+
 	private Stage stage;
 
 	private EventManager eventManager;
@@ -112,18 +112,51 @@ public class MainController
 	private ConnectionManager connectionManager;
 
 	private Stage converterStage;
+
+	private MqttSpyPerspective selectedPerspective = MqttSpyPerspective.DEFAULT;
 	
 	public MainController() throws XMLException
 	{
 		Thread.setDefaultUncaughtExceptionHandler(new MqttSpyUncaughtExceptionHandler());
 		 
-		this.statisticsManager = new StatisticsManager();
-		this.eventManager = new EventManager();		
+		this.statisticsManager = new StatisticsManager();		
+	}	
+	
+	public void init()
+	{
+		//this.eventManager = new EventManager();		
 		
-		final ConnectionIdGenerator connectionIdGenerator = new ConnectionIdGenerator();
-		this.configurationManager = new ConfigurationManager(eventManager, connectionIdGenerator);		
-		this.connectionManager = new ConnectionManager(eventManager, statisticsManager, configurationManager);			
-	}
+		//final ConnectionIdGenerator connectionIdGenerator = new ConnectionIdGenerator();
+		//this.configurationManager = new ConfigurationManager(eventManager, connectionIdGenerator);		
+		this.connectionManager = new ConnectionManager(eventManager, statisticsManager, configurationManager);	
+				
+		statisticsManager.loadStats();
+		getParentWindow().setOnCloseRequest(new EventHandler<WindowEvent>()
+		{
+			public void handle(WindowEvent t)
+			{
+				exit();
+			}
+		});
+
+		// Clear any test tabs
+		stage.setTitle("mqtt-spy");
+		
+		controlPanelPaneController.setMainController(this);
+		controlPanelPaneController.setConfigurationMananger(configurationManager);
+		controlPanelPaneController.setApplication(application);
+		controlPanelPaneController.setEventManager(eventManager);
+		controlPanelPaneController.setConnectionManager(connectionManager);
+		controlPanelPaneController.init();	
+		
+		// TODO: experimental code
+		// final StatsChartWindow statsWindow = new StatsChartWindow();		
+		// Scene scene = new Scene(statsWindow);
+		// scene.getStylesheets().addAll(mainPane.getScene().getStylesheets());		
+		// statsWindow.start(new Stage());
+		
+		new Thread(new ConnectionStatsUpdater(connectionManager)).start();
+	}		
 
 	@FXML
 	public void createNewConnection()
@@ -235,39 +268,41 @@ public class MainController
 		connectionManager.disconnectAll();
 		
 		statisticsManager.saveStats();
+		
+		configurationManager.saveUiProperties(
+				this.getParentWindow().getScene().getWidth(), 
+				this.getParentWindow().getScene().getHeight(),
+				selectedPerspective);
+		
 		System.exit(0);
 	}
 
-	public void init()
+	/**
+	 * Sets the perspective.
+	 * 
+	 * @param selectedPerspective the selectedPerspective to set
+	 */
+	public void setSelectedPerspective(final MqttSpyPerspective selectedPerspective)
 	{
-		statisticsManager.loadStats();
-		getParentWindow().setOnCloseRequest(new EventHandler<WindowEvent>()
+		this.selectedPerspective = selectedPerspective;
+		
+		switch (selectedPerspective)
 		{
-			public void handle(WindowEvent t)
-			{
-				exit();
-			}
-		});
+			case DETAILED:
+				detailedPerspective.setSelected(true);
+				break;
+			case SPY:
+				spyPerspective.setSelected(true);
+				break;
+			case SUPER_SPY:
+				superSpyPerspective.setSelected(true);
+				break;
+			default:
+				defaultPerspective.setSelected(true);
+				break;		
+		}
+	}
 
-		// Clear any test tabs
-		stage.setTitle("mqtt-spy");
-		
-		controlPanelPaneController.setMainController(this);
-		controlPanelPaneController.setConfigurationMananger(configurationManager);
-		controlPanelPaneController.setApplication(application);
-		controlPanelPaneController.setEventManager(eventManager);
-		controlPanelPaneController.setConnectionManager(connectionManager);
-		controlPanelPaneController.init();	
-		
-		// TODO: experimental code
-		// final StatsChartWindow statsWindow = new StatsChartWindow();		
-		// Scene scene = new Scene(statsWindow);
-		// scene.getStylesheets().addAll(mainPane.getScene().getStylesheets());		
-		// statsWindow.start(new Stage());
-		
-		new Thread(new ConnectionStatsUpdater(connectionManager)).start();
-	}	
-	
 	public TabPane getConnectionTabs()
 	{
 		return connectionTabs;
@@ -447,33 +482,51 @@ public class MainController
 	@FXML
 	private void showPerspective()
 	{
+		if (spyPerspective.isSelected())
+		{
+			selectedPerspective = MqttSpyPerspective.SPY;
+		}
+		else if (superSpyPerspective.isSelected())
+		{
+			selectedPerspective = MqttSpyPerspective.SUPER_SPY;
+		}		
+		else if (detailedPerspective.isSelected())
+		{
+			selectedPerspective = MqttSpyPerspective.DETAILED;
+		}
+		else
+		{
+			selectedPerspective = MqttSpyPerspective.DEFAULT;
+		}
+		
 		for (final ConnectionController connectionController : connectionManager.getConnectionControllers())
 		{
 			showPerspective(connectionController);
 		}
+		
+		logger.debug("Selected perspective = " + selectedPerspective.toString());
 	}
 	
 	public void showPerspective(final ConnectionController connectionController)
 	{
-		if (spyPerspective.isSelected())
+		switch (selectedPerspective)
 		{
-			connectionController.showPanes(false, false, true, true);		
-			connectionController.setDetailedViewVisibility(false);
-		}
-		else if (superSpyPerspective.isSelected())
-		{
-			connectionController.showPanes(false, false, true, true);
-			connectionController.setDetailedViewVisibility(true);
-		}		
-		else if (detailedPerspective.isSelected())
-		{
-			connectionController.showPanes(true, true, true, true);
-			connectionController.setDetailedViewVisibility(true);
-		}
-		else
-		{
-			connectionController.showPanes(true, true, true, true);
-			connectionController.setDetailedViewVisibility(false);
+			case DETAILED:
+				connectionController.showPanes(true, true, true, true);
+				connectionController.setDetailedViewVisibility(true);
+				break;
+			case SPY:
+				connectionController.showPanes(false, false, true, true);		
+				connectionController.setDetailedViewVisibility(false);
+				break;
+			case SUPER_SPY:
+				connectionController.showPanes(false, false, true, true);
+				connectionController.setDetailedViewVisibility(true);
+				break;
+			default:
+				connectionController.showPanes(true, true, true, true);
+				connectionController.setDetailedViewVisibility(false);
+				break;		
 		}
 	}
 	
@@ -530,5 +583,26 @@ public class MainController
 	public void setStage(Stage primaryStage)
 	{
 		this.stage = primaryStage;		
+	}
+	
+
+	/**
+	 * Sets the configuration manager.
+	 * 
+	 * @param configurationManager the configurationManager to set
+	 */
+	public void setConfigurationManager(ConfigurationManager configurationManager)
+	{
+		this.configurationManager = configurationManager;
+	}
+
+	/**
+	 * Sets the event manager.
+	 *  
+	 * @param eventManager the eventManager to set
+	 */
+	public void setEventManager(EventManager eventManager)
+	{
+		this.eventManager = eventManager;
 	}
 }

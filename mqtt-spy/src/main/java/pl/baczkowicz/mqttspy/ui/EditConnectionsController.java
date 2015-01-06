@@ -54,6 +54,7 @@ public class EditConnectionsController extends AnchorPane implements Initializab
 {
 	private final static String MODIFIED_ITEM = "* ";
 	
+	/** Diagnostic logger. */
 	private final static Logger logger = LoggerFactory.getLogger(EditConnectionsController.class);
 
 	/**

@@ -44,13 +44,14 @@ import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
 import pl.baczkowicz.mqttspy.events.EventManager;
 import pl.baczkowicz.mqttspy.exceptions.XMLException;
 import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
+import pl.baczkowicz.mqttspy.ui.utils.MqttSpyPerspective;
 import pl.baczkowicz.mqttspy.xml.XMLParser;
 
 /**
  * Manages loading and saving configuration files.
  */
 @SuppressWarnings({"unchecked", "rawtypes"})
-public class ConfigurationManager extends PropertyFileLoader
+public class ConfigurationManager
 {
 	final static Logger logger = LoggerFactory.getLogger(ConfigurationManager.class);
 	
@@ -65,6 +66,8 @@ public class ConfigurationManager extends PropertyFileLoader
 	public static final String DEFAULT_FILE_NAME = "mqtt-spy-configuration.xml";
 	
 	public static final String DEFAULT_PROPERTIES_FILE_NAME = "/mqtt-spy.properties";
+	
+	public static final String UI_PROPERTIES_FILE_NAME = "/mqtt-spy-ui.properties";
 	
 	public static final String DEFAULT_HOME_DIRECTORY = getDefaultHomeDirectory();
 	
@@ -81,12 +84,27 @@ public class ConfigurationManager extends PropertyFileLoader
 	private EventManager eventManager;
 	
 	private final XMLParser parser;
+	
+	private final PropertyFileLoader defaultPropertyFile;
+	
+	private final PropertyFileLoader uiPropertyFile;
 
 	private ConnectionIdGenerator connectionIdGenerator;
 
 	public ConfigurationManager(final EventManager eventManager, final ConnectionIdGenerator connectionIdGenerator) throws XMLException
 	{
-		super(DEFAULT_PROPERTIES_FILE_NAME);
+		// Load the default property file from classpath
+		this.defaultPropertyFile = new PropertyFileLoader();
+		this.defaultPropertyFile.readFromClassPath(DEFAULT_PROPERTIES_FILE_NAME);
+		
+		// Load the UI property file
+		if (!getUiPropertiesFile().exists())
+		{
+			logger.info("Creating UI property file");
+			ConfigurationUtils.createUiPropertyFileFromClassPath();
+		}
+		this.uiPropertyFile = new PropertyFileLoader();
+		this.uiPropertyFile.readFromFileSystem(getUiPropertiesFile());
 		
 		this.parser = new XMLParser(PACKAGE, new String[] {COMMON_SCHEMA, SCHEMA});
 					
@@ -196,7 +214,12 @@ public class ConfigurationManager extends PropertyFileLoader
 		return new File(getDefaultHomeDirectory() + ConfigurationManager.DEFAULT_FILE_NAME);
 	}
 	
-	public static File getDefaultConfigurationFileDirectory()
+	public static File getUiPropertiesFile()
+	{			
+		return new File(getDefaultHomeDirectory() + ConfigurationManager.UI_PROPERTIES_FILE_NAME);
+	}
+	
+	public static File getDefaultHomeDirectoryFile()
 	{			
 		return new File(getDefaultHomeDirectory());
 	}
@@ -420,4 +443,39 @@ public class ConfigurationManager extends PropertyFileLoader
 		return connectionIdGenerator;
 	}
 
+	/**
+	 * Gets the default property file.
+	 * 
+	 * @return the defaultPropertyFile
+	 */
+	public PropertyFileLoader getDefaultPropertyFile()
+	{
+		return defaultPropertyFile;
+	}
+
+	/**
+	 * Gets the UI property file.
+	 * 
+	 * @return the uiPropertyFile
+	 */
+	public PropertyFileLoader getUiPropertyFile()
+	{
+		return uiPropertyFile;
+	}
+
+	public void saveUiProperties(final double width, final double height, final MqttSpyPerspective selectedPerspective)
+	{
+		uiPropertyFile.setProperty(ConfigurationUtils.WIDTH_PROPERTY, String.valueOf(width));
+		uiPropertyFile.setProperty(ConfigurationUtils.HEIGHT_PROPERTY, String.valueOf(height));
+		uiPropertyFile.setProperty(ConfigurationUtils.PERSPECTIVE_PROPERTY, selectedPerspective.toString());
+		
+		try
+		{
+			uiPropertyFile.saveToFileSystem(getUiPropertiesFile());
+		}
+		catch (IOException e)
+		{
+			logger.error("Cannot save UI properties", e);
+		}
+	}
 }

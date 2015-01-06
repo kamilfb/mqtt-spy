@@ -28,12 +28,19 @@ import org.slf4j.LoggerFactory;
 import pl.baczkowicz.mqttspy.Main;
 import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnectionDetails;
 import pl.baczkowicz.mqttspy.storage.MessageList;
+import pl.baczkowicz.mqttspy.ui.utils.MqttSpyPerspective;
 
 public class ConfigurationUtils
 {
 	private final static Logger logger = LoggerFactory.getLogger(ConfigurationUtils.class);
 	
 	public final static int DEFAULT_RECONNECTION_INTERVAL = 5000;
+	
+	public final static String WIDTH_PROPERTY = "application.width";
+	
+	public final static String HEIGHT_PROPERTY = "application.height";
+	
+	public final static String PERSPECTIVE_PROPERTY = "application.perspective";
 		
 	public static void populateConnectionDefaults(final UserInterfaceMqttConnectionDetails connection)
 	{
@@ -89,23 +96,20 @@ public class ConfigurationUtils
 		return false;
 	}
 
-	
-	private static boolean createDefaultConfigFromFile(final InputStream orig) throws IOException
+	private static boolean copyFileFromClassPath(final InputStream orig, final File dest) throws IOException
 	{
-		ConfigurationManager.getDefaultConfigurationFileDirectory().mkdirs();
-		final File dest = ConfigurationManager.getDefaultConfigurationFile();
-
+		ConfigurationManager.getDefaultHomeDirectoryFile().mkdirs();
 		ConfigurationUtils.streamToFile(orig, dest);
 
 		return true;	
-	}
+	}	
 	
 	public static boolean createDefaultConfigFromClassPath(final String name)
 	{
-		final String origin = "/samples/" + name + "-mqtt-spy-configuration.xml";
+		final String origin = "/samples" + "/" + name + "-mqtt-spy-configuration.xml";
 		try
 		{			
-			return createDefaultConfigFromFile(Main.class.getResourceAsStream(origin));
+			return copyFileFromClassPath(Main.class.getResourceAsStream(origin), ConfigurationManager.getDefaultConfigurationFile());
 		}
 		catch (IllegalArgumentException | IOException e)
 		{
@@ -114,5 +118,66 @@ public class ConfigurationUtils
 		}
 		
 		return false;
+	}
+	
+	public static boolean createUiPropertyFileFromClassPath()
+	{
+		final String origin = "/samples" + ConfigurationManager.UI_PROPERTIES_FILE_NAME;
+		try
+		{			
+			return copyFileFromClassPath(Main.class.getResourceAsStream(origin), ConfigurationManager.getUiPropertiesFile());
+		}
+		catch (IllegalArgumentException | IOException e)
+		{
+			// TODO: show warning dialog for invalid
+			logger.error("Cannot copy file from {}", origin, e);
+		}
+		
+		return false;
+	}
+	
+	public static double getApplicationHeight(final ConfigurationManager configurationManager)
+	{
+		final String value = configurationManager.getUiPropertyFile().getProperty(HEIGHT_PROPERTY);
+		
+		try
+		{
+			return Double.valueOf(value);
+		}
+		catch (NumberFormatException e)
+		{
+			logger.error("Invalid number format " + value);
+			return Main.DEFAULT_HEIGHT;
+		}
+	}
+	
+	public static double getApplicationWidth(final ConfigurationManager configurationManager)
+	{
+		final String value = configurationManager.getUiPropertyFile().getProperty(WIDTH_PROPERTY);
+		
+		try
+		{
+			return Double.valueOf(value);
+		}
+		catch (NumberFormatException e)
+		{
+			logger.error("Invalid number format " + value);
+			return Main.DEFAULT_WIDTH;
+		}
+	}
+
+	public static MqttSpyPerspective getApplicationPerspective(final ConfigurationManager configurationManager)
+	{
+		final String value = configurationManager.getUiPropertyFile().getProperty(PERSPECTIVE_PROPERTY);
+		
+		try
+		{
+			return MqttSpyPerspective.valueOf(value);
+		}
+		catch (IllegalArgumentException e)
+		{
+			logger.error("Invalid format " + value);
+			return MqttSpyPerspective.DEFAULT;
+		}
 	}
 }
