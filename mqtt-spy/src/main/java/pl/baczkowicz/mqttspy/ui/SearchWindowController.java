@@ -122,8 +122,7 @@ public class SearchWindowController extends AnchorPane implements Initializable,
 			@Override
 			public void handle(Event event)
 			{
-				searchPaneControllers.get(tab).cleanup();
-				searchPaneControllers.remove(tab);		
+				searchPaneController.cleanup();				
 				
 				//TODO: should this be removed?
 				//subscriptionPaneEventDispatcher.deleteObserver(searchPaneController);

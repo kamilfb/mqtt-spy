@@ -52,7 +52,11 @@ import pl.baczkowicz.mqttspy.scripts.ScriptManager;
 import pl.baczkowicz.mqttspy.storage.BasicMessageStore;
 import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
 import pl.baczkowicz.mqttspy.ui.properties.MqttContentProperties;
+import pl.baczkowicz.mqttspy.ui.search.FileScriptMatcher;
+import pl.baczkowicz.mqttspy.ui.search.InlineScriptMatcher;
+import pl.baczkowicz.mqttspy.ui.search.SearchMatcher;
 import pl.baczkowicz.mqttspy.ui.search.SearchOptions;
+import pl.baczkowicz.mqttspy.ui.search.SimplePayloadMatcher;
 
 /**
  * Controller for the search pane.
@@ -263,50 +267,38 @@ public class SearchPaneController implements Initializable, MessageFormatChangeO
 		searchField.requestFocus();
 	}
 	
-	private boolean matches(final String value, final String substring)
+	private void processMessages(final List<MqttContent> messages)
 	{
-		if (caseSensitiveCheckBox.isSelected())
-		{
-			return value.contains(substring);
-		}
+		final SearchMatcher matcher = getSearchMatcher();
 		
-		return value.toLowerCase().contains(substring.toLowerCase());
+		for (int i = store.getMessages().size() - 1; i >= 0; i--)
+		{
+			processMessage(store.getMessages().get(i), matcher);
+		}		
 	}
 	
-	private boolean processMessage(final MqttContent message)
+	private SearchMatcher getSearchMatcher()
 	{
-		seachedCount++;
-		boolean found = false;
-		
 		if (defaultSearch.isSelected())
 		{
-			found = matches(message.getFormattedPayload(store.getFormatter()), searchField.getText());			
+			return new SimplePayloadMatcher(searchField.getText(), caseSensitiveCheckBox.isSelected());		
 		}
 		else if (inlineScriptSearch.isSelected())
 		{
-			final Script script = scriptManager.addInlineScript("inline", 
-					"function search() { if (" + searchField.getText() + ") { return true; } return false; } search();");
-			
-			// TODO: run script in true/false mode? Otherwise might look like it's been stopped or sth
-			scriptManager.runScriptFileWithMessage(script, ScriptManager.MESSAGE_PARAMETER, message, false);
-			
-			if (script.getScriptRunner().getLastReturnValue() != null)
-			{
-				found = (Boolean) script.getScriptRunner().getLastReturnValue();
-			}
-			else
-			{
-				found = false;
-			}			
+			return new InlineScriptMatcher(scriptManager, searchField.getText());
 		}
 		else
 		{
 			final Script script = ((Script) searchMethod.getSelectedToggle().getUserData());
-			
-			// TODO: run script in true/false mode? Otherwise might look like it's been stopped or sth
-			scriptManager.runScriptFileWithMessage(script, ScriptManager.MESSAGE_PARAMETER, message, false);
-			found = (Boolean) script.getScriptRunner().getLastReturnValue();			
+			return new FileScriptMatcher(scriptManager, script);
 		}
+	}
+	
+	private boolean processMessage(final MqttContent message, final SearchMatcher matcher)
+	{
+		seachedCount++;
+		
+		boolean found = matcher.matches(message);
 		
 		if (found)
 		{
@@ -340,10 +332,7 @@ public class SearchPaneController implements Initializable, MessageFormatChangeO
 	{
 		clearMessages();		
 		
-		for (int i = store.getMessages().size() - 1; i >= 0; i--)
-		{
-			processMessage(store.getMessages().get(i));
-		}
+		processMessages(store.getMessages());		
 		
 		updateTabTitle();	
 		messagePaneController.setSearchOptions(new SearchOptions(searchField.getText(), caseSensitiveCheckBox.isSelected()));
@@ -386,7 +375,7 @@ public class SearchPaneController implements Initializable, MessageFormatChangeO
 	{
 		if (autoRefreshCheckBox.isSelected())
 		{
-			final boolean matchingSearch = processMessage(message); 
+			final boolean matchingSearch = processMessage(message, getSearchMatcher()); 
 			if (matchingSearch)														
 			{
 				if (messageNavigationPaneController.showLatest())

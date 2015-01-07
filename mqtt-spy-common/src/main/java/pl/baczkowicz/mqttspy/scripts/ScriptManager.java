@@ -170,11 +170,11 @@ public class ScriptManager
 	}
 	
 	/**
-	 * Populates scripts from a list of files.
+	 * Populates scripts from a list of files. This doesn't override existing files.
 	 * 
 	 * @param files List of script files
 	 * 
-	 * @return The list of created script objects
+	 * @return The list of created (newly added) script objects
 	 */
 	public List<Script> populateScriptsFromFileList(final List<File> files)
 	{

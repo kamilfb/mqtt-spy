@@ -106,7 +106,9 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection
 				// Set subscription reference on the message
 				message.setSubscription(mqttSubscription);
 				
-				if (mqttSubscription.getDetails() != null && mqttSubscription.getDetails().getScriptFile() != null)
+				if (mqttSubscription.getDetails() != null 
+						&& mqttSubscription.getDetails().getScriptFile() != null 
+						&& !mqttSubscription.getDetails().getScriptFile().isEmpty())
 				{
 					scriptManager.runScriptFileWithReceivedMessage(mqttSubscription.getDetails().getScriptFile(), message);
 				}

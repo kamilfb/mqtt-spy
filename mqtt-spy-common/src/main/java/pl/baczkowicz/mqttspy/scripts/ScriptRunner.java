@@ -203,7 +203,7 @@ public class ScriptRunner implements Runnable
 		else
 		{
 			script.setStatus(newState);
-			logger.info("Changed [{}] script's state to [{}]", scriptName, newState);
+			logger.debug("Changed [{}] script's state to [{}]", scriptName, newState);
 		}
 	}
 	
