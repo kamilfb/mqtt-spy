@@ -296,6 +296,7 @@ public class MessageController implements Initializable, MessageIndexChangeObser
 						pos = textToSearch.indexOf(searchOptions.getSearchValue(), pos + 1);
 					}
 				}
+				dataField.positionCaret(0);;
 				
 				updateTooltipText();
 			}						

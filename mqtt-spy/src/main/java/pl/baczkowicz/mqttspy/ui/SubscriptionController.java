@@ -218,7 +218,9 @@ public class SubscriptionController implements Initializable, ClearTabObserver, 
 			}
 		});
 
-		updateMinHeights();
+		updateMinHeights();		
+
+		// splitPane.setDividerPositions(0.5f, 0.5f);
 	}
 	
 	public void init()
@@ -548,6 +550,18 @@ public class SubscriptionController implements Initializable, ClearTabObserver, 
 					avg5sec == null ? 0 : avg5sec, 
 					avg30sec == null ? 0 : avg30sec, 
 					avg300sec == null ? 0 : avg300sec));
+		}
+	}
+
+	public void toggleMessagePayloadSize(final boolean smallestPossible)
+	{
+		if (smallestPossible)
+		{
+			messagePane.setMaxHeight(50);
+		}
+		else
+		{
+			messagePane.setMaxHeight(Double.MAX_VALUE);
 		}
 	}
 }

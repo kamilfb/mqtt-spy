@@ -34,7 +34,7 @@
       
       <MenuButton fx:id="formattingMenuButton" focusTraversable="false" mnemonicParsing="false" prefWidth="120.0" text="Settings" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="7.0">
       	<graphic>
-      		<ImageView fx:id="settingsIcon" fitHeight="18.0" fitWidth="18.0" pickOnBounds="true">
+      		<ImageView fitHeight="18.0" fitWidth="18.0" pickOnBounds="true">
 		         <image>
 		            <Image url="/images/formatting.png"/>
 		         </image>
@@ -80,7 +80,7 @@
       <ToggleButton fx:id="searchButton" graphicTextGap="6" focusTraversable="false" mnemonicParsing="false" prefHeight="26" prefWidth="90" onAction="#showSearchWindow" text="Search" AnchorPane.rightAnchor="128.0" AnchorPane.topAnchor="7.0">
        <padding><Insets bottom="1.0" left="1.0" right="1.0" top="1.0" /></padding>
         <graphic>
-      		<ImageView fx:id="searchIcon" fitHeight="20" fitWidth="20" pickOnBounds="true">
+      		<ImageView fitHeight="20" fitWidth="20" pickOnBounds="true">
 		         <image>
 		            <Image url="/images/search.png" />
 		         </image>
@@ -90,15 +90,17 @@
             <Font size="11.0" />
          </font>
       </ToggleButton>
-      
+      <!-- dividerPositions="0.5, 0.5"  -->
       <SplitPane fx:id="splitPane" layoutX="11.0" layoutY="45.0" orientation="VERTICAL" prefHeight="229.0" AnchorPane.bottomAnchor="-1.0" AnchorPane.leftAnchor="-1.0" AnchorPane.rightAnchor="-1.0" AnchorPane.topAnchor="40.0">
          <items>
          <!-- -->
-         	<fx:include fx:id="messagePane" prefHeight="1000.0" source="MessagePane.fxml" />
-         	 
-            <TitledPane fx:id="summaryTitledPane" alignment="TOP_LEFT" animated="false" maxHeight="1000.0" minHeight="26.0" prefHeight="1000.0" text="Received messages summary" SplitPane.resizableWithParent="false">
+         <!-- prefHeight="1000.0" --> 
+         	<fx:include fx:id="messagePane" prefHeight="50.0" source="MessagePane.fxml" />
+         	 <!-- maxHeight="1000.0" prefHeight="1000.0" SplitPane.resizableWithParent="false" -->
+            <TitledPane fx:id="summaryTitledPane"  prefHeight="800.0" alignment="TOP_LEFT" animated="false" minHeight="26.0" text="Received messages summary">
               <content>
-              		<fx:include fx:id="summaryTablePane" minHeight="100.0" prefHeight="100" source="SubscriptionSummaryTablePane.fxml" />
+              		<!-- prefHeight="100"  -->
+              		<fx:include fx:id="summaryTablePane" minHeight="100.0" source="SubscriptionSummaryTablePane.fxml" />
               </content>
                <padding>
                   <Insets top="5.0" />

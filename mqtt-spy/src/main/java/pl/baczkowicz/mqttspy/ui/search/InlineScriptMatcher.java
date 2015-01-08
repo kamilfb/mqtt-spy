@@ -28,7 +28,20 @@ public class InlineScriptMatcher implements SearchMatcher
 	{
 		this.scriptManager = scriptManager; 
 		script = scriptManager.addInlineScript("inline", 
-				"function search() { if (" + inlineScript + ") { return true; } return false; } search();");
+				"function search() "
+				+ "{ "
+					+ "var payload = message.getPayload(); "
+					+ "var formattedPayload = message.getFormattedPayload(); "
+				    + "var content = formattedPayload; "
+				    + "var topic = message.getTopic(); "
+				    + "var qos = message.getQoS(); "
+					+ "if (" + inlineScript + ") "
+					+ "{ "
+						+ "return true; "
+					+ "} "
+					+ "return false; "
+				+ "} "
+				+ "search();");
 	}
 	
 	@Override

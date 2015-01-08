@@ -36,6 +36,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.RadioMenuItem;
+import javafx.scene.control.SplitPane;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
@@ -112,6 +113,9 @@ public class SearchPaneController implements Initializable, MessageFormatChangeO
 	
 	@FXML
 	private Label textLabel;
+	
+	@FXML 
+	private SplitPane splitPane;
 	
 	private EventManager eventManager;
 	

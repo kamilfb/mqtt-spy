@@ -107,7 +107,7 @@ public class NewSubscriptionController implements Initializable
 
 	public void initialize(URL location, ResourceBundle resources)
 	{
-		timeBasedFilter = new TimeBasedKeyEventFilter(15);
+		timeBasedFilter = new TimeBasedKeyEventFilter(100);
 		
 		colorPicker.setValue(colors.get(0));
 		subscriptionTopicText.setItems(subscriptionTopics);

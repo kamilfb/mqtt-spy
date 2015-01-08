@@ -16,6 +16,7 @@ package pl.baczkowicz.mqttspy.ui.utils;
 
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
@@ -356,6 +357,18 @@ public class ContextMenuUtils
 			}
 		});
 		contextMenu.getItems().add(view);
+		
+		final Menu messagePane = new Menu("[View] Message pane");
+		final CheckMenuItem smallestMessageContent = new CheckMenuItem("Keep message payload field as smallest as possible");	
+		smallestMessageContent.setOnAction(new EventHandler<ActionEvent>()
+		{
+			public void handle(ActionEvent e)
+			{				
+				connectionController.toggleMessagePayloadSize(smallestMessageContent.isSelected());
+			}
+		});
+		messagePane.getItems().add(smallestMessageContent);
+		contextMenu.getItems().add(messagePane);
 
 		return contextMenu;
 	}

@@ -69,12 +69,12 @@
    	      			<fx:include fx:id="messageNavigationPane" source="MessageNavigationPane.fxml" />
    	    		</children>
    	      </AnchorPane>
-   	      
-   	      <SplitPane fx:id="splitPane" dividerPositions="0.42" layoutX="11.0" layoutY="45.0" orientation="VERTICAL" prefHeight="229.0" prefWidth="636.0" AnchorPane.bottomAnchor="-1.0" AnchorPane.leftAnchor="-2.0" AnchorPane.rightAnchor="-1.0" AnchorPane.topAnchor="38.0">
+   	      <!--  dividerPositions="0.42"  -->
+   	      <SplitPane fx:id="splitPane" layoutX="11.0" layoutY="45.0" orientation="VERTICAL" prefHeight="229.0" prefWidth="636.0" AnchorPane.bottomAnchor="-1.0" AnchorPane.leftAnchor="-2.0" AnchorPane.rightAnchor="-1.0" AnchorPane.topAnchor="38.0">
    	         <items>
-   	         	<fx:include fx:id="messagePane" prefHeight="1000.0" source="MessagePane.fxml" />
-   	            
-   	            <TitledPane fx:id="summaryTitledPane" alignment="TOP_LEFT" animated="false" maxHeight="1000.0" minHeight="26.0" prefHeight="151.0" prefWidth="626.0" text="Found messages" SplitPane.resizableWithParent="false">
+   	         	<fx:include fx:id="messagePane" prefHeight="100.0" source="MessagePane.fxml" />
+   	            <!-- maxHeight="1000.0" prefHeight="151.0" SplitPane.resizableWithParent="false" -->
+   	            <TitledPane fx:id="summaryTitledPane" alignment="TOP_LEFT" animated="false" minHeight="26.0" prefHeight="1000.0" prefWidth="626.0" text="Found messages">
    	              <content>
    	              		<fx:include fx:id="messageListTablePane" minHeight="101.0" prefHeight="118.0" prefWidth="624.0" source="MessageListTablePane.fxml" />
    	              </content>
