@@ -900,7 +900,7 @@ public class EditConnectionController extends AnchorPane implements Initializabl
 				{
 					try
 					{						
-						mainController.openConnection(editedConnectionDetails);
+						connectionManager.openConnection(editedConnectionDetails, mainController);
 					}
 					catch (ConfigurationException e)
 					{

@@ -43,4 +43,10 @@ public class SimplePayloadMatcher implements SearchMatcher
 		
 		return value.toLowerCase().contains(valueToFind.toLowerCase());
 	}
+
+	@Override
+	public boolean isValid()
+	{
+		return true;
+	}
 }

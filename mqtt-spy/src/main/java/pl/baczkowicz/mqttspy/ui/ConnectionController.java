@@ -417,11 +417,11 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 		}
 	}
 	
-	public void toggleMessagePayloadSize(final boolean smallestPossible)
+	public void toggleMessagePayloadSize(final boolean resize)
 	{
 		for (final SubscriptionController subscriptionController : connectionManager.getSubscriptionManager(connection).getSubscriptionControllers())
 		{
-			subscriptionController.toggleMessagePayloadSize(smallestPossible);
+			subscriptionController.toggleMessagePayloadSize(resize);
 		}
 	}
 	

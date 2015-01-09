@@ -19,4 +19,6 @@ import pl.baczkowicz.mqttspy.connectivity.MqttContent;
 public interface SearchMatcher
 {
 	boolean matches(final MqttContent message);
+
+	boolean isValid();
 }

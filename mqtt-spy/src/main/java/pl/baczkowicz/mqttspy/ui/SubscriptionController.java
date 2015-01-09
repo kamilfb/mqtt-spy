@@ -553,15 +553,15 @@ public class SubscriptionController implements Initializable, ClearTabObserver, 
 		}
 	}
 
-	public void toggleMessagePayloadSize(final boolean smallestPossible)
+	public void toggleMessagePayloadSize(final boolean resize)
 	{
-		if (smallestPossible)
-		{
-			messagePane.setMaxHeight(50);
-		}
-		else
+		if (resize)
 		{
 			messagePane.setMaxHeight(Double.MAX_VALUE);
+		}
+		else
+		{			
+			messagePane.setMaxHeight(50);
 		}
 	}
 }

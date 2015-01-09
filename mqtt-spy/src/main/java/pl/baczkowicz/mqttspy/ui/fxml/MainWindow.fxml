@@ -84,6 +84,7 @@
 								<MenuItem mnemonicParsing="false" onAction="#overviewWiki" text="Overview" />
 								<MenuItem mnemonicParsing="false" onAction="#changelogWiki" text="Changelog" />
 								<MenuItem mnemonicParsing="false" onAction="#scriptingWiki" text="Scripting" />
+								<MenuItem mnemonicParsing="false" onAction="#messageSearchWiki" text="Message search" />
 								<MenuItem mnemonicParsing="false" onAction="#loggingWiki" text="Logging" />
 							</items>
 						</Menu>

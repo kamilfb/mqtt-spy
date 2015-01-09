@@ -14,20 +14,19 @@
  */
 package pl.baczkowicz.mqttspy.ui.search;
 
-import pl.baczkowicz.mqttspy.connectivity.MqttContent;
 import pl.baczkowicz.mqttspy.scripts.Script;
 import pl.baczkowicz.mqttspy.scripts.ScriptManager;
 
-public class InlineScriptMatcher implements SearchMatcher
+public class InlineScriptMatcher extends ScriptMatcher
 {
-	private Script script;
-	
-	private ScriptManager scriptManager;
-
 	public InlineScriptMatcher(final ScriptManager scriptManager, final String inlineScript)
 	{
-		this.scriptManager = scriptManager; 
-		script = scriptManager.addInlineScript("inline", 
+		super(scriptManager, addAndReturnScript(scriptManager, inlineScript));
+	}
+	
+	public static Script addAndReturnScript(final ScriptManager scriptManager, final String inlineScript)
+	{
+		final Script script = scriptManager.addInlineScript("inline", 
 				"function search() "
 				+ "{ "
 					+ "var payload = message.getPayload(); "
@@ -42,26 +41,6 @@ public class InlineScriptMatcher implements SearchMatcher
 					+ "return false; "
 				+ "} "
 				+ "search();");
+		return script;
 	}
-	
-	@Override
-	public boolean matches(MqttContent message)
-	{
-		boolean matches = false;
-		
-		// TODO: run script in true/false mode? Otherwise might look like it's been stopped or sth			
-		scriptManager.runScriptFileWithMessage(script, ScriptManager.MESSAGE_PARAMETER, message, false);
-		
-		if (script.getScriptRunner().getLastReturnValue() != null)
-		{
-			matches = (Boolean) script.getScriptRunner().getLastReturnValue();
-		}
-		else
-		{
-			matches = false;
-		}	
-				
-		return matches;
-	}
-
 }

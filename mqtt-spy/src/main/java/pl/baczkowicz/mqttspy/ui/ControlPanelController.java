@@ -298,7 +298,7 @@ public class ControlPanelController extends AnchorPane implements Initializable,
 				{
 					try
 					{				
-						mainController.openConnection(connectionDetails);
+						connectionManager.openConnection(connectionDetails, mainController);
 						event.consume();
 					}
 					catch (ConfigurationException e)

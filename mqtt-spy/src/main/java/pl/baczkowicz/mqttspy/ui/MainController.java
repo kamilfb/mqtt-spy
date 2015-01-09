@@ -19,6 +19,8 @@ import java.util.List;
 
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -39,12 +41,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.common.generated.PublicationDetails;
-import pl.baczkowicz.mqttspy.common.generated.UserCredentials;
 import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
 import pl.baczkowicz.mqttspy.configuration.ConfiguredConnectionDetails;
 import pl.baczkowicz.mqttspy.configuration.generated.TabbedSubscriptionDetails;
 import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnectionDetails;
-import pl.baczkowicz.mqttspy.connectivity.RuntimeConnectionProperties;
 import pl.baczkowicz.mqttspy.events.EventManager;
 import pl.baczkowicz.mqttspy.exceptions.ConfigurationException;
 import pl.baczkowicz.mqttspy.exceptions.MqttSpyUncaughtExceptionHandler;
@@ -55,7 +55,6 @@ import pl.baczkowicz.mqttspy.stats.StatisticsManager;
 import pl.baczkowicz.mqttspy.ui.connections.ConnectionManager;
 import pl.baczkowicz.mqttspy.ui.messagelog.LogReaderTask;
 import pl.baczkowicz.mqttspy.ui.messagelog.TaskWithProgressUpdater;
-import pl.baczkowicz.mqttspy.ui.utils.ConnectivityUtils;
 import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
 import pl.baczkowicz.mqttspy.ui.utils.FxmlUtils;
 import pl.baczkowicz.mqttspy.ui.utils.MqttSpyPerspective;
@@ -104,6 +103,8 @@ public class MainController
 	private ConfigurationManager configurationManager;
 
 	private Stage stage;
+	
+	private Scene scene;
 
 	private EventManager eventManager;
 	
@@ -115,6 +116,10 @@ public class MainController
 
 	private MqttSpyPerspective selectedPerspective = MqttSpyPerspective.DEFAULT;
 	
+	private double lastWidth;
+	
+	private double lastHeight;
+	
 	public MainController() throws XMLException
 	{
 		Thread.setDefaultUncaughtExceptionHandler(new MqttSpyUncaughtExceptionHandler());
@@ -123,20 +128,41 @@ public class MainController
 	}	
 	
 	public void init()
-	{
-		//this.eventManager = new EventManager();		
-		
-		//final ConnectionIdGenerator connectionIdGenerator = new ConnectionIdGenerator();
-		//this.configurationManager = new ConfigurationManager(eventManager, connectionIdGenerator);		
+	{		
 		this.connectionManager = new ConnectionManager(eventManager, statisticsManager, configurationManager);	
 				
 		statisticsManager.loadStats();
+		
+		// Set up scene
+		scene = getParentWindow().getScene();
+		
+		// Set up window events
 		getParentWindow().setOnCloseRequest(new EventHandler<WindowEvent>()
 		{
 			public void handle(WindowEvent t)
 			{
 				exit();
 			}
+		});		
+		scene.widthProperty().addListener(new ChangeListener<Number>() 
+		{
+		    @Override public void changed(ObservableValue<? extends Number> observableValue, Number oldSceneWidth, Number newSceneWidth) 
+		    {
+		    	if (!getStage().isMaximized())
+		    	{
+		    		setLastWidth((double) newSceneWidth);
+		    	}
+		    }
+		});
+		scene.heightProperty().addListener(new ChangeListener<Number>() 
+		{
+		    @Override public void changed(ObservableValue<? extends Number> observableValue, Number oldSceneHeight, Number newSceneHeight) 
+		    {
+		    	if (!getStage().isMaximized())
+		    	{
+		    		setLastHeight((double) newSceneHeight);
+		    	}
+		    }
 		});
 
 		// Clear any test tabs
@@ -269,10 +295,7 @@ public class MainController
 		
 		statisticsManager.saveStats();
 		
-		configurationManager.saveUiProperties(
-				this.getParentWindow().getScene().getWidth(), 
-				this.getParentWindow().getScene().getHeight(),
-				selectedPerspective);
+		configurationManager.saveUiProperties(getLastWidth(), getLastHeight(), stage.isMaximized(), selectedPerspective);
 		
 		System.exit(0);
 	}
@@ -375,7 +398,7 @@ public class MainController
 				{					
 					try
 					{
-						openConnection(connection);
+						connectionManager.openConnection(connection, this);
 					}
 					catch (ConfigurationException e)
 					{
@@ -387,64 +410,7 @@ public class MainController
 		}
 		
 		controlPanelPaneController.refreshConfigurationFileStatus();		
-	}	
-	
-	private boolean completeUserAuthenticationCredentials(final UserInterfaceMqttConnectionDetails connectionDetails)
-	{
-		if (connectionDetails.getUserAuthentication() != null)
-		{
-			// Copy so that we don't store it in the connection and don't save those values
-			final UserCredentials userCredentials = new UserCredentials();
-			connectionDetails.getUserCredentials().copyTo(userCredentials);
-			
-			// Check if ask for username or password, and then override existing values if confirmed
-			if (connectionDetails.getUserAuthentication().isAskForPassword() || connectionDetails.getUserAuthentication().isAskForUsername())
-			{
-				// Password is decoded and encoded in this utility method
-				if (!DialogUtils.showUsernameAndPasswordDialog(stage, connectionDetails.getName(), userCredentials))
-				{
-					return true;
-				}
-			}
-			
-			// Settings user credentials so they can be validated and passed onto the MQTT client library			
-			connectionDetails.setUserCredentials(userCredentials);
-		}
-		
-		return false;
-	}
-	
-	public void openConnection(final ConfiguredConnectionDetails configuredConnectionDetails) throws ConfigurationException
-	{
-		// Note: this is not a complete ConfiguredConnectionDetails copy but ConnectionDetails copy - any user credentials entered won't be stored in config
-		final ConfiguredConnectionDetails connectionDetails = new ConfiguredConnectionDetails();
-		configuredConnectionDetails.copyTo(connectionDetails);
-		connectionDetails.setId(configuredConnectionDetails.getId());			
-		
-		final boolean cancelled = completeUserAuthenticationCredentials(connectionDetails);		
-		
-		if (!cancelled)
-		{
-			final String validationResult = ConnectivityUtils.validateConnectionDetails(connectionDetails, true);
-			if (validationResult != null)
-			{
-				DialogUtils.showValidationWarning(validationResult);
-			}
-			else
-			{
-				final MainController mainController = this;
-				final RuntimeConnectionProperties connectionProperties = new RuntimeConnectionProperties(connectionDetails);
-				new Thread(new Runnable()
-				{					
-					@Override
-					public void run()
-					{
-						connectionManager.loadConnectionTab(mainController, mainController, connectionProperties);					
-					}
-				}).start();											
-			}
-		}
-	}
+	}		
 	
 	public void populateConnectionPanes(final UserInterfaceMqttConnectionDetails connectionDetails, final ConnectionController connectionController)
 	{
@@ -570,6 +536,12 @@ public class MainController
 	}
 	
 	@FXML
+	private void messageSearchWiki()
+	{
+		application.getHostServices().showDocument("https://code.google.com/p/mqtt-spy/wiki/MessageSearch");
+	}
+	
+	@FXML
 	private void loggingWiki()
 	{
 		application.getHostServices().showDocument("https://code.google.com/p/mqtt-spy/wiki/Logging");
@@ -585,6 +557,10 @@ public class MainController
 		this.stage = primaryStage;		
 	}
 	
+	public Stage getStage()
+	{
+		return this.stage;		
+	}
 
 	/**
 	 * Sets the configuration manager.
@@ -604,5 +580,45 @@ public class MainController
 	public void setEventManager(EventManager eventManager)
 	{
 		this.eventManager = eventManager;
+	}
+
+	/**
+	 * Gets last recorded width.
+	 * 
+	 * @return the lastWidth
+	 */
+	public double getLastWidth()
+	{
+		return lastWidth;
+	}
+
+	/**
+	 * Sets last recorded width.
+	 * 
+	 * @param lastWidth the lastWidth to set
+	 */
+	public void setLastWidth(double lastWidth)
+	{
+		this.lastWidth = lastWidth;
+	}
+
+	/**
+	 * Gets last recorder height
+	 * 
+	 * @return the lastHeight
+	 */
+	public double getLastHeight()
+	{
+		return lastHeight;
+	}
+
+	/**
+	 * Sets last recorded height.
+	 * 
+	 * @param lastHeight the lastHeight to set
+	 */
+	public void setLastHeight(double lastHeight)
+	{
+		this.lastHeight = lastHeight;
 	}
 }

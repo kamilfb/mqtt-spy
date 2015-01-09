@@ -53,7 +53,7 @@ import pl.baczkowicz.mqttspy.scripts.ScriptManager;
 import pl.baczkowicz.mqttspy.storage.BasicMessageStore;
 import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
 import pl.baczkowicz.mqttspy.ui.properties.MqttContentProperties;
-import pl.baczkowicz.mqttspy.ui.search.FileScriptMatcher;
+import pl.baczkowicz.mqttspy.ui.search.ScriptMatcher;
 import pl.baczkowicz.mqttspy.ui.search.InlineScriptMatcher;
 import pl.baczkowicz.mqttspy.ui.search.SearchMatcher;
 import pl.baczkowicz.mqttspy.ui.search.SearchOptions;
@@ -217,7 +217,6 @@ public class SearchPaneController implements Initializable, MessageFormatChangeO
 	
 	public void onScriptListChange()
 	{
-		// TODO: these are not really publication scripts - might need renaming these, or use the SM from common?
 		final Collection<Script> scripts = scriptManager.getScripts().values();
 		
 		final List<Script> pubScripts = new ArrayList<>();
@@ -280,9 +279,16 @@ public class SearchPaneController implements Initializable, MessageFormatChangeO
 	{
 		final SearchMatcher matcher = getSearchMatcher();
 		
-		for (int i = store.getMessages().size() - 1; i >= 0; i--)
+		final int firstIndex = store.getMessages().size() - 1;
+		
+		for (int i = firstIndex; i >= 0; i--)
 		{
 			processMessage(store.getMessages().get(i), matcher);
+			
+			if (firstIndex == i && !matcher.isValid())
+			{
+				break;
+			}
 		}		
 	}
 	
@@ -299,7 +305,7 @@ public class SearchPaneController implements Initializable, MessageFormatChangeO
 		else
 		{
 			final Script script = ((Script) searchMethod.getSelectedToggle().getUserData());
-			return new FileScriptMatcher(scriptManager, script);
+			return new ScriptMatcher(scriptManager, script);
 		}
 	}
 	

@@ -26,11 +26,15 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.control.Tab;
 import javafx.scene.layout.AnchorPane;
+import javafx.stage.Stage;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import pl.baczkowicz.mqttspy.common.generated.UserCredentials;
 import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
+import pl.baczkowicz.mqttspy.configuration.ConfiguredConnectionDetails;
+import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnectionDetails;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnectionRunnable;
 import pl.baczkowicz.mqttspy.connectivity.MqttConnectionStatus;
@@ -45,6 +49,7 @@ import pl.baczkowicz.mqttspy.events.queuable.UIEventHandler;
 import pl.baczkowicz.mqttspy.events.queuable.connectivity.MqttConnectionAttemptFailureEvent;
 import pl.baczkowicz.mqttspy.events.queuable.connectivity.MqttDisconnectionAttemptFailureEvent;
 import pl.baczkowicz.mqttspy.events.queuable.ui.MqttSpyUIEvent;
+import pl.baczkowicz.mqttspy.exceptions.ConfigurationException;
 import pl.baczkowicz.mqttspy.exceptions.MqttSpyException;
 import pl.baczkowicz.mqttspy.messages.ReceivedMqttMessage;
 import pl.baczkowicz.mqttspy.scripts.InteractiveScriptManager;
@@ -54,7 +59,9 @@ import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
 import pl.baczkowicz.mqttspy.ui.ConnectionController;
 import pl.baczkowicz.mqttspy.ui.MainController;
 import pl.baczkowicz.mqttspy.ui.SubscriptionController;
+import pl.baczkowicz.mqttspy.ui.utils.ConnectivityUtils;
 import pl.baczkowicz.mqttspy.ui.utils.ContextMenuUtils;
+import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
 import pl.baczkowicz.mqttspy.ui.utils.FxmlUtils;
 import pl.baczkowicz.mqttspy.ui.utils.TabUtils;
 
@@ -107,6 +114,62 @@ public class ConnectionManager
 		
 		new Thread(new UIEventHandler(uiEventQueue, eventManager)).start();
 	}
+	
+	public void openConnection(final ConfiguredConnectionDetails configuredConnectionDetails, final MainController mainController) throws ConfigurationException
+	{
+		// Note: this is not a complete ConfiguredConnectionDetails copy but ConnectionDetails copy - any user credentials entered won't be stored in config
+		final ConfiguredConnectionDetails connectionDetails = new ConfiguredConnectionDetails();
+		configuredConnectionDetails.copyTo(connectionDetails);
+		connectionDetails.setId(configuredConnectionDetails.getId());			
+		
+		final boolean cancelled = completeUserAuthenticationCredentials(connectionDetails, mainController.getStage());		
+		
+		if (!cancelled)
+		{
+			final String validationResult = ConnectivityUtils.validateConnectionDetails(connectionDetails, true);
+			if (validationResult != null)
+			{
+				DialogUtils.showValidationWarning(validationResult);
+			}
+			else
+			{
+				final RuntimeConnectionProperties connectionProperties = new RuntimeConnectionProperties(connectionDetails);
+				new Thread(new Runnable()
+				{					
+					@Override
+					public void run()
+					{
+						loadConnectionTab(mainController, mainController, connectionProperties);					
+					}
+				}).start();											
+			}
+		}
+	}	
+
+	private boolean completeUserAuthenticationCredentials(final UserInterfaceMqttConnectionDetails connectionDetails, final Stage stage)
+	{
+		if (connectionDetails.getUserAuthentication() != null)
+		{
+			// Copy so that we don't store it in the connection and don't save those values
+			final UserCredentials userCredentials = new UserCredentials();
+			connectionDetails.getUserCredentials().copyTo(userCredentials);
+			
+			// Check if ask for username or password, and then override existing values if confirmed
+			if (connectionDetails.getUserAuthentication().isAskForPassword() || connectionDetails.getUserAuthentication().isAskForUsername())
+			{
+				// Password is decoded and encoded in this utility method
+				if (!DialogUtils.showUsernameAndPasswordDialog(stage, connectionDetails.getName(), userCredentials))
+				{
+					return true;
+				}
+			}
+			
+			// Settings user credentials so they can be validated and passed onto the MQTT client library			
+			connectionDetails.setUserCredentials(userCredentials);
+		}
+		
+		return false;
+	}	
 	
 	/**
 	 * Creates and loads a new connection tab.

@@ -46,6 +46,8 @@ public class ScriptRunner implements Runnable
 	private Thread runningThread;
 
 	private Object lastReturnValue;
+	
+	private Exception lastThrownException;
 
 	/**
 	 * Creates a ScriptRunner.
@@ -88,6 +90,7 @@ public class ScriptRunner implements Runnable
 			catch (Exception e)
 			{
 				changeState(ScriptRunningState.FAILED);
+				setLastThrownException(e);
 				logger.error("Script execution exception", e);
 				break;
 			}		
@@ -113,6 +116,7 @@ public class ScriptRunner implements Runnable
 	{
 		// Clear the last returned value
 		lastReturnValue = null;
+		setLastThrownException(null);
 		
 		// Script in a file
 		if (script.getScriptFile() != null)
@@ -215,5 +219,25 @@ public class ScriptRunner implements Runnable
 	public Thread getThread()
 	{
 		return this.runningThread;
+	}
+
+	/**
+	 * Gets last thrown exception or null if none.
+	 * 
+	 * @return the lastThrownException
+	 */
+	public Exception getLastThrownException()
+	{
+		return lastThrownException;
+	}
+
+	/**
+	 * Sets last thrown exception.
+	 * 
+	 * @param lastThrownException the lastThrownException to set
+	 */
+	public void setLastThrownException(Exception lastThrownException)
+	{
+		this.lastThrownException = lastThrownException;
 	}
 }

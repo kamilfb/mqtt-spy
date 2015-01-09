@@ -17,14 +17,15 @@ package pl.baczkowicz.mqttspy.ui.search;
 import pl.baczkowicz.mqttspy.connectivity.MqttContent;
 import pl.baczkowicz.mqttspy.scripts.Script;
 import pl.baczkowicz.mqttspy.scripts.ScriptManager;
+import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
 
-public class FileScriptMatcher implements SearchMatcher
+public class ScriptMatcher implements SearchMatcher
 {
 	private ScriptManager scriptManager;
 	
 	private Script script;
 
-	public FileScriptMatcher(final ScriptManager scriptManager, final Script script)
+	public ScriptMatcher(final ScriptManager scriptManager, final Script script)
 	{
 		this.scriptManager = scriptManager;
 		this.script = script;
@@ -33,8 +34,30 @@ public class FileScriptMatcher implements SearchMatcher
 	@Override
 	public boolean matches(MqttContent message)
 	{
+		boolean matches = false;
 		scriptManager.runScriptFileWithMessage(script, ScriptManager.MESSAGE_PARAMETER, message, false);
-		return (Boolean) script.getScriptRunner().getLastReturnValue();	
+		
+		if (script.getScriptRunner().getLastReturnValue() != null)
+		{
+			matches = (Boolean) script.getScriptRunner().getLastReturnValue();
+		}
+		else
+		{
+			matches = false;
+		}	
+		
+		return matches;
 	}
 
+	@Override
+	public boolean isValid()
+	{
+		if (script.getScriptRunner().getLastThrownException() != null)
+		{
+			DialogUtils.showError("Script execution error", "Script failed due to: " + script.getScriptRunner().getLastThrownException().getLocalizedMessage());
+			return false;
+		}
+
+		return true;
+	}
 }

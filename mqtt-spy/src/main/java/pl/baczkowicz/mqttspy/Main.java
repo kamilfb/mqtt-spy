@@ -19,8 +19,10 @@ import java.net.URL;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.layout.AnchorPane;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 
 import org.slf4j.LoggerFactory;
@@ -71,11 +73,13 @@ public class Main extends Application
 			// Get the associated pane
 			AnchorPane pane = (AnchorPane) loader.load();
 			
-			// Set scene width, height and style
-			final double height = ConfigurationUtils.getApplicationHeight(configurationManager);
-			final double width = ConfigurationUtils.getApplicationWidth(configurationManager);
+			final Rectangle2D primaryScreenBounds = Screen.getPrimary().getVisualBounds();
 			
-			final Scene scene = new Scene(pane, width, height);
+			// Set scene width, height and style
+			final double height = Math.min(ConfigurationUtils.getApplicationHeight(configurationManager), primaryScreenBounds.getHeight());			
+			final double width = Math.min(ConfigurationUtils.getApplicationWidth(configurationManager), primaryScreenBounds.getWidth());
+			
+			final Scene scene = new Scene(pane, width, height);			
 			scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 			
 			// Get the associated controller
@@ -85,16 +89,14 @@ public class Main extends Application
 			mainController.setSelectedPerspective(ConfigurationUtils.getApplicationPerspective(configurationManager));
 
 			// Set the stage's properties
-			primaryStage.setScene(scene);			
+			primaryStage.setScene(scene);	
+			primaryStage.setMaximized(ConfigurationUtils.getApplicationMaximized(configurationManager));
 			
-			// TODO: not sure we want those minimum values
-			//primaryStage.setMinWidth(width);
-			//primaryStage.setMinHeight(height / 2);
-			//primaryStage.setHeight(height);
-
 			// Initialise resources in the main controller			
 			mainController.setApplication(this);
 			mainController.setStage(primaryStage);
+			mainController.setLastHeight(height);
+			mainController.setLastWidth(width);
 			mainController.init();
 			
 			// Show the main window

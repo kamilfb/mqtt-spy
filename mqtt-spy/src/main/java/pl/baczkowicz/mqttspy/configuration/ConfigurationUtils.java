@@ -41,6 +41,8 @@ public class ConfigurationUtils
 	public final static String HEIGHT_PROPERTY = "application.height";
 	
 	public final static String PERSPECTIVE_PROPERTY = "application.perspective";
+
+	public static final String MAXIMIZED_PROPERTY = "application.maximized";
 		
 	public static void populateConnectionDefaults(final UserInterfaceMqttConnectionDetails connection)
 	{
@@ -148,6 +150,21 @@ public class ConfigurationUtils
 		{
 			logger.error("Invalid number format " + value);
 			return Main.DEFAULT_HEIGHT;
+		}
+	}
+	
+	public static boolean getApplicationMaximized(final ConfigurationManager configurationManager)
+	{
+		final String value = configurationManager.getUiPropertyFile().getProperty(MAXIMIZED_PROPERTY);
+		
+		try
+		{
+			return Boolean.valueOf(value);
+		}
+		catch (NumberFormatException e)
+		{
+			logger.error("Invalid boolean format " + value);
+			return false;
 		}
 	}
 	

@@ -359,15 +359,16 @@ public class ContextMenuUtils
 		contextMenu.getItems().add(view);
 		
 		final Menu messagePane = new Menu("[View] Message pane");
-		final CheckMenuItem smallestMessageContent = new CheckMenuItem("Keep message payload field as smallest as possible");	
-		smallestMessageContent.setOnAction(new EventHandler<ActionEvent>()
+		final CheckMenuItem resizeMessageContent = new CheckMenuItem("Resize pane with parent");	
+		resizeMessageContent.setSelected(true);
+		resizeMessageContent.setOnAction(new EventHandler<ActionEvent>()
 		{
 			public void handle(ActionEvent e)
 			{				
-				connectionController.toggleMessagePayloadSize(smallestMessageContent.isSelected());
+				connectionController.toggleMessagePayloadSize(resizeMessageContent.isSelected());
 			}
 		});
-		messagePane.getItems().add(smallestMessageContent);
+		messagePane.getItems().add(resizeMessageContent);
 		contextMenu.getItems().add(messagePane);
 
 		return contextMenu;
