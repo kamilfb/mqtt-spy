@@ -190,7 +190,12 @@ public class SearchPaneController implements Initializable, MessageFormatChangeO
 	
 	private void refreshList()
 	{
-		if (connection.getProperties() == null)
+		// If in offline mode
+		if (connection == null)
+		{
+			searchWithScriptsMenu.setDisable(true);
+		}
+		else if (connection.getProperties() == null)
 		{
 			logger.warn("Connection's properties are null");
 		}
