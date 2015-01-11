@@ -25,84 +25,140 @@ import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.configuration.generated.FormatterDetails;
 import pl.baczkowicz.mqttspy.connectivity.MqttContent;
+import pl.baczkowicz.mqttspy.ui.search.MessageFilter;
 
 /**
  * Message store with filtering.
  * 
  * TODO: could it extend the BasicMessageStore?
  */
-public class FilteredMessageStore
+public class FilteredMessageStore extends BasicMessageStore
 {
 	final static Logger logger = LoggerFactory.getLogger(FilteredMessageStore.class);
 	
 	/** This is the same as 'show' flag on topic summary. */
 	private final Set<String> shownTopics = new HashSet<String>();
 	
-	private final MessageListWithObservableTopicSummary filteredMessages;
+	//private final MessageListWithObservableTopicSummary filteredMessages;
 
 	private final MessageListWithObservableTopicSummary allMessages;
 	
-	public FilteredMessageStore(MessageListWithObservableTopicSummary messages, int preferredSize, int maxSize, String name, FormatterDetails messageFormat)
+	private final Set<MessageFilter> messageFilters = new HashSet<>();
+	
+	public FilteredMessageStore(MessageListWithObservableTopicSummary allMessages, int preferredSize, int maxSize, String name, FormatterDetails messageFormat)
 	{
-		this.filteredMessages = new MessageListWithObservableTopicSummary(preferredSize, maxSize, "filtered-" + name, messageFormat);
-		this.allMessages = messages;
+		super("filtered-" + name, preferredSize, maxSize, null, null);
+		//this.filteredMessages = new MessageListWithObservableTopicSummary(preferredSize, maxSize, "filtered-" + name, messageFormat);
+		this.allMessages = allMessages;
+	}
+	
+	public void addMessageFilter(final MessageFilter messageFilter)
+	{
+		messageFilters.add(messageFilter);
+	}
+	
+	public void removeMessageFilter(final MessageFilter messageFilter)
+	{
+		messageFilters.remove(messageFilter);
+		// TODO: rebuild the store?
+	}
+	
+	public void runFilter(final MessageFilter messageFilter)
+	{
+		reinitialiseFilteredStore();
+	}
+	
+	@Override
+	public boolean messageFiltersEnabled()
+	{
+		for (final MessageFilter filter : messageFilters)
+		{
+			if (filter.isActive())
+			{
+				return true;
+			}
+		}	
+		
+		return false;
 	}
 	
 	private void reinitialiseFilteredStore()
 	{
-		filteredMessages.clear();
+		messages.clear();
 		
 		synchronized (allMessages.getMessages())
-		{
-			for (MqttContent message : allMessages.getMessages())
+		{			
+			final int size = allMessages.getMessages().size();
+			for (int i = size - 1; i >= 0; i--)
+			// TODO: bug - iterates from 0 to end, but always adds to 0 position
+			// for (final MqttContent message : allMessages.getMessages())
 			{
-				if (shownTopics.contains(message.getTopic()))
+				final MqttContent message = allMessages.getMessages().get(i);
+				
+				if (shownTopics.contains(message.getTopic()) && !filterMessage(message))
 				{
-					filteredMessages.add(message);
+					messages.add(message);								
 				}
 			}
 		}
 	}	
 	
-	public boolean updateFilter(final String topic, final boolean show)
+	public boolean filterMessage(final MqttContent message)
+	{
+		for (final MessageFilter filter : messageFilters)
+		{
+			if (filter.filter(message, messages))
+			{
+				return true;
+			}
+		}	
+		
+		return false;
+	}
+	
+	public boolean updateTopicFilter(final String topic, final boolean show)
 	{
 		boolean updated = false;
 		if (show)
 		{
-			updated = applyFilter(topic, true);
+			updated = applyTopicFilter(topic, true);
 		}
 		else
 		{
-			updated = removeFilter(topic);
+			updated = removeTopicFilter(topic);
 		}
 		
 		return updated;
 	}	
 	
-	public void addAllFilters()
+	public void addAllTopicFilters()
 	{
-		removeAllFilters();
+		removeAllTopicFilters();
 		
 		synchronized (allMessages.getMessages())
 		{
 			for (MqttContent message : allMessages.getMessages())
 			{
 				shownTopics.add(message.getTopic());
-				filteredMessages.add(message);				
+				
+				if (!filterMessage(message))
+				{
+					messages.add(message);
+				}
 			}
 		}
 	}
 	
-	public void removeAllFilters()
+	public void removeAllTopicFilters()
 	{
 		synchronized (shownTopics)
 		{
 			shownTopics.clear();
-			filteredMessages.clear();
+			messages.clear();
 		}
 	}
 	
-	public boolean applyFilters(final Collection<String> topics, final boolean recreateStore)
+	public boolean applyTopicFilters(final Collection<String> topics, final boolean recreateStore)
 	{
 		synchronized (shownTopics)
 		{
@@ -129,12 +185,12 @@ public class FilteredMessageStore
 		}
 	}
 	
-	public boolean applyFilter(final String topic, final boolean recreateStore)
+	public boolean applyTopicFilter(final String topic, final boolean recreateStore)
 	{
-		return applyFilters(Arrays.asList(topic), recreateStore);
+		return applyTopicFilters(Arrays.asList(topic), recreateStore);
 	}
 	
-	public boolean removeFilters(final Collection<String> topics)
+	public boolean removeTopicFilters(final Collection<String> topics)
 	{
 		synchronized (shownTopics)
 		{
@@ -159,14 +215,14 @@ public class FilteredMessageStore
 		}
 	}
 
-	private boolean removeFilter(final String topic)
+	private boolean removeTopicFilter(final String topic)
 	{
-		return removeFilters(Arrays.asList(topic));
+		return removeTopicFilters(Arrays.asList(topic));
 	}
 	
 	public MessageListWithObservableTopicSummary getFilteredMessages()
 	{
-		return filteredMessages;
+		return messages;
 	}
 
 	public Set<String> getShownTopics()

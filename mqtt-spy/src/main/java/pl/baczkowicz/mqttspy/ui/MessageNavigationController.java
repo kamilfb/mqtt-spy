@@ -25,6 +25,7 @@ import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuButton;
@@ -75,6 +76,9 @@ public class MessageNavigationController implements Initializable, MessageIndexT
 	
 	@FXML
 	private Menu customFormatterMenu;
+	
+	@FXML
+	private CheckMenuItem uniqueOnlyMenu;
 
 	@FXML
 	private ToggleGroup selectionFormat;
@@ -93,6 +97,9 @@ public class MessageNavigationController implements Initializable, MessageIndexT
 
 	@FXML
 	private HBox messageIndexBox; 
+	
+	@FXML
+	private MenuButton filterButton;
 
 	private int selectedMessage;
 
@@ -103,6 +110,8 @@ public class MessageNavigationController implements Initializable, MessageIndexT
 	private Label totalMessagesValueLabel;
 	
 	private EventManager eventManager;
+
+	private boolean filterActive;
 
 	public void initialize(URL location, ResourceBundle resources)
 	{				
@@ -358,18 +367,37 @@ public class MessageNavigationController implements Initializable, MessageIndexT
 		messageIndexValueField.setText(selectedIndexValue);		
 		totalMessagesValueLabel.setText(totalMessagesValue);
 
-		if (!store.filtersEnabled())
-		{			
-			filterStatusLabel.setText("");
-		}
-		else if (store instanceof ManagedMessageStoreWithFiltering)
-		{	
-			filterStatusLabel.setText("(" + getBrowsingTopicsInfo((ManagedMessageStoreWithFiltering) store) + ")");
-		}
+		updateFilterStatus();
 		
 		if (refreshMessageDetails)
 		{
 			eventManager.changeMessageIndex(store, this, selectedMessage);
+		}
+	}
+	
+	private void updateFilterStatus()
+	{
+		if (!store.browsingFiltersEnabled())
+		{			
+			if (!store.messageFiltersEnabled())
+			{
+				filterStatusLabel.setText("");
+			}
+			else
+			{
+				filterStatusLabel.setText("(filter is active)");	
+			}
+		}
+		else if (store instanceof ManagedMessageStoreWithFiltering)
+		{	
+			if (!store.messageFiltersEnabled())
+			{
+				filterStatusLabel.setText("(" + getBrowsingTopicsInfo((ManagedMessageStoreWithFiltering) store) + ")");
+			}
+			else
+			{
+				filterStatusLabel.setText("(" + getBrowsingTopicsInfo((ManagedMessageStoreWithFiltering) store) + "; filter is active)");
+			}
 		}
 	}
 
@@ -409,6 +437,12 @@ public class MessageNavigationController implements Initializable, MessageIndexT
 	{
 		showLatestBox.setVisible(false);
 	}
+
+//	public void setFilterActive(final boolean active)
+//	{
+//		filterActive = active;
+//		updateFilterStatus();
+//	}
 	
 	// ===============================
 	// === Setters and getters =======
@@ -427,5 +461,20 @@ public class MessageNavigationController implements Initializable, MessageIndexT
 	public void setEventManager(final EventManager eventManager)
 	{
 		this.eventManager = eventManager;
+	}
+	
+	/**
+	 * Get the 'unique only' menu item.
+	 * 
+	 * @return the uniqueOnlyMenu
+	 */
+	public CheckMenuItem getUniqueOnlyMenu()
+	{
+		return uniqueOnlyMenu;
+	}
+
+	public MenuButton getFilterButton()
+	{
+		return filterButton;		
 	}
 }

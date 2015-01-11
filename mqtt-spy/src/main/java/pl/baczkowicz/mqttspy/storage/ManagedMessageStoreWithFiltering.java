@@ -68,7 +68,7 @@ public class ManagedMessageStoreWithFiltering extends BasicMessageStore
 	public void messageReceived(final MqttContent message)
 	{	
 		// Record the current state of topics
-		final boolean allTopicsShown = !filtersEnabled();		
+		final boolean allTopicsShown = !browsingFiltersEnabled();		
 		final boolean topicAlreadyExists = allTopics.contains(message.getTopic());
 		
 		// Start processing the received message...
@@ -79,8 +79,10 @@ public class ManagedMessageStoreWithFiltering extends BasicMessageStore
 		// 2. Add the message to 'all messages' store - oldest could be removed if the store has reached its max size 
 		final MqttContent removed = storeMessage(message);
 		
-		// 3. Add it to the filtered store if all messages are shown or the topic is already on the list
-		if (allTopicsShown || filteredStore.getShownTopics().contains(message.getTopic()))
+		// 3. Add it to the filtered store if:
+		// - message is not filtered out
+		// - all messages are shown or the topic is already on the list
+		if (!filteredStore.filterMessage(message) && (allTopicsShown || filteredStore.getShownTopics().contains(message.getTopic())))
 		{
 			filteredStore.getFilteredMessages().add(message);
 			
@@ -92,7 +94,7 @@ public class ManagedMessageStoreWithFiltering extends BasicMessageStore
 		if (allTopicsShown && !topicAlreadyExists)
 		{
 			// This doesn't need to trigger 'show first' or sth because the following two UI events should refresh the screen
-			filteredStore.applyFilter(message.getTopic(), false);	 
+			filteredStore.applyTopicFilter(message.getTopic(), false);	 
 		}
 
 		// 5. Formats the message with the currently selected formatter
@@ -129,9 +131,15 @@ public class ManagedMessageStoreWithFiltering extends BasicMessageStore
 	}	
 	
 	@Override
-	public boolean filtersEnabled()
+	public boolean browsingFiltersEnabled()
 	{
 		return filteredStore.getShownTopics().size() != allTopics.size();
+	}
+	
+	@Override
+	public boolean messageFiltersEnabled()
+	{
+		return filteredStore.messageFiltersEnabled();
 	}
 	
 	public Collection<String> getAllTopics()
@@ -144,18 +152,18 @@ public class ManagedMessageStoreWithFiltering extends BasicMessageStore
 	{
 		super.clear();
 		allTopics.clear();
-		filteredStore.removeAllFilters();
+		filteredStore.removeAllTopicFilters();
 	}
 
 	public void setAllShowValues(final boolean show)
 	{
 		if (show)
 		{
-			filteredStore.addAllFilters();
+			filteredStore.addAllTopicFilters();
 		}
 		else
 		{
-			filteredStore.removeAllFilters();
+			filteredStore.removeAllTopicFilters();
 		}
 		
 		messages.getTopicSummary().setAllShowValues(show);
@@ -167,11 +175,11 @@ public class ManagedMessageStoreWithFiltering extends BasicMessageStore
 		{
 			if (show)
 			{
-				filteredStore.applyFilters(topics, true);
+				filteredStore.applyTopicFilters(topics, true);
 			}
 			else
 			{
-				filteredStore.removeFilters(topics);
+				filteredStore.removeTopicFilters(topics);
 			}
 			
 			messages.getTopicSummary().setShowValues(topics, show);
@@ -202,8 +210,8 @@ public class ManagedMessageStoreWithFiltering extends BasicMessageStore
 				}
 			}
 			
-			filteredStore.removeFilters(topicsToRemove);
-			filteredStore.applyFilters(topicsToAdd, true);
+			filteredStore.removeTopicFilters(topicsToRemove);
+			filteredStore.applyTopicFilters(topicsToAdd, true);
 			
 			messages.getTopicSummary().toggleShowValues(topics);
 		}
@@ -211,7 +219,7 @@ public class ManagedMessageStoreWithFiltering extends BasicMessageStore
 
 	public void setShowValue(final String topic, final boolean show)
 	{
-		filteredStore.updateFilter(topic, show);
+		filteredStore.updateTopicFilter(topic, show);
 		messages.getTopicSummary().setShowValue(topic, show);
 	}
 }

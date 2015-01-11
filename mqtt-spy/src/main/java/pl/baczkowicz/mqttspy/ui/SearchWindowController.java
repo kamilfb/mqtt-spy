@@ -168,7 +168,7 @@ public class SearchWindowController extends AnchorPane implements Initializable,
 	{
 		final String messagesText = store.getMessages().size() == 1 ?  "message" : "messages";
 		
-		if (!store.filtersEnabled())
+		if (!store.browsingFiltersEnabled())
 		{			
 			stage.setTitle(subscriptionName + " - " + store.getMessages().size() + " " + messagesText + " available for searching");
 		}

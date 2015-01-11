@@ -37,5 +37,12 @@ public interface MessageStore
 	 * 
 	 * @return True if filters are enabled
 	 */
-	boolean filtersEnabled();
+	boolean browsingFiltersEnabled();
+	
+	/**
+	 * Checks if message filters are enabled.
+	 * 
+	 * @return True if filters are enabled
+	 */
+	boolean messageFiltersEnabled();
 }

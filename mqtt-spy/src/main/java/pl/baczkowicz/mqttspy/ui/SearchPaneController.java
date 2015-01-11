@@ -21,9 +21,6 @@ import java.util.List;
 import java.util.Queue;
 import java.util.ResourceBundle;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -42,6 +39,10 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.HBox;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.connectivity.MqttContent;
 import pl.baczkowicz.mqttspy.events.EventManager;
@@ -51,13 +52,15 @@ import pl.baczkowicz.mqttspy.events.queuable.ui.MqttSpyUIEvent;
 import pl.baczkowicz.mqttspy.scripts.Script;
 import pl.baczkowicz.mqttspy.scripts.ScriptManager;
 import pl.baczkowicz.mqttspy.storage.BasicMessageStore;
+import pl.baczkowicz.mqttspy.storage.FilteredMessageStore;
 import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
 import pl.baczkowicz.mqttspy.ui.properties.MqttContentProperties;
-import pl.baczkowicz.mqttspy.ui.search.ScriptMatcher;
 import pl.baczkowicz.mqttspy.ui.search.InlineScriptMatcher;
+import pl.baczkowicz.mqttspy.ui.search.ScriptMatcher;
 import pl.baczkowicz.mqttspy.ui.search.SearchMatcher;
 import pl.baczkowicz.mqttspy.ui.search.SearchOptions;
 import pl.baczkowicz.mqttspy.ui.search.SimplePayloadMatcher;
+import pl.baczkowicz.mqttspy.ui.search.UniqueContentOnlyFilter;
 
 /**
  * Controller for the search pane.
@@ -121,7 +124,7 @@ public class SearchPaneController implements Initializable, MessageFormatChangeO
 	
 	private ManagedMessageStoreWithFiltering store; 
 	
-	private BasicMessageStore foundMessageStore;
+	private FilteredMessageStore foundMessageStore;
 
 	private Tab tab;
 
@@ -134,6 +137,8 @@ public class SearchPaneController implements Initializable, MessageFormatChangeO
 	private MqttAsyncConnection connection;
 
 	private ScriptManager scriptManager;
+
+	private UniqueContentOnlyFilter uniqueContentOnlyFilter;
 	
 	public void initialize(URL location, ResourceBundle resources)
 	{
@@ -160,9 +165,26 @@ public class SearchPaneController implements Initializable, MessageFormatChangeO
 	{
 		eventManager.registerFormatChangeObserver(this, store);
 		
-		foundMessageStore = new BasicMessageStore("search-" + store.getName(), 
-				store.getMessageList().getPreferredSize(), store.getMessageList().getMaxSize(), uiEventQueue, eventManager);
-		foundMessageStore.setFormatter(store.getFormatter());
+//		foundMessageStore = new BasicMessageStore("search-" + store.getName(), 
+//				store.getMessageList().getPreferredSize(), store.getMessageList().getMaxSize(), uiEventQueue, eventManager);
+//		foundMessageStore.setFormatter(store.getFormatter());
+		foundMessageStore = new FilteredMessageStore(store.getMessageList(), store.getMessageList().getPreferredSize(), store.getMessageList().getMaxSize(), 
+				"search-" + store.getName(), store.getFormatter());
+		
+		uniqueContentOnlyFilter = new UniqueContentOnlyFilter();
+		uniqueContentOnlyFilter.setUniqueContentOnly(messageNavigationPaneController.getUniqueOnlyMenu().isSelected());
+		foundMessageStore.addMessageFilter(uniqueContentOnlyFilter);
+		messageNavigationPaneController.getUniqueOnlyMenu().setOnAction(new EventHandler<ActionEvent>()
+		{			
+			@Override
+			public void handle(ActionEvent event)
+			{
+				uniqueContentOnlyFilter.setUniqueContentOnly(messageNavigationPaneController.getUniqueOnlyMenu().isSelected());
+				//store.getFilteredMessageStore().runFilter(uniqueContentOnlyFilter);
+				search();
+				eventManager.navigateToFirst(foundMessageStore);				
+			}
+		});
 		
 		messageListTablePaneController.setItems(foundMessages);
 		messageListTablePaneController.setStore(foundMessageStore);
@@ -317,22 +339,30 @@ public class SearchPaneController implements Initializable, MessageFormatChangeO
 		
 		if (found)
 		{
-			foundMessage(message);
+			messageFound(message);
 			return true;
 		}
 		
 		return false;
 	}
 	
-	private void foundMessage(final MqttContent message)
+	private void messageFound(final MqttContent message)
 	{
+		// TODO: filter the found messages too?		
 		foundMessages.add(0, new MqttContentProperties(message, store.getFormatter()));
 		
-		// If an old message has been deleted from the store, remove it from the list as well 
-		if (foundMessageStore.storeMessage(message) != null)
+		// All the message shouldn't be filtered out
+		if (!uniqueContentOnlyFilter.filter(message, foundMessageStore.getMessageList()))
 		{
-			foundMessages.remove(foundMessages.size() - 1);
+			// If an old message has been deleted from the store, remove it from the list as well 
+			if (foundMessageStore.storeMessage(message) != null)
+			{
+				foundMessages.remove(foundMessages.size() - 1);
+			}
 		}
+		
+		//messageNavigationPaneController.setFilterActive(uniqueContentOnlyFilter.isActive());
+		// messageNavigationPaneController.updateFilter
 	}
 	
 	private void clearMessages()
@@ -340,6 +370,7 @@ public class SearchPaneController implements Initializable, MessageFormatChangeO
 		seachedCount = 0;
 		foundMessages.clear();
 		foundMessageStore.clear();
+		uniqueContentOnlyFilter.reset();
 	}
 	
 	@FXML

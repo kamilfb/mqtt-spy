@@ -20,6 +20,7 @@ import java.util.ResourceBundle;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -62,6 +63,7 @@ import pl.baczkowicz.mqttspy.events.observers.SubscriptionStatusChangeObserver;
 import pl.baczkowicz.mqttspy.stats.StatisticsManager;
 import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
 import pl.baczkowicz.mqttspy.ui.connections.SubscriptionManager;
+import pl.baczkowicz.mqttspy.ui.search.UniqueContentOnlyFilter;
 import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
 import pl.baczkowicz.mqttspy.ui.utils.FormattingUtils;
 import pl.baczkowicz.mqttspy.ui.utils.FxmlUtils;
@@ -71,11 +73,6 @@ import pl.baczkowicz.mqttspy.ui.utils.FxmlUtils;
  */
 public class SubscriptionController implements Initializable, ClearTabObserver, SubscriptionStatusChangeObserver
 {
-	public MqttSubscription getSubscription()
-	{
-		return subscription;
-	}
-
 	final static Logger logger = LoggerFactory.getLogger(SubscriptionController.class);
 
 	private static final int MIN_EXPANDED_SUMMARY_PANE_HEIGHT = 130;
@@ -162,6 +159,8 @@ public class SubscriptionController implements Initializable, ClearTabObserver, 
 	private boolean replayMode;
 
 	private Formatting formatting;
+
+	private UniqueContentOnlyFilter uniqueContentOnlyFilter;
 
 	public void initialize(URL location, ResourceBundle resources)
 	{			
@@ -336,6 +335,25 @@ public class SubscriptionController implements Initializable, ClearTabObserver, 
 		}
 		
 		// logger.info("init(); finished on SubscriptionController");
+		
+		// Filtering
+		uniqueContentOnlyFilter = new UniqueContentOnlyFilter();
+		uniqueContentOnlyFilter.setUniqueContentOnly(messageNavigationPaneController.getUniqueOnlyMenu().isSelected());
+		store.getFilteredMessageStore().addMessageFilter(uniqueContentOnlyFilter);
+		messageNavigationPaneController.getUniqueOnlyMenu().setOnAction(new EventHandler<ActionEvent>()
+		{			
+			@Override
+			public void handle(ActionEvent event)
+			{
+				uniqueContentOnlyFilter.setUniqueContentOnly(messageNavigationPaneController.getUniqueOnlyMenu().isSelected());
+				store.getFilteredMessageStore().runFilter(uniqueContentOnlyFilter);
+				eventManager.notifyMessageListChanged(store.getMessageList());
+				eventManager.navigateToFirst(store);
+				
+				// TODO: Make it read directly from the filtered store?
+				//messageNavigationPaneController.setFilterActive(store.getFilteredMessageStore().messageFiltersActive());
+			}
+		});
 	}
 
 	public void setReplayMode(final boolean value)
@@ -563,5 +581,10 @@ public class SubscriptionController implements Initializable, ClearTabObserver, 
 		{			
 			messagePane.setMaxHeight(50);
 		}
+	}
+	
+	public MqttSubscription getSubscription()
+	{
+		return subscription;
 	}
 }

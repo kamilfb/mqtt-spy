@@ -86,7 +86,12 @@ public class BasicMessageStore implements MessageStore
 		return messageFormat;
 	}
 	
-	public boolean filtersEnabled()
+	public boolean browsingFiltersEnabled()
+	{
+		return false;
+	}
+	
+	public boolean messageFiltersEnabled()
 	{
 		return false;
 	}

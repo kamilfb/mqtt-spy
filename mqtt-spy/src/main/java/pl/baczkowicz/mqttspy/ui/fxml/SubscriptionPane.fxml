@@ -36,7 +36,7 @@
       	<graphic>
       		<ImageView fitHeight="18.0" fitWidth="18.0" pickOnBounds="true">
 		         <image>
-		            <Image url="/images/formatting.png"/>
+		            <Image url="/images/settings.png"/>
 		         </image>
 		      </ImageView>
       	</graphic>

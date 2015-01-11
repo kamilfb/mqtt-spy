@@ -217,7 +217,7 @@ public class SubscriptionSummaryTableController implements Initializable
 	{
 		logger.trace("[{}] Show property changed; topic = {}, show value = {}", store.getName(), item.topicProperty().getValue(), checked);
 									
-		if (store.getFilteredMessageStore().updateFilter(item.topicProperty().getValue(), checked))
+		if (store.getFilteredMessageStore().updateTopicFilter(item.topicProperty().getValue(), checked))
 		{
 			// Wouldn't get updated properly if this is in the same thread 
 			Platform.runLater(new Runnable()

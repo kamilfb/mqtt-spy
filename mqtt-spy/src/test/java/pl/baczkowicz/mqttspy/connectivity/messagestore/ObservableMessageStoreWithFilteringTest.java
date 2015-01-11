@@ -75,7 +75,7 @@ public class ObservableMessageStoreWithFilteringTest
 	public final void testActiveFiltersWhenNotAllEnabled()	
 	{
 		testDefaultActiveFilters();
-		store.getFilteredMessageStore().updateFilter("t2", false);
+		store.getFilteredMessageStore().updateTopicFilter("t2", false);
 		
 		final MqttContent message = new MqttContent(3, "t3", new MqttMessage("test3".getBytes()));
 		store.messageReceived(message);

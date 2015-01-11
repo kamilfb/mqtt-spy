@@ -26,21 +26,34 @@
 
 <AnchorPane prefHeight="30.0" prefWidth="499.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.baczkowicz.mqttspy.ui.MessageNavigationController">
 	<children>      
-      <HBox fx:id="messageIndexBox" layoutX="8.0" layoutY="5.0" prefHeight="22.0" prefWidth="249.0" AnchorPane.leftAnchor="8.0" AnchorPane.rightAnchor="242.0">
+      <HBox fx:id="messageIndexBox" layoutX="8.0" layoutY="5.0" prefHeight="22.0" prefWidth="249.0" AnchorPane.leftAnchor="8.0" AnchorPane.rightAnchor="292.0">
          <children>
       		<Label fx:id="messageLabel" prefHeight="27.0" text="No messages" />
          </children>
       </HBox>
-      <CheckBox fx:id="showLatestBox" focusTraversable="false" layoutX="224.0" layoutY="7.0" mnemonicParsing="false" prefHeight="16.0" prefWidth="96.0" selected="true" text="Show latest" wrapText="true" AnchorPane.rightAnchor="140.0" AnchorPane.topAnchor="7.0">
+      <CheckBox fx:id="showLatestBox" focusTraversable="false" layoutX="224.0" layoutY="7.0" mnemonicParsing="false" prefHeight="16.0" prefWidth="96.0" selected="true" text="Show latest" wrapText="true" AnchorPane.rightAnchor="235" AnchorPane.topAnchor="7.0">
          <font>
             <Font size="11.0" />
          </font>
       </CheckBox>
       
+      <!-- text="|&lt;"  -->
+      <Button fx:id="showFirstButton" focusTraversable="false" layoutX="379.0" layoutY="2.0" mnemonicParsing="false" onAction="#showFirst" prefHeight="26" AnchorPane.rightAnchor="202" AnchorPane.topAnchor="2.0">
+          <graphic>
+      		<ImageView fitHeight="16" fitWidth="16" pickOnBounds="true" preserveRatio="true">
+		         <image>
+		            <Image url="/images/go-first.png" />
+		         </image>
+		      </ImageView>
+      	</graphic>
+         <font>
+            <Font size="11.0" />
+         </font></Button>      
+               
       <!-- text="&gt;"  -->
-      <Button fx:id="lessRecentButton" focusTraversable="false" layoutX="449.0" layoutY="2.0" mnemonicParsing="false" onAction="#showLessRecent" prefHeight="26" AnchorPane.rightAnchor="35.0" AnchorPane.topAnchor="2.0">
+      <Button fx:id="lessRecentButton" focusTraversable="false" layoutX="449.0" layoutY="2.0" mnemonicParsing="false" onAction="#showLessRecent" prefHeight="26" AnchorPane.rightAnchor="132" AnchorPane.topAnchor="2.0">
       <graphic>
-      		<ImageView fx:id="settingsIcon" fitHeight="16" fitWidth="16" pickOnBounds="true" preserveRatio="true">
+      		<ImageView fitHeight="16" fitWidth="16" pickOnBounds="true" preserveRatio="true">
 		         <image>
 		            <Image url="/images/go-next.png" />
 		         </image>
@@ -51,9 +64,9 @@
          </font>
       </Button>
          <!-- text="&lt;"  -->
-      <Button fx:id="moreRecentButton" focusTraversable="false" layoutX="414.0" layoutY="2.0" mnemonicParsing="false" onAction="#showMoreRecent" prefHeight="26" AnchorPane.rightAnchor="70.0" AnchorPane.topAnchor="2.0">
+      <Button fx:id="moreRecentButton" focusTraversable="false" layoutX="414.0" layoutY="2.0" mnemonicParsing="false" onAction="#showMoreRecent" prefHeight="26" AnchorPane.rightAnchor="167" AnchorPane.topAnchor="2.0">
                 <graphic>
-      		<ImageView fx:id="settingsIcon" fitHeight="16" fitWidth="16" pickOnBounds="true" preserveRatio="true">
+      		<ImageView fitHeight="16" fitWidth="16" pickOnBounds="true" preserveRatio="true">
 		         <image>
 		            <Image url="/images/go-previous.png" />
 		         </image>
@@ -63,10 +76,11 @@
             <Font size="11.0" />
          </font>
       </Button>
+      
       <!-- text="&gt;|"  -->   
-      <Button fx:id="showLastButton" focusTraversable="false" layoutX="484.0" layoutY="2.0" mnemonicParsing="false" onAction="#showLast" prefHeight="26" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="2.0">
+      <Button fx:id="showLastButton" focusTraversable="false" layoutX="484.0" layoutY="2.0" mnemonicParsing="false" onAction="#showLast" prefHeight="26" AnchorPane.rightAnchor="97" AnchorPane.topAnchor="2.0">
       	<graphic>
-      		<ImageView fx:id="settingsIcon" fitHeight="16" fitWidth="16" pickOnBounds="true" preserveRatio="true">
+      		<ImageView fitHeight="16" fitWidth="16" pickOnBounds="true" preserveRatio="true">
 		         <image>
 		            <Image url="/images/go-last.png" />
 		         </image>
@@ -76,17 +90,24 @@
             <Font size="11.0" />
          </font>
       </Button>
-      <!-- text="|&lt;"  -->
-      <Button fx:id="showFirstButton" focusTraversable="false" layoutX="379.0" layoutY="2.0" mnemonicParsing="false" onAction="#showFirst" prefHeight="26" AnchorPane.rightAnchor="105.0" AnchorPane.topAnchor="2.0">
-          <graphic>
-      		<ImageView fx:id="settingsIcon" fitHeight="16" fitWidth="16" pickOnBounds="true" preserveRatio="true">
+      
+      <!-- text="&gt;|"  -->   
+      <MenuButton fx:id="filterButton" graphicTextGap="6" focusTraversable="false" layoutX="484.0" layoutY="2.0" mnemonicParsing="false" text="Filter" onAction="#showLast" prefWidth="90" prefHeight="26" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="2.0">
+      
+      	<graphic>
+      		<ImageView fitHeight="18" fitWidth="18" pickOnBounds="true">
 		         <image>
-		            <Image url="/images/go-first.png" />
+		            <Image url="/images/filter.png" />
 		         </image>
 		      </ImageView>
       	</graphic>
          <font>
             <Font size="11.0" />
-         </font></Button>      
+         </font>
+         <items>
+            <CheckMenuItem fx:id="uniqueOnlyMenu" mnemonicParsing="false" text="Show only latest if the same" />
+        </items>
+      </MenuButton>
+
 	</children>
 </AnchorPane>
