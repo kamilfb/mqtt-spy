@@ -144,6 +144,7 @@
 	<xs:complexType name="MessageLog">
 		<xs:simpleContent>
 			<xs:extension base="mqttspycommon:MessageLogEnum">
+				<xs:attribute name="logFile" 			type="xs:string" />
 	       		<xs:attribute name="logQos" 			type="xs:boolean" />
 	       		<xs:attribute name="logRetained" 		type="xs:boolean" />
 	       		<xs:attribute name="logConnection" 		type="xs:boolean" />

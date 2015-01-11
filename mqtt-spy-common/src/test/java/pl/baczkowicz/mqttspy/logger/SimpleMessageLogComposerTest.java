@@ -53,7 +53,7 @@ public class SimpleMessageLogComposerTest
 		final BaseMqttConnection connection = context.mock(BaseMqttConnection.class); 
 		final ReceivedMqttMessageWithSubscriptions message = new ReceivedMqttMessageWithSubscriptions(1, "topic", mqttMessage, connection);
 		
-		final MessageLog messageLog = new MessageLog(MessageLogEnum.XML_WITH_PLAIN_PAYLOAD, false, false, false, false, false);
+		final MessageLog messageLog = new MessageLog(MessageLogEnum.XML_WITH_PLAIN_PAYLOAD, null, false, false, false, false, false);
 		final long timestamp = message.getDate().getTime();
 		
 		final String loggedMessage = "<MqttMessage id=\"1\" timestamp=\"" + timestamp + "\" topic=\"topic\">" + SAMPLE_PAYLOAD + "</MqttMessage>";
@@ -74,7 +74,7 @@ public class SimpleMessageLogComposerTest
 		final BaseMqttConnection connection = context.mock(BaseMqttConnection.class); 
 		final ReceivedMqttMessageWithSubscriptions message = new ReceivedMqttMessageWithSubscriptions(1, "topic", mqttMessage, connection);
 		
-		final MessageLog messageLog = new MessageLog(MessageLogEnum.XML_WITH_ENCODED_PAYLOAD, false, false, false, false, false);
+		final MessageLog messageLog = new MessageLog(MessageLogEnum.XML_WITH_ENCODED_PAYLOAD, null, false, false, false, false, false);
 		final long timestamp = message.getDate().getTime();
 		
 		final String loggedMessage = "<MqttMessage id=\"1\" timestamp=\"" + timestamp + "\" topic=\"topic\" encoded=\"true\">" + 

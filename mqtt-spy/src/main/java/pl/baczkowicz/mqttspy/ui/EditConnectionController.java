@@ -57,6 +57,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.common.generated.BaseMqttMessage;
+import pl.baczkowicz.mqttspy.common.generated.MessageLog;
+import pl.baczkowicz.mqttspy.common.generated.MessageLogEnum;
 import pl.baczkowicz.mqttspy.common.generated.PublicationDetails;
 import pl.baczkowicz.mqttspy.common.generated.ReconnectionSettings;
 import pl.baczkowicz.mqttspy.common.generated.ScriptDetails;
@@ -247,6 +249,13 @@ public class EditConnectionController extends AnchorPane implements Initializabl
 	@FXML
 	private NewPublicationController lastWillAndTestamentMessageController;
 	
+	// Log
+	@FXML
+	private TextField messageLogLocation;
+	
+	@FXML
+	private ComboBox<MessageLogEnum> loggingMode;
+	
 	// Other fields
 
 	private String lastGeneratedConnectionName = "";
@@ -364,6 +373,10 @@ public class EditConnectionController extends AnchorPane implements Initializabl
 		lastWillAndTestamentMessageController.getPublicationQosChoice().getSelectionModel().selectedIndexProperty().addListener(basicOnChangeListener);
 		lastWillAndTestamentMessageController.getRetainedBox().selectedProperty().addListener(basicOnChangeListener);
 		lastWillAndTestamentMessageController.hidePublishButton();
+		
+		// Log
+		messageLogLocation.textProperty().addListener(basicOnChangeListener);
+		loggingMode.getSelectionModel().selectedIndexProperty().addListener(basicOnChangeListener);
 		
 		// UI
 		autoConnect.selectedProperty().addListener(basicOnChangeListener);
@@ -681,7 +694,9 @@ public class EditConnectionController extends AnchorPane implements Initializabl
 		formatter.getItems().add(FormattingUtils.createBasicFormatter("default-hexDecoder", 	"HEX decoder", ConversionMethod.HEX_DECODE));
 		formatter.getItems().add(FormattingUtils.createBasicFormatter("default-hexEncoder", 	"HEX encoder", ConversionMethod.HEX_ENCODE));
 		formatter.getItems().add(FormattingUtils.createBasicFormatter("default-base64Decoder", 	"Base64 decoder", ConversionMethod.BASE_64_DECODE));
-		formatter.getItems().add(FormattingUtils.createBasicFormatter("default-base64Encoder", 	"Base64 encoder", ConversionMethod.BASE_64_ENCODE));		
+		formatter.getItems().add(FormattingUtils.createBasicFormatter("default-base64Encoder", 	"Base64 encoder", ConversionMethod.BASE_64_ENCODE));	
+		
+		loggingMode.getItems().addAll(MessageLogEnum.values());
 
 		// Populate those from the configuration file
 		for (final FormatterDetails formatterDetails : configurationManager.getConfiguration().getFormatting().getFormatter())
@@ -988,6 +1003,11 @@ public class EditConnectionController extends AnchorPane implements Initializabl
 			connection.setUserCredentials(userCredentials);
 		}
 		
+		// Log
+		connection.setMessageLog(new MessageLog());
+		connection.getMessageLog().setLogFile(messageLogLocation.getText());
+		connection.getMessageLog().setValue(loggingMode.getValue());
+		
 		// Publications topics		
 		for (final BaseTopicProperty publicationDetails : publicationsTable.getItems())
 		{
@@ -1212,6 +1232,10 @@ public class EditConnectionController extends AnchorPane implements Initializabl
 		}
 		
 		updateUserAuthentication();
+		
+		// Log
+		loggingMode.setValue(connection.getMessageLog() == null ? MessageLogEnum.DISABLED : connection.getMessageLog().getValue());
+		messageLogLocation.setText(connection.getMessageLog() == null ? "" : connection.getMessageLog().getLogFile());
 
 		// UI
 		autoConnect.setSelected(connection.isAutoConnect() == null ? false : connection.isAutoConnect());

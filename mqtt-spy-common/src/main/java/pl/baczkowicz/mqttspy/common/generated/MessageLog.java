@@ -40,6 +40,7 @@ import org.jvnet.jaxb2_commons.lang.builder.JAXBToStringBuilder;
  * &lt;complexType name="MessageLog">
  *   &lt;simpleContent>
  *     &lt;extension base="&lt;http://baczkowicz.pl/mqtt-spy/common>MessageLogEnum">
+ *       &lt;attribute name="logFile" type="{http://www.w3.org/2001/XMLSchema}string" />
  *       &lt;attribute name="logQos" type="{http://www.w3.org/2001/XMLSchema}boolean" />
  *       &lt;attribute name="logRetained" type="{http://www.w3.org/2001/XMLSchema}boolean" />
  *       &lt;attribute name="logConnection" type="{http://www.w3.org/2001/XMLSchema}boolean" />
@@ -62,6 +63,8 @@ public class MessageLog implements CopyTo, Copyable, Equals, HashCode, ToString
 
     @XmlValue
     protected MessageLogEnum value;
+    @XmlAttribute(name = "logFile")
+    protected String logFile;
     @XmlAttribute(name = "logQos")
     protected Boolean logQos;
     @XmlAttribute(name = "logRetained")
@@ -85,8 +88,9 @@ public class MessageLog implements CopyTo, Copyable, Equals, HashCode, ToString
      * Fully-initialising value constructor
      * 
      */
-    public MessageLog(final MessageLogEnum value, final Boolean logQos, final Boolean logRetained, final Boolean logConnection, final Boolean logSubscription, final Boolean logBeforeScripts) {
+    public MessageLog(final MessageLogEnum value, final String logFile, final Boolean logQos, final Boolean logRetained, final Boolean logConnection, final Boolean logSubscription, final Boolean logBeforeScripts) {
         this.value = value;
+        this.logFile = logFile;
         this.logQos = logQos;
         this.logRetained = logRetained;
         this.logConnection = logConnection;
@@ -116,6 +120,30 @@ public class MessageLog implements CopyTo, Copyable, Equals, HashCode, ToString
      */
     public void setValue(MessageLogEnum value) {
         this.value = value;
+    }
+
+    /**
+     * Gets the value of the logFile property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getLogFile() {
+        return logFile;
+    }
+
+    /**
+     * Sets the value of the logFile property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setLogFile(String value) {
+        this.logFile = value;
     }
 
     /**
@@ -245,6 +273,11 @@ public class MessageLog implements CopyTo, Copyable, Equals, HashCode, ToString
             toStringBuilder.append("value", theValue);
         }
         {
+            String theLogFile;
+            theLogFile = this.getLogFile();
+            toStringBuilder.append("logFile", theLogFile);
+        }
+        {
             Boolean theLogQos;
             theLogQos = this.isLogQos();
             toStringBuilder.append("logQos", theLogQos);
@@ -287,6 +320,7 @@ public class MessageLog implements CopyTo, Copyable, Equals, HashCode, ToString
         }
         final MessageLog that = ((MessageLog) object);
         equalsBuilder.append(this.getValue(), that.getValue());
+        equalsBuilder.append(this.getLogFile(), that.getLogFile());
         equalsBuilder.append(this.isLogQos(), that.isLogQos());
         equalsBuilder.append(this.isLogRetained(), that.isLogRetained());
         equalsBuilder.append(this.isLogConnection(), that.isLogConnection());
@@ -308,6 +342,7 @@ public class MessageLog implements CopyTo, Copyable, Equals, HashCode, ToString
 
     public void hashCode(HashCodeBuilder hashCodeBuilder) {
         hashCodeBuilder.append(this.getValue());
+        hashCodeBuilder.append(this.getLogFile());
         hashCodeBuilder.append(this.isLogQos());
         hashCodeBuilder.append(this.isLogRetained());
         hashCodeBuilder.append(this.isLogConnection());
@@ -328,6 +363,12 @@ public class MessageLog implements CopyTo, Copyable, Equals, HashCode, ToString
             sourceValue = this.getValue();
             MessageLogEnum copyValue = ((MessageLogEnum) copyBuilder.copy(sourceValue));
             copy.setValue(copyValue);
+        }
+        {
+            String sourceLogFile;
+            sourceLogFile = this.getLogFile();
+            String copyLogFile = ((String) copyBuilder.copy(sourceLogFile));
+            copy.setLogFile(copyLogFile);
         }
         {
             Boolean sourceLogQos;

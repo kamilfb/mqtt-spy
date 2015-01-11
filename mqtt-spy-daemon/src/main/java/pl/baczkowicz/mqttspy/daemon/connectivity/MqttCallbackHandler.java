@@ -30,6 +30,7 @@ import pl.baczkowicz.mqttspy.common.generated.MessageLogEnum;
 import pl.baczkowicz.mqttspy.common.generated.SubscriptionDetails;
 import pl.baczkowicz.mqttspy.connectivity.BaseMqttConnection;
 import pl.baczkowicz.mqttspy.daemon.configuration.generated.DaemonMqttConnectionDetails;
+import pl.baczkowicz.mqttspy.logger.MqttMessageLogger;
 import pl.baczkowicz.mqttspy.messages.ReceivedMqttMessageWithSubscriptions;
 import pl.baczkowicz.mqttspy.scripts.ScriptManager;
 
@@ -74,7 +75,7 @@ public class MqttCallbackHandler implements MqttCallback
 		this.connection = connection;
 		this.connectionSettings = connectionSettings;
 		this.scriptManager = scriptManager;
-		this.messageLogger = new MqttMessageLogger(messageQueue, connectionSettings);
+		this.messageLogger = new MqttMessageLogger(messageQueue, connectionSettings.getMessageLog(), false);
 		
 		for (final SubscriptionDetails subscriptionDetails : connectionSettings.getSubscription())
 		{

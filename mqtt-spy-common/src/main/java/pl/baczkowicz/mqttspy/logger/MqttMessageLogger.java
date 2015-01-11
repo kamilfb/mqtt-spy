@@ -12,15 +12,15 @@
  *    Kamil Baczkowicz - initial API and implementation and/or initial documentation
  *    
  */
-package pl.baczkowicz.mqttspy.daemon.connectivity;
+package pl.baczkowicz.mqttspy.logger;
 
 import java.util.Queue;
 
+import org.apache.log4j.RollingFileAppender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import pl.baczkowicz.mqttspy.daemon.configuration.generated.DaemonMqttConnectionDetails;
-import pl.baczkowicz.mqttspy.logger.SimpleMessageLogComposer;
+import pl.baczkowicz.mqttspy.common.generated.MessageLog;
 import pl.baczkowicz.mqttspy.messages.ReceivedMqttMessageWithSubscriptions;
 import pl.baczkowicz.mqttspy.utils.ThreadingUtils;
 
@@ -35,8 +35,8 @@ public class MqttMessageLogger implements Runnable
 	/** Received messages that are to be logged. */
 	private final Queue<ReceivedMqttMessageWithSubscriptions> queue;
 
-	/** Connection details. */
-	private final DaemonMqttConnectionDetails connectionSettings;
+	/** Message log settings. */
+	private final MessageLog messageLogSettings;
 	
 	/** Flag indicating whether the logger is/should be running. */
 	private boolean running;
@@ -47,10 +47,34 @@ public class MqttMessageLogger implements Runnable
 	 * @param queue The message queue to be used
 	 * @param connectionSettings The connection details
 	 */
-	public MqttMessageLogger(final Queue<ReceivedMqttMessageWithSubscriptions> queue, final DaemonMqttConnectionDetails connectionSettings)
+	public MqttMessageLogger(final Queue<ReceivedMqttMessageWithSubscriptions> queue, final MessageLog messageLogSettings, final boolean useTemplate)
 	{
 		this.queue = queue;
-		this.connectionSettings = connectionSettings;
+		this.messageLogSettings = messageLogSettings;
+		
+		final String file = messageLogSettings.getLogFile();
+		if (file != null)
+		{			
+			final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getRootLogger();
+			RollingFileAppender appender;
+			
+			if (useTemplate)
+			{
+				final RollingFileAppender templateAppender = (RollingFileAppender) logger.getAppender("messagelogTemplate");
+				
+				appender = new RollingFileAppender();
+				appender.setThreshold(templateAppender.getThreshold());
+				appender.setMaximumFileSize(templateAppender.getMaximumFileSize());
+				appender.setMaxBackupIndex(templateAppender.getMaxBackupIndex());
+				appender.setLayout(templateAppender.getLayout());
+			}
+			else
+			{
+				appender = (RollingFileAppender) logger.getAppender("messagelog");
+			}
+			
+			appender.setFile(file);
+		}
 	}
 	
 	public void run()
@@ -65,7 +89,7 @@ public class MqttMessageLogger implements Runnable
 			{
 				if (queue.size() > 0)
 				{
-					logger.info(SimpleMessageLogComposer.createReceivedMessageLog(queue.remove(), connectionSettings.getMessageLog()));					
+					logger.info(SimpleMessageLogComposer.createReceivedMessageLog(queue.remove(), messageLogSettings));					
 				}
 				else
 				{

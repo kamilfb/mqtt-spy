@@ -80,6 +80,8 @@
 		        	<xs:element name="PublicationScripts" 	type="xs:string" 							minOccurs="0" maxOccurs="1" />
 		        	<xs:element name="SearchScripts" 		type="xs:string" 							minOccurs="0" maxOccurs="1" />
 		        	<xs:element name="BackgroundScript"		type="mqttspycommon:ScriptDetails" 			minOccurs="0" maxOccurs="unbounded" />
+		        	
+		        	<xs:element name="MessageLog"			type="mqttspycommon:MessageLog" 			minOccurs="0" maxOccurs="1" />		        	
 				</xs:sequence>	
 	        </xs:extension>		
         </xs:complexContent>
