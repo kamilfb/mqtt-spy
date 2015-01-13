@@ -45,9 +45,11 @@ public class FilteredMessageStore extends BasicMessageStore
 	
 	private final Set<MessageFilter> messageFilters = new HashSet<>();
 	
-	public FilteredMessageStore(MessageListWithObservableTopicSummary allMessages, int preferredSize, int maxSize, String name, FormatterDetails messageFormat)
+	public FilteredMessageStore(final MessageListWithObservableTopicSummary allMessages, 
+			final int preferredSize, final int maxSize, final String name, final FormatterDetails messageFormat)
 	{
 		super("filtered-" + name, preferredSize, maxSize, null, null);
+		setFormatter(messageFormat);
 		//this.filteredMessages = new MessageListWithObservableTopicSummary(preferredSize, maxSize, "filtered-" + name, messageFormat);
 		this.allMessages = allMessages;
 	}

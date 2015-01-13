@@ -16,9 +16,8 @@ package pl.baczkowicz.mqttspy.logger;
 
 import java.util.Queue;
 
+import org.apache.log4j.Logger;
 import org.apache.log4j.RollingFileAppender;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.common.generated.MessageLog;
 import pl.baczkowicz.mqttspy.messages.ReceivedMqttMessageWithSubscriptions;
@@ -30,7 +29,10 @@ import pl.baczkowicz.mqttspy.utils.ThreadingUtils;
 public class MqttMessageLogger implements Runnable
 {
 	/** Message log logger. */
-	private final static Logger logger = LoggerFactory.getLogger(MqttMessageLogger.class);
+	private final static Logger logger = Logger.getLogger(MqttMessageLogger.class);
+	
+	/** Message log logger. */
+	private Logger localLogger;
 	
 	/** Received messages that are to be logged. */
 	private final Queue<ReceivedMqttMessageWithSubscriptions> queue;
@@ -47,7 +49,7 @@ public class MqttMessageLogger implements Runnable
 	 * @param queue The message queue to be used
 	 * @param connectionSettings The connection details
 	 */
-	public MqttMessageLogger(final Queue<ReceivedMqttMessageWithSubscriptions> queue, final MessageLog messageLogSettings, final boolean useTemplate)
+	public MqttMessageLogger(final Queue<ReceivedMqttMessageWithSubscriptions> queue, final MessageLog messageLogSettings, final boolean useAsTemplate)
 	{
 		this.queue = queue;
 		this.messageLogSettings = messageLogSettings;
@@ -55,25 +57,30 @@ public class MqttMessageLogger implements Runnable
 		final String file = messageLogSettings.getLogFile();
 		if (file != null)
 		{			
-			final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getRootLogger();
+			//final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getRootLogger();
 			RollingFileAppender appender;
 			
-			if (useTemplate)
+			if (useAsTemplate)
 			{
-				final RollingFileAppender templateAppender = (RollingFileAppender) logger.getAppender("messagelogTemplate");
+				final RollingFileAppender templateAppender = (RollingFileAppender) logger.getAppender("messagelog");
 				
 				appender = new RollingFileAppender();
 				appender.setThreshold(templateAppender.getThreshold());
 				appender.setMaximumFileSize(templateAppender.getMaximumFileSize());
 				appender.setMaxBackupIndex(templateAppender.getMaxBackupIndex());
 				appender.setLayout(templateAppender.getLayout());
+				appender.setFile(file);
+				appender.activateOptions();
+				
+				localLogger = Logger.getLogger("pl.baczkowicz.mqttspy.logger.ConnectionSpecificLogger");
+				localLogger.addAppender(appender);
+				// localLogger.addAppender(logger.getAppender("stdout"));
 			}
 			else
 			{
 				appender = (RollingFileAppender) logger.getAppender("messagelog");
-			}
-			
-			appender.setFile(file);
+				appender.setFile(file);
+			}			
 		}
 	}
 	
@@ -89,7 +96,14 @@ public class MqttMessageLogger implements Runnable
 			{
 				if (queue.size() > 0)
 				{
-					logger.info(SimpleMessageLogComposer.createReceivedMessageLog(queue.remove(), messageLogSettings));					
+					if (localLogger != null)
+					{
+						localLogger.info(SimpleMessageLogComposer.createReceivedMessageLog(queue.remove(), messageLogSettings));
+					}
+					else
+					{
+						logger.info(SimpleMessageLogComposer.createReceivedMessageLog(queue.remove(), messageLogSettings));
+					}
 				}
 				else
 				{

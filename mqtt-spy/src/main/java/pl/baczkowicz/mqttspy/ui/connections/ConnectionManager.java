@@ -31,6 +31,8 @@ import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import pl.baczkowicz.mqttspy.common.generated.MessageLog;
+import pl.baczkowicz.mqttspy.common.generated.MessageLogEnum;
 import pl.baczkowicz.mqttspy.common.generated.UserCredentials;
 import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
 import pl.baczkowicz.mqttspy.configuration.ConfiguredConnectionDetails;
@@ -51,7 +53,9 @@ import pl.baczkowicz.mqttspy.events.queuable.connectivity.MqttDisconnectionAttem
 import pl.baczkowicz.mqttspy.events.queuable.ui.MqttSpyUIEvent;
 import pl.baczkowicz.mqttspy.exceptions.ConfigurationException;
 import pl.baczkowicz.mqttspy.exceptions.MqttSpyException;
+import pl.baczkowicz.mqttspy.logger.MqttMessageLogger;
 import pl.baczkowicz.mqttspy.messages.ReceivedMqttMessage;
+import pl.baczkowicz.mqttspy.messages.ReceivedMqttMessageWithSubscriptions;
 import pl.baczkowicz.mqttspy.scripts.InteractiveScriptManager;
 import pl.baczkowicz.mqttspy.scripts.Script;
 import pl.baczkowicz.mqttspy.stats.StatisticsManager;
@@ -382,9 +386,22 @@ public class ConnectionManager
 
 	public MqttAsyncConnection createConnection(final RuntimeConnectionProperties connectionProperties, final Queue<MqttSpyUIEvent> uiEventQueue)
 	{
+		// Set up message logger
+		Queue<ReceivedMqttMessageWithSubscriptions> messageQueue = null;		
+		final MessageLog messageLog = connectionProperties.getConfiguredProperties().getMessageLog();		
+		if (messageLog != null && !messageLog.getValue().equals(MessageLogEnum.DISABLED) 
+				&& messageLog.getLogFile() != null && !messageLog.getLogFile().isEmpty())
+		{
+			messageQueue = new LinkedBlockingQueue<ReceivedMqttMessageWithSubscriptions>();
+			final MqttMessageLogger messageLogger = new MqttMessageLogger(messageQueue, messageLog, true);
+			
+			// TODO: only if not done already
+			new Thread(messageLogger).start();
+		}		
+		
 		// Storing all client properties in a simple object
 		final MqttAsyncConnection connection = new MqttAsyncConnection(reconnectionManager,
-				connectionProperties, MqttConnectionStatus.DISCONNECTED, eventManager, uiEventQueue);
+				connectionProperties, MqttConnectionStatus.DISCONNECTED, eventManager, uiEventQueue, messageQueue);
 		
 		final InteractiveScriptManager scriptManager = new InteractiveScriptManager(eventManager, connection);
 		connection.setScriptManager(scriptManager);

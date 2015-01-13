@@ -18,6 +18,7 @@ import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import pl.baczkowicz.mqttspy.common.generated.MessageLog;
 import pl.baczkowicz.mqttspy.common.generated.MqttConnectionDetails;
 import pl.baczkowicz.mqttspy.utils.ConfigurationUtils;
 import pl.baczkowicz.mqttspy.utils.ConnectionUtils;
@@ -81,5 +82,38 @@ public class ConfigurationUtils
 		{
 			connection.setKeepAliveInterval(MqttConnectOptions.KEEP_ALIVE_INTERVAL_DEFAULT);
 		}		
+	}
+	
+	public static void populateMessageLogDefaults(final MessageLog messageLog)
+	{
+		// Connection
+		if (messageLog.isLogConnection() == null)
+		{
+			messageLog.setLogConnection(false);
+		}
+		
+		// QoS
+		if (messageLog.isLogQos() == null)
+		{
+			messageLog.setLogQos(false);
+		}
+		
+		// Retained
+		if (messageLog.isLogRetained() == null)
+		{
+			messageLog.setLogRetained(false);
+		}
+		
+		// Subscription
+		if (messageLog.isLogSubscription() == null)
+		{
+			messageLog.setLogSubscription(false);
+		}
+		
+		// Log before scripts
+		if (messageLog.isLogBeforeScripts() == null)
+		{
+			messageLog.setLogBeforeScripts(false);
+		}
 	}
 }

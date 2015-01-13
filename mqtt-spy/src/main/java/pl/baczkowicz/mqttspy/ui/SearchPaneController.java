@@ -18,7 +18,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Queue;
 import java.util.ResourceBundle;
 
 import javafx.collections.FXCollections;
@@ -48,10 +47,8 @@ import pl.baczkowicz.mqttspy.connectivity.MqttContent;
 import pl.baczkowicz.mqttspy.events.EventManager;
 import pl.baczkowicz.mqttspy.events.observers.MessageAddedObserver;
 import pl.baczkowicz.mqttspy.events.observers.MessageFormatChangeObserver;
-import pl.baczkowicz.mqttspy.events.queuable.ui.MqttSpyUIEvent;
 import pl.baczkowicz.mqttspy.scripts.Script;
 import pl.baczkowicz.mqttspy.scripts.ScriptManager;
-import pl.baczkowicz.mqttspy.storage.BasicMessageStore;
 import pl.baczkowicz.mqttspy.storage.FilteredMessageStore;
 import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
 import pl.baczkowicz.mqttspy.ui.properties.MqttContentProperties;
@@ -130,7 +127,7 @@ public class SearchPaneController implements Initializable, MessageFormatChangeO
 
 	private final ObservableList<MqttContentProperties> foundMessages = FXCollections.observableArrayList();
 
-	private Queue<MqttSpyUIEvent> uiEventQueue;
+	// private Queue<MqttSpyUIEvent> uiEventQueue;
 
 	private int seachedCount;
 
@@ -477,10 +474,10 @@ public class SearchPaneController implements Initializable, MessageFormatChangeO
 		eventManager.registerMessageAddedObserver(this, store.getMessageList());
 	}
 	
-	public void setUIQueue(final Queue<MqttSpyUIEvent> uiEventQueue)
-	{
-		this.uiEventQueue = uiEventQueue;
-	}
+	// public void setUIQueue(final Queue<MqttSpyUIEvent> uiEventQueue)
+	// {
+	// this.uiEventQueue = uiEventQueue;
+	// }
 
 	public void setConnection(MqttAsyncConnection connection)
 	{

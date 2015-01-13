@@ -103,35 +103,7 @@ public class ConfigurationLoader extends PropertyFileLoader
 			}
 		}
 		
-		// Connection
-		if (configuration.getConnection().getMessageLog().isLogConnection() == null)
-		{
-			configuration.getConnection().getMessageLog().setLogConnection(false);
-		}
-		
-		// QoS
-		if (configuration.getConnection().getMessageLog().isLogQos() == null)
-		{
-			configuration.getConnection().getMessageLog().setLogQos(false);
-		}
-		
-		// Retained
-		if (configuration.getConnection().getMessageLog().isLogRetained() == null)
-		{
-			configuration.getConnection().getMessageLog().setLogRetained(false);
-		}
-		
-		// Subscription
-		if (configuration.getConnection().getMessageLog().isLogSubscription() == null)
-		{
-			configuration.getConnection().getMessageLog().setLogSubscription(false);
-		}
-		
-		// Log before scripts
-		if (configuration.getConnection().getMessageLog().isLogBeforeScripts() == null)
-		{
-			configuration.getConnection().getMessageLog().setLogBeforeScripts(false);
-		}
+		ConfigurationUtils.populateMessageLogDefaults(configuration.getConnection().getMessageLog());
 	}
 
 	/**

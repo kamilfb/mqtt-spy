@@ -47,6 +47,11 @@ public class ConfigurationUtils
 	public static void populateConnectionDefaults(final UserInterfaceMqttConnectionDetails connection)
 	{
 		pl.baczkowicz.mqttspy.utils.ConfigurationUtils.populateConnectionDefaults(connection);
+		
+		if (connection.getMessageLog() != null)
+		{
+			pl.baczkowicz.mqttspy.utils.ConfigurationUtils.populateMessageLogDefaults(connection.getMessageLog());
+		}
 				
 		if (connection.getMaxMessagesStored() == null)
 		{

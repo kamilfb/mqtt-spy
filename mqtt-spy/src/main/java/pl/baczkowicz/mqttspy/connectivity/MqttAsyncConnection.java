@@ -29,6 +29,7 @@ import pl.baczkowicz.mqttspy.common.generated.ScriptDetails;
 import pl.baczkowicz.mqttspy.connectivity.reconnection.ReconnectionManager;
 import pl.baczkowicz.mqttspy.events.EventManager;
 import pl.baczkowicz.mqttspy.events.queuable.ui.MqttSpyUIEvent;
+import pl.baczkowicz.mqttspy.messages.ReceivedMqttMessageWithSubscriptions;
 import pl.baczkowicz.mqttspy.scripts.InteractiveScriptManager;
 import pl.baczkowicz.mqttspy.scripts.Script;
 import pl.baczkowicz.mqttspy.stats.StatisticsManager;
@@ -62,9 +63,11 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection
 
 	private InteractiveScriptManager scriptManager;
 
+	private Queue<ReceivedMqttMessageWithSubscriptions> messageLogQueue;
+
 	public MqttAsyncConnection(final ReconnectionManager reconnectionManager, final RuntimeConnectionProperties properties, 
 			final MqttConnectionStatus status, final EventManager eventManager,
-			final Queue<MqttSpyUIEvent> uiEventQueue)
+			final Queue<MqttSpyUIEvent> uiEventQueue, final Queue<ReceivedMqttMessageWithSubscriptions> queue)
 	{ 
 		super(reconnectionManager, properties);
 		
@@ -78,6 +81,7 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection
 		this.setPreferredStoreSize(properties.getMaxMessagesStored());
 		this.properties = properties;
 		this.eventManager = eventManager;
+		this.messageLogQueue = queue;
 		setConnectionStatus(status);
 	}
 	
@@ -117,6 +121,15 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection
 				mqttSubscription.messageReceived(message);
 			}
 		}		
+		
+		// If logging is enabled
+		if (messageLogQueue != null)
+		{
+			final ReceivedMqttMessageWithSubscriptions messageWithSubs = new ReceivedMqttMessageWithSubscriptions(
+					message.getId(), message.getTopic(), message.getMessage(), this);
+			messageWithSubs.setSubscriptions(matchingSubscriptionTopics);
+			messageLogQueue.add(messageWithSubs);
+		}
 		
 		statisticsManager.messageReceived(getId(), matchingActiveSubscriptionTopics);
 

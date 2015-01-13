@@ -111,8 +111,6 @@ public class MessageNavigationController implements Initializable, MessageIndexT
 	
 	private EventManager eventManager;
 
-	private boolean filterActive;
-
 	public void initialize(URL location, ResourceBundle resources)
 	{				
 		messageIndexValueField = new TextField();
