@@ -64,11 +64,36 @@
       
       <AnchorPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="100.0">
          <children>
-   	      <AnchorPane layoutX="-2.0" layoutY="4.0" prefHeight="31.0" prefWidth="554.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="7.0" AnchorPane.topAnchor="5.0">
+   	      <AnchorPane layoutX="-2.0" layoutY="4.0" prefHeight="31.0" prefWidth="554.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="125.0" AnchorPane.topAnchor="5.0">
    	      		<children>
    	      			<fx:include fx:id="messageNavigationPane" source="MessageNavigationPane.fxml" />
    	    		</children>
    	      </AnchorPane>
+   	      
+   	      <MenuButton fx:id="toolsMenuButton" focusTraversable="false" mnemonicParsing="false" prefWidth="110.0" text="Tools" AnchorPane.rightAnchor="7.0" AnchorPane.topAnchor="7.0">
+	      	<graphic>
+	      		<ImageView fitHeight="18.0" fitWidth="18.0" pickOnBounds="true">
+			         <image>
+			            <Image url="/images/tools.png"/>
+			         </image>
+			      </ImageView>
+	      	</graphic>
+	        <items>
+	        	<Menu fx:id="exportMenu" mnemonicParsing="false" text="Export">
+	            	<items>
+	            		<MenuItem text="[Clipboard] This message" onAction="#copyMessageToClipboard"/>
+	            		<MenuItem text="[Clipboard] All browsed messages" onAction="#copyMessagesToClipboard"/>
+	            		<SeparatorMenuItem mnemonicParsing="false" />
+	            		<MenuItem text="[Message log] This message" onAction="#copyMessageToFile"/>
+	            		<MenuItem text="[Message log] All browsed messages" onAction="#copyMessagesToFile"/>
+	            	</items>
+	            </Menu>    
+	        </items>
+	         <font>
+	            <Font size="11.0" />
+	         </font>
+	      </MenuButton>
+      
    	      <!--  dividerPositions="0.42"  -->
    	      <SplitPane fx:id="splitPane" layoutX="11.0" layoutY="45.0" orientation="VERTICAL" prefHeight="229.0" prefWidth="636.0" AnchorPane.bottomAnchor="-1.0" AnchorPane.leftAnchor="-2.0" AnchorPane.rightAnchor="-1.0" AnchorPane.topAnchor="38.0">
    	         <items>

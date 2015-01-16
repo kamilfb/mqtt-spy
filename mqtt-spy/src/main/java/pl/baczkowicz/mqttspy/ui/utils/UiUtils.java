@@ -17,7 +17,7 @@ package pl.baczkowicz.mqttspy.ui.utils;
 /**
  * General purpose utilities.
  */
-public class Utils
+public class UiUtils
 {
 
 }

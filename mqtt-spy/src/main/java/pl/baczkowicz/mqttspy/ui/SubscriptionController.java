@@ -583,6 +583,30 @@ public class SubscriptionController implements Initializable, ClearTabObserver, 
 		}
 	}
 	
+	@FXML
+	private void copyMessageToClipboard()
+	{
+		messageNavigationPaneController.copyMessageToClipboard();
+	}
+	
+	@FXML
+	private void copyMessagesToClipboard()	
+	{
+		messageNavigationPaneController.copyMessagesToClipboard();
+	}
+	
+	@FXML
+	private void copyMessageToFile()
+	{
+		messageNavigationPaneController.copyMessageToFile();
+	}
+	
+	@FXML
+	private void copyMessagesToFile()
+	{
+		messageNavigationPaneController.copyMessagesToFile();
+	}
+	
 	public MqttSubscription getSubscription()
 	{
 		return subscription;

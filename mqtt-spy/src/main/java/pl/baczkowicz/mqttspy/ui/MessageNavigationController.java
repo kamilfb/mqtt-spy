@@ -14,6 +14,7 @@
  */
 package pl.baczkowicz.mqttspy.ui;
 
+import java.io.File;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -32,9 +33,14 @@ import javafx.scene.control.MenuButton;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.Tooltip;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.HBox;
+import javafx.stage.FileChooser;
+import javafx.stage.Window;
+import javafx.stage.FileChooser.ExtensionFilter;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,7 +53,9 @@ import pl.baczkowicz.mqttspy.events.observers.MessageIndexToFirstObserver;
 import pl.baczkowicz.mqttspy.events.observers.MessageRemovedObserver;
 import pl.baczkowicz.mqttspy.storage.BasicMessageStore;
 import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
+import pl.baczkowicz.mqttspy.ui.messagelog.MessageLogUtils;
 import pl.baczkowicz.mqttspy.ui.utils.TextUtils;
+import pl.baczkowicz.mqttspy.utils.Utils;
 
 /**
  * Controller for the message navigation buttons.
@@ -434,6 +442,61 @@ public class MessageNavigationController implements Initializable, MessageIndexT
 	public void hideShowLatest()
 	{
 		showLatestBox.setVisible(false);
+	}
+	
+	public void copyMessageToClipboard()
+	{
+		if (getSelectedMessageIndex() > 0)
+		{
+			final ClipboardContent content = new ClipboardContent();								
+			content.putString(MessageLogUtils.getCurrentMessageAsMessageLog(store, getSelectedMessageIndex() - 1));			
+			Clipboard.getSystemClipboard().setContent(content);
+		}
+	}
+	
+	public void copyMessagesToClipboard()	
+	{
+		final ClipboardContent content = new ClipboardContent();				
+		content.putString(MessageLogUtils.getAllMessagesAsMessageLog(store));		
+		Clipboard.getSystemClipboard().setContent(content);
+	}
+	
+	public void copyMessageToFile()
+	{
+		if (getSelectedMessageIndex() > 0)
+		{
+			final FileChooser fileChooser = new FileChooser();
+			fileChooser.setTitle("Select message log file to save to");
+			String extensions = "messages";
+			fileChooser.setSelectedExtensionFilter(new ExtensionFilter("Message log file", extensions));
+	
+			final File selectedFile = fileChooser.showSaveDialog(getParentWindow());
+	
+			if (selectedFile != null)
+			{
+				Utils.writeToFile(selectedFile, MessageLogUtils.getCurrentMessageAsMessageLog(store, getSelectedMessageIndex() - 1));
+			}
+		}
+	}
+	
+	public void copyMessagesToFile()
+	{
+		final FileChooser fileChooser = new FileChooser();
+		fileChooser.setTitle("Select message log file to save to");
+		String extensions = "messages";
+		fileChooser.setSelectedExtensionFilter(new ExtensionFilter("Message log file", extensions));
+
+		final File selectedFile = fileChooser.showSaveDialog(getParentWindow());
+
+		if (selectedFile != null)
+		{
+			Utils.writeToFile(selectedFile, MessageLogUtils.getAllMessagesAsMessageLog(store));
+		}
+	}
+	
+	private Window getParentWindow()
+	{
+		return messageLabel.getScene().getWindow();
 	}
 
 //	public void setFilterActive(final boolean active)

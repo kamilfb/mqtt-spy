@@ -449,6 +449,30 @@ public class SearchPaneController implements Initializable, MessageFormatChangeO
 		updateTabTitle();
 	}
 	
+	@FXML
+	private void copyMessageToClipboard()
+	{
+		messageNavigationPaneController.copyMessageToClipboard();
+	}
+	
+	@FXML
+	private void copyMessagesToClipboard()	
+	{
+		messageNavigationPaneController.copyMessagesToClipboard();
+	}
+	
+	@FXML
+	private void copyMessageToFile()
+	{
+		messageNavigationPaneController.copyMessageToFile();
+	}
+	
+	@FXML
+	private void copyMessagesToFile()
+	{
+		messageNavigationPaneController.copyMessagesToFile();
+	}
+	
 	// ===============================
 	// === Setters and getters =======
 	// ===============================

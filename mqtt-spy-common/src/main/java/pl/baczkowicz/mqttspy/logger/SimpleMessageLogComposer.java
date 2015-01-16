@@ -49,7 +49,7 @@ public class SimpleMessageLogComposer
 		logMessage.append("<MqttMessage");
 		
 		appendAttribute(logMessage, "id", String.valueOf(message.getId()));
-		appendAttribute(logMessage, "timestamp", String.valueOf( message.getDate().getTime()));				
+		appendAttribute(logMessage, "timestamp", String.valueOf(message.getDate().getTime()));				
 		appendAttribute(logMessage, "topic", message.getTopic());		
 		
 		// Quality of service

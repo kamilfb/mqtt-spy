@@ -26,58 +26,72 @@
 
 <AnchorPane prefHeight="282.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.baczkowicz.mqttspy.ui.SubscriptionController">
 	<children>
-      <AnchorPane layoutX="-2.0" layoutY="4.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="225.0" AnchorPane.topAnchor="5.0">
+      <AnchorPane layoutX="-2.0" layoutY="4.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="215.0" AnchorPane.topAnchor="5.0">
       		<children>
       			<fx:include fx:id="messageNavigationPane" source="MessageNavigationPane.fxml" />
     		</children>
       </AnchorPane>
       
-      <MenuButton fx:id="formattingMenuButton" focusTraversable="false" mnemonicParsing="false" prefWidth="120.0" text="Settings" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="7.0">
+      <MenuButton fx:id="formattingMenuButton" focusTraversable="false" mnemonicParsing="false" prefWidth="110.0" text="Tools" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="7.0">
       	<graphic>
       		<ImageView fitHeight="18.0" fitWidth="18.0" pickOnBounds="true">
 		         <image>
-		            <Image url="/images/settings.png"/>
+		            <Image url="/images/tools.png"/>
 		         </image>
 		      </ImageView>
       	</graphic>
         <items>
-            <Menu fx:id="formatterMenu" mnemonicParsing="false" text="Convert whole message">
-               <items>
-                  <RadioMenuItem mnemonicParsing="false" selected="true" text="Plain">
-                     <toggleGroup>
-                        <ToggleGroup fx:id="wholeMessageFormat" />
-                     </toggleGroup>
-                  </RadioMenuItem>
-                  <RadioMenuItem mnemonicParsing="false" text="Hex decoder" toggleGroup="$wholeMessageFormat" />
-                  <RadioMenuItem mnemonicParsing="false" text="Hex encoder" toggleGroup="$wholeMessageFormat" />
-                  <RadioMenuItem mnemonicParsing="false" text="Base64 decoder" toggleGroup="$wholeMessageFormat" />
-                  <RadioMenuItem mnemonicParsing="false" text="Base64 encoder" toggleGroup="$wholeMessageFormat" />
-                  <Menu fx:id="customFormatterMenu" disable="true" mnemonicParsing="false" text="Custom" /> 
-               </items>
-            </Menu>
-            <Menu mnemonicParsing="false" text="Convert selection only">
-               <items>
-                  <RadioMenuItem mnemonicParsing="false" selected="true" text="Off">
-                     <toggleGroup>
-                        <ToggleGroup fx:id="selectionFormat" />
-                     </toggleGroup>
-                  </RadioMenuItem>
-                  <SeparatorMenuItem mnemonicParsing="false" />
-                  <RadioMenuItem mnemonicParsing="false" text="Plain" toggleGroup="$selectionFormat" />
-                  <RadioMenuItem mnemonicParsing="false" text="Hex decoder" toggleGroup="$selectionFormat" />
-                  <RadioMenuItem mnemonicParsing="false" text="Hex encoder" toggleGroup="$selectionFormat" />
-                  <RadioMenuItem mnemonicParsing="false" text="Base64 decoder" toggleGroup="$selectionFormat" />
-                  <RadioMenuItem mnemonicParsing="false" text="Base64 encoder" toggleGroup="$selectionFormat" />
-                  <Menu fx:id="customFormatterMenu1" disable="true" mnemonicParsing="false" text="Custom" />
-               </items>
-            </Menu>
+        	<Menu mnemonicParsing="false" text="Formatting">
+        		<items>
+        			<Menu fx:id="formatterMenu" mnemonicParsing="false" text="Convert whole message">
+		               <items>
+		                  <RadioMenuItem mnemonicParsing="false" selected="true" text="Plain">
+		                     <toggleGroup>
+		                        <ToggleGroup fx:id="wholeMessageFormat" />
+		                     </toggleGroup>
+		                  </RadioMenuItem>
+		                  <RadioMenuItem mnemonicParsing="false" text="Hex decoder" toggleGroup="$wholeMessageFormat" />
+		                  <RadioMenuItem mnemonicParsing="false" text="Hex encoder" toggleGroup="$wholeMessageFormat" />
+		                  <RadioMenuItem mnemonicParsing="false" text="Base64 decoder" toggleGroup="$wholeMessageFormat" />
+		                  <RadioMenuItem mnemonicParsing="false" text="Base64 encoder" toggleGroup="$wholeMessageFormat" />
+		                  <Menu fx:id="customFormatterMenu" disable="true" mnemonicParsing="false" text="Custom" /> 
+		               </items>
+		            </Menu>
+		            <Menu mnemonicParsing="false" text="Convert selection only">
+		               <items>
+		                  <RadioMenuItem mnemonicParsing="false" selected="true" text="Off">
+		                     <toggleGroup>
+		                        <ToggleGroup fx:id="selectionFormat" />
+		                     </toggleGroup>
+		                  </RadioMenuItem>
+		                  <SeparatorMenuItem mnemonicParsing="false" />
+		                  <RadioMenuItem mnemonicParsing="false" text="Plain" toggleGroup="$selectionFormat" />
+		                  <RadioMenuItem mnemonicParsing="false" text="Hex decoder" toggleGroup="$selectionFormat" />
+		                  <RadioMenuItem mnemonicParsing="false" text="Hex encoder" toggleGroup="$selectionFormat" />
+		                  <RadioMenuItem mnemonicParsing="false" text="Base64 decoder" toggleGroup="$selectionFormat" />
+		                  <RadioMenuItem mnemonicParsing="false" text="Base64 encoder" toggleGroup="$selectionFormat" />
+		                  <Menu fx:id="customFormatterMenu1" disable="true" mnemonicParsing="false" text="Custom" />
+		               </items>
+		            </Menu>		            
+        		</items>
+        	</Menu>        
+        	
+        	<Menu fx:id="exportMenu" mnemonicParsing="false" text="Export">
+            	<items>
+            		<MenuItem text="[Clipboard] This message" onAction="#copyMessageToClipboard"/>
+            		<MenuItem text="[Clipboard] All browsed messages" onAction="#copyMessagesToClipboard"/>
+            		<SeparatorMenuItem mnemonicParsing="false" />
+            		<MenuItem text="[Message log] This message" onAction="#copyMessageToFile"/>
+            		<MenuItem text="[Message log] All browsed messages" onAction="#copyMessagesToFile"/>
+            	</items>
+            </Menu>    
         </items>
          <font>
             <Font size="11.0" />
          </font>
       </MenuButton>
 
-      <ToggleButton fx:id="searchButton" graphicTextGap="6" focusTraversable="false" mnemonicParsing="false" prefHeight="26" prefWidth="90" onAction="#showSearchWindow" text="Search" AnchorPane.rightAnchor="128.0" AnchorPane.topAnchor="7.0">
+      <ToggleButton fx:id="searchButton" graphicTextGap="6" focusTraversable="false" mnemonicParsing="false" prefHeight="26" prefWidth="90" onAction="#showSearchWindow" text="Search" AnchorPane.rightAnchor="118.0" AnchorPane.topAnchor="7.0">
        <padding><Insets bottom="1.0" left="1.0" right="1.0" top="1.0" /></padding>
         <graphic>
       		<ImageView fitHeight="20" fitWidth="20" pickOnBounds="true">

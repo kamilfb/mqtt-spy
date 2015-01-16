@@ -29,11 +29,13 @@ import pl.baczkowicz.mqttspy.common.generated.ScriptDetails;
 import pl.baczkowicz.mqttspy.connectivity.reconnection.ReconnectionManager;
 import pl.baczkowicz.mqttspy.events.EventManager;
 import pl.baczkowicz.mqttspy.events.queuable.ui.MqttSpyUIEvent;
+import pl.baczkowicz.mqttspy.logger.MqttMessageLogger;
 import pl.baczkowicz.mqttspy.messages.ReceivedMqttMessageWithSubscriptions;
 import pl.baczkowicz.mqttspy.scripts.InteractiveScriptManager;
 import pl.baczkowicz.mqttspy.scripts.Script;
 import pl.baczkowicz.mqttspy.stats.StatisticsManager;
 import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
+import pl.baczkowicz.mqttspy.ui.messagelog.MessageLogUtils;
 
 /**
  * Asynchronous MQTT connection with the extra UI elements required.
@@ -64,6 +66,8 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection
 	private InteractiveScriptManager scriptManager;
 
 	private Queue<ReceivedMqttMessageWithSubscriptions> messageLogQueue;
+
+	private MqttMessageLogger messageLogger;
 
 	public MqttAsyncConnection(final ReconnectionManager reconnectionManager, final RuntimeConnectionProperties properties, 
 			final MqttConnectionStatus status, final EventManager eventManager,
@@ -125,10 +129,7 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection
 		// If logging is enabled
 		if (messageLogQueue != null)
 		{
-			final ReceivedMqttMessageWithSubscriptions messageWithSubs = new ReceivedMqttMessageWithSubscriptions(
-					message.getId(), message.getTopic(), message.getMessage(), this);
-			messageWithSubs.setSubscriptions(matchingSubscriptionTopics);
-			messageLogQueue.add(messageWithSubs);
+			messageLogQueue.add(MessageLogUtils.convert(message, this, matchingSubscriptionTopics));
 		}
 		
 		statisticsManager.messageReceived(getId(), matchingActiveSubscriptionTopics);
@@ -434,5 +435,15 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection
 	public InteractiveScriptManager getScriptManager()
 	{
 		return this.scriptManager;
+	}
+
+	public void setMessageLogger(final MqttMessageLogger messageLogger)
+	{
+		this.messageLogger = messageLogger;
+	}
+	
+	public MqttMessageLogger getMessageLogger()
+	{
+		return messageLogger;
 	}
 }
