@@ -92,12 +92,10 @@ public class FilteredMessageStore extends BasicMessageStore
 		{			
 			final int size = allMessages.getMessages().size();
 			for (int i = size - 1; i >= 0; i--)
-			// TODO: bug - iterates from 0 to end, but always adds to 0 position
-			// for (final MqttContent message : allMessages.getMessages())
 			{
 				final MqttContent message = allMessages.getMessages().get(i);
 				
-				if (shownTopics.contains(message.getTopic()) && !filterMessage(message))
+				if (shownTopics.contains(message.getTopic()) && !filterMessage(message, false))
 				{
 					messages.add(message);								
 				}
@@ -105,11 +103,11 @@ public class FilteredMessageStore extends BasicMessageStore
 		}
 	}	
 	
-	public boolean filterMessage(final MqttContent message)
+	public boolean filterMessage(final MqttContent message, final boolean updateUi)
 	{
 		for (final MessageFilter filter : messageFilters)
 		{
-			if (filter.filter(message, messages))
+			if (filter.filter(message, messages, updateUi))
 			{
 				return true;
 			}
@@ -143,7 +141,7 @@ public class FilteredMessageStore extends BasicMessageStore
 			{
 				shownTopics.add(message.getTopic());
 				
-				if (!filterMessage(message))
+				if (!filterMessage(message, false))
 				{
 					messages.add(message);
 				}

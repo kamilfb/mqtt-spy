@@ -37,6 +37,7 @@ import pl.baczkowicz.mqttspy.events.queuable.ui.BrowseRemovedMessageEvent;
 import pl.baczkowicz.mqttspy.scripts.IScriptEventManager;
 import pl.baczkowicz.mqttspy.scripts.ScriptRunningState;
 import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
+import pl.baczkowicz.mqttspy.storage.MessageList;
 import pl.baczkowicz.mqttspy.storage.MessageListWithObservableTopicSummary;
 import pl.baczkowicz.mqttspy.storage.MessageStore;
 
@@ -50,7 +51,7 @@ public class EventManager implements IScriptEventManager
 {
 	private final Map<MessageAddedObserver, MessageListWithObservableTopicSummary> messageAddedObservers = new HashMap<>();
 	
-	private final Map<MessageRemovedObserver, MessageListWithObservableTopicSummary> messageRemovedObservers = new HashMap<>();
+	private final Map<MessageRemovedObserver, MessageList> messageRemovedObservers = new HashMap<>();
 	
 	private final Map<MessageListChangedObserver, MessageListWithObservableTopicSummary> messageListChangeObservers = new HashMap<>();
 	
@@ -89,7 +90,7 @@ public class EventManager implements IScriptEventManager
 		messageAddedObservers.put(observer, filter);
 	}
 	
-	public void registerMessageRemovedObserver(final MessageRemovedObserver observer, final MessageListWithObservableTopicSummary filter)
+	public void registerMessageRemovedObserver(final MessageRemovedObserver observer, final MessageList filter)
 	{
 		messageRemovedObservers.put(observer, filter);
 	}
@@ -166,7 +167,7 @@ public class EventManager implements IScriptEventManager
 	{
 		for (final MessageRemovedObserver observer : messageRemovedObservers.keySet())
 		{
-			final MessageListWithObservableTopicSummary filter = messageRemovedObservers.get(observer);
+			final MessageList filter = messageRemovedObservers.get(observer);
 			
 			if (filter == null || filter.equals(browseEvent.getList()))
 			{				

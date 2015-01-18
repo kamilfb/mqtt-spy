@@ -82,7 +82,7 @@ public class ManagedMessageStoreWithFiltering extends BasicMessageStore
 		// 3. Add it to the filtered store if:
 		// - message is not filtered out
 		// - all messages are shown or the topic is already on the list
-		if (!filteredStore.filterMessage(message) && (allTopicsShown || filteredStore.getShownTopics().contains(message.getTopic())))
+		if (!filteredStore.filterMessage(message, true) && (allTopicsShown || filteredStore.getShownTopics().contains(message.getTopic())))
 		{
 			filteredStore.getFilteredMessages().add(message);
 			

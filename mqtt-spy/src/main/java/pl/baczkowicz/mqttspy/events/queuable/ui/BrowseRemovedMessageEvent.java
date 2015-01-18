@@ -15,7 +15,7 @@
 package pl.baczkowicz.mqttspy.events.queuable.ui;
 
 import pl.baczkowicz.mqttspy.connectivity.MqttContent;
-import pl.baczkowicz.mqttspy.storage.MessageListWithObservableTopicSummary;
+import pl.baczkowicz.mqttspy.storage.MessageList;
 
 public class BrowseRemovedMessageEvent implements MqttSpyUIEvent
 {
@@ -23,9 +23,9 @@ public class BrowseRemovedMessageEvent implements MqttSpyUIEvent
 	
 	private final int messageIndex;
 
-	private final MessageListWithObservableTopicSummary store;
+	private final MessageList store;
 
-	public BrowseRemovedMessageEvent(final MessageListWithObservableTopicSummary store, final MqttContent message, final int messageIndex)
+	public BrowseRemovedMessageEvent(final MessageList store, final MqttContent message, final int messageIndex)
 	{
 		this.store = store;
 		this.message = message;
@@ -42,7 +42,7 @@ public class BrowseRemovedMessageEvent implements MqttSpyUIEvent
 		return messageIndex;
 	}
 
-	public MessageListWithObservableTopicSummary getList()
+	public MessageList getList()
 	{
 		return store;
 	}

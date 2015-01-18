@@ -24,10 +24,11 @@ public interface MessageFilter
 	 * 
 	 * @param message The message to be checked
 	 * @param store The message store (could be modified)
+	 * @param updateUi Whether to update the UI
 	 * 
 	 * @return True if to filter the message out.
 	 */
-	boolean filter(final MqttContent message, final MessageList messageList);
+	boolean filter(final MqttContent message, final MessageList messageList, final boolean updateUi);
 	
 	void reset();
 	

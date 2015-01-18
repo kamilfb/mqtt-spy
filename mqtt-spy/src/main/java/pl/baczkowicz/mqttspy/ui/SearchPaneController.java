@@ -127,8 +127,6 @@ public class SearchPaneController implements Initializable, MessageFormatChangeO
 
 	private final ObservableList<MqttContentProperties> foundMessages = FXCollections.observableArrayList();
 
-	// private Queue<MqttSpyUIEvent> uiEventQueue;
-
 	private int seachedCount;
 
 	private MqttAsyncConnection connection;
@@ -168,7 +166,7 @@ public class SearchPaneController implements Initializable, MessageFormatChangeO
 		foundMessageStore = new FilteredMessageStore(store.getMessageList(), store.getMessageList().getPreferredSize(), store.getMessageList().getMaxSize(), 
 				"search-" + store.getName(), store.getFormatter());
 		
-		uniqueContentOnlyFilter = new UniqueContentOnlyFilter();
+		uniqueContentOnlyFilter = new UniqueContentOnlyFilter(store.getUiEventQueue());
 		uniqueContentOnlyFilter.setUniqueContentOnly(messageNavigationPaneController.getUniqueOnlyMenu().isSelected());
 		foundMessageStore.addMessageFilter(uniqueContentOnlyFilter);
 		messageNavigationPaneController.getUniqueOnlyMenu().setOnAction(new EventHandler<ActionEvent>()
@@ -344,12 +342,10 @@ public class SearchPaneController implements Initializable, MessageFormatChangeO
 	}
 	
 	private void messageFound(final MqttContent message)
-	{
-		// TODO: filter the found messages too?		
+	{	
 		foundMessages.add(0, new MqttContentProperties(message, store.getFormatter()));
 		
-		// All the message shouldn't be filtered out
-		if (!uniqueContentOnlyFilter.filter(message, foundMessageStore.getMessageList()))
+		if (!uniqueContentOnlyFilter.filter(message, foundMessageStore.getMessageList(), true))
 		{
 			// If an old message has been deleted from the store, remove it from the list as well 
 			if (foundMessageStore.storeMessage(message) != null)
@@ -357,9 +353,6 @@ public class SearchPaneController implements Initializable, MessageFormatChangeO
 				foundMessages.remove(foundMessages.size() - 1);
 			}
 		}
-		
-		//messageNavigationPaneController.setFilterActive(uniqueContentOnlyFilter.isActive());
-		// messageNavigationPaneController.updateFilter
 	}
 	
 	private void clearMessages()
@@ -497,11 +490,6 @@ public class SearchPaneController implements Initializable, MessageFormatChangeO
 		this.store = store;
 		eventManager.registerMessageAddedObserver(this, store.getMessageList());
 	}
-	
-	// public void setUIQueue(final Queue<MqttSpyUIEvent> uiEventQueue)
-	// {
-	// this.uiEventQueue = uiEventQueue;
-	// }
 
 	public void setConnection(MqttAsyncConnection connection)
 	{

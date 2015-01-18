@@ -100,4 +100,9 @@ public class BasicMessageStore implements MessageStore
 	{
 		return messages.getName();
 	}	
+	
+	public Queue<MqttSpyUIEvent> getUiEventQueue()
+	{
+		return this.uiEventQueue;
+	}
 }

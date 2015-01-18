@@ -337,7 +337,7 @@ public class SubscriptionController implements Initializable, ClearTabObserver, 
 		// logger.info("init(); finished on SubscriptionController");
 		
 		// Filtering
-		uniqueContentOnlyFilter = new UniqueContentOnlyFilter();
+		uniqueContentOnlyFilter = new UniqueContentOnlyFilter(store.getUiEventQueue());
 		uniqueContentOnlyFilter.setUniqueContentOnly(messageNavigationPaneController.getUniqueOnlyMenu().isSelected());
 		store.getFilteredMessageStore().addMessageFilter(uniqueContentOnlyFilter);
 		messageNavigationPaneController.getUniqueOnlyMenu().setOnAction(new EventHandler<ActionEvent>()
@@ -349,9 +349,6 @@ public class SubscriptionController implements Initializable, ClearTabObserver, 
 				store.getFilteredMessageStore().runFilter(uniqueContentOnlyFilter);
 				eventManager.notifyMessageListChanged(store.getMessageList());
 				eventManager.navigateToFirst(store);
-				
-				// TODO: Make it read directly from the filtered store?
-				//messageNavigationPaneController.setFilterActive(store.getFilteredMessageStore().messageFiltersActive());
 			}
 		});
 	}

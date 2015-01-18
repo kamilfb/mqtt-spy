@@ -339,7 +339,7 @@ public class ScriptManager
 	 */
 	public void runScriptFileWithReceivedMessage(final String scriptFile, final IMqttMessage receivedMessage)
 	{
-		final Script script = getScriptForFile(new File(scriptFile));
+		final Script script = getScriptObjectFromName(scriptFile);
 		
 		if (script != null)
 		{
@@ -347,7 +347,7 @@ public class ScriptManager
 		}
 		else
 		{
-			logger.warn("No script found for {}", scriptFile);
+			logger.warn("No script file found at {}. Please check if this location is correct.", scriptFile);
 		}
 	}
 	
@@ -383,7 +383,7 @@ public class ScriptManager
 	 * 
 	 * @return Script object or null if not found
 	 */
-	public Script getScriptForFile(final File scriptFile)
+	public Script getScriptObjectFromName(final String scriptFile)
 	{
 		return scripts.get(scriptFile);
 	}
