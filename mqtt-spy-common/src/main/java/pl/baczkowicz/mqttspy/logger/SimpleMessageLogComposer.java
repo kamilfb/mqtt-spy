@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import pl.baczkowicz.mqttspy.common.generated.MessageLog;
 import pl.baczkowicz.mqttspy.common.generated.MessageLogEnum;
 import pl.baczkowicz.mqttspy.messages.ReceivedMqttMessageWithSubscriptions;
+import pl.baczkowicz.mqttspy.utils.ConversionUtils;
 
 /**
  * Simple message log composer (string buffer based, no JAXB).
@@ -96,7 +97,11 @@ public class SimpleMessageLogComposer
 		boolean encoded = MessageLogEnum.XML_WITH_ENCODED_PAYLOAD.equals(messageLogOptions.getValue());
 		final String payload = new String(message.getMessage().getPayload());
 		
-		if (!encoded && payload.contains(System.lineSeparator()))
+		// If the payload contains a new line character, encode it, as it would make the message log invalid (no new lines allowed for a message)
+		if (!encoded && 
+				(payload.contains(ConversionUtils.LINE_SEPARATOR_LINUX) 
+						|| payload.contains(ConversionUtils.LINE_SEPARATOR_MAC)
+						|| payload.contains(ConversionUtils.LINE_SEPARATOR_WIN)))
 		{
 			logger.warn("Message on topic {} contains a new line separator, so it needs to be encoded", message.getTopic());
 			encoded = true;

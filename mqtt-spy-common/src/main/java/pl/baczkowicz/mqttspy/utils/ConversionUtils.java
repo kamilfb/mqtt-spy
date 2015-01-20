@@ -25,6 +25,15 @@ import pl.baczkowicz.mqttspy.exceptions.ConversionException;
  */
 public class ConversionUtils
 {
+	/** Line separator for Linux and Mac. */
+	public static final String LINE_SEPARATOR_LINUX = "\n";	
+	
+	/** Line separator for Old Mac. */ 
+	public static final String LINE_SEPARATOR_MAC = "\r";    
+	
+	/** Line separator for Windows. */
+	public static final String LINE_SEPARATOR_WIN = "\r\n"; 
+	
 	/**
 	 * Converts the given string into a HEX string.
 	 * 
