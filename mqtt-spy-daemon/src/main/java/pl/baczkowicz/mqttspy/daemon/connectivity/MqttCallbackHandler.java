@@ -75,7 +75,7 @@ public class MqttCallbackHandler implements MqttCallback
 		this.connection = connection;
 		this.connectionSettings = connectionSettings;
 		this.scriptManager = scriptManager;
-		this.messageLogger = new MqttMessageLogger(messageQueue, connectionSettings.getMessageLog(), false);
+		this.messageLogger = new MqttMessageLogger(messageQueue, connectionSettings.getMessageLog(), false, 1, 10);
 		
 		for (final SubscriptionDetails subscriptionDetails : connectionSettings.getSubscription())
 		{

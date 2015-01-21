@@ -43,16 +43,23 @@ public class MqttMessageLogger implements Runnable
 	/** Flag indicating whether the logger is/should be running. */
 	private boolean running;
 
+	private int sleepBetweenWrites;
+
+	private int sleepWhenNoMessages;
+
 	/**
 	 * Creates a MqttMessageLogger.
 	 * 
 	 * @param queue The message queue to be used
 	 * @param connectionSettings The connection details
 	 */
-	public MqttMessageLogger(final Queue<ReceivedMqttMessageWithSubscriptions> queue, final MessageLog messageLogSettings, final boolean useAsTemplate)
+	public MqttMessageLogger(final Queue<ReceivedMqttMessageWithSubscriptions> queue, final MessageLog messageLogSettings, 
+			final boolean useAsTemplate, final int sleepBetweenWrites, final int sleepWhenNoMessages)
 	{
 		this.queue = queue;
 		this.messageLogSettings = messageLogSettings;
+		this.sleepBetweenWrites = sleepBetweenWrites;	
+		this.sleepWhenNoMessages = sleepWhenNoMessages;
 		
 		final String file = messageLogSettings.getLogFile();
 		if (file != null)
@@ -108,8 +115,10 @@ public class MqttMessageLogger implements Runnable
 				else
 				{
 					// If no messages present, sleep a bit
-					Thread.sleep(10);
+					Thread.sleep(sleepWhenNoMessages);
 				}
+				
+				Thread.sleep(sleepBetweenWrites);
 			}
 			catch (InterruptedException e)
 			{				
@@ -131,10 +140,25 @@ public class MqttMessageLogger implements Runnable
 	}
 	
 	/**
+	 * The running state.
+	 * 
+	 * @return True if the logger is running
+	 */
+	public boolean isRunning()
+	{
+		return running;
+	}
+	
+	/**
 	 * Stops the logger.
 	 */
 	public void stop()
 	{
 		running = false;
+	}
+	
+	public Queue<ReceivedMqttMessageWithSubscriptions> getQueue()
+	{
+		return queue;
 	}
 }

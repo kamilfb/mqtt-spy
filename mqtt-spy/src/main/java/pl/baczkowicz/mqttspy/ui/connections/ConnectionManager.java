@@ -352,7 +352,7 @@ public class ConnectionManager
 	{		
 		disconnectFromBroker(connection);
 		connection.closeConnection();
-		if (connection.getMessageLogger() != null)
+		if (connection.getMessageLogger() != null && connection.getMessageLogger().isRunning())
 		{
 			connection.getMessageLogger().stop();
 		}
@@ -390,22 +390,26 @@ public class ConnectionManager
 
 	public MqttAsyncConnection createConnection(final RuntimeConnectionProperties connectionProperties, final Queue<MqttSpyUIEvent> uiEventQueue)
 	{
-		Queue<ReceivedMqttMessageWithSubscriptions> messageQueue = null;
-		
 		final MqttAsyncConnection connection = new MqttAsyncConnection(reconnectionManager,
-				connectionProperties, MqttConnectionStatus.DISCONNECTED, eventManager, uiEventQueue, messageQueue);
+				connectionProperties, MqttConnectionStatus.DISCONNECTED, eventManager, uiEventQueue);
 
 		// Set up message logger		
 		final MessageLog messageLog = connectionProperties.getConfiguredProperties().getMessageLog();		
 		if (messageLog != null && !messageLog.getValue().equals(MessageLogEnum.DISABLED) 
 				&& messageLog.getLogFile() != null && !messageLog.getLogFile().isEmpty())
 		{
-			messageQueue = new LinkedBlockingQueue<ReceivedMqttMessageWithSubscriptions>();
-			final MqttMessageLogger messageLogger = new MqttMessageLogger(messageQueue, messageLog, true);
-			connection.setMessageLogger(messageLogger);
+			final Queue<ReceivedMqttMessageWithSubscriptions> messageQueue= new LinkedBlockingQueue<ReceivedMqttMessageWithSubscriptions>();
 			
-			// TODO: only if not done already
-			new Thread(messageLogger).start();
+			if (connection.getMessageLogger() == null)
+			{
+				final MqttMessageLogger messageLogger = new MqttMessageLogger(messageQueue, messageLog, true, 25, 25);
+				connection.setMessageLogger(messageLogger);
+			}
+			
+			if (!connection.getMessageLogger().isRunning())
+			{
+				new Thread(connection.getMessageLogger()).start();
+			}
 		}		
 				
 		final InteractiveScriptManager scriptManager = new InteractiveScriptManager(eventManager, connection);

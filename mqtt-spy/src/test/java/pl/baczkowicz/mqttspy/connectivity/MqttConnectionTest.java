@@ -89,7 +89,7 @@ public class MqttConnectionTest extends TestCase
 		
 		final MqttAsyncConnection connection = new MqttAsyncConnection(
 				mockedReconnectionManager, connectionProperties, MqttConnectionStatus.CONNECTING, 
-				mockEventManager, new LinkedBlockingQueue<MqttSpyUIEvent>(), null);
+				mockEventManager, new LinkedBlockingQueue<MqttSpyUIEvent>());
 		connection.setStatisticsManager(statisticsManager);
 		context.assertIsSatisfied();
 		
@@ -152,7 +152,7 @@ public class MqttConnectionTest extends TestCase
 		
 		final MqttAsyncConnection connection = new MqttAsyncConnection(
 				mockedReconnectionManager, connectionProperties, MqttConnectionStatus.CONNECTING, 
-				mockEventManager, new LinkedBlockingQueue<MqttSpyUIEvent>(), null);
+				mockEventManager, new LinkedBlockingQueue<MqttSpyUIEvent>());
 		connection.setStatisticsManager(statisticsManager);
 		context.assertIsSatisfied();
 		
