@@ -952,6 +952,10 @@ public class EditConnectionController extends AnchorPane implements Initializabl
 	private UserInterfaceMqttConnectionDetails readValues()
 	{
 		final UserInterfaceMqttConnectionDetails connection = new UserInterfaceMqttConnectionDetails();
+		connection.setMessageLog(new MessageLog());
+		
+		// Populate the default for the values we don't display / are not used
+		ConfigurationUtils.populateConnectionDefaults(connection);
 		
 		connection.setName(connectionNameText.getText());
 		
@@ -1004,7 +1008,6 @@ public class EditConnectionController extends AnchorPane implements Initializabl
 		}
 		
 		// Log
-		connection.setMessageLog(new MessageLog());
 		connection.getMessageLog().setLogFile(messageLogLocation.getText());
 		connection.getMessageLog().setValue(loggingMode.getValue());
 		
