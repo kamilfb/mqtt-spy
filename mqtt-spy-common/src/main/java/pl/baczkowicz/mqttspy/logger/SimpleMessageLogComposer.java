@@ -103,7 +103,7 @@ public class SimpleMessageLogComposer
 						|| payload.contains(ConversionUtils.LINE_SEPARATOR_MAC)
 						|| payload.contains(ConversionUtils.LINE_SEPARATOR_WIN)))
 		{
-			logger.warn("Message on topic {} contains a new line separator, so it needs to be encoded", message.getTopic());
+			logger.debug("Message on topic {} contains a new line separator, so it needs to be encoded", message.getTopic());
 			encoded = true;
 		}
 		
