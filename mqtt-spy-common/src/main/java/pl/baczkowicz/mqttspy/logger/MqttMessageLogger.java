@@ -64,7 +64,6 @@ public class MqttMessageLogger implements Runnable
 		final String file = messageLogSettings.getLogFile();
 		if (file != null)
 		{			
-			//final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getRootLogger();
 			RollingFileAppender appender;
 			
 			if (useAsTemplate)
@@ -81,7 +80,7 @@ public class MqttMessageLogger implements Runnable
 				
 				localLogger = Logger.getLogger("pl.baczkowicz.mqttspy.logger.ConnectionSpecificLogger");
 				localLogger.addAppender(appender);
-				// localLogger.addAppender(logger.getAppender("stdout"));
+				localLogger.setAdditivity(false);
 			}
 			else
 			{
