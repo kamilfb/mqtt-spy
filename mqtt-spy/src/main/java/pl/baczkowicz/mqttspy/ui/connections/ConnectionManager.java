@@ -402,7 +402,8 @@ public class ConnectionManager
 			
 			if (connection.getMessageLogger() == null)
 			{
-				final MqttMessageLogger messageLogger = new MqttMessageLogger(messageQueue, messageLog, true, 25, 25);
+				final MqttMessageLogger messageLogger = new MqttMessageLogger(
+						connection.getId(), messageQueue, messageLog, true, 50);
 				connection.setMessageLogger(messageLogger);
 			}
 			

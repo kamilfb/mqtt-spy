@@ -8,3 +8,6 @@ target/
 # ignore all files ending with ~
 *~ 
 /mqtt-spy.log
+/log1.messages
+/mqtt-spy-daemon.messages
+/mqtt-spy.messages

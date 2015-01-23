@@ -43,22 +43,22 @@ public class MqttMessageLogger implements Runnable
 	/** Flag indicating whether the logger is/should be running. */
 	private boolean running;
 
-	private int sleepBetweenWrites;
-
 	private int sleepWhenNoMessages;
 
 	/**
 	 * Creates a MqttMessageLogger.
 	 * 
+	 * @param connectionId Connection ID 
 	 * @param queue The message queue to be used
 	 * @param connectionSettings The connection details
 	 */
-	public MqttMessageLogger(final Queue<ReceivedMqttMessageWithSubscriptions> queue, final MessageLog messageLogSettings, 
-			final boolean useAsTemplate, final int sleepBetweenWrites, final int sleepWhenNoMessages)
+	public MqttMessageLogger(
+			final int connectionId, final Queue<ReceivedMqttMessageWithSubscriptions> queue, 
+			final MessageLog messageLogSettings, 
+			final boolean useAsTemplate, final int sleepWhenNoMessages)
 	{
 		this.queue = queue;
 		this.messageLogSettings = messageLogSettings;
-		this.sleepBetweenWrites = sleepBetweenWrites;	
 		this.sleepWhenNoMessages = sleepWhenNoMessages;
 		
 		final String file = messageLogSettings.getLogFile();
@@ -78,7 +78,7 @@ public class MqttMessageLogger implements Runnable
 				appender.setFile(file);
 				appender.activateOptions();
 				
-				localLogger = Logger.getLogger("pl.baczkowicz.mqttspy.logger.ConnectionSpecificLogger");
+				localLogger = Logger.getLogger("pl.baczkowicz.mqttspy.logger.ConnectionSpecificLogger" + connectionId);
 				localLogger.addAppender(appender);
 				localLogger.setAdditivity(false);
 			}
@@ -100,7 +100,7 @@ public class MqttMessageLogger implements Runnable
 		{
 			try
 			{
-				if (queue.size() > 0)
+				while (queue.size() > 0)
 				{
 					if (localLogger != null)
 					{
@@ -111,13 +111,9 @@ public class MqttMessageLogger implements Runnable
 						logger.info(SimpleMessageLogComposer.createReceivedMessageLog(queue.remove(), messageLogSettings));
 					}
 				}
-				else
-				{
-					// If no messages present, sleep a bit
-					Thread.sleep(sleepWhenNoMessages);
-				}
-				
-				Thread.sleep(sleepBetweenWrites);
+			
+				// When no messages present, sleep a bit
+				Thread.sleep(sleepWhenNoMessages);
 			}
 			catch (InterruptedException e)
 			{				
