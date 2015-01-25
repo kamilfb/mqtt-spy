@@ -40,13 +40,16 @@ import pl.baczkowicz.mqttspy.configuration.generated.TabbedSubscriptionDetails;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.ui.connections.ConnectionManager;
 import pl.baczkowicz.mqttspy.ui.keyboard.TimeBasedKeyEventFilter;
+import pl.baczkowicz.mqttspy.ui.panes.PaneStatus;
+import pl.baczkowicz.mqttspy.ui.panes.PaneVisibilityStatus;
+import pl.baczkowicz.mqttspy.ui.panes.PaneWithCustomizableVisibility;
 import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
 import pl.baczkowicz.mqttspy.utils.MqttUtils;
 
 /**
  * Controller for creating new subscriptions.
  */
-public class NewSubscriptionController implements Initializable
+public class NewSubscriptionController implements Initializable, PaneWithCustomizableVisibility
 {
 	final static Logger logger = LoggerFactory.getLogger(NewSubscriptionController.class);
 	
@@ -80,6 +83,9 @@ public class NewSubscriptionController implements Initializable
 	private boolean detailedView;
 
 	private TimeBasedKeyEventFilter timeBasedFilter;
+	
+	/** Created pane status with index 2 (second the last pane). */
+	private final PaneStatus paneStatus = new PaneStatus(2);
 
 	public NewSubscriptionController()
 	{
@@ -133,6 +139,8 @@ public class NewSubscriptionController implements Initializable
 	        	}
 	        }
 	    });
+		
+		paneStatus.setVisibility(PaneVisibilityStatus.NOT_VISIBLE);
 	}
 	
 	private void updateVisibility()
@@ -225,5 +233,11 @@ public class NewSubscriptionController implements Initializable
 	public void setConnection(MqttAsyncConnection connection)
 	{
 		this.connection = connection;
+	}
+	
+	@Override
+	public PaneStatus getPaneStatus()
+	{		
+		return paneStatus;
 	}
 }

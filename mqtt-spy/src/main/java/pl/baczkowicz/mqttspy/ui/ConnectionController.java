@@ -44,6 +44,7 @@ import pl.baczkowicz.mqttspy.events.EventManager;
 import pl.baczkowicz.mqttspy.events.observers.ConnectionStatusChangeObserver;
 import pl.baczkowicz.mqttspy.stats.StatisticsManager;
 import pl.baczkowicz.mqttspy.ui.connections.ConnectionManager;
+import pl.baczkowicz.mqttspy.ui.panes.TabStatus;
 import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
 import pl.baczkowicz.mqttspy.ui.utils.StylingUtils;
 
@@ -92,7 +93,7 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 	 * Controller (i.e. <fx:id>Controller).
 	 */
 	@FXML
-	private PublicationScriptsController publicationScriptsPaneController;
+	PublicationScriptsController publicationScriptsPaneController;
 	
 	/**
 	 * The name of this field needs to be set to the name of the pane +
@@ -134,6 +135,8 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 
 	private boolean replayMode;
 
+	private TabStatus tabStatus;
+
 	private ChangeListener<Boolean> createChangeListener()
 	{
 		return new ChangeListener<Boolean>()
@@ -149,21 +152,22 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 	
 	public void initialize(URL location, ResourceBundle resources)
 	{		
-		publishMessageTitledPane.expandedProperty().addListener(createChangeListener());		
-		scriptedPublicationsTitledPane.expandedProperty().addListener(createChangeListener());		
-		newSubscriptionTitledPane.expandedProperty().addListener(createChangeListener());		
-		subscriptionsTitledPane.expandedProperty().addListener(createChangeListener());
-		
-		scriptedPublicationsTitledPane.setExpanded(false);
-		updateMinHeights();		
+		// Nothing to do here for now...
 	}
 	
 	public void init()
 	{
+		subscriptionsTitledPane.expandedProperty().addListener(createChangeListener());
 		panes.put(subscriptionsTitledPane, true);
 		
 		if (!replayMode)
 		{
+			publishMessageTitledPane.expandedProperty().addListener(createChangeListener());		
+			scriptedPublicationsTitledPane.expandedProperty().addListener(createChangeListener());		
+			newSubscriptionTitledPane.expandedProperty().addListener(createChangeListener());
+			
+			scriptedPublicationsTitledPane.setExpanded(false);
+			
 			panes.put(publishMessageTitledPane, true);
 			panes.put(scriptedPublicationsTitledPane, true);
 			panes.put(newSubscriptionTitledPane, true);
@@ -184,6 +188,8 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 			tooltip = new Tooltip();
 			connectionTab.setTooltip(tooltip);
 		}
+		
+		updateMinHeights();
 		// connectionPane.setMaxWidth(500);
 		// subscriptionsTitledPane.setMaxWidth(500);
 		// subscriptionTabs.setMaxWidth(500);
@@ -496,5 +502,20 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 				nextPosition++;
 			}
 		}
+	}
+	
+	public TabStatus getTabStatus()
+	{		
+		return tabStatus;
+	}	
+
+	/**
+	 * Sets the pane status.
+	 * 
+	 * @param paneStatus the paneStatus to set
+	 */
+	public void setTabStatus(TabStatus paneStatus)
+	{
+		this.tabStatus = paneStatus;
 	}
 }

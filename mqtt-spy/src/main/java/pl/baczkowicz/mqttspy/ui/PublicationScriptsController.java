@@ -45,12 +45,15 @@ import pl.baczkowicz.mqttspy.events.observers.ScriptStateChangeObserver;
 import pl.baczkowicz.mqttspy.scripts.InteractiveScriptManager;
 import pl.baczkowicz.mqttspy.scripts.ScriptRunningState;
 import pl.baczkowicz.mqttspy.scripts.ScriptTypeEnum;
+import pl.baczkowicz.mqttspy.ui.panes.PaneStatus;
+import pl.baczkowicz.mqttspy.ui.panes.PaneVisibilityStatus;
+import pl.baczkowicz.mqttspy.ui.panes.PaneWithCustomizableVisibility;
 import pl.baczkowicz.mqttspy.ui.properties.PublicationScriptProperties;
 
 /**
  * Controller for publications scripts pane.
  */
-public class PublicationScriptsController implements Initializable, ScriptStateChangeObserver
+public class PublicationScriptsController implements Initializable, ScriptStateChangeObserver, PaneWithCustomizableVisibility
 {
 	/** Diagnostic logger. */
 	private final static Logger logger = LoggerFactory.getLogger(PublicationScriptsController.class);
@@ -83,6 +86,9 @@ public class PublicationScriptsController implements Initializable, ScriptStateC
 	private EventManager eventManager;
 
 	private Map<ScriptTypeEnum, ContextMenu> contextMenus = new HashMap<>();
+	
+	/** Created pane status with index 1 (the second pane). */
+	private final PaneStatus paneStatus = new PaneStatus(1);
 
 	public void initialize(URL location, ResourceBundle resources)
 	{
@@ -272,7 +278,9 @@ public class PublicationScriptsController implements Initializable, ScriptStateC
 	
 					return row;
 				}
-			});				
+			});		
+		
+		paneStatus.setVisibility(PaneVisibilityStatus.NOT_VISIBLE);
 	}
 	
 	public void init()
@@ -374,5 +382,11 @@ public class PublicationScriptsController implements Initializable, ScriptStateC
 	public void onScriptStateChange(String scriptName, ScriptRunningState state)
 	{
 		// TODO: update the context menu - but this requires context menu per row
+	}
+	
+	@Override
+	public PaneStatus getPaneStatus()
+	{		
+		return paneStatus;
 	}
 }

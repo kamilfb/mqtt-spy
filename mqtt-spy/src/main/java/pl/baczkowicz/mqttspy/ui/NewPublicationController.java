@@ -58,6 +58,9 @@ import pl.baczkowicz.mqttspy.scripts.InteractiveScriptManager;
 import pl.baczkowicz.mqttspy.scripts.Script;
 import pl.baczkowicz.mqttspy.scripts.ScriptTypeEnum;
 import pl.baczkowicz.mqttspy.ui.keyboard.TimeBasedKeyEventFilter;
+import pl.baczkowicz.mqttspy.ui.panes.PaneStatus;
+import pl.baczkowicz.mqttspy.ui.panes.PaneVisibilityStatus;
+import pl.baczkowicz.mqttspy.ui.panes.PaneWithCustomizableVisibility;
 import pl.baczkowicz.mqttspy.ui.properties.PublicationScriptProperties;
 import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
 import pl.baczkowicz.mqttspy.utils.ConversionUtils;
@@ -67,7 +70,7 @@ import pl.baczkowicz.mqttspy.utils.TimeUtils;
 /**
  * Controller for creating new publications.
  */
-public class NewPublicationController implements Initializable, ScriptListChangeObserver
+public class NewPublicationController implements Initializable, ScriptListChangeObserver, PaneWithCustomizableVisibility
 {
 	/** Diagnostic logger. */
 	private final static Logger logger = LoggerFactory.getLogger(NewPublicationController.class);
@@ -130,6 +133,9 @@ public class NewPublicationController implements Initializable, ScriptListChange
 	private List<ReceivedMqttMessage> recentMessages = new ArrayList<>();
 
 	private TimeBasedKeyEventFilter timeBasedFilter;
+	
+	/** Created pane status with index 0 (the first pane). */
+	private final PaneStatus paneStatus = new PaneStatus(0);
 
 	public void initialize(URL location, ResourceBundle resources)
 	{
@@ -236,6 +242,8 @@ public class NewPublicationController implements Initializable, ScriptListChange
 		publicationData.setWrapText(true);
 		
 		publishScript.getToggles().get(0).setUserData(null);
+		
+		paneStatus.setVisibility(PaneVisibilityStatus.NOT_VISIBLE);
 	}		
 
 	public void init()
@@ -606,7 +614,12 @@ public class NewPublicationController implements Initializable, ScriptListChange
 
 	public void hidePublishButton()
 	{
-		this.publishButton.setVisible(false);
-		
+		this.publishButton.setVisible(false);	
+	}
+	
+	@Override
+	public PaneStatus getPaneStatus()
+	{		
+		return paneStatus;
 	}
 }

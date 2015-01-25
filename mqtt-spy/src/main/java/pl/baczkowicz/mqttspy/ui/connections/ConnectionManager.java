@@ -63,6 +63,9 @@ import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
 import pl.baczkowicz.mqttspy.ui.ConnectionController;
 import pl.baczkowicz.mqttspy.ui.MainController;
 import pl.baczkowicz.mqttspy.ui.SubscriptionController;
+import pl.baczkowicz.mqttspy.ui.panes.PaneStatus;
+import pl.baczkowicz.mqttspy.ui.panes.PaneVisibilityStatus;
+import pl.baczkowicz.mqttspy.ui.panes.TabStatus;
 import pl.baczkowicz.mqttspy.ui.utils.ConnectivityUtils;
 import pl.baczkowicz.mqttspy.ui.utils.ContextMenuUtils;
 import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
@@ -199,14 +202,21 @@ public class ConnectionManager
 		connectionController.setConnectionManager(this);
 		connectionController.setEventManager(eventManager);
 		connectionController.setStatisticsManager(statisticsManager);
-		
+		connectionController.setTabStatus(new TabStatus());
+		connectionController.getTabStatus().setVisibility(PaneVisibilityStatus.NOT_VISIBLE);
+				
 		final Tab connectionTab = createConnectionTab(connection.getProperties().getName(), connectionPane, connectionController);
+		connectionController.getTabStatus().setParent(connectionTab.getTabPane());
+		
 		final SubscriptionManager subscriptionManager = new SubscriptionManager(eventManager, configurationManager, uiEventQueue);			
 		
 		final SubscriptionController subscriptionController = subscriptionManager.createSubscriptionTab(
 				true, parent, connection.getStore(), null, connection);
 		subscriptionController.setConnectionController(connectionController);
 		subscriptionController.setFormatting(configurationManager.getConfiguration().getFormatting());
+		subscriptionController.setTabStatus(new TabStatus());
+		subscriptionController.getTabStatus().setDisplayIndex(0);
+		subscriptionController.getTabStatus().setParent(subscriptionController.getTab().getTabPane());
 		
 		final ConnectionManager connectionManager = this;
 		
@@ -219,6 +229,8 @@ public class ConnectionManager
 				subscriptionController.init();				
 								
 				mainController.addConnectionTab(connectionTab);
+				connectionController.getTabStatus().setDisplayIndex(connectionTab.getTabPane().getTabs().size() - 1);
+				connectionController.getTabStatus().setVisibility(PaneVisibilityStatus.ATTACHED);
 				
 				// TODO: move creation of the context menus outside the FX thread?
 				connectionTab.setContextMenu(ContextMenuUtils.createConnectionMenu(connection, connectionController, connectionManager));
@@ -305,7 +317,8 @@ public class ConnectionManager
 								
 				// Add "All" subscription tab
 				connectionController.getSubscriptionTabs().getTabs().clear();
-				connectionController.getSubscriptionTabs().getTabs().add(subscriptionController.getTab());							
+				connectionController.getSubscriptionTabs().getTabs().add(subscriptionController.getTab());
+				// TODO: pane status
 				
 				// Apply perspective
 				connectionController.showReplayMode();
@@ -350,6 +363,8 @@ public class ConnectionManager
 	 */
 	public void disconnectAndCloseTab(final MqttAsyncConnection connection)
 	{		
+		// TODO: reindex all connection tabs... ?
+		
 		disconnectFromBroker(connection);
 		connection.closeConnection();
 		if (connection.getMessageLogger() != null && connection.getMessageLogger().isRunning())

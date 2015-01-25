@@ -63,6 +63,10 @@ import pl.baczkowicz.mqttspy.events.observers.SubscriptionStatusChangeObserver;
 import pl.baczkowicz.mqttspy.stats.StatisticsManager;
 import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
 import pl.baczkowicz.mqttspy.ui.connections.SubscriptionManager;
+import pl.baczkowicz.mqttspy.ui.panes.PaneStatus;
+import pl.baczkowicz.mqttspy.ui.panes.PaneVisibilityStatus;
+import pl.baczkowicz.mqttspy.ui.panes.PaneWithCustomizableVisibility;
+import pl.baczkowicz.mqttspy.ui.panes.TabStatus;
 import pl.baczkowicz.mqttspy.ui.search.UniqueContentOnlyFilter;
 import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
 import pl.baczkowicz.mqttspy.ui.utils.FormattingUtils;
@@ -162,6 +166,8 @@ public class SubscriptionController implements Initializable, ClearTabObserver, 
 
 	private UniqueContentOnlyFilter uniqueContentOnlyFilter;
 
+	private TabStatus tabStatus;
+
 	public void initialize(URL location, ResourceBundle resources)
 	{			
 		statsLabel = new Label();
@@ -219,7 +225,7 @@ public class SubscriptionController implements Initializable, ClearTabObserver, 
 
 		updateMinHeights();		
 
-		// splitPane.setDividerPositions(0.5f, 0.5f);
+		tabStatus.setVisibility(PaneVisibilityStatus.NOT_VISIBLE);
 	}
 	
 	public void init()
@@ -350,7 +356,7 @@ public class SubscriptionController implements Initializable, ClearTabObserver, 
 				eventManager.notifyMessageListChanged(store.getMessageList());
 				eventManager.navigateToFirst(store);
 			}
-		});
+		});	
 	}
 
 	public void setReplayMode(final boolean value)
@@ -607,5 +613,20 @@ public class SubscriptionController implements Initializable, ClearTabObserver, 
 	public MqttSubscription getSubscription()
 	{
 		return subscription;
+	}
+
+	public TabStatus getTabStatus()
+	{		
+		return tabStatus;
+	}	
+
+	/**
+	 * Sets the pane status.
+	 * 
+	 * @param paneStatus the paneStatus to set
+	 */
+	public void setTabStatus(TabStatus paneStatus)
+	{
+		this.tabStatus = paneStatus;
 	}
 }
