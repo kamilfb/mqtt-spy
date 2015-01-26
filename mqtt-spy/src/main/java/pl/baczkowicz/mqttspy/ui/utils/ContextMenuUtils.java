@@ -24,6 +24,7 @@ import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.Tab;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
+import javafx.scene.paint.Color;
 import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
 import pl.baczkowicz.mqttspy.configuration.generated.TabbedSubscriptionDetails;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
@@ -113,6 +114,31 @@ public class ContextMenuUtils
 		});
 		contextMenu.getItems().add(copyTopicItem);
 
+		// Separator
+		contextMenu.getItems().add(new SeparatorMenuItem());
+		
+		// Change color
+		final MenuItem changeColorMenu = new MenuItem("[Subscription] Change color");
+		changeColorMenu.setOnAction(new EventHandler<ActionEvent>()
+		{
+			@Override
+			public void handle(ActionEvent event)
+			{
+				final Color newColor = 
+						DialogUtils.showColorDialog(subscription.getColor(), 
+								"Select new subscription color", "Subscription color");
+				
+				if (!newColor.equals(subscription.getColor()))
+				{
+					subscription.setColor(newColor);
+					subscription.getSubscriptionController().getTab().setStyle(
+							StylingUtils.createBaseRGBString(newColor));
+				}
+			}
+		});
+
+		contextMenu.getItems().add(changeColorMenu);
+		
 		// Separator
 		contextMenu.getItems().add(new SeparatorMenuItem());
 		

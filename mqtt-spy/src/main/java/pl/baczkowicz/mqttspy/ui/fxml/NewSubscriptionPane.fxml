@@ -43,7 +43,7 @@
 			</items>
 		</ChoiceBox>
 		
-		<ColorPicker fx:id="colorPicker" prefHeight="26.0" prefWidth="110.0" AnchorPane.rightAnchor="128" AnchorPane.topAnchor="0.0">
+		<ColorPicker fx:id="subscriptionColorPicker" prefHeight="26.0" prefWidth="110.0" AnchorPane.rightAnchor="128" AnchorPane.topAnchor="0.0">
 		</ColorPicker>
 				
 		<Button fx:id="subscribeButton" disable="true" layoutX="549.0" layoutY="13.0" mnemonicParsing="false" onAction="#subscribe" prefHeight="25.0" prefWidth="120" text="Subscribe" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">

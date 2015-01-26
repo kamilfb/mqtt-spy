@@ -66,7 +66,7 @@ public class NewSubscriptionController implements Initializable, PaneWithCustomi
 	private Label subscriptionQosLabel;
 	
 	@FXML
-	private ColorPicker colorPicker;
+	private ColorPicker subscriptionColorPicker;
 
 	private ObservableList<String> subscriptionTopics = FXCollections.observableArrayList();
 
@@ -115,7 +115,7 @@ public class NewSubscriptionController implements Initializable, PaneWithCustomi
 	{
 		timeBasedFilter = new TimeBasedKeyEventFilter(100);
 		
-		colorPicker.setValue(colors.get(0));
+		subscriptionColorPicker.setValue(colors.get(0));
 		subscriptionTopicText.setItems(subscriptionTopics);
 		
 		subscriptionTopicText.addEventFilter(KeyEvent.KEY_RELEASED, new EventHandler<KeyEvent>() 
@@ -210,9 +210,9 @@ public class NewSubscriptionController implements Initializable, PaneWithCustomi
 			recordSubscriptionTopic(subscriptionDetails.getTopic());
 			
 			connectionManager.getSubscriptionManager(connection).
-				createSubscription(colorPicker.getValue(), subscribe, subscriptionDetails, connection, connectionController, this);
+				createSubscription(subscriptionColorPicker.getValue(), subscribe, subscriptionDetails, connection, connectionController, this);
 			
-			colorPicker.setValue(colors.get(connection.getLastUsedSubscriptionId() % 16));
+			subscriptionColorPicker.setValue(colors.get(connection.getLastUsedSubscriptionId() % 16));
 		}
 		else
 		{

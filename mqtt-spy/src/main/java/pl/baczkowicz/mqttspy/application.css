@@ -3,10 +3,12 @@
 	-fx-font-weight: bold;
 }
 
-.color-picker .color-picker-label .text 
+/* .color-picker  */
+#subscriptionColorPicker .color-picker-label .text 
 {
     -fx-font: 11px "System";
 }
+
 .command-link-message
 {
 	-fx-font: 15px "System";

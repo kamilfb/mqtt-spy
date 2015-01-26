@@ -214,9 +214,10 @@ public class ConnectionManager
 				true, parent, connection.getStore(), null, connection);
 		subscriptionController.setConnectionController(connectionController);
 		subscriptionController.setFormatting(configurationManager.getConfiguration().getFormatting());
-		subscriptionController.setTabStatus(new TabStatus());
-		subscriptionController.getTabStatus().setDisplayIndex(0);
-		subscriptionController.getTabStatus().setParent(subscriptionController.getTab().getTabPane());
+		// TODO: pane status
+		//subscriptionController.setTabStatus(new TabStatus());
+		//subscriptionController.getTabStatus().setDisplayIndex(0);
+		//subscriptionController.getTabStatus().setParent(subscriptionController.getTab().getTabPane());
 		
 		final ConnectionManager connectionManager = this;
 		

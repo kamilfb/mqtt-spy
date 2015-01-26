@@ -24,13 +24,18 @@ import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.geometry.Point2D;
 import javafx.scene.control.Button;
+import javafx.scene.control.ColorPicker;
+import javafx.scene.control.Label;
 import javafx.scene.control.Tooltip;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Window;
 import javafx.util.Pair;
 
 import org.controlsfx.control.action.Action;
+import org.controlsfx.dialog.CustomDialog;
 import org.controlsfx.dialog.CustomDialogs;
 import org.controlsfx.dialog.Dialog;
 import org.controlsfx.dialog.DialogAction;
@@ -371,5 +376,43 @@ public class DialogUtils
 	public static void showWorkerDialog(final Task<?> readAndProcess)
 	{
 		Dialogs.create().showWorkerProgress(readAndProcess);
+	}
+
+	public static Color showColorDialog(final Color color, final String title,
+			final String label)
+	{
+		CustomDialog dialog = new CustomDialog(null, title);
+
+		final ColorPicker picker = new ColorPicker(color);
+
+		final AnchorPane content = new AnchorPane();
+		final Label textLabel = new Label(label);
+		content.getChildren().addAll(textLabel, picker);
+		AnchorPane.setLeftAnchor(textLabel, 5.0);
+		AnchorPane.setTopAnchor(textLabel, 5.0);
+		AnchorPane.setLeftAnchor(picker, 175.0);
+		AnchorPane.setRightAnchor(picker, 0.0);
+
+		dialog.setResizable(false);
+		dialog.setIconifiable(false);
+		dialog.setContent(content);
+		dialog.getActions().addAll(Dialog.ACTION_OK, Dialog.ACTION_CANCEL);
+
+		Platform.runLater(new Runnable()
+		{
+			public void run()
+			{
+				picker.requestFocus();
+			}
+		});
+
+		if (dialog.show().equals(Dialog.ACTION_OK))
+		{
+			return picker.getValue();
+		}
+		else
+		{
+			return color;
+		}
 	}
 }
