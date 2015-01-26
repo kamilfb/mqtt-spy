@@ -15,16 +15,22 @@
 package pl.baczkowicz.mqttspy.ui.utils;
 
 import javafx.event.ActionEvent;
+import javafx.event.Event;
 import javafx.event.EventHandler;
+import javafx.scene.Scene;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
+import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
 import pl.baczkowicz.mqttspy.configuration.generated.TabbedSubscriptionDetails;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
@@ -35,12 +41,15 @@ import pl.baczkowicz.mqttspy.ui.ConnectionController;
 import pl.baczkowicz.mqttspy.ui.SubscriptionController;
 import pl.baczkowicz.mqttspy.ui.connections.ConnectionManager;
 import pl.baczkowicz.mqttspy.ui.connections.SubscriptionManager;
+import pl.baczkowicz.mqttspy.ui.panes.PaneVisibilityStatus;
 
 /**
  * Context menu utils - mainly for creating various context menus.
  */
 public class ContextMenuUtils
 {	
+	// private final static Logger logger = LoggerFactory.getLogger(ContextMenuUtils.class);
+	
 	/**
 	 * Create context menu for the subscription tab.
 	 * 
@@ -279,6 +288,22 @@ public class ContextMenuUtils
 		return contextMenu;
 	}
 	
+	public static Tab copyConnectionTab(final Tab tabToCopy, final ContextMenu contextMenu, 
+			final ConnectionController connectionController, final MqttAsyncConnection connection, final TabPane tabPane)
+	{
+		final Tab newTab = new Tab();
+		newTab.setContextMenu(contextMenu);
+		newTab.setText(tabToCopy.getText());
+		newTab.setContent(tabToCopy.getContent());
+		newTab.setStyle(tabToCopy.getStyle());						
+		
+		connectionController.setTab(newTab);
+		tabPane.getTabs().add(newTab);							
+		connectionController.onConnectionStatusChanged(connection);
+		
+		return newTab;
+	}
+	
 	/**
 	 * Creates a context menu for the connection tab.
 	 * 
@@ -333,6 +358,79 @@ public class ContextMenuUtils
 		contextMenu.getItems().add(new SeparatorMenuItem());
 		
 		// View
+		final MenuItem detachMenu = new MenuItem("[View] Detach to a separate window");
+		detachMenu.setOnAction(new EventHandler<ActionEvent>()
+		{
+			@Override
+			public void handle(ActionEvent event)
+			{
+				final Tab connectionTab = connectionController.getTab();
+				
+				// Hide, so it is not duplicated				
+				connectionTab.getContextMenu().hide();
+				final ContextMenu existingContextMenu = connectionTab.getContextMenu();
+				connectionTab.setContextMenu(null);				
+				
+				final Stage stage = new Stage();
+				final AnchorPane content = new AnchorPane();
+				final TabPane tabPane = new TabPane();
+				content.getChildren().add(tabPane);
+				AnchorPane.setBottomAnchor(tabPane, 0.0);
+				AnchorPane.setLeftAnchor(tabPane, 0.0);
+				AnchorPane.setTopAnchor(tabPane, 0.0);
+				AnchorPane.setRightAnchor(tabPane, 0.0);
+								
+				// Remove from old parent	
+				connectionController.getTabStatus().getParent().getTabs().remove(connectionTab);
+				
+				// Add to new parent
+				copyConnectionTab(connectionTab, existingContextMenu, connectionController, connection, tabPane);
+				connectionController.getTabStatus().setVisibility(PaneVisibilityStatus.DETACHED);
+				connectionController.getTab().setClosable(false);				
+				detachMenu.setDisable(true);
+				
+				final Scene scene = new Scene(content);
+				scene.getStylesheets().addAll(connectionController.getTabStatus().getParent().getScene().getStylesheets());	
+				stage.setTitle("Connection " + connection.getName());
+				stage.setScene(scene);
+				stage.setOnCloseRequest(new EventHandler<WindowEvent>()
+				{				
+					@Override
+					public void handle(WindowEvent event)
+					{
+						if (tabPane.getTabs().size() > 0)
+						{							
+							final Tab connectionTab = connectionController.getTab();
+							final ContextMenu existingContextMenu = connectionTab.getContextMenu();
+							connectionTab.setContextMenu(null);
+							
+							// Remove from new parent
+							tabPane.getTabs().remove(connectionTab);
+							
+							// Add to old parent
+							copyConnectionTab(connectionTab, existingContextMenu, connectionController, connection, connectionController.getTabStatus().getParent());						
+							connectionController.getTabStatus().setVisibility(PaneVisibilityStatus.ATTACHED);						
+							connectionController.getTab().setClosable(true);						
+							detachMenu.setDisable(false);
+							// TODO: re-add at the right place?
+						}
+					}
+				});
+				
+				connectionController.getTab().setOnClosed(new EventHandler<Event>()
+				{					
+					@Override
+					public void handle(Event event)
+					{
+						stage.close();						
+					}
+				});
+				
+		        stage.show();		        
+			}
+		});
+		contextMenu.getItems().add(detachMenu);
+		
 		final Menu view = new Menu("[View] Show/hide panes");
 		final MenuItem manualPublications = new MenuItem("Toggle 'Publish message' pane");
 		final MenuItem scriptedPublications = new MenuItem("Toggle 'Scripted publications' pane");

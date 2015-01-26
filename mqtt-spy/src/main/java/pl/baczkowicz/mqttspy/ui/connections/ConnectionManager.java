@@ -206,7 +206,6 @@ public class ConnectionManager
 		connectionController.getTabStatus().setVisibility(PaneVisibilityStatus.NOT_VISIBLE);
 				
 		final Tab connectionTab = createConnectionTab(connection.getProperties().getName(), connectionPane, connectionController);
-		connectionController.getTabStatus().setParent(connectionTab.getTabPane());
 		
 		final SubscriptionManager subscriptionManager = new SubscriptionManager(eventManager, configurationManager, uiEventQueue);			
 		
@@ -232,6 +231,7 @@ public class ConnectionManager
 				mainController.addConnectionTab(connectionTab);
 				connectionController.getTabStatus().setDisplayIndex(connectionTab.getTabPane().getTabs().size() - 1);
 				connectionController.getTabStatus().setVisibility(PaneVisibilityStatus.ATTACHED);
+				connectionController.getTabStatus().setParent(connectionTab.getTabPane());
 				
 				// TODO: move creation of the context menus outside the FX thread?
 				connectionTab.setContextMenu(ContextMenuUtils.createConnectionMenu(connection, connectionController, connectionManager));
