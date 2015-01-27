@@ -22,6 +22,7 @@ import org.apache.log4j.RollingFileAppender;
 import pl.baczkowicz.mqttspy.common.generated.MessageLog;
 import pl.baczkowicz.mqttspy.messages.ReceivedMqttMessageWithSubscriptions;
 import pl.baczkowicz.mqttspy.utils.ThreadingUtils;
+import pl.baczkowicz.mqttspy.utils.Utils;
 
 /**
  * This class is responsible for handling logging messages.
@@ -30,6 +31,9 @@ public class MqttMessageLogger implements Runnable
 {
 	/** Message log logger. */
 	private final static Logger logger = Logger.getLogger(MqttMessageLogger.class);
+	
+	/** If X messages logged without a break, log this. */
+	private final static int LOG_INTERVAL = 10000;
 	
 	/** Message log logger. */
 	private Logger localLogger;
@@ -100,8 +104,10 @@ public class MqttMessageLogger implements Runnable
 		{
 			try
 			{
+				int mesagesProcessed = 0;
 				while (queue.size() > 0)
 				{
+					mesagesProcessed++;
 					if (localLogger != null)
 					{
 						localLogger.info(SimpleMessageLogComposer.createReceivedMessageLog(queue.remove(), messageLogSettings));
@@ -109,6 +115,12 @@ public class MqttMessageLogger implements Runnable
 					else
 					{
 						logger.info(SimpleMessageLogComposer.createReceivedMessageLog(queue.remove(), messageLogSettings));
+					}
+					
+					if (mesagesProcessed > LOG_INTERVAL)
+					{
+						Utils.logger.warn("Logged " + LOG_INTERVAL + " messages; logger not keeping up; queue size = " + queue.size());						
+						mesagesProcessed = 0;
 					}
 				}
 			
