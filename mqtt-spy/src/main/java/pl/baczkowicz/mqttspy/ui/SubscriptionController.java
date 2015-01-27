@@ -63,6 +63,8 @@ import pl.baczkowicz.mqttspy.events.observers.SubscriptionStatusChangeObserver;
 import pl.baczkowicz.mqttspy.stats.StatisticsManager;
 import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
 import pl.baczkowicz.mqttspy.ui.connections.SubscriptionManager;
+import pl.baczkowicz.mqttspy.ui.panes.TabController;
+import pl.baczkowicz.mqttspy.ui.panes.TabStatus;
 import pl.baczkowicz.mqttspy.ui.search.UniqueContentOnlyFilter;
 import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
 import pl.baczkowicz.mqttspy.ui.utils.FormattingUtils;
@@ -71,7 +73,7 @@ import pl.baczkowicz.mqttspy.ui.utils.FxmlUtils;
 /**
  * Controller for the subscription tab.
  */
-public class SubscriptionController implements Initializable, ClearTabObserver, SubscriptionStatusChangeObserver
+public class SubscriptionController implements Initializable, ClearTabObserver, SubscriptionStatusChangeObserver, TabController
 {
 	final static Logger logger = LoggerFactory.getLogger(SubscriptionController.class);
 
@@ -161,6 +163,8 @@ public class SubscriptionController implements Initializable, ClearTabObserver, 
 	private Formatting formatting;
 
 	private UniqueContentOnlyFilter uniqueContentOnlyFilter;
+
+	private TabStatus tabStatus;
 
 	public void initialize(URL location, ResourceBundle resources)
 	{			
@@ -483,6 +487,7 @@ public class SubscriptionController implements Initializable, ClearTabObserver, 
 		return tab.getTabPane().getScene().getWindow();
 	}
 	
+	@FXML
 	public void showSearchWindow()
 	{
 		if (searchStage == null)
@@ -605,5 +610,27 @@ public class SubscriptionController implements Initializable, ClearTabObserver, 
 	public MqttSubscription getSubscription()
 	{
 		return subscription;
+	}
+
+	public TabStatus getTabStatus()
+	{		
+		return tabStatus;
+	}	
+
+	/**
+	 * Sets the pane status.
+	 * 
+	 * @param paneStatus the paneStatus to set
+	 */
+	public void setTabStatus(TabStatus paneStatus)
+	{
+		this.tabStatus = paneStatus;
+	}
+
+	@Override
+	public void refreshStatus()
+	{
+		// TODO Auto-generated method stub
+		
 	}
 }

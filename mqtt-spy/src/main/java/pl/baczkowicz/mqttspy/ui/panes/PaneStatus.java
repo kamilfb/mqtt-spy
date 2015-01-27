@@ -27,17 +27,17 @@ public class PaneStatus
 	
 
 	
-	private int displayIndex;
+//	private int displayIndex;
 
 	public PaneStatus()
 	{
 		// Default
 	}
 	
-	public PaneStatus(final int displayIndex)
-	{
-		this.displayIndex = displayIndex;
-	}
+//	public PaneStatus(final int displayIndex)
+//	{
+//		this.displayIndex = displayIndex;
+//	}
 	
 //	public PaneStatus(final int displayIndex, final Pane container)
 //	{
@@ -86,15 +86,15 @@ public class PaneStatus
 	}
 
 
-	/**
-	 * Gets the display index.
-	 * 
-	 * @return the displayIndex
-	 */
-	public int getDisplayIndex()
-	{
-		return displayIndex;
-	}
+//	/**
+//	 * Gets the display index.
+//	 * 
+//	 * @return the displayIndex
+//	 */
+//	public int getDisplayIndex()
+//	{
+//		return displayIndex;
+//	}
 
 //	/**
 //	 * Gets the container.
@@ -116,13 +116,13 @@ public class PaneStatus
 //		this.container = container;
 //	}
 	
-	/**
-	 * Sets the display index.
-	 * 
-	 * @param displayIndex the displayIndex to set
-	 */
-	public void setDisplayIndex(int displayIndex)
-	{
-		this.displayIndex = displayIndex;
-	}
+//	/**
+//	 * Sets the display index.
+//	 * 
+//	 * @param displayIndex the displayIndex to set
+//	 */
+//	public void setDisplayIndex(int displayIndex)
+//	{
+//		this.displayIndex = displayIndex;
+//	}
 }

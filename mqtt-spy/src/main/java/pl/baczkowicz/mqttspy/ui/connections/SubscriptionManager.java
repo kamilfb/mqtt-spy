@@ -41,6 +41,8 @@ import pl.baczkowicz.mqttspy.events.queuable.ui.MqttSpyUIEvent;
 import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
 import pl.baczkowicz.mqttspy.ui.ConnectionController;
 import pl.baczkowicz.mqttspy.ui.SubscriptionController;
+import pl.baczkowicz.mqttspy.ui.panes.PaneVisibilityStatus;
+import pl.baczkowicz.mqttspy.ui.panes.TabStatus;
 import pl.baczkowicz.mqttspy.ui.utils.ContextMenuUtils;
 import pl.baczkowicz.mqttspy.ui.utils.FxmlUtils;
 import pl.baczkowicz.mqttspy.ui.utils.StylingUtils;
@@ -107,13 +109,17 @@ public class SubscriptionManager
 		// Add a new tab
 		final SubscriptionController subscriptionController = createSubscriptionTab(false, parent, subscription, subscription, connection);
 		subscriptionController.getTab().setContextMenu(ContextMenuUtils.createSubscriptionTabContextMenu(
-				connection, subscription, eventManager, this, configurationManager));
+				connection, subscription, eventManager, this, configurationManager, subscriptionController));
 		subscriptionController.setConnectionController(connectionController);
 		subscriptionController.setFormatting(configurationManager.getConfiguration().getFormatting());
+		subscriptionController.setTabStatus(new TabStatus());
+		subscriptionController.getTabStatus().setVisibility(PaneVisibilityStatus.NOT_VISIBLE);
 		subscriptionController.init();
 		
 		subscription.setSubscriptionController(subscriptionController);
 		subscriptionController.setDetailedViewVisibility(connectionController.getDetailedViewVisibility());
+		subscriptionController.getTabStatus().setVisibility(PaneVisibilityStatus.ATTACHED);
+		subscriptionController.getTabStatus().setParent(connectionController.getSubscriptionTabs());
 		
 		final TabPane subscriptionTabs = connectionController.getSubscriptionTabs();
 		

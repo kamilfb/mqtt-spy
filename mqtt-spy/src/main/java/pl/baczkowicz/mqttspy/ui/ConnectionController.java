@@ -44,6 +44,7 @@ import pl.baczkowicz.mqttspy.events.EventManager;
 import pl.baczkowicz.mqttspy.events.observers.ConnectionStatusChangeObserver;
 import pl.baczkowicz.mqttspy.stats.StatisticsManager;
 import pl.baczkowicz.mqttspy.ui.connections.ConnectionManager;
+import pl.baczkowicz.mqttspy.ui.panes.TabController;
 import pl.baczkowicz.mqttspy.ui.panes.TabStatus;
 import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
 import pl.baczkowicz.mqttspy.ui.utils.StylingUtils;
@@ -51,7 +52,7 @@ import pl.baczkowicz.mqttspy.ui.utils.StylingUtils;
 /**
  * Controller looking after the connection tab.
  */
-public class ConnectionController implements Initializable, ConnectionStatusChangeObserver
+public class ConnectionController implements Initializable, ConnectionStatusChangeObserver, TabController
 {
 	private static final int MIN_COLLAPSED_PANE_HEIGHT = 26;
 	
@@ -517,5 +518,14 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 	public void setTabStatus(TabStatus paneStatus)
 	{
 		this.tabStatus = paneStatus;
+	}
+
+	@Override
+	public void refreshStatus()
+	{
+		if (connection != null)
+		{
+			onConnectionStatusChanged(connection);
+		}
 	}
 }

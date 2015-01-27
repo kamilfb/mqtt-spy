@@ -53,7 +53,7 @@ import pl.baczkowicz.mqttspy.ui.properties.PublicationScriptProperties;
 /**
  * Controller for publications scripts pane.
  */
-public class PublicationScriptsController implements Initializable, ScriptStateChangeObserver, PaneWithCustomizableVisibility
+public class PublicationScriptsController implements Initializable, ScriptStateChangeObserver//, PaneWithCustomizableVisibility
 {
 	/** Diagnostic logger. */
 	private final static Logger logger = LoggerFactory.getLogger(PublicationScriptsController.class);
@@ -88,7 +88,7 @@ public class PublicationScriptsController implements Initializable, ScriptStateC
 	private Map<ScriptTypeEnum, ContextMenu> contextMenus = new HashMap<>();
 	
 	/** Created pane status with index 1 (the second pane). */
-	private final PaneStatus paneStatus = new PaneStatus(1);
+	// private final PaneStatus paneStatus = new PaneStatus(1);
 
 	public void initialize(URL location, ResourceBundle resources)
 	{
@@ -280,7 +280,7 @@ public class PublicationScriptsController implements Initializable, ScriptStateC
 				}
 			});		
 		
-		paneStatus.setVisibility(PaneVisibilityStatus.NOT_VISIBLE);
+		// paneStatus.setVisibility(PaneVisibilityStatus.NOT_VISIBLE);
 	}
 	
 	public void init()
@@ -384,9 +384,9 @@ public class PublicationScriptsController implements Initializable, ScriptStateC
 		// TODO: update the context menu - but this requires context menu per row
 	}
 	
-	@Override
-	public PaneStatus getPaneStatus()
-	{		
-		return paneStatus;
-	}
+//	@Override
+//	public PaneStatus getPaneStatus()
+//	{		
+//		return paneStatus;
+//	}
 }

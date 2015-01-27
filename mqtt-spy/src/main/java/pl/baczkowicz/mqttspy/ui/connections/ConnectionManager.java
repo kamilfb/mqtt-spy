@@ -63,7 +63,6 @@ import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
 import pl.baczkowicz.mqttspy.ui.ConnectionController;
 import pl.baczkowicz.mqttspy.ui.MainController;
 import pl.baczkowicz.mqttspy.ui.SubscriptionController;
-import pl.baczkowicz.mqttspy.ui.panes.PaneStatus;
 import pl.baczkowicz.mqttspy.ui.panes.PaneVisibilityStatus;
 import pl.baczkowicz.mqttspy.ui.panes.TabStatus;
 import pl.baczkowicz.mqttspy.ui.utils.ConnectivityUtils;
@@ -213,10 +212,6 @@ public class ConnectionManager
 				true, parent, connection.getStore(), null, connection);
 		subscriptionController.setConnectionController(connectionController);
 		subscriptionController.setFormatting(configurationManager.getConfiguration().getFormatting());
-		// TODO: pane status
-		//subscriptionController.setTabStatus(new TabStatus());
-		//subscriptionController.getTabStatus().setDisplayIndex(0);
-		//subscriptionController.getTabStatus().setParent(subscriptionController.getTab().getTabPane());
 		
 		final ConnectionManager connectionManager = this;
 		
@@ -229,7 +224,6 @@ public class ConnectionManager
 				subscriptionController.init();				
 								
 				mainController.addConnectionTab(connectionTab);
-				connectionController.getTabStatus().setDisplayIndex(connectionTab.getTabPane().getTabs().size() - 1);
 				connectionController.getTabStatus().setVisibility(PaneVisibilityStatus.ATTACHED);
 				connectionController.getTabStatus().setParent(connectionTab.getTabPane());
 				
@@ -290,6 +284,8 @@ public class ConnectionManager
 		connectionController.setEventManager(eventManager);
 		connectionController.setStatisticsManager(statisticsManager);
 		connectionController.setReplayMode(true);
+		connectionController.setTabStatus(new TabStatus());
+		connectionController.getTabStatus().setVisibility(PaneVisibilityStatus.NOT_VISIBLE);
 		
 		final Tab replayTab = createConnectionTab(name, connectionPane, connectionController);
 		final SubscriptionManager subscriptionManager = new SubscriptionManager(eventManager, configurationManager, uiEventQueue);			
@@ -313,12 +309,13 @@ public class ConnectionManager
 								
 				mainController.addConnectionTab(replayTab);
 				
-				replayTab.setContextMenu(ContextMenuUtils.createMessageLogMenu(replayTab));
-				//subscriptionController.getTab().setContextMenu(ContextMenuUtils.createAllSubscriptionsTabContextMenu(subscriptionController.getTab(), connection, eventManager));
+				replayTab.setContextMenu(ContextMenuUtils.createMessageLogMenu(replayTab, connectionController));
 								
 				// Add "All" subscription tab
 				connectionController.getSubscriptionTabs().getTabs().clear();
 				connectionController.getSubscriptionTabs().getTabs().add(subscriptionController.getTab());
+				connectionController.getTabStatus().setVisibility(PaneVisibilityStatus.ATTACHED);
+				connectionController.getTabStatus().setParent(replayTab.getTabPane());
 				// TODO: pane status
 				
 				// Apply perspective

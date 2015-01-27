@@ -70,7 +70,7 @@ import pl.baczkowicz.mqttspy.utils.TimeUtils;
 /**
  * Controller for creating new publications.
  */
-public class NewPublicationController implements Initializable, ScriptListChangeObserver, PaneWithCustomizableVisibility
+public class NewPublicationController implements Initializable, ScriptListChangeObserver//, PaneWithCustomizableVisibility
 {
 	/** Diagnostic logger. */
 	private final static Logger logger = LoggerFactory.getLogger(NewPublicationController.class);
@@ -135,7 +135,7 @@ public class NewPublicationController implements Initializable, ScriptListChange
 	private TimeBasedKeyEventFilter timeBasedFilter;
 	
 	/** Created pane status with index 0 (the first pane). */
-	private final PaneStatus paneStatus = new PaneStatus(0);
+	//private final PaneStatus paneStatus = new PaneStatus(0);
 
 	public void initialize(URL location, ResourceBundle resources)
 	{
@@ -243,7 +243,7 @@ public class NewPublicationController implements Initializable, ScriptListChange
 		
 		publishScript.getToggles().get(0).setUserData(null);
 		
-		paneStatus.setVisibility(PaneVisibilityStatus.NOT_VISIBLE);
+		//paneStatus.setVisibility(PaneVisibilityStatus.NOT_VISIBLE);
 	}		
 
 	public void init()
@@ -617,9 +617,9 @@ public class NewPublicationController implements Initializable, ScriptListChange
 		this.publishButton.setVisible(false);	
 	}
 	
-	@Override
-	public PaneStatus getPaneStatus()
-	{		
-		return paneStatus;
-	}
+//	@Override
+//	public PaneStatus getPaneStatus()
+//	{		
+//		return paneStatus;
+//	}
 }
