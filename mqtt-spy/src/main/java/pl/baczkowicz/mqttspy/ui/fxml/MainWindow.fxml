@@ -45,7 +45,7 @@
 					</items>
 				</Menu>
 			
-				<Menu mnemonicParsing="false" text="Logger">
+				<Menu mnemonicParsing="false" text="Log">
 					<items>
 						<MenuItem mnemonicParsing="false" onAction="#openMessageLog" text="Open message log for off-line analysis" />
 					</items>

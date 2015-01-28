@@ -132,7 +132,7 @@ public class TabUtils
 				final TabPane tabPane = new TabPane();
 								
 				// Remove from old parent	
-				controller.getTabStatus().getParent().getTabs().remove(tab);
+				controller.getTabStatus().getParentWhenAttached().getTabs().remove(tab);
 				
 				// Add to new parent
 				copyTab(tab, existingContextMenu, controller, tabPane);
@@ -141,7 +141,7 @@ public class TabUtils
 				menuItem.setDisable(true);
 				
 				final Stage stage = createTabWindow(
-						tabPane, controller.getTabStatus().getParent().getScene(), 
+						tabPane, controller.getTabStatus().getParentWhenAttached().getScene(), 
 						windowTitle, margin);
 				
 				controller.getTab().setOnCloseRequest(new EventHandler<Event>()
@@ -168,7 +168,7 @@ public class TabUtils
 							tabPane.getTabs().remove(tab);
 							
 							// Add to old parent
-							copyTab(tab, existingContextMenu, controller, controller.getTabStatus().getParent());						
+							copyTab(tab, existingContextMenu, controller, controller.getTabStatus().getParentWhenAttached());						
 							controller.getTabStatus().setVisibility(PaneVisibilityStatus.ATTACHED);						
 							controller.getTab().setClosable(closableWhenAttached);						
 							menuItem.setDisable(false);

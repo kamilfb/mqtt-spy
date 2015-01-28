@@ -24,5 +24,7 @@ public interface TabController
 	
 	TabStatus getTabStatus();
 	
+	void setTabStatus(TabStatus status);
+	
 	void refreshStatus();
 }

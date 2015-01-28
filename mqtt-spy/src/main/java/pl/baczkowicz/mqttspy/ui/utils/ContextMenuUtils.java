@@ -373,28 +373,28 @@ public class ContextMenuUtils
 		{
 			public void handle(ActionEvent e)
 			{				
-				connectionController.togglePane(connectionController.getPublishMessageTitledPane());
+				connectionController.togglePane(connectionController.getNewPublicationPaneController());
 			}
 		});
 		scriptedPublications.setOnAction(new EventHandler<ActionEvent>()
 		{
 			public void handle(ActionEvent e)
 			{				
-				connectionController.togglePane(connectionController.getScriptedPublicationsTitledPane());
+				connectionController.togglePane(connectionController.getPublicationScriptsPaneController());
 			}
 		});
 		newSubscription.setOnAction(new EventHandler<ActionEvent>()
 		{
 			public void handle(ActionEvent e)
 			{				
-				connectionController.togglePane(connectionController.getNewSubscriptionTitledPane());
+				connectionController.togglePane(connectionController.getNewSubscriptionPaneController());
 			}
 		});
 		messageSummary.setOnAction(new EventHandler<ActionEvent>()
 		{
 			public void handle(ActionEvent e)
 			{				
-				connectionController.togglePane(connectionController.getSubscriptionsTitledPane());
+				connectionController.togglePane(connectionController.getSubscriptionsController());
 			}
 		});
 		detailedView.setOnAction(new EventHandler<ActionEvent>()

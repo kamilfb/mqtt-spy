@@ -417,7 +417,7 @@ public class MainController
 		for (final PublicationDetails publicationDetails : connectionDetails.getPublication())
 		{
 			// Add it to the list of pre-defined topics
-			connectionController.newPublicationPaneController.recordPublicationTopic(publicationDetails.getTopic());
+			connectionController.getNewPublicationPaneController().recordPublicationTopic(publicationDetails.getTopic());
 		}
 		
 		for (final TabbedSubscriptionDetails subscriptionDetails : connectionDetails.getSubscription())
@@ -425,11 +425,11 @@ public class MainController
 			// Check if we should create a tab for the subscription
 			if (subscriptionDetails.isCreateTab())
 			{
-				connectionController.newSubscriptionPaneController.subscribe(subscriptionDetails, connectionDetails.isAutoSubscribe());
+				connectionController.getNewSubscriptionPaneController().subscribe(subscriptionDetails, connectionDetails.isAutoSubscribe());
 			}
 			
 			// Add it to the list of pre-defined topics
-			connectionController.newSubscriptionPaneController.recordSubscriptionTopic(subscriptionDetails.getTopic());
+			connectionController.getNewSubscriptionPaneController().recordSubscriptionTopic(subscriptionDetails.getTopic());
 		}
 	}
 

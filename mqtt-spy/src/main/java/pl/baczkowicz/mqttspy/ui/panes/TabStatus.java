@@ -18,16 +18,16 @@ import javafx.scene.control.TabPane;
 
 public class TabStatus extends PaneStatus
 {
-	private TabPane parent;		
+	private TabPane parentWhenAttached;		
 
 	/**
 	 * Gets the parent object.
 	 * 
 	 * @return the parent
 	 */
-	public TabPane getParent()
+	public TabPane getParentWhenAttached()
 	{
-		return parent;
+		return parentWhenAttached;
 	}
 
 	/**
@@ -37,6 +37,6 @@ public class TabStatus extends PaneStatus
 	 */
 	public void setParent(TabPane parent)
 	{
-		this.parent = parent;
+		this.parentWhenAttached = parent;
 	}
 }

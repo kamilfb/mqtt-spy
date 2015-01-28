@@ -14,7 +14,15 @@
  */
 package pl.baczkowicz.mqttspy.ui.panes;
 
-public interface PaneWithCustomizableVisibility
+import javafx.scene.control.TitledPane;
+
+public interface TitledPaneController
 {
-	PaneStatus getPaneStatus();
+	TitledPane getTitledPane();
+	
+	void setTitledPane(TitledPane pane);
+	
+	TitledPaneStatus getTitledPaneStatus();
+	
+	// void setTitledPaneStatus(TitledPaneStatus status);
 }

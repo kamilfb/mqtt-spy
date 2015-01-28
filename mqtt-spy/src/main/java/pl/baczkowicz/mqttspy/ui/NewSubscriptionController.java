@@ -29,6 +29,7 @@ import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.TitledPane;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
@@ -40,16 +41,15 @@ import pl.baczkowicz.mqttspy.configuration.generated.TabbedSubscriptionDetails;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.ui.connections.ConnectionManager;
 import pl.baczkowicz.mqttspy.ui.keyboard.TimeBasedKeyEventFilter;
-import pl.baczkowicz.mqttspy.ui.panes.PaneStatus;
-import pl.baczkowicz.mqttspy.ui.panes.PaneVisibilityStatus;
-import pl.baczkowicz.mqttspy.ui.panes.PaneWithCustomizableVisibility;
+import pl.baczkowicz.mqttspy.ui.panes.TitledPaneController;
+import pl.baczkowicz.mqttspy.ui.panes.TitledPaneStatus;
 import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
 import pl.baczkowicz.mqttspy.utils.MqttUtils;
 
 /**
  * Controller for creating new subscriptions.
  */
-public class NewSubscriptionController implements Initializable//, PaneWithCustomizableVisibility
+public class NewSubscriptionController implements Initializable, TitledPaneController
 {
 	final static Logger logger = LoggerFactory.getLogger(NewSubscriptionController.class);
 	
@@ -85,7 +85,9 @@ public class NewSubscriptionController implements Initializable//, PaneWithCusto
 	private TimeBasedKeyEventFilter timeBasedFilter;
 	
 	/** Created pane status with index 2 (second the last pane). */
-	//private final PaneStatus paneStatus = new PaneStatus(2);
+	private final TitledPaneStatus paneStatus = new TitledPaneStatus(2);
+
+	private TitledPane pane;
 
 	public NewSubscriptionController()
 	{
@@ -234,10 +236,22 @@ public class NewSubscriptionController implements Initializable//, PaneWithCusto
 	{
 		this.connection = connection;
 	}
-	
-//	@Override
-//	public PaneStatus getPaneStatus()
-//	{		
-//		return paneStatus;
-//	}
+
+	@Override
+	public TitledPane getTitledPane()
+	{
+		return pane;
+	}
+
+	@Override
+	public void setTitledPane(TitledPane pane)
+	{
+		this.pane = pane;
+	}
+
+	@Override
+	public TitledPaneStatus getTitledPaneStatus()
+	{
+		return paneStatus;
+	}
 }

@@ -36,6 +36,7 @@ import javafx.scene.control.MenuButton;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.RadioMenuItem;
 import javafx.scene.control.SplitMenuButton;
+import javafx.scene.control.TitledPane;
 import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.input.KeyEvent;
@@ -58,9 +59,8 @@ import pl.baczkowicz.mqttspy.scripts.InteractiveScriptManager;
 import pl.baczkowicz.mqttspy.scripts.Script;
 import pl.baczkowicz.mqttspy.scripts.ScriptTypeEnum;
 import pl.baczkowicz.mqttspy.ui.keyboard.TimeBasedKeyEventFilter;
-import pl.baczkowicz.mqttspy.ui.panes.PaneStatus;
-import pl.baczkowicz.mqttspy.ui.panes.PaneVisibilityStatus;
-import pl.baczkowicz.mqttspy.ui.panes.PaneWithCustomizableVisibility;
+import pl.baczkowicz.mqttspy.ui.panes.TitledPaneController;
+import pl.baczkowicz.mqttspy.ui.panes.TitledPaneStatus;
 import pl.baczkowicz.mqttspy.ui.properties.PublicationScriptProperties;
 import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
 import pl.baczkowicz.mqttspy.utils.ConversionUtils;
@@ -70,7 +70,7 @@ import pl.baczkowicz.mqttspy.utils.TimeUtils;
 /**
  * Controller for creating new publications.
  */
-public class NewPublicationController implements Initializable, ScriptListChangeObserver//, PaneWithCustomizableVisibility
+public class NewPublicationController implements Initializable, ScriptListChangeObserver, TitledPaneController
 {
 	/** Diagnostic logger. */
 	private final static Logger logger = LoggerFactory.getLogger(NewPublicationController.class);
@@ -135,7 +135,9 @@ public class NewPublicationController implements Initializable, ScriptListChange
 	private TimeBasedKeyEventFilter timeBasedFilter;
 	
 	/** Created pane status with index 0 (the first pane). */
-	//private final PaneStatus paneStatus = new PaneStatus(0);
+	private final TitledPaneStatus paneStatus = new TitledPaneStatus(0);
+
+	private TitledPane pane;
 
 	public void initialize(URL location, ResourceBundle resources)
 	{
@@ -616,10 +618,22 @@ public class NewPublicationController implements Initializable, ScriptListChange
 	{
 		this.publishButton.setVisible(false);	
 	}
-	
-//	@Override
-//	public PaneStatus getPaneStatus()
-//	{		
-//		return paneStatus;
-//	}
+
+	@Override
+	public TitledPane getTitledPane()
+	{
+		return pane;
+	}
+
+	@Override
+	public void setTitledPane(TitledPane pane)
+	{
+		this.pane = pane;
+	}
+
+	@Override
+	public TitledPaneStatus getTitledPaneStatus()
+	{
+		return paneStatus;
+	}
 }

@@ -32,6 +32,7 @@ import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TitledPane;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.util.Callback;
@@ -45,15 +46,14 @@ import pl.baczkowicz.mqttspy.events.observers.ScriptStateChangeObserver;
 import pl.baczkowicz.mqttspy.scripts.InteractiveScriptManager;
 import pl.baczkowicz.mqttspy.scripts.ScriptRunningState;
 import pl.baczkowicz.mqttspy.scripts.ScriptTypeEnum;
-import pl.baczkowicz.mqttspy.ui.panes.PaneStatus;
-import pl.baczkowicz.mqttspy.ui.panes.PaneVisibilityStatus;
-import pl.baczkowicz.mqttspy.ui.panes.PaneWithCustomizableVisibility;
+import pl.baczkowicz.mqttspy.ui.panes.TitledPaneController;
+import pl.baczkowicz.mqttspy.ui.panes.TitledPaneStatus;
 import pl.baczkowicz.mqttspy.ui.properties.PublicationScriptProperties;
 
 /**
  * Controller for publications scripts pane.
  */
-public class PublicationScriptsController implements Initializable, ScriptStateChangeObserver//, PaneWithCustomizableVisibility
+public class PublicationScriptsController implements Initializable, ScriptStateChangeObserver, TitledPaneController
 {
 	/** Diagnostic logger. */
 	private final static Logger logger = LoggerFactory.getLogger(PublicationScriptsController.class);
@@ -88,7 +88,9 @@ public class PublicationScriptsController implements Initializable, ScriptStateC
 	private Map<ScriptTypeEnum, ContextMenu> contextMenus = new HashMap<>();
 	
 	/** Created pane status with index 1 (the second pane). */
-	// private final PaneStatus paneStatus = new PaneStatus(1);
+	private final TitledPaneStatus paneStatus = new TitledPaneStatus(1);
+
+	private TitledPane pane;
 
 	public void initialize(URL location, ResourceBundle resources)
 	{
@@ -383,10 +385,23 @@ public class PublicationScriptsController implements Initializable, ScriptStateC
 	{
 		// TODO: update the context menu - but this requires context menu per row
 	}
-	
-//	@Override
-//	public PaneStatus getPaneStatus()
-//	{		
-//		return paneStatus;
-//	}
+
+	@Override
+	public TitledPane getTitledPane()
+	{
+		return pane;
+	}
+
+	@Override
+	public void setTitledPane(TitledPane pane)
+	{
+		this.pane = pane;
+	}
+
+	@Override
+	public TitledPaneStatus getTitledPaneStatus()
+	{
+		// TODO Auto-generated method stub
+		return paneStatus;
+	}
 }

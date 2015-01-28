@@ -15,6 +15,7 @@
 package pl.baczkowicz.mqttspy.ui;
 
 import java.net.URL;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -24,6 +25,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.SplitPane;
@@ -46,6 +48,7 @@ import pl.baczkowicz.mqttspy.stats.StatisticsManager;
 import pl.baczkowicz.mqttspy.ui.connections.ConnectionManager;
 import pl.baczkowicz.mqttspy.ui.panes.TabController;
 import pl.baczkowicz.mqttspy.ui.panes.TabStatus;
+import pl.baczkowicz.mqttspy.ui.panes.TitledPaneController;
 import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
 import pl.baczkowicz.mqttspy.ui.utils.StylingUtils;
 
@@ -87,21 +90,24 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 	 * Controller (i.e. <fx:id>Controller).
 	 */
 	@FXML
-	NewPublicationController newPublicationPaneController;
+	private NewPublicationController newPublicationPaneController;
 	
 	/**
 	 * The name of this field needs to be set to the name of the pane +
 	 * Controller (i.e. <fx:id>Controller).
 	 */
 	@FXML
-	PublicationScriptsController publicationScriptsPaneController;
+	private PublicationScriptsController publicationScriptsPaneController;
 	
 	/**
 	 * The name of this field needs to be set to the name of the pane +
 	 * Controller (i.e. <fx:id>Controller).
 	 */
 	@FXML
-	NewSubscriptionController newSubscriptionPaneController;
+	private NewSubscriptionController newSubscriptionPaneController;
+	
+	/** For convenience, this represents a controller for the subscriptions titled pane. */
+	private SubscriptionsController subscriptionsController = new SubscriptionsController();
 
 	@FXML
 	private TitledPane publishMessageTitledPane;
@@ -130,7 +136,9 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 
 	private EventManager eventManager;
 
-	private Map<TitledPane, Boolean> panes = new LinkedHashMap<>();
+	private Map<TitledPaneController, Boolean> panes = new LinkedHashMap<>();
+	
+	private Map<TitledPane, TitledPaneController> paneToController = new HashMap<>();
 
 	private boolean detailedView;
 
@@ -146,7 +154,6 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 			public void changed(ObservableValue<? extends Boolean> arg0, Boolean arg1, Boolean arg2)
 			{
 				updateMinHeights();
-
 			}
 		};
 	}
@@ -159,7 +166,11 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 	public void init()
 	{
 		subscriptionsTitledPane.expandedProperty().addListener(createChangeListener());
-		panes.put(subscriptionsTitledPane, true);
+		
+		panes.put(getSubscriptionsController(), true);
+		paneToController.put(subscriptionsTitledPane, subscriptionsController);
+		
+		subscriptionsController.setTitledPane(subscriptionsTitledPane);
 		
 		if (!replayMode)
 		{
@@ -169,21 +180,27 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 			
 			scriptedPublicationsTitledPane.setExpanded(false);
 			
-			panes.put(publishMessageTitledPane, true);
-			panes.put(scriptedPublicationsTitledPane, true);
-			panes.put(newSubscriptionTitledPane, true);
+			panes.put(getNewPublicationPaneController(), true);
+			panes.put(getPublicationScriptsPaneController(), true);
+			panes.put(newSubscriptionPaneController, true);
+			paneToController.put(publishMessageTitledPane, newPublicationPaneController);
+			paneToController.put(scriptedPublicationsTitledPane, publicationScriptsPaneController);
+			paneToController.put(newSubscriptionTitledPane, newSubscriptionPaneController);
 			
 			newPublicationPaneController.setConnection(connection);
 			newPublicationPaneController.setScriptManager(connection.getScriptManager());
 			newPublicationPaneController.setEventManager(eventManager);
+			newPublicationPaneController.setTitledPane(publishMessageTitledPane);
 			newPublicationPaneController.init();
 			
 			newSubscriptionPaneController.setConnection(connection);
 			newSubscriptionPaneController.setConnectionController(this);
 			newSubscriptionPaneController.setConnectionManager(connectionManager);
+			newSubscriptionPaneController.setTitledPane(newSubscriptionTitledPane);
 			
 			publicationScriptsPaneController.setConnection(connection);
 			publicationScriptsPaneController.setEventManager(eventManager);
+			publicationScriptsPaneController.setTitledPane(scriptedPublicationsTitledPane);
 			publicationScriptsPaneController.init();
 			
 			tooltip = new Tooltip();
@@ -284,7 +301,7 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 		final MqttConnectionStatus connectionStatus = changedConnection.getConnectionStatus();
 		
 		newSubscriptionPaneController.setConnected(false);
-		newPublicationPaneController.setConnected(false);
+		getNewPublicationPaneController().setConnected(false);
 		
 		for (final MqttSubscription sub : connection.getSubscriptions().values())
 		{
@@ -310,7 +327,7 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 					connectionTab.getContextMenu().getItems().get(3).setDisable(false);
 					connectionTab.getContextMenu().getItems().get(5).setDisable(false);
 					newSubscriptionPaneController.setConnected(true);
-					newPublicationPaneController.setConnected(true);
+					getNewPublicationPaneController().setConnected(true);
 					showTabTile(false);
 					break;
 				case CONNECTING:
@@ -375,29 +392,8 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 	{
 		this.eventManager = eventManager;
 	}
-
-
-	public TitledPane getPublishMessageTitledPane()
-	{
-		return publishMessageTitledPane;
-	}
-
-	public TitledPane getNewSubscriptionTitledPane()
-	{
-		return newSubscriptionTitledPane;
-	}
-
-	public TitledPane getScriptedPublicationsTitledPane()
-	{
-		return scriptedPublicationsTitledPane;
-	}
-
-	public TitledPane getSubscriptionsTitledPane()
-	{
-		return subscriptionsTitledPane;
-	}
 	
-	public void togglePane(final TitledPane pane)
+	public void togglePane(final TitledPaneController pane)
 	{
 		// Ignore any layout requests when in replay mode
 		if (!replayMode)
@@ -416,7 +412,7 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 	{
 		detailedView = visible;
 		newSubscriptionPaneController.setDetailedViewVisibility(visible);
-		newPublicationPaneController.setDetailedViewVisibility(visible);
+		getNewPublicationPaneController().setDetailedViewVisibility(visible);
 		
 		for (final SubscriptionController subscriptionController : connectionManager.getSubscriptionManager(connection).getSubscriptionControllers())
 		{
@@ -435,7 +431,7 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 	public void toggleDetailedViewVisibility()
 	{
 		newSubscriptionPaneController.toggleDetailedViewVisibility();
-		newPublicationPaneController.toggleDetailedViewVisibility();
+		getNewPublicationPaneController().toggleDetailedViewVisibility();
 		
 		for (final SubscriptionController subscriptionController : connectionManager.getSubscriptionManager(connection).getSubscriptionControllers())
 		{
@@ -448,10 +444,10 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 		// Ignore any layout requests when in replay mode
 		if (!replayMode)
 		{
-			panes.put(publishMessageTitledPane, showManualPublications);
-			panes.put(scriptedPublicationsTitledPane, showScriptedPublications);
-			panes.put(newSubscriptionTitledPane, showNewSubscription);
-			panes.put(subscriptionsTitledPane, showReceivedMessagesSummary);
+			panes.put(newPublicationPaneController, showManualPublications);
+			panes.put(publicationScriptsPaneController, showScriptedPublications);
+			panes.put(newSubscriptionPaneController, showNewSubscription);
+			panes.put(subscriptionsController, showReceivedMessagesSummary);
 						
 			updateVisiblePanes();
 		}
@@ -466,41 +462,62 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 	{	
 		connectionTab.getStyleClass().add("connection-replay");
 		
-		panes.put(publishMessageTitledPane, false);
-		panes.put(scriptedPublicationsTitledPane, false);
-		panes.put(newSubscriptionTitledPane, false);
-		panes.put(subscriptionsTitledPane, true);
+		panes.put(newPublicationPaneController, false);
+		panes.put(publicationScriptsPaneController, false);
+		panes.put(newSubscriptionPaneController, false);
+		panes.put(subscriptionsController, true);
 		
 		subscriptionsTitledPane.setText("Logged messages");
 		
 		updateVisiblePanes();
 	}
 	
-	private void updateVisiblePanes()
+	private void insertPane(final TitledPaneController controller)
 	{
-		int nextPosition = 0;
-		for (final TitledPane pane : panes.keySet())
-		{			
-			if (panes.get(pane))
+		int insertIndex = splitPane.getItems().size();
+		
+		for (int i = 0; i < splitPane.getItems().size(); i++)
+		{
+			final Node pane = splitPane.getItems().get(i);
+			
+			if (paneToController.get(pane).getTitledPaneStatus().getDisplayIndex() 
+					> controller.getTitledPaneStatus().getDisplayIndex())
 			{
+				insertIndex = i;
+				break;
+			}
+		}
+		
+		// logger.info("Inserting at " + insertIndex + "; " + controller);
+		splitPane.getItems().add(insertIndex, controller.getTitledPane());
+	}
+	
+	private void updateVisiblePanes()
+	{	
+		for (final TitledPaneController controller : panes.keySet())
+		{			
+			// logger.info(controller + "/" + controller.getTitledPane() + " is " + panes.get(controller));
+			
+			// If set to be shown
+			if (panes.get(controller))
+			{
+				// logger.info("Show; contains = " + splitPane.getItems().contains(controller.getTitledPane()));
+				
 				// Show
-				if (!splitPane.getItems().contains(pane))
+				if (!splitPane.getItems().contains(controller.getTitledPane()))
 				{
-					splitPane.getItems().add(nextPosition, pane);
+					insertPane(controller);
 				}
 			}
 			else
 			{
+				// logger.info("Hide; contains = " + splitPane.getItems().contains(controller.getTitledPane()));
+
 				// Don't show
-				if (splitPane.getItems().contains(pane))
+				if (splitPane.getItems().contains(controller.getTitledPane()))
 				{
-					splitPane.getItems().remove(pane);
-				}				
-			}
-			
-			if (splitPane.getItems().contains(pane))
-			{
-				nextPosition++;
+					splitPane.getItems().remove(controller.getTitledPane());
+				}
 			}
 		}
 	}
@@ -527,5 +544,35 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 		{
 			onConnectionStatusChanged(connection);
 		}
+	}
+
+	/**
+	 * Gets the new publication pane controller.
+	 * 
+	 * @return the newPublicationPaneController
+	 */
+	public NewPublicationController getNewPublicationPaneController()
+	{
+		return newPublicationPaneController;
+	}
+
+	/**
+	 * Gets the subscriptions controller.
+	 * 
+	 * @return the subscriptionsController
+	 */
+	public SubscriptionsController getSubscriptionsController()
+	{
+		return subscriptionsController;
+	}
+
+	/**
+	 * Gets the publication scripts controller.
+	 * 
+	 * @return the publicationScriptsPaneController
+	 */
+	public PublicationScriptsController getPublicationScriptsPaneController()
+	{
+		return publicationScriptsPaneController;
 	}
 }
