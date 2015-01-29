@@ -149,6 +149,23 @@ public class DialogUtils
 		.message("You've got unsaved changes for " + parameter + ". Do you want to save/apply them now?").showConfirm();		
 	}
 	
+	public static Action showQuestion(final String title, final String message)
+	{
+		return Dialogs.create().owner(null).title(title).masthead(null)
+		.message(message).showConfirm();		
+	}
+	
+	/**
+	 * Asks the user for a script name.
+	 * 
+	 * @return The user's response
+	 */
+	public static Optional<String> askForScriptName()
+	{
+		return Dialogs.create().owner(null).title("Enter a name for your message-based script").masthead(null)
+		.message("Script name (without .js)").showTextInput();		
+	}
+	
 	/**
 	 * Asks the user whether to delete the given element/parameter.
 	 * 

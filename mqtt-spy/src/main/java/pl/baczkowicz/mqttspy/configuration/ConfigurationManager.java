@@ -237,25 +237,25 @@ public class ConfigurationManager
 		return userHomeDirectory + DEFAULT_HOME_DIRECTORY_NAME + filePathSeparator;
 	}
 
-	public boolean createDefaultConfigurationFile()
-	{
-		final File dest = getDefaultConfigurationFile();
-		
-		try
-		{
-			final File orig = new File(ConfigurationManager.class.getResource("/" + ConfigurationManager.DEFAULT_FILE_NAME).toURI()); 			
-			Files.copy(orig.toPath(), dest.toPath(), StandardCopyOption.REPLACE_EXISTING);
-			return true;
-		}
-		catch (IOException | URISyntaxException e)
-		{
-			setLastException(e);
-			logger.error("Cannot create the default configuration file at " + dest.getAbsolutePath(), e);
-			eventManager.notifyConfigurationFileCopyFailure();			
-		}		
-		
-		return false;
-	}	
+//	public boolean createDefaultConfigurationFile()
+//	{
+//		final File dest = getDefaultConfigurationFile();
+//		
+//		try
+//		{
+//			final File orig = new File(ConfigurationManager.class.getResource("/" + ConfigurationManager.DEFAULT_FILE_NAME).toURI()); 			
+//			Files.copy(orig.toPath(), dest.toPath(), StandardCopyOption.REPLACE_EXISTING);
+//			return true;
+//		}
+//		catch (IOException | URISyntaxException e)
+//		{
+//			setLastException(e);
+//			logger.error("Cannot create the default configuration file at " + dest.getAbsolutePath(), e);
+//			eventManager.notifyConfigurationFileCopyFailure();			
+//		}		
+//		
+//		return false;
+//	}	
 
 	public boolean saveConfiguration()
 	{

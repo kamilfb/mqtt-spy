@@ -15,6 +15,8 @@
 package pl.baczkowicz.mqttspy.utils;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -57,4 +59,17 @@ public class FileUtils
 		return files;
 	}
 	
+	public static void writeToFile(final File file, final String value)
+	{
+		try
+		{
+			final PrintWriter out = new PrintWriter(file);					
+			out.write(value);
+			out.close();
+		}
+		catch (FileNotFoundException e)
+		{
+			// Ignore
+		}
+	}
 }

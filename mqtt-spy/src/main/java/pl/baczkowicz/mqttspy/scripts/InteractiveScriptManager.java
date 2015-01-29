@@ -61,19 +61,31 @@ public class InteractiveScriptManager extends ScriptManager
 		}
 	}
 	
-	public void addScripts(final String directory, final ScriptTypeEnum type)
+	public static String getScriptDirectoryForConnection(final String configuredDirectory)
 	{
-		final List<File> files = new ArrayList<File>(); 
+		final String filePathSeparator = System.getProperty("file.separator");
 		
-		if (directory != null && !directory.isEmpty())
+		if (configuredDirectory != null && !configuredDirectory.isEmpty())
 		{
-			files.addAll(FileUtils.getFileNamesForDirectory(directory, ".js"));				
+			if (!configuredDirectory.endsWith(filePathSeparator))
+			{
+				return configuredDirectory + filePathSeparator;
+			}
+			return configuredDirectory;				
 		}
 		else
 		{
 			// If directory defined, use the mqtt-spy's home directory
-			files.addAll(FileUtils.getFileNamesForDirectory(ConfigurationManager.getDefaultHomeDirectory(), ".js"));
+			return ConfigurationManager.getDefaultHomeDirectory();
 		}	
+	}
+	
+	public void addScripts(final String directory, final ScriptTypeEnum type)
+	{
+		final List<File> files = new ArrayList<File>(); 
+		
+		files.addAll(FileUtils.getFileNamesForDirectory(
+				getScriptDirectoryForConnection(directory), SCRIPT_EXTENSION));	
 		
 		populateScriptsFromFileList(files, type);
 	}

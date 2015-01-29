@@ -14,9 +14,13 @@
  */
 package pl.baczkowicz.mqttspy.ui;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 import javafx.beans.value.ChangeListener;
@@ -42,6 +46,8 @@ import javafx.scene.control.ToggleGroup;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
 
+import org.controlsfx.control.action.Action;
+import org.controlsfx.dialog.Dialog;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.fxmisc.richtext.StyleClassedTextArea;
 import org.slf4j.Logger;
@@ -57,6 +63,7 @@ import pl.baczkowicz.mqttspy.messages.BaseMqttMessageWrapper;
 import pl.baczkowicz.mqttspy.messages.ReceivedMqttMessage;
 import pl.baczkowicz.mqttspy.scripts.InteractiveScriptManager;
 import pl.baczkowicz.mqttspy.scripts.Script;
+import pl.baczkowicz.mqttspy.scripts.ScriptManager;
 import pl.baczkowicz.mqttspy.scripts.ScriptTypeEnum;
 import pl.baczkowicz.mqttspy.ui.keyboard.TimeBasedKeyEventFilter;
 import pl.baczkowicz.mqttspy.ui.panes.TitledPaneController;
@@ -64,12 +71,14 @@ import pl.baczkowicz.mqttspy.ui.panes.TitledPaneStatus;
 import pl.baczkowicz.mqttspy.ui.properties.PublicationScriptProperties;
 import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
 import pl.baczkowicz.mqttspy.utils.ConversionUtils;
+import pl.baczkowicz.mqttspy.utils.FileUtils;
 import pl.baczkowicz.mqttspy.utils.MqttUtils;
 import pl.baczkowicz.mqttspy.utils.TimeUtils;
 
 /**
  * Controller for creating new publications.
  */
+@SuppressWarnings("deprecation")
 public class NewPublicationController implements Initializable, ScriptListChangeObserver, TitledPaneController
 {
 	/** Diagnostic logger. */
@@ -113,6 +122,9 @@ public class NewPublicationController implements Initializable, ScriptListChange
 	
 	@FXML
 	private Menu recentMessagesMenu;
+	
+	@FXML
+	private Menu saveRecentMessagesMenu;
 		
 	private ObservableList<String> publicationTopics = FXCollections.observableArrayList();
 
@@ -483,6 +495,16 @@ public class NewPublicationController implements Initializable, ScriptListChange
 		}
 	}
 	
+	private ReceivedMqttMessage baseToReceived(final BaseMqttMessage message)
+	{
+		final MqttMessage mqttMessage = new MqttMessage();
+		mqttMessage.setQos(message.getQos());
+		mqttMessage.setRetained(message.isRetained());
+		mqttMessage.setPayload(message.getValue().getBytes());
+		
+		return new ReceivedMqttMessage(0, message.getTopic(), mqttMessage);
+	}
+	
 	/**
 	 * Records the given message on the list of 'recent' messages.
 	 * 
@@ -498,12 +520,7 @@ public class NewPublicationController implements Initializable, ScriptListChange
 			recentMessages.remove(0);
 		}
 		
-		final MqttMessage mqttMessage = new MqttMessage();
-		mqttMessage.setQos(message.getQos());
-		mqttMessage.setRetained(message.isRetained());
-		mqttMessage.setPayload(message.getValue().getBytes());
-		
-		final ReceivedMqttMessage messageToStore = new ReceivedMqttMessage(0, message.getTopic(), mqttMessage);
+		final ReceivedMqttMessage messageToStore = baseToReceived(message);
 		
 		recentMessages.add(0, messageToStore);
 		
@@ -525,6 +542,10 @@ public class NewPublicationController implements Initializable, ScriptListChange
 		{
 			recentMessagesMenu.getItems().remove(0);
 		}
+		while (saveRecentMessagesMenu.getItems().size() > 0)
+		{
+			saveRecentMessagesMenu.getItems().remove(0);
+		}
 		
 		// Add all elements
 		for (final ReceivedMqttMessage message : recentMessages)
@@ -532,9 +553,10 @@ public class NewPublicationController implements Initializable, ScriptListChange
 			final String topic = message.getTopic();
 			final String payload = message.getPayload().length() > 10 ? message.getPayload().substring(0, 10) + "..." : message.getPayload();
 			final String time = TimeUtils.DATE_WITH_SECONDS_SDF.format(message.getDate());
-			
-			final MenuItem item = new MenuItem("Topic = '" + topic + "', payload = '" + payload + "', published at " + time);
-			item.setOnAction(new EventHandler<ActionEvent>()
+
+			final String messageText = "Topic = '" + topic + "', payload = '" + payload + "', published at " + time;
+			final MenuItem recentMessageItem = new MenuItem(messageText);
+			recentMessageItem.setOnAction(new EventHandler<ActionEvent>()
 			{	
 				@Override
 				public void handle(ActionEvent event)
@@ -542,10 +564,121 @@ public class NewPublicationController implements Initializable, ScriptListChange
 					displayMessage(message);
 				}
 			});
-			recentMessagesMenu.getItems().add(item);
+			recentMessagesMenu.getItems().add(recentMessageItem);
+			
+			final MenuItem saveMessageItem = new MenuItem(messageText);
+			saveMessageItem.setOnAction(new EventHandler<ActionEvent>()
+			{	
+				@Override
+				public void handle(ActionEvent event)
+				{
+					saveAsScript(message);
+				}
+			});
+			saveRecentMessagesMenu.getItems().add(saveMessageItem);
 		}
+		
+		recentMessagesMenu.setDisable(recentMessagesMenu.getItems().size() == 0);
+		saveRecentMessagesMenu.setDisable(saveRecentMessagesMenu.getItems().size() == 0);
 	}	
 	
+	@FXML
+	private void saveCurrentAsScript()
+	{
+		final BaseMqttMessage message = readMessage(true);
+		
+		if (message != null)
+		{
+			saveAsScript(baseToReceived(message));
+		}
+	}
+	
+	private void saveAsScript(final ReceivedMqttMessage message)
+	{
+		boolean valid = false;
+		
+		while (!valid)
+		{
+			final Optional<String> response = DialogUtils.askForScriptName();
+			
+			logger.info("Script name response = " + response);
+			if (response.isPresent())
+			{
+				final String scriptName = response.get();
+				
+				final String configuredDirectory = connection.getProperties().getConfiguredProperties().getPublicationScripts();
+				final String directory = InteractiveScriptManager.getScriptDirectoryForConnection(configuredDirectory);
+				final File scriptFile = new File(directory + scriptName + ScriptManager.SCRIPT_EXTENSION);
+				
+				final Script script = scriptManager.getScriptObjectFromName(
+						Script.getScriptIdFromFile(scriptFile));
+				
+				if (script != null)
+				{
+					Action duplicateNameResponse = DialogUtils.showQuestion("Script name already exists", 
+							"Script with name \"" + scriptName 
+							+ "\" already exists in your script folder (" 
+							+ directory + "). Do you want to override it?");
+					if (duplicateNameResponse == Dialog.ACTION_NO)
+					{
+						continue;
+					}
+					else if (duplicateNameResponse == Dialog.ACTION_CANCEL)
+					{
+						break;
+					}
+				}
+				
+				createScriptFromMessage(scriptFile , configuredDirectory, message);
+				break;
+			}
+			else
+			{
+				break;
+			}
+		}
+	}
+	
+	private void createScriptFromMessage(final File scriptFile, 
+			final String configuredDirectory, final ReceivedMqttMessage message)
+	{
+		final StringBuffer scriptText = new StringBuffer();
+		scriptText.append("mqttspy.publish(\"");
+		scriptText.append(message.getTopic());
+		scriptText.append("\", \"");
+		// TODO: any conversions needed here if this is not plain text?
+		scriptText.append(message.getPayload());
+		scriptText.append("\", ");
+		scriptText.append(message.getQoS());
+		scriptText.append(", ");
+		scriptText.append(message.isRetained());
+		scriptText.append(");");
+		
+		try
+		{
+			final File orig = new File(NewPublicationController.class.getResource("/samples/template-script.js").toURI());
+			final String template = org.apache.commons.io.FileUtils.readFileToString(orig);
+			final String script = template.replace(
+					"mqttspy.publish(\"topic\", \"payload\");", 
+					scriptText.toString());
+			
+			logger.info("Writing file to " + scriptFile.getAbsolutePath());
+			FileUtils.writeToFile(scriptFile, script);
+			scriptManager.addScripts(configuredDirectory, ScriptTypeEnum.PUBLICATION);
+			// TODO: move this to script manager?
+			eventManager.notifyScriptListChange(connection);
+		}
+		catch (URISyntaxException | IOException e)
+		{
+			logger.error("Cannot create the script file at " + scriptFile.getAbsolutePath(), e);
+		} 			
+		
+		
+		
+		
+		
+	}
+
 	/**
 	 * Restores message from the key event.
 	 * 

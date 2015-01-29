@@ -14,10 +14,6 @@
  */
 package pl.baczkowicz.mqttspy.utils;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,17 +24,5 @@ public class Utils
 {
 	public final static Logger logger = LoggerFactory.getLogger(Utils.class);
 	
-	public static void writeToFile(final File file, final String value)
-	{
-		try
-		{
-			final PrintWriter out = new PrintWriter(file);					
-			out.write(value);
-			out.close();
-		}
-		catch (FileNotFoundException e)
-		{
-			// Ignore
-		}
-	}
+
 }

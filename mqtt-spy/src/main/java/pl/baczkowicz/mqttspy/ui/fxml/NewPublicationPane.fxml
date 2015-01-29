@@ -87,7 +87,10 @@
                   <SeparatorMenuItem />
                   <Menu fx:id="publishWithScriptsMenu" mnemonicParsing="false" text="Publish with script" />
                   <SeparatorMenuItem />
-                  <Menu fx:id="recentMessagesMenu" mnemonicParsing="false" text="Recent messages" />
+                  <MenuItem fx:id="saveCurrentMenu" mnemonicParsing="false" text="Save current message as script" onAction="#saveCurrentAsScript"/>
+                  <Menu fx:id="saveRecentMessagesMenu" disable="true" mnemonicParsing="false" text="Save recent message as script" />
+                  <SeparatorMenuItem />
+                  <Menu fx:id="recentMessagesMenu" disable="true" mnemonicParsing="false" text="Restore recent message" />
             </items>
 		</SplitMenuButton>
 		

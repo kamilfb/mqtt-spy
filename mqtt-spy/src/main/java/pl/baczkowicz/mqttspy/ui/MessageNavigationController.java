@@ -39,8 +39,8 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.HBox;
 import javafx.stage.FileChooser;
-import javafx.stage.Window;
 import javafx.stage.FileChooser.ExtensionFilter;
+import javafx.stage.Window;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,7 +55,7 @@ import pl.baczkowicz.mqttspy.storage.BasicMessageStore;
 import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
 import pl.baczkowicz.mqttspy.ui.messagelog.MessageLogUtils;
 import pl.baczkowicz.mqttspy.ui.utils.TextUtils;
-import pl.baczkowicz.mqttspy.utils.Utils;
+import pl.baczkowicz.mqttspy.utils.FileUtils;
 
 /**
  * Controller for the message navigation buttons.
@@ -474,7 +474,7 @@ public class MessageNavigationController implements Initializable, MessageIndexT
 	
 			if (selectedFile != null)
 			{
-				Utils.writeToFile(selectedFile, MessageLogUtils.getCurrentMessageAsMessageLog(store, getSelectedMessageIndex() - 1));
+				FileUtils.writeToFile(selectedFile, MessageLogUtils.getCurrentMessageAsMessageLog(store, getSelectedMessageIndex() - 1));
 			}
 		}
 	}
@@ -490,7 +490,7 @@ public class MessageNavigationController implements Initializable, MessageIndexT
 
 		if (selectedFile != null)
 		{
-			Utils.writeToFile(selectedFile, MessageLogUtils.getAllMessagesAsMessageLog(store));
+			FileUtils.writeToFile(selectedFile, MessageLogUtils.getAllMessagesAsMessageLog(store));
 		}
 	}
 	

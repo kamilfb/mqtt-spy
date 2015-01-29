@@ -48,6 +48,8 @@ public class ScriptManager
 	/** Name of the variable in JS for published/searched message. */
 	public static final String MESSAGE_PARAMETER = "message";
 	
+	public static final String SCRIPT_EXTENSION = ".js";
+	
 	/** Diagnostic logger. */
 	private final static Logger logger = LoggerFactory.getLogger(ScriptManager.class);
 	
@@ -86,7 +88,7 @@ public class ScriptManager
 	 */
 	public static String getScriptName(final File file)
 	{
-		return file.getName().replace(".js",  "");
+		return file.getName().replace(SCRIPT_EXTENSION,  "");
 	}
 	
 	/**
@@ -159,7 +161,7 @@ public class ScriptManager
 		
 		if (directory != null && !directory.isEmpty())
 		{
-			files.addAll(FileUtils.getFileNamesForDirectory(directory, ".js"));				
+			files.addAll(FileUtils.getFileNamesForDirectory(directory, SCRIPT_EXTENSION));				
 		}
 		else
 		{
