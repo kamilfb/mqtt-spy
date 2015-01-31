@@ -223,6 +223,16 @@ public class DialogUtils
 				.message(message).showError();
 	}
 
+
+	public static void showWarning(final String title, final String message)
+	{
+		Dialogs.create()
+		.owner(null)
+		.title(title)
+		.masthead(null)
+		.message(message)
+		.showWarning();
+	}	
 	/**
 	 * Shows a dialog saying the given file is read-only.
 	 * 
@@ -230,15 +240,10 @@ public class DialogUtils
 	 */
 	public static void showReadOnlyWarning(final String absolutePath)
 	{
-		Dialogs.create()
-				.owner(null)
-				.title("Read-only configuration file")
-				.masthead(null)
-				.message(
-						"The configuration file that has been loaded (" + absolutePath
+		showWarning("Read-only configuration file", 
+				"The configuration file that has been loaded (" + absolutePath
 								+ ") is read-only. Changes won't be saved. "
-								+ "Please make the file writeable for any changes to be saved.")
-				.showWarning();
+								+ "Please make the file writeable for any changes to be saved.");
 	}
 	
 	/**

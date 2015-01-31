@@ -26,6 +26,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
 import javafx.scene.control.ContextMenu;
+import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.TableCell;
@@ -49,6 +50,7 @@ import pl.baczkowicz.mqttspy.scripts.ScriptTypeEnum;
 import pl.baczkowicz.mqttspy.ui.panes.TitledPaneController;
 import pl.baczkowicz.mqttspy.ui.panes.TitledPaneStatus;
 import pl.baczkowicz.mqttspy.ui.properties.PublicationScriptProperties;
+import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
 import pl.baczkowicz.mqttspy.ui.utils.UiUtils;
 
 /**
@@ -302,8 +304,9 @@ public class PublicationScriptsController implements Initializable, ScriptStateC
 		scriptTable.setItems(scriptManager.getObservableScriptList());
 		
 		// Note: subscription scripts don't have context menus because they can't be started/stopped manually - for future, consider enabled/disabled
-		contextMenus.put(ScriptTypeEnum.PUBLICATION, createDirectoryTypeScriptTableContextMenu());		
-		contextMenus.put(ScriptTypeEnum.BACKGROUND, createDirectoryTypeScriptTableContextMenu());
+		contextMenus.put(ScriptTypeEnum.PUBLICATION, createDirectoryTypeScriptTableContextMenu(ScriptTypeEnum.PUBLICATION));		
+		contextMenus.put(ScriptTypeEnum.BACKGROUND, createDirectoryTypeScriptTableContextMenu(ScriptTypeEnum.BACKGROUND));
+		contextMenus.put(ScriptTypeEnum.SUBSCRIPTION, createDirectoryTypeScriptTableContextMenu(ScriptTypeEnum.SUBSCRIPTION));
 	}
 	
 	private void refreshList()
@@ -347,39 +350,42 @@ public class PublicationScriptsController implements Initializable, ScriptStateC
 		}
 	}
 	
-	public ContextMenu createDirectoryTypeScriptTableContextMenu()
+	public ContextMenu createDirectoryTypeScriptTableContextMenu(final ScriptTypeEnum type)
 	{
 		final ContextMenu contextMenu = new ContextMenu();
-		
-		// Start script
-		final MenuItem startScriptItem = new MenuItem("[Script] Start");
-		startScriptItem.setOnAction(new EventHandler<ActionEvent>()
+	
+		if (type.equals(ScriptTypeEnum.PUBLICATION) || type.equals(ScriptTypeEnum.BACKGROUND))
 		{
-			public void handle(ActionEvent e)
+			// Start script
+			final MenuItem startScriptItem = new MenuItem("[Script] Start");
+			startScriptItem.setOnAction(new EventHandler<ActionEvent>()
 			{
-				startScript();
-			}
-		});
-		contextMenu.getItems().add(startScriptItem);
-		
-		// Stop script
-		final MenuItem stopScriptItem = new MenuItem("[Script] Stop");
-		stopScriptItem.setOnAction(new EventHandler<ActionEvent>()
-		{
-			public void handle(ActionEvent e)
-			{
-				final PublicationScriptProperties item = scriptTable.getSelectionModel()
-						.getSelectedItem();
-				if (item != null)
+				public void handle(ActionEvent e)
 				{
-					stopScript(item.getScript().getScriptFile());
+					startScript();
 				}
-			}
-		});
-		contextMenu.getItems().add(stopScriptItem);
-
-		// Separator
-		contextMenu.getItems().add(new SeparatorMenuItem());
+			});
+			contextMenu.getItems().add(startScriptItem);
+			
+			// Stop script
+			final MenuItem stopScriptItem = new MenuItem("[Script] Stop");
+			stopScriptItem.setOnAction(new EventHandler<ActionEvent>()
+			{
+				public void handle(ActionEvent e)
+				{
+					final PublicationScriptProperties item = scriptTable.getSelectionModel()
+							.getSelectedItem();
+					if (item != null)
+					{
+						stopScript(item.getScript().getScriptFile());
+					}
+				}
+			});
+			contextMenu.getItems().add(stopScriptItem);
+	
+			// Separator
+			contextMenu.getItems().add(new SeparatorMenuItem());
+		}
 		
 		// Copy script location
 		final MenuItem copyScriptLocationItem = new MenuItem("[Script] Copy script location to clipboard");
@@ -400,6 +406,50 @@ public class PublicationScriptsController implements Initializable, ScriptStateC
 		// Separator
 		contextMenu.getItems().add(new SeparatorMenuItem());
 		
+		if (type.equals(ScriptTypeEnum.PUBLICATION))
+		{
+			// Delete
+			final Menu deleteItem = new Menu("[Script] Delete");
+			contextMenu.getItems().add(deleteItem);
+			
+			final MenuItem deleteFromListItem = new MenuItem("Delete from list (until next refresh)");
+			deleteFromListItem.setOnAction(new EventHandler<ActionEvent>()
+			{
+				public void handle(ActionEvent e)
+				{
+					final PublicationScriptProperties item = scriptTable.getSelectionModel().getSelectedItem();
+					if (item != null)
+					{
+						scriptManager.removeScript(item);
+					}
+				}
+			});
+			deleteItem.getItems().add(deleteFromListItem);
+			
+			final MenuItem deleteFromDiskItem = new MenuItem("Delete from disk (permanently)");
+			deleteFromDiskItem.setOnAction(new EventHandler<ActionEvent>()
+			{
+				public void handle(ActionEvent e)
+				{
+					final PublicationScriptProperties item = scriptTable.getSelectionModel().getSelectedItem();
+					if (item != null)
+					{
+						scriptManager.removeScript(item);
+						if (!item.getScript().getScriptFile().delete())
+						{
+							DialogUtils.showWarning("File cannot be deleted", 
+									"File \"" + item.getScript().getScriptFile().getAbsolutePath() + "\" couln't be deleted. Try doing it manually.");
+						}
+					}
+					refreshList();
+				}
+			});
+			deleteItem.getItems().add(deleteFromDiskItem);
+			
+			// Separator
+			contextMenu.getItems().add(new SeparatorMenuItem());
+		}
+
 		// Refresh list
 		final MenuItem refreshListItem = new MenuItem("[Scripts] Refresh list");
 		refreshListItem.setOnAction(new EventHandler<ActionEvent>()
@@ -410,7 +460,7 @@ public class PublicationScriptsController implements Initializable, ScriptStateC
 			}
 		});
 		contextMenu.getItems().add(refreshListItem);
-
+		
 		return contextMenu;
 	}
 
@@ -435,7 +485,6 @@ public class PublicationScriptsController implements Initializable, ScriptStateC
 	@Override
 	public TitledPaneStatus getTitledPaneStatus()
 	{
-		// TODO Auto-generated method stub
 		return paneStatus;
 	}
 }
