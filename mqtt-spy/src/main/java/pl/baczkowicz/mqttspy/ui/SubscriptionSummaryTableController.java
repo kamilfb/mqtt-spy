@@ -259,6 +259,17 @@ public class SubscriptionSummaryTableController implements Initializable
 		});
 	}
 	
+	public void refreshRowStyling()
+	{
+		// To refresh the styling, add and remove an invisible column
+		final TableColumn<SubscriptionTopicSummaryProperties, String> column = new TableColumn<>();
+		column.setMaxWidth(0);
+		column.setPrefWidth(0);
+		
+		filterTable.getColumns().add(column);
+		filterTable.getColumns().remove(column);        
+	}
+	
 	public int getFilteredDataSize()
 	{
 		return filteredData.size();

@@ -14,19 +14,17 @@
  */
 package pl.baczkowicz.mqttspy.ui.utils;
 
-import pl.baczkowicz.mqttspy.ui.panes.PaneVisibilityStatus;
-import pl.baczkowicz.mqttspy.ui.panes.TabController;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
-import javafx.scene.Scene;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
-import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
+import pl.baczkowicz.mqttspy.ui.panes.PaneVisibilityStatus;
+import pl.baczkowicz.mqttspy.ui.panes.TabController;
 
 import com.sun.javafx.scene.control.behavior.TabPaneBehavior;
 import com.sun.javafx.scene.control.skin.TabPaneSkin;
@@ -82,26 +80,6 @@ public class TabUtils
 		return newTab;
 	}
 	
-	private static Stage createTabWindow(final TabPane tabPane, final Scene parentScene, 
-			final String title, final double margin)
-	{
-		final Stage stage = new Stage();
-		final AnchorPane content = new AnchorPane();
-		
-		content.getChildren().add(tabPane);
-		AnchorPane.setBottomAnchor(tabPane, margin);
-		AnchorPane.setLeftAnchor(tabPane, margin);
-		AnchorPane.setTopAnchor(tabPane, margin);
-		AnchorPane.setRightAnchor(tabPane, margin);
-		
-		final Scene scene = new Scene(content);
-		scene.getStylesheets().addAll(parentScene.getStylesheets());	
-		stage.setTitle(title);
-		stage.setScene(scene);
-		
-		return stage;
-	}
-	
 	/**
 	 * Creates an event for detaching the given controller's tab.
 	 * 
@@ -140,7 +118,7 @@ public class TabUtils
 				controller.getTab().setClosable(false);				
 				menuItem.setDisable(true);
 				
-				final Stage stage = createTabWindow(
+				final Stage stage = DialogUtils.createWindowWithPane(
 						tabPane, controller.getTabStatus().getParentWhenAttached().getScene(), 
 						windowTitle, margin);
 				

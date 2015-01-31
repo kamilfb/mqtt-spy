@@ -23,6 +23,8 @@ import java.util.Optional;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.geometry.Point2D;
+import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.control.Label;
@@ -30,6 +32,7 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Window;
 import javafx.util.Pair;
@@ -436,5 +439,25 @@ public class DialogUtils
 		{
 			return color;
 		}
+	}
+	
+	public static Stage createWindowWithPane(final Node pane, final Scene parentScene, 
+			final String title, final double margin)
+	{
+		final Stage stage = new Stage();
+		final AnchorPane content = new AnchorPane();
+		
+		content.getChildren().add(pane);
+		AnchorPane.setBottomAnchor(pane, margin);
+		AnchorPane.setLeftAnchor(pane, margin);
+		AnchorPane.setTopAnchor(pane, margin);
+		AnchorPane.setRightAnchor(pane, margin);
+		
+		final Scene scene = new Scene(content);
+		scene.getStylesheets().addAll(parentScene.getStylesheets());
+		stage.setTitle(title);
+		stage.setScene(scene);
+		
+		return stage;
 	}
 }

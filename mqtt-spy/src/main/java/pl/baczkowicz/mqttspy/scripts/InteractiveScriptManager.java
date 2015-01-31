@@ -151,5 +151,11 @@ public class InteractiveScriptManager extends ScriptManager
 	public ObservableList<PublicationScriptProperties> getObservableScriptList()
 	{
 		return observableScriptList;
+	}
+
+	public void removeScript(final PublicationScriptProperties item)
+	{
+		getScripts().remove(item.getScript().getScriptId());
+		observableScriptList.remove(item);
 	}		
 }

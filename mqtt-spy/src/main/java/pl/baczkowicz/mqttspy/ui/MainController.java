@@ -55,6 +55,7 @@ import pl.baczkowicz.mqttspy.stats.StatisticsManager;
 import pl.baczkowicz.mqttspy.ui.connections.ConnectionManager;
 import pl.baczkowicz.mqttspy.ui.messagelog.LogReaderTask;
 import pl.baczkowicz.mqttspy.ui.messagelog.TaskWithProgressUpdater;
+import pl.baczkowicz.mqttspy.ui.panes.PaneVisibilityStatus;
 import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
 import pl.baczkowicz.mqttspy.ui.utils.FxmlUtils;
 import pl.baczkowicz.mqttspy.ui.utils.MqttSpyPerspective;
@@ -478,19 +479,19 @@ public class MainController
 		switch (selectedPerspective)
 		{
 			case DETAILED:
-				connectionController.showPanes(true, true, true, true);
+				connectionController.showPanes(PaneVisibilityStatus.ATTACHED, PaneVisibilityStatus.ATTACHED, PaneVisibilityStatus.ATTACHED, PaneVisibilityStatus.ATTACHED);
 				connectionController.setDetailedViewVisibility(true);
 				break;
 			case SPY:
-				connectionController.showPanes(false, false, true, true);		
+				connectionController.showPanes(PaneVisibilityStatus.NOT_VISIBLE, PaneVisibilityStatus.NOT_VISIBLE, PaneVisibilityStatus.ATTACHED, PaneVisibilityStatus.ATTACHED);		
 				connectionController.setDetailedViewVisibility(false);
 				break;
 			case SUPER_SPY:
-				connectionController.showPanes(false, false, true, true);
+				connectionController.showPanes(PaneVisibilityStatus.NOT_VISIBLE, PaneVisibilityStatus.NOT_VISIBLE, PaneVisibilityStatus.ATTACHED, PaneVisibilityStatus.ATTACHED);
 				connectionController.setDetailedViewVisibility(true);
 				break;
 			default:
-				connectionController.showPanes(true, true, true, true);
+				connectionController.showPanes(PaneVisibilityStatus.ATTACHED, PaneVisibilityStatus.ATTACHED, PaneVisibilityStatus.ATTACHED, PaneVisibilityStatus.ATTACHED);
 				connectionController.setDetailedViewVisibility(false);
 				break;		
 		}

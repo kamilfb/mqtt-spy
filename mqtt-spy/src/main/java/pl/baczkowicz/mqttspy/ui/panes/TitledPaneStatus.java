@@ -14,11 +14,24 @@
  */
 package pl.baczkowicz.mqttspy.ui.panes;
 
+import javafx.scene.control.CheckMenuItem;
+import javafx.scene.control.Menu;
+import javafx.scene.control.SplitPane;
+import javafx.stage.Stage;
+
 public class TitledPaneStatus extends PaneStatus
 {
 	private boolean expanded = false;
+	
+	private boolean lastExpanded = false;
 
 	private int displayIndex;
+
+	private Menu menu;
+
+	private SplitPane parentWhenAttached;
+	
+	private Stage parentWhenDetached;
 	
 	public TitledPaneStatus(final int displayIndex)
 	{
@@ -64,5 +77,77 @@ public class TitledPaneStatus extends PaneStatus
 	public void setDisplayIndex(final int displayIndex)
 	{
 		this.displayIndex = displayIndex;
+	}
+
+	public void setContentMenu(final Menu menu)
+	{
+		this.menu = menu;
+	}
+	
+	public void updateMenu()
+	{
+		((CheckMenuItem) menu.getItems().get(0)).setSelected(getVisibility().equals(PaneVisibilityStatus.NOT_VISIBLE));
+		((CheckMenuItem) menu.getItems().get(1)).setSelected(getVisibility().equals(PaneVisibilityStatus.ATTACHED));
+		((CheckMenuItem) menu.getItems().get(2)).setSelected(getVisibility().equals(PaneVisibilityStatus.DETACHED));
+	}
+	
+	/**
+	 * Gets the parent object.
+	 * 
+	 * @return the parent
+	 */
+	public SplitPane getParentWhenAttached()
+	{
+		return parentWhenAttached;
+	}
+
+	/**
+	 * Sets the parent object.
+	 * 
+	 * @param parent the parent to set
+	 */
+	public void setParent(SplitPane parent)
+	{
+		this.parentWhenAttached = parent;
+	}
+
+	/**
+	 * Gets the parent when detached.
+	 * 
+	 * @return the parentWhenDetached
+	 */
+	public Stage getParentWhenDetached()
+	{
+		return parentWhenDetached;
+	}
+
+	/**
+	 * Sets the parent when detached.
+	 * 
+	 * @param parentWhenDetached the parentWhenDetached to set
+	 */
+	public void setParentWhenDetached(Stage parentWhenDetached)
+	{
+		this.parentWhenDetached = parentWhenDetached;
+	}
+
+	/**
+	 * Gets last expanded.
+	 * 
+	 * @return the lastExpanded
+	 */
+	public boolean isLastExpanded()
+	{
+		return lastExpanded;
+	}
+
+	/**
+	 * Sets last expanded.
+	 * 
+	 * @param lastExpanded the lastExpanded to set
+	 */
+	public void setLastExpanded(boolean lastExpanded)
+	{
+		this.lastExpanded = lastExpanded;
 	}
 }

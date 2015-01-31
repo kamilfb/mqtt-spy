@@ -231,10 +231,10 @@ public class SubscriptionController implements Initializable, ClearTabObserver, 
 		
 		eventManager.registerClearTabObserver(this, store);
 		
-		summaryTablePaneController.setStore(store);
-		summaryTablePaneController.setConnectionController(connectionController);
-		summaryTablePaneController.setEventManager(eventManager);
-		summaryTablePaneController.init();
+		getSummaryTablePaneController().setStore(store);
+		getSummaryTablePaneController().setConnectionController(connectionController);
+		getSummaryTablePaneController().setEventManager(eventManager);
+		getSummaryTablePaneController().init();
 		
 		messagePaneController.setStore(store);
 		messagePaneController.init();
@@ -289,7 +289,7 @@ public class SubscriptionController implements Initializable, ClearTabObserver, 
 			@Override
 			public void changed(ObservableValue<? extends String> observable, final String oldValue, final String newValue)
 			{
-				summaryTablePaneController.updateTopicFilter(newValue);			
+				getSummaryTablePaneController().updateTopicFilter(newValue);			
 			}
 		});
 		
@@ -540,7 +540,7 @@ public class SubscriptionController implements Initializable, ClearTabObserver, 
 	public void updateSubscriptionStats()
 	{
 		final int topicCount = store.getNonFilteredMessageList().getTopicSummary().getObservableMessagesPerTopic().size();
-		final int filteredTopicCount = summaryTablePaneController.getFilteredDataSize();
+		final int filteredTopicCount = getSummaryTablePaneController().getFilteredDataSize();
 		final int messageCount = store.getNonFilteredMessageList().getMessages().size(); 
 		
 		final String filteredTopics = topicCount != filteredTopicCount ? ("showing " + filteredTopicCount + "/") : "";
@@ -630,7 +630,26 @@ public class SubscriptionController implements Initializable, ClearTabObserver, 
 	@Override
 	public void refreshStatus()
 	{
-		// TODO Auto-generated method stub
-		
+		// Nothing to do here...	
+	}
+
+	/**
+	 * Gets the summary table pane controller.
+	 * 
+	 * @return the summaryTablePaneController
+	 */
+	public SubscriptionSummaryTableController getSummaryTablePaneController()
+	{
+		return summaryTablePaneController;
+	}
+	
+	/**
+	 * Gets the connection controller.
+	 * 
+	 * @return the connectionController
+	 */
+	public ConnectionController getConnectionController()
+	{
+		return connectionController;
 	}
 }

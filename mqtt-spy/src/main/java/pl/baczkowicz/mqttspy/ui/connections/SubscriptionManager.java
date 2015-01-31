@@ -16,7 +16,7 @@ package pl.baczkowicz.mqttspy.ui.connections;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Queue;
 
@@ -63,7 +63,7 @@ public class SubscriptionManager
 	private final EventManager eventManager;
 	
 	/** Subscription controllers (subscription topic to controller mapping). */
-	private final Map<String, SubscriptionController> subscriptionControllers = new HashMap<>();
+	private final Map<String, SubscriptionController> subscriptionControllers = new LinkedHashMap<>();
 	
 	/** UI event queue to be used. */
 	private final Queue<MqttSpyUIEvent> uiEventQueue;
@@ -229,6 +229,20 @@ public class SubscriptionManager
 			return Collections.unmodifiableCollection(subscriptionControllers.values());
 		}
 	}
+	
+	/**
+	 * Gets all subscription controllers.
+	 * 
+	 * @return Collection of SubscriptionController instances.
+	 */
+	public Map<String, SubscriptionController> getSubscriptionControllersMap()
+	{
+		synchronized (subscriptionControllers)
+		{
+			return Collections.unmodifiableMap(subscriptionControllers);
+		}
+	}
+	
 	
 	/**
 	 * Updates the subscription tab's context menu.

@@ -33,6 +33,8 @@ import pl.baczkowicz.mqttspy.ui.ConnectionController;
 import pl.baczkowicz.mqttspy.ui.SubscriptionController;
 import pl.baczkowicz.mqttspy.ui.connections.ConnectionManager;
 import pl.baczkowicz.mqttspy.ui.connections.SubscriptionManager;
+import pl.baczkowicz.mqttspy.ui.panes.PaneVisibilityStatus;
+import pl.baczkowicz.mqttspy.ui.panes.TitledPaneController;
 
 /**
  * Context menu utils - mainly for creating various context menus.
@@ -137,8 +139,14 @@ public class ContextMenuUtils
 				if (!newColor.equals(subscription.getColor()))
 				{
 					subscription.setColor(newColor);
-					subscription.getSubscriptionController().getTab().setStyle(
-							StylingUtils.createBaseRGBString(newColor));
+					subscription.getSubscriptionController().getTab().setStyle(StylingUtils.createBaseRGBString(newColor));
+					
+					// Update subscription tab
+					subscription.getSubscriptionController().getSummaryTablePaneController().refreshRowStyling();
+					
+					// Update 'all' tab				
+					subscriptionManager.getSubscriptionControllersMap().
+						get(SubscriptionManager.ALL_SUBSCRIPTIONS_TAB_TITLE).getSummaryTablePaneController().refreshRowStyling();
 				}
 			}
 		});
@@ -190,7 +198,7 @@ public class ContextMenuUtils
 		final MenuItem detachMenu = new MenuItem("[View] Detach to a separate window");
 		detachMenu.setOnAction(TabUtils.createTabDetachEvent(
 				detachMenu, subscriptionController, 
-				"Subscription " + subscription.getTopic(), 5));
+				connection.getName() + " - " + subscription.getTopic(), 5));
 		other.getItems().add(detachMenu);		
 
 		return contextMenu;
@@ -291,6 +299,49 @@ public class ContextMenuUtils
 		return contextMenu;
 	}
 	
+	private static Menu createConnectionPaneMenu(final String name, 
+			final ConnectionController connectionController, 
+			final TitledPaneController titledPaneController)
+	{
+		final Menu menu = new Menu(name);
+		
+		titledPaneController.getTitledPaneStatus().setContentMenu(menu);
+		
+		final CheckMenuItem hidden = new CheckMenuItem("Hidden");
+		final CheckMenuItem visible = new CheckMenuItem("Visible (attached to connection tab)");
+		final CheckMenuItem detached = new CheckMenuItem("Visible (detached from connection tab)");
+		
+		menu.getItems().add(hidden);
+		menu.getItems().add(visible);
+		menu.getItems().add(detached);
+		
+		hidden.setOnAction(new EventHandler<ActionEvent>()
+		{
+			public void handle(ActionEvent e)
+			{				
+				connectionController.setPaneVisiblity(titledPaneController, PaneVisibilityStatus.NOT_VISIBLE);
+			}
+		});
+		
+		visible.setOnAction(new EventHandler<ActionEvent>()
+		{
+			public void handle(ActionEvent e)
+			{				
+				connectionController.setPaneVisiblity(titledPaneController, PaneVisibilityStatus.ATTACHED);
+			}
+		});
+		
+		detached.setOnAction(new EventHandler<ActionEvent>()
+		{
+			public void handle(ActionEvent e)
+			{				
+				connectionController.setPaneVisiblity(titledPaneController, PaneVisibilityStatus.DETACHED);
+			}
+		});
+		
+		return menu;
+	}
+	
 	/**
 	 * Creates a context menu for the connection tab.
 	 * 
@@ -351,11 +402,11 @@ public class ContextMenuUtils
 				"Connection " + connection.getName(), 0));
 		contextMenu.getItems().add(detachMenu);
 		
-		final Menu view = new Menu("[View] Show/hide panes");
-		final MenuItem manualPublications = new MenuItem("Toggle 'Publish message' pane");
-		final MenuItem scriptedPublications = new MenuItem("Toggle 'Scripted publications' pane");
-		final MenuItem newSubscription = new MenuItem("Toggle 'Define new subscription' pane");
-		final MenuItem messageSummary = new MenuItem("Toggle 'Subscriptions and received messages' pane");
+		final Menu view = new Menu("[View] Pane visibility");
+		final Menu manualPublications = createConnectionPaneMenu("'Publish message' pane", connectionController, connectionController.getNewPublicationPaneController());
+		final Menu scriptedPublications = createConnectionPaneMenu("'Scripted publications' pane", connectionController, connectionController.getPublicationScriptsPaneController());
+		final Menu newSubscription = createConnectionPaneMenu("'Define new subscription' pane", connectionController, connectionController.getNewSubscriptionPaneController());
+		final Menu messageSummary = createConnectionPaneMenu("'Subscriptions and received messages' pane", connectionController, connectionController.getSubscriptionsController());
 		final MenuItem detailedView = new MenuItem("Toggle between simplified and detailed views (QoS, Retained)");
 		
 		view.getItems().add(manualPublications);
@@ -365,34 +416,17 @@ public class ContextMenuUtils
 		view.getItems().add(new SeparatorMenuItem());
 		view.getItems().add(detailedView);
 		
-		manualPublications.setOnAction(new EventHandler<ActionEvent>()
+		final CheckMenuItem resizeMessageContent = new CheckMenuItem("Resize message pane with parent");	
+		resizeMessageContent.setSelected(true);
+		resizeMessageContent.setOnAction(new EventHandler<ActionEvent>()
 		{
 			public void handle(ActionEvent e)
 			{				
-				connectionController.togglePane(connectionController.getNewPublicationPaneController());
+				connectionController.toggleMessagePayloadSize(resizeMessageContent.isSelected());
 			}
 		});
-		scriptedPublications.setOnAction(new EventHandler<ActionEvent>()
-		{
-			public void handle(ActionEvent e)
-			{				
-				connectionController.togglePane(connectionController.getPublicationScriptsPaneController());
-			}
-		});
-		newSubscription.setOnAction(new EventHandler<ActionEvent>()
-		{
-			public void handle(ActionEvent e)
-			{				
-				connectionController.togglePane(connectionController.getNewSubscriptionPaneController());
-			}
-		});
-		messageSummary.setOnAction(new EventHandler<ActionEvent>()
-		{
-			public void handle(ActionEvent e)
-			{				
-				connectionController.togglePane(connectionController.getSubscriptionsController());
-			}
-		});
+		view.getItems().add(resizeMessageContent);
+
 		detailedView.setOnAction(new EventHandler<ActionEvent>()
 		{
 			public void handle(ActionEvent e)
@@ -402,19 +436,6 @@ public class ContextMenuUtils
 		});
 		contextMenu.getItems().add(view);
 		
-		final Menu messagePane = new Menu("[View] Message pane");
-		final CheckMenuItem resizeMessageContent = new CheckMenuItem("Resize pane with parent");	
-		resizeMessageContent.setSelected(true);
-		resizeMessageContent.setOnAction(new EventHandler<ActionEvent>()
-		{
-			public void handle(ActionEvent e)
-			{				
-				connectionController.toggleMessagePayloadSize(resizeMessageContent.isSelected());
-			}
-		});
-		messagePane.getItems().add(resizeMessageContent);
-		contextMenu.getItems().add(messagePane);
-
 		return contextMenu;
 	}
 	
