@@ -263,7 +263,7 @@ public class PublicationScriptsController implements Initializable, ScriptStateC
 				public TableRow<PublicationScriptProperties> call(
 						TableView<PublicationScriptProperties> tableView)
 				{
-					final TableRow<PublicationScriptProperties> row = new TableRow<PublicationScriptProperties>()
+					final TableRow<PublicationScriptProperties> row = new TableRow<PublicationScriptProperties>()					
 					{
 						@Override
 						protected void updateItem(PublicationScriptProperties item, boolean empty)
@@ -277,6 +277,14 @@ public class PublicationScriptsController implements Initializable, ScriptStateC
 							}
 						}
 					};
+					
+					row.setOnMouseClicked(event -> 
+					{
+				        if (event.getClickCount() == 2 && !row.isEmpty()) 
+				        {
+				            startScript();
+				        }
+				    });
 	
 					return row;
 				}
@@ -327,6 +335,17 @@ public class PublicationScriptsController implements Initializable, ScriptStateC
 		this.eventManager = eventManager;
 	}
 	
+	private void startScript()
+	{
+		final PublicationScriptProperties item = scriptTable.getSelectionModel().getSelectedItem();
+		if (item != null 
+				&& (item.typeProperty().getValue().equals(ScriptTypeEnum.BACKGROUND) 
+						|| item.typeProperty().getValue().equals(ScriptTypeEnum.PUBLICATION)))
+		{
+			startScript(item);
+		}
+	}
+	
 	public ContextMenu createDirectoryTypeScriptTableContextMenu()
 	{
 		final ContextMenu contextMenu = new ContextMenu();
@@ -337,12 +356,7 @@ public class PublicationScriptsController implements Initializable, ScriptStateC
 		{
 			public void handle(ActionEvent e)
 			{
-				final PublicationScriptProperties item = scriptTable.getSelectionModel()
-						.getSelectedItem();
-				if (item != null)
-				{
-					startScript(item);
-				}
+				startScript();
 			}
 		});
 		contextMenu.getItems().add(startScriptItem);
