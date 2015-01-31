@@ -40,8 +40,6 @@ import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.input.Clipboard;
-import javafx.scene.input.ClipboardContent;
 import javafx.util.Callback;
 
 import org.slf4j.Logger;
@@ -52,6 +50,7 @@ import pl.baczkowicz.mqttspy.events.EventManager;
 import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
 import pl.baczkowicz.mqttspy.ui.properties.SubscriptionTopicSummaryProperties;
 import pl.baczkowicz.mqttspy.ui.utils.StylingUtils;
+import pl.baczkowicz.mqttspy.ui.utils.UiUtils;
 
 /**
  * Controller for the subscription summary table.
@@ -317,9 +316,7 @@ public class SubscriptionSummaryTableController implements Initializable
 						.getSelectedItem();
 				if (item != null)
 				{
-					final ClipboardContent content = new ClipboardContent();
-					content.putString(item.topicProperty().getValue());
-					Clipboard.getSystemClipboard().setContent(content);
+					UiUtils.copyToClipboard(item.topicProperty().getValue());
 				}
 			}
 		});
@@ -358,9 +355,7 @@ public class SubscriptionSummaryTableController implements Initializable
 						.getSelectedItem();
 				if (item != null)
 				{
-					final ClipboardContent content = new ClipboardContent();
-					content.putString(item.lastReceivedPayloadProperty().getValue());
-					Clipboard.getSystemClipboard().setContent(content);
+					UiUtils.copyToClipboard(item.lastReceivedPayloadProperty().getValue());
 				}
 			}
 		});

@@ -22,8 +22,6 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.Tab;
-import javafx.scene.input.Clipboard;
-import javafx.scene.input.ClipboardContent;
 import javafx.scene.paint.Color;
 import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
 import pl.baczkowicz.mqttspy.configuration.generated.TabbedSubscriptionDetails;
@@ -111,9 +109,7 @@ public class ContextMenuUtils
 		{
 			public void handle(ActionEvent e)
 			{
-				final ClipboardContent content = new ClipboardContent();
-				content.putString(subscription.getTopic());
-				Clipboard.getSystemClipboard().setContent(content);
+				UiUtils.copyToClipboard(subscription.getTopic());
 			}
 		});
 		contextMenu.getItems().add(copyTopicItem);

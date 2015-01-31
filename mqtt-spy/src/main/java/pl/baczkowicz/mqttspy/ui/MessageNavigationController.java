@@ -33,8 +33,6 @@ import javafx.scene.control.MenuButton;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.Tooltip;
-import javafx.scene.input.Clipboard;
-import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.HBox;
@@ -55,6 +53,7 @@ import pl.baczkowicz.mqttspy.storage.BasicMessageStore;
 import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
 import pl.baczkowicz.mqttspy.ui.messagelog.MessageLogUtils;
 import pl.baczkowicz.mqttspy.ui.utils.TextUtils;
+import pl.baczkowicz.mqttspy.ui.utils.UiUtils;
 import pl.baczkowicz.mqttspy.utils.FileUtils;
 
 /**
@@ -448,17 +447,13 @@ public class MessageNavigationController implements Initializable, MessageIndexT
 	{
 		if (getSelectedMessageIndex() > 0)
 		{
-			final ClipboardContent content = new ClipboardContent();								
-			content.putString(MessageLogUtils.getCurrentMessageAsMessageLog(store, getSelectedMessageIndex() - 1));			
-			Clipboard.getSystemClipboard().setContent(content);
+			UiUtils.copyToClipboard(MessageLogUtils.getCurrentMessageAsMessageLog(store, getSelectedMessageIndex() - 1));
 		}
 	}
 	
 	public void copyMessagesToClipboard()	
 	{
-		final ClipboardContent content = new ClipboardContent();				
-		content.putString(MessageLogUtils.getAllMessagesAsMessageLog(store));		
-		Clipboard.getSystemClipboard().setContent(content);
+		UiUtils.copyToClipboard(MessageLogUtils.getAllMessagesAsMessageLog(store));
 	}
 	
 	public void copyMessageToFile()

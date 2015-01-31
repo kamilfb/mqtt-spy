@@ -49,6 +49,7 @@ import pl.baczkowicz.mqttspy.scripts.ScriptTypeEnum;
 import pl.baczkowicz.mqttspy.ui.panes.TitledPaneController;
 import pl.baczkowicz.mqttspy.ui.panes.TitledPaneStatus;
 import pl.baczkowicz.mqttspy.ui.properties.PublicationScriptProperties;
+import pl.baczkowicz.mqttspy.ui.utils.UiUtils;
 
 /**
  * Controller for publications scripts pane.
@@ -377,6 +378,25 @@ public class PublicationScriptsController implements Initializable, ScriptStateC
 		});
 		contextMenu.getItems().add(stopScriptItem);
 
+		// Separator
+		contextMenu.getItems().add(new SeparatorMenuItem());
+		
+		// Copy script location
+		final MenuItem copyScriptLocationItem = new MenuItem("[Script] Copy script location to clipboard");
+		copyScriptLocationItem.setOnAction(new EventHandler<ActionEvent>()
+		{
+			public void handle(ActionEvent e)
+			{
+				final PublicationScriptProperties item = scriptTable.getSelectionModel()
+						.getSelectedItem();
+				if (item != null)
+				{
+					UiUtils.copyToClipboard(item.getScript().getScriptFile().getAbsolutePath());
+				}
+			}
+		});
+		contextMenu.getItems().add(copyScriptLocationItem);
+		
 		// Separator
 		contextMenu.getItems().add(new SeparatorMenuItem());
 		

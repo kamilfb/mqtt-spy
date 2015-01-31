@@ -14,10 +14,18 @@
  */
 package pl.baczkowicz.mqttspy.ui.utils;
 
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
+
 /**
  * General purpose utilities.
  */
 public class UiUtils
 {
-
+	public static void copyToClipboard(final String value)
+	{
+		final ClipboardContent content = new ClipboardContent();
+		content.putString(value);
+		Clipboard.getSystemClipboard().setContent(content);
+	}
 }
