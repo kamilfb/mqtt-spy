@@ -28,9 +28,7 @@ import pl.baczkowicz.mqttspy.connectivity.MqttContent;
 import pl.baczkowicz.mqttspy.ui.search.MessageFilter;
 
 /**
- * Message store with filtering.
- * 
- * TODO: could it extend the BasicMessageStore?
+ * Message store with filtering. 
  */
 public class FilteredMessageStore extends BasicMessageStore
 {

@@ -361,8 +361,6 @@ public class ConnectionManager
 	 */
 	public void disconnectAndCloseTab(final MqttAsyncConnection connection)
 	{		
-		// TODO: reindex all connection tabs... ?
-		
 		disconnectFromBroker(connection);
 		connection.closeConnection();
 		if (connection.getMessageLogger() != null && connection.getMessageLogger().isRunning())
@@ -428,11 +426,7 @@ public class ConnectionManager
 				
 		final InteractiveScriptManager scriptManager = new InteractiveScriptManager(eventManager, connection);
 		connection.setScriptManager(scriptManager);
-		
-		// TODO: Removed, done in the publication scripts controller
-		// TODO: not sure this is the best place for it, and at the moment there is no UI controls to populate that
-		// scriptManager.populateScripts(connectionProperties.getConfiguredProperties().getBackgroundScript(), ScriptTypeEnum.BACKGROUND);	
-
+	
 		// Store the created connection
 		connections.put(connectionProperties.getConfiguredProperties().getId(), connection);
 

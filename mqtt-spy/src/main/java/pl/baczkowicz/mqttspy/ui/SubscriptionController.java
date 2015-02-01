@@ -381,7 +381,7 @@ public class SubscriptionController implements Initializable, ClearTabObserver, 
 		messagePaneController.clear();
 		messageNavigationPaneController.clear();
 		
-		// TODO: not sure what this is for...
+		// TODO: need to check this
 		store.setAllShowValues(false);		
 	}
 	

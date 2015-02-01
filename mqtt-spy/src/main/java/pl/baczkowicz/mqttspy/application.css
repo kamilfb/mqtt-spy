@@ -3,7 +3,8 @@
 	-fx-font-weight: bold;
 }
 
-/* .color-picker  */
+/* Color picker */
+
 #subscriptionColorPicker .color-picker-label .text 
 {
     -fx-font: 11px "System";
@@ -69,29 +70,33 @@
 	-fx-font-weight: normal;
 }
 
-#connectionList .list-cell:filled:selected {
+#connectionList .list-cell:filled:selected 
+{
    -fx-background-color: -fx-focus-color;   
 }
 
-#connectionList .list-cell:filled:selected .text {
+#connectionList .list-cell:filled:selected .text 
+{
        -fx-fill: white;
 }
 
-#connectionList .list-cell:filled:odd {
-    /* -fx-control-inner-background: rgba(233, 222, 255, 0.6); */
+#connectionList .list-cell:filled:odd 
+{
     -fx-background-radius: 7;
 }
 
-#connectionList .list-cell:filled:even {
-    /* -fx-control-inner-background: rgba(233, 222, 255, 0.3); */
-    -fx-background-radius: 7;
+#connectionList .list-cell:filled:even 
+{
+     -fx-background-radius: 7;
 }
 
-.table-row-cell:selected {
+.table-row-cell:selected 
+{
 	-fx-background-color: -fx-focus-color;
 }
 
-.table-row-cell:selected .text {
+.table-row-cell:selected .text 
+{
        -fx-fill: white;
 }
 
@@ -131,7 +136,6 @@
 
 .subscribed .text
 {
-	/*-fx-strikethrough: false;*/
 	-fx-underline: false;
 	-fx-font-style: normal;
 }
@@ -143,7 +147,6 @@
 
 .unsubscribed .text
 {
-	/*-fx-strikethrough: true;*/	
 	-fx-underline: true;
 	-fx-font-style: italic;
 }

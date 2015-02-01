@@ -9,7 +9,7 @@
  *
  * Contributors:
  * 
- *    Kamil Baczkowicz - minor changes to the extended class, based on ControlsFx code
+ *    Kamil Baczkowicz - minor changes in the extended class, based on ControlsFx code
  *    
  */
 package impl.org.controlsfx.version;
@@ -21,10 +21,9 @@ public class VersionChecker
 {
     private VersionChecker() 
     {
-        // no-op
+        // Utility class
     }
 
-    /** Bug in the ControlxFX version checker, so override. */
     public static void doVersionCheck() 
     {
     	return;

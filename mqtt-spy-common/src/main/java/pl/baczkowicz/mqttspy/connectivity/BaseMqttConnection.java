@@ -31,7 +31,7 @@ import pl.baczkowicz.mqttspy.utils.ConnectionUtils;
 import pl.baczkowicz.mqttspy.utils.TimeUtils;
 
 /**
- * Base MQTT connection class, encapsulating the Paho's MQTT client and providing some common featues.
+ * Base MQTT connection class, encapsulating the Paho's MQTT client and providing some common features.
  */
 public abstract class BaseMqttConnection implements IMqttConnection
 {
@@ -106,7 +106,7 @@ public abstract class BaseMqttConnection implements IMqttConnection
 	/**
 	 * Asynchronous connection attempt.
 	 * 
-	 * TODO: is that parameter needed?
+	 * TODO: check if this parameter is needed
 	 * @param options The connection options
 	 * @param userContext The user context (used for any callbacks)
 	 * @param callback Connection result callback
@@ -138,7 +138,7 @@ public abstract class BaseMqttConnection implements IMqttConnection
 	/**
 	 * Synchronous connection attempt.
 	 * 
-	 * TODO: is that parameter needed?
+	 * TODO: check if this parameter is needed
 	 * @param options The connection options
 	 * 
 	 * @throws MqttSpyException Thrown when errors detected
@@ -202,7 +202,7 @@ public abstract class BaseMqttConnection implements IMqttConnection
 	{
 		if (client == null || !client.isConnected())
 		{
-			// TODO: should throw an exception here?
+			// TODO: consider throwing an exception here
 			logger.warn("Client not connected");
 			return;
 		}

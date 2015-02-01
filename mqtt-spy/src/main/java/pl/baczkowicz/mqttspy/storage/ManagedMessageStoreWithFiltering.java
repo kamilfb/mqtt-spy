@@ -87,7 +87,6 @@ public class ManagedMessageStoreWithFiltering extends BasicMessageStore
 			filteredStore.getFilteredMessages().add(message);
 			
 			// Message browsing update
-			// TODO: even if message is added, others can be removed so the index might not be right for > 1
 			uiEventQueue.add(new BrowseReceivedMessageEvent(filteredStore.getFilteredMessages(), message));
 		}
 

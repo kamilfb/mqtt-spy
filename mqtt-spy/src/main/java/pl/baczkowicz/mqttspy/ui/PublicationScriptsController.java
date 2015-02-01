@@ -467,7 +467,7 @@ public class PublicationScriptsController implements Initializable, ScriptStateC
 	@Override
 	public void onScriptStateChange(String scriptName, ScriptRunningState state)
 	{
-		// TODO: update the context menu - but this requires context menu per row
+		// TODO: update the context menu - but this requires context menu per row, not type
 	}
 
 	@Override

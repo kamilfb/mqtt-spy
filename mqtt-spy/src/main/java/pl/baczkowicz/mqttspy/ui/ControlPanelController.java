@@ -232,7 +232,6 @@ public class ControlPanelController extends AnchorPane implements Initializable,
 		{
 			button.setOnAction(null);
 			
-			// TODO: if custom detected, offer creating a default one and importing all connections
 			if (configurationManager.isConfigurationReadOnly())
 			{
 				controller.setTitle("Configuration file loaded, but it's read-only.");

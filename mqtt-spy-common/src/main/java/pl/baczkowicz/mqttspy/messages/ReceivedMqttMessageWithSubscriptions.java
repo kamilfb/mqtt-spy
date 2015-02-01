@@ -41,7 +41,7 @@ public class ReceivedMqttMessageWithSubscriptions extends ReceivedMqttMessage
 	{
 		this(
 				message.getId(), message.getTopic(), 
-				// TODO: not sure why we need a copy here
+				// TODO: check if a copy is really needed here
 				copyMqttMessage(message.getMessage()), 
 				message.getDate(), message.getConnection());
 		

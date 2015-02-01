@@ -39,11 +39,9 @@ import pl.baczkowicz.mqttspy.ui.utils.FxmlUtils;
  */
 public class Main extends Application
 {
-	// TODO: this might need changing or moving to a property file.
 	/** Initial and minimal scene/stage width. */	
 	public final static int DEFAULT_WIDTH = 800;
 
-	// TODO: this might need changing or moving to a property file.
 	/** Initial and minimal scene/stage height. */
 	public final static int DEFAULT_HEIGHT = 600;
 	
