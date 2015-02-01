@@ -31,7 +31,9 @@ public class XMLParserTest
 	@Before
 	public void setUp() throws Exception
 	{
-		parser = new XMLParser(ConfigurationManager.PACKAGE, ConfigurationManager.SCHEMA);
+		parser = new XMLParser(
+				ConfigurationManager.PACKAGE, 
+				new String[] {ConfigurationManager.COMMON_SCHEMA, ConfigurationManager.SCHEMA});
 	}
 
 	@Test
