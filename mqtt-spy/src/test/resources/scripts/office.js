@@ -4,8 +4,10 @@ function publish()
 
 	for (i = 0; i < 20; i++)
 	{
-		mqttspy.publish("/home/office/current", "<temp>" + (20 + Math.floor((Math.random() * 10) + 1) / 10) + "</temp>", 0, false);
-
+		// "<temp>" + 
+		mqttspy.publish("/home/office/current", (20 + Math.floor((Math.random() * 20) + 1) / 1), 0, false);
+		// + "</temp>"
+		
 		if (i == 10)
 		{
 			Thread.sleep(10000);

@@ -15,7 +15,11 @@
 package pl.baczkowicz.mqttspy.ui;
 
 import java.net.URL;
+import java.sql.Date;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -30,6 +34,11 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
+import javafx.scene.chart.CategoryAxis;
+import javafx.scene.chart.LineChart;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.XYChart;
+import javafx.scene.chart.XYChart.Series;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
@@ -40,15 +49,20 @@ import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.stage.Stage;
 import javafx.util.Callback;
+import javafx.util.StringConverter;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.configuration.generated.TabbedSubscriptionDetails;
+import pl.baczkowicz.mqttspy.connectivity.MqttContent;
 import pl.baczkowicz.mqttspy.events.EventManager;
+import pl.baczkowicz.mqttspy.stats.StatisticsManager;
 import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
 import pl.baczkowicz.mqttspy.ui.properties.SubscriptionTopicSummaryProperties;
+import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
 import pl.baczkowicz.mqttspy.ui.utils.StylingUtils;
 import pl.baczkowicz.mqttspy.ui.utils.UiUtils;
 
@@ -313,6 +327,21 @@ public class SubscriptionSummaryTableController implements Initializable
 		}
 	}
 	
+	public List<MqttContent> getMessagesForTopic(final String topic)
+	{
+		final List<MqttContent> topicMessages = new ArrayList<>();
+		
+		for (final MqttContent message : store.getMessages())
+		{
+			if (message.getTopic().equals(topic))
+			{
+				topicMessages.add(message);
+			}
+		}
+		
+		return topicMessages;
+	}
+	
 	public ContextMenu createTopicTableContextMenu()
 	{
 		final ContextMenu contextMenu = new ContextMenu();
@@ -371,6 +400,69 @@ public class SubscriptionSummaryTableController implements Initializable
 			}
 		});
 		contextMenu.getItems().add(copyContentItem);
+		
+		
+		// Stats
+		MenuItem statsItem = new MenuItem("[Content] Show values on chart");
+
+		statsItem.setOnAction(new EventHandler<ActionEvent>()
+		{
+			public void handle(ActionEvent e)
+			{				
+				final SubscriptionTopicSummaryProperties item = filterTable.getSelectionModel()
+						.getSelectedItem();
+				if (item != null)
+				{
+					final String topic = item.topicProperty().getValue();
+					SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+					final List<MqttContent> messages = getMessagesForTopic(topic);
+			        
+					final NumberAxis xAxis = new NumberAxis();
+			        final NumberAxis yAxis = new NumberAxis();
+			        
+			        xAxis.setForceZeroInRange(false);
+			        xAxis.setTickLabelFormatter(new StringConverter<Number>()
+					{
+						@Override
+						public String toString(Number object)
+						{
+							final Date date = new Date(object.longValue());
+							return dateFormat.format(date);
+						}
+						
+						@Override
+						public Number fromString(String string)
+						{
+							return null;
+						}
+					});
+			        yAxis.setForceZeroInRange(false);
+			        
+			        final LineChart<Number, Number> lineChart = new LineChart<>(xAxis, yAxis);
+			              
+			        Series<Number, Number> series = new XYChart.Series<>();
+			        series.setName(topic);
+			        
+			        for (int i = 0; i < messages.size(); i++)
+			        {
+			        	final MqttContent message = messages.get(messages.size() - i - 1);
+			        	
+			        	series.getData().add(new XYChart.Data(
+			        			message.getDate().getTime(), 
+			        			Double.valueOf(message.getFormattedPayload())));
+			        }
+			        
+			        final Stage stage = DialogUtils.createWindowWithPane(
+			        		lineChart, filterTable.getScene(), 
+							"Message content chart", 5);
+			        
+			        lineChart.getData().add(series);
+			       
+			        stage.show();
+				}
+			}
+		});
+		contextMenu.getItems().add(statsItem);
 		
 		// Separator
 		contextMenu.getItems().add(new SeparatorMenuItem());
