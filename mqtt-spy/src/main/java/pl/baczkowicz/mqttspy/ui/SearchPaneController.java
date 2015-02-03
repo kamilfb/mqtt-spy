@@ -407,8 +407,10 @@ public class SearchPaneController implements Initializable, MessageFormatChangeO
 		eventManager.notifyFormatChanged(foundMessageStore);
 	}
 
+	@Override
 	public void onMessageAdded(final MqttContent message)
 	{
+		// TODO: is that ever deregistered?
 		if (autoRefreshCheckBox.isSelected())
 		{
 			final boolean matchingSearch = processMessage(message, getSearchMatcher()); 
