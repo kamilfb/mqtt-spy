@@ -81,7 +81,11 @@ public class StatsPaneController implements Initializable, MessageAddedObserver
 	
 	private Map<String, List<MqttContent>> chartData = new HashMap<>();
 	
+	private Map<String, Series<Number, Number>> topicToSeries = new HashMap<>();
+	
 	private LineChart<Number, Number> lineChart;
+	
+	private boolean warningShown;
 	
 	public void initialize(URL location, ResourceBundle resources)
 	{
@@ -214,16 +218,39 @@ public class StatsPaneController implements Initializable, MessageAddedObserver
 		}
 	}
 	
+	private void addMessageToSeries(final Series<Number, Number> series, final MqttContent message)
+	{
+		try
+    	{
+    		series.getData().add(new XYChart.Data(
+    			message.getDate().getTime(), 
+    			Double.valueOf(message.getFormattedPayload())));
+    	}
+    	catch (NumberFormatException e)
+    	{
+    		if (!warningShown)
+    		{
+    			DialogUtils.showWarning(
+    					"Invalid content", 
+    					"Message on topic \"" + message.getTopic() + "\" with payload \"" 
+    					+ message.getFormattedPayload() 
+    					+ "\" cannot be converted to a number - ignoring all invalid messages.");
+    			warningShown = true;
+    		}
+    	}
+	}
+	
 	@FXML
 	private void refresh()
 	{		
 		divideMessagesByTopic(topics);
 		lineChart.getData().clear();
-		boolean warningShown = false;
+		topicToSeries.clear();
 		
 		for (final String topic : topics)
 		{
 			final Series<Number, Number> series = new XYChart.Series<>();
+			topicToSeries.put(topic, series);
 	        series.setName(topic);
 	        
 	        final MessageLimitProperties limit = showRangeBox.getValue();
@@ -248,24 +275,7 @@ public class StatsPaneController implements Initializable, MessageAddedObserver
 	        		continue;
 	        	}
 	        	
-	        	try
-	        	{
-	        		series.getData().add(new XYChart.Data(
-	        			message.getDate().getTime(), 
-	        			Double.valueOf(message.getFormattedPayload())));
-	        	}
-	        	catch (NumberFormatException e)
-	        	{
-	        		if (!warningShown)
-	        		{
-	        			DialogUtils.showWarning(
-	        					"Invalid content", 
-	        					"Message on topic \"" + topic + "\" with payload \"" 
-	        					+ message.getFormattedPayload() 
-	        					+ "\" cannot be converted to a number - ignoring all invalid messages.");
-	        			warningShown = true;
-	        		}
-	        	}
+	        	addMessageToSeries(series, message);
 	        }
 	        
 	        lineChart.getData().add(series);
@@ -276,10 +286,39 @@ public class StatsPaneController implements Initializable, MessageAddedObserver
 	public void onMessageAdded(final MqttContent message)
 	{
 		// TODO: is that ever deregistered?
-		if (autoRefreshCheckBox.isSelected() && topics.contains(message.getTopic()))
-		{
-			// TODO: optimise
-			refresh();
+		final String topic = message.getTopic();
+		final MessageLimitProperties limit = showRangeBox.getValue();
+		
+		if (autoRefreshCheckBox.isSelected() && topics.contains(topic))
+		{			
+			// Apply message limit			
+			if (limit.getMessageLimit() > 0 && chartData.get(topic).size() == limit.getMessageLimit())
+			{
+				chartData.get(topic).remove(0);
+				topicToSeries.get(topic).getData().remove(0);		
+			}
+			
+			// Apply time limit
+			final Date now = new Date();
+			if (limit.getTimeLimit() > 0)
+			{
+				MqttContent oldestMessage = chartData.get(topic).get(0);
+				while (oldestMessage.getDate().getTime() + limit.getTimeLimit() < now.getTime())
+				{
+					chartData.get(topic).remove(0);
+					topicToSeries.get(topic).getData().remove(0);
+					
+					if (chartData.get(topic).size() == 0)
+					{
+						break;
+					}
+					oldestMessage = chartData.get(topic).get(0);
+				}				
+			}
+			
+			// Add the new message
+			chartData.get(topic).add(message);
+			addMessageToSeries(topicToSeries.get(topic), message);
 		}
 	}
 	
