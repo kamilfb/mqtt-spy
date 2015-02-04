@@ -46,6 +46,7 @@ import pl.baczkowicz.mqttspy.events.EventManager;
 import pl.baczkowicz.mqttspy.events.observers.MessageAddedObserver;
 import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
 import pl.baczkowicz.mqttspy.ui.properties.MessageLimitProperties;
+import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
 import pl.baczkowicz.mqttspy.ui.utils.StylingUtils;
 
 /**
@@ -177,7 +178,7 @@ public class StatsPaneController implements Initializable, MessageAddedObserver
 		showRangeBox.getItems().add(new MessageLimitProperties("30 minutes", 0, 1800 * ONE_SECOND));
 		showRangeBox.getItems().add(new MessageLimitProperties("1 hour", 0, 3600 * ONE_SECOND));
 		showRangeBox.getItems().add(new MessageLimitProperties("24 hours", 0, 86400 * ONE_SECOND));
-		showRangeBox.setValue(showRangeBox.getItems().get(2));
+		
 		
 		if (subscription != null)
 		{
@@ -190,7 +191,8 @@ public class StatsPaneController implements Initializable, MessageAddedObserver
 		AnchorPane.setTopAnchor(lineChart, 45.0);
 		AnchorPane.setRightAnchor(lineChart, 0.0);
 		
-		refresh();
+		// This will perform a refresh
+		showRangeBox.setValue(showRangeBox.getItems().get(2));
 		eventManager.registerMessageAddedObserver(this, store.getMessageList());
 	}
 	
@@ -217,6 +219,7 @@ public class StatsPaneController implements Initializable, MessageAddedObserver
 	{		
 		divideMessagesByTopic(topics);
 		lineChart.getData().clear();
+		boolean warningShown = false;
 		
 		for (final String topic : topics)
 		{
@@ -245,9 +248,24 @@ public class StatsPaneController implements Initializable, MessageAddedObserver
 	        		continue;
 	        	}
 	        	
-	        	series.getData().add(new XYChart.Data(
+	        	try
+	        	{
+	        		series.getData().add(new XYChart.Data(
 	        			message.getDate().getTime(), 
 	        			Double.valueOf(message.getFormattedPayload())));
+	        	}
+	        	catch (NumberFormatException e)
+	        	{
+	        		if (!warningShown)
+	        		{
+	        			DialogUtils.showWarning(
+	        					"Invalid content", 
+	        					"Message on topic \"" + topic + "\" with payload \"" 
+	        					+ message.getFormattedPayload() 
+	        					+ "\" cannot be converted to a number - ignoring all invalid messages.");
+	        			warningShown = true;
+	        		}
+	        	}
 	        }
 	        
 	        lineChart.getData().add(series);

@@ -47,6 +47,8 @@ import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 
+import org.controlsfx.control.action.Action;
+import org.controlsfx.dialog.Dialog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,6 +56,7 @@ import pl.baczkowicz.mqttspy.configuration.generated.TabbedSubscriptionDetails;
 import pl.baczkowicz.mqttspy.events.EventManager;
 import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
 import pl.baczkowicz.mqttspy.ui.properties.SubscriptionTopicSummaryProperties;
+import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
 import pl.baczkowicz.mqttspy.ui.utils.FxmlUtils;
 import pl.baczkowicz.mqttspy.ui.utils.StylingUtils;
 import pl.baczkowicz.mqttspy.ui.utils.UiUtils;
@@ -61,8 +64,11 @@ import pl.baczkowicz.mqttspy.ui.utils.UiUtils;
 /**
  * Controller for the subscription summary table.
  */
+@SuppressWarnings("deprecation")
 public class SubscriptionSummaryTableController implements Initializable
 {
+	private static final int CHART_TOPIC_COUNT = 10;
+
 	final static Logger logger = LoggerFactory.getLogger(SubscriptionSummaryTableController.class);
 
 	private ManagedMessageStoreWithFiltering store; 
@@ -424,7 +430,21 @@ public class SubscriptionSummaryTableController implements Initializable
 				final SubscriptionTopicSummaryProperties item = filterTable.getSelectionModel().getSelectedItem();
 				if (item != null)
 				{										
-					showChartsWindow(store.getFilteredMessageStore().getShownTopics());
+					final Set<String> topics = store.getFilteredMessageStore().getShownTopics();
+					if (topics.size() > CHART_TOPIC_COUNT)
+					{
+						final Action response = DialogUtils.showQuestion(
+								"Number of selected topics", 
+								"More than " + CHART_TOPIC_COUNT 
+								+ " topics have been selected to be displayed on a chart. Do you want to proceed?",
+								false);
+						
+						if (!response.equals(Dialog.ACTION_YES))
+						{
+							return;
+						}
+					}
+					showChartsWindow(topics);
 				}
 			}
 		});

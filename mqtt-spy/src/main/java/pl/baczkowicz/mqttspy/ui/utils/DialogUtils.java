@@ -154,8 +154,20 @@ public class DialogUtils
 	
 	public static Action showQuestion(final String title, final String message)
 	{
+		return showQuestion(title, message, true);
+	}
+	
+	public static Action showQuestion(final String title, final String message, final boolean showNoButton)
+	{
+		if (showNoButton)
+		{
+			return Dialogs.create().owner(null).title(title).masthead(null)
+					.message(message).showConfirm();				
+		}
+		
 		return Dialogs.create().owner(null).title(title).masthead(null)
-		.message(message).showConfirm();		
+				.actions(Dialog.ACTION_YES, Dialog.ACTION_CANCEL)
+				.message(message).showConfirm();
 	}
 	
 	/**
