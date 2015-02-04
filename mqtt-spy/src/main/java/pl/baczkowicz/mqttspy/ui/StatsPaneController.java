@@ -26,6 +26,7 @@ import java.util.Set;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.chart.LineChart;
@@ -38,6 +39,7 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.AnchorPane;
+import javafx.stage.WindowEvent;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
 import pl.baczkowicz.mqttspy.connectivity.MqttContent;
@@ -197,7 +199,16 @@ public class StatsPaneController implements Initializable, MessageAddedObserver
 		
 		// This will perform a refresh
 		showRangeBox.setValue(showRangeBox.getItems().get(2));
-		eventManager.registerMessageAddedObserver(this, store.getMessageList());
+		final StatsPaneController controller = this;
+		eventManager.registerMessageAddedObserver(controller, store.getMessageList());
+		statsPane.getScene().getWindow().setOnCloseRequest(new EventHandler<WindowEvent>()
+		{
+			@Override
+			public void handle(WindowEvent event)
+			{
+				eventManager.deregisterMessageAddedObserver(controller);
+			}
+		});
 	}
 	
 	private void divideMessagesByTopic(final Set<String> topics)

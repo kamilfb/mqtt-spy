@@ -158,11 +158,6 @@ public class SearchPaneController implements Initializable, MessageFormatChangeO
 	
 	public void init()
 	{
-		eventManager.registerFormatChangeObserver(this, store);
-		
-//		foundMessageStore = new BasicMessageStore("search-" + store.getName(), 
-//				store.getMessageList().getPreferredSize(), store.getMessageList().getMaxSize(), uiEventQueue, eventManager);
-//		foundMessageStore.setFormatter(store.getFormatter());
 		foundMessageStore = new FilteredMessageStore(store.getMessageList(), store.getMessageList().getPreferredSize(), store.getMessageList().getMaxSize(), 
 				"search-" + store.getName(), store.getFormatter());
 		
@@ -203,6 +198,9 @@ public class SearchPaneController implements Initializable, MessageFormatChangeO
 		
 		scriptManager = new ScriptManager(null, null, connection);
 		refreshList();
+		
+		eventManager.registerMessageAddedObserver(this, store.getMessageList());
+		eventManager.registerFormatChangeObserver(this, store);
 	}
 	
 	private void refreshList()
@@ -436,6 +434,7 @@ public class SearchPaneController implements Initializable, MessageFormatChangeO
 		
 		// TODO: need to check this
 		eventManager.deregisterFormatChangeObserver(this);
+		eventManager.deregisterMessageAddedObserver(this);
 	}
 
 	public void disableAutoSearch()
@@ -490,7 +489,6 @@ public class SearchPaneController implements Initializable, MessageFormatChangeO
 	public void setStore(final ManagedMessageStoreWithFiltering store)
 	{
 		this.store = store;
-		eventManager.registerMessageAddedObserver(this, store.getMessageList());
 	}
 
 	public void setConnection(MqttAsyncConnection connection)

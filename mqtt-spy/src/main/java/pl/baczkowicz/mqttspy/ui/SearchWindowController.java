@@ -123,9 +123,6 @@ public class SearchWindowController extends AnchorPane implements Initializable,
 			public void handle(Event event)
 			{
 				searchPaneController.cleanup();				
-				
-				//TODO: should this be removed?
-				//subscriptionPaneEventDispatcher.deleteObserver(searchPaneController);
 			}
 		});
 		
@@ -133,10 +130,6 @@ public class SearchWindowController extends AnchorPane implements Initializable,
 		searchPaneController.setEventManager(eventManager);
 		searchPaneController.setStore(store);
 		searchPaneController.setConnection(connection);
-		
-		//TODO: should this be added?
-		//subscriptionPaneEventDispatcher.addObserver(searchPaneController);
-		
 		searchPaneController.init();		
 		
 		searchPaneControllers.put(tab, searchPaneController);		
