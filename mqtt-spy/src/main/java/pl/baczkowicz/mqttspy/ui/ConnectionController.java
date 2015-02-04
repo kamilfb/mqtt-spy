@@ -214,6 +214,13 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 			tooltip = new Tooltip();
 			connectionTab.setTooltip(tooltip);
 		}
+		else
+		{
+			// If in replay more, remote the panes from the split pane altogether
+			splitPane.getItems().remove(publishMessageTitledPane);
+			splitPane.getItems().remove(scriptedPublicationsTitledPane);
+			splitPane.getItems().remove(newSubscriptionTitledPane);
+		}
 		
 		updateMinHeights();
 		// connectionPane.setMaxWidth(500);
@@ -477,7 +484,6 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 		publicationScriptsPaneController.getTitledPaneStatus().setRequestedVisibility(PaneVisibilityStatus.NOT_VISIBLE);
 		newSubscriptionPaneController.getTitledPaneStatus().setRequestedVisibility(PaneVisibilityStatus.NOT_VISIBLE);						
 		updateVisiblePanes();
-		updateMenus();
 		
 		subscriptionsTitledPane.setText("Logged messages");
 	}
