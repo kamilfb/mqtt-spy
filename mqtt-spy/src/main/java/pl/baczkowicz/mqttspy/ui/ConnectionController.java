@@ -150,6 +150,8 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 
 	private TabStatus tabStatus;
 
+	private boolean resizeMessagePane = true;
+
 	private ChangeListener<Boolean> createChangeListener()
 	{
 		return new ChangeListener<Boolean>()
@@ -431,10 +433,16 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 	
 	public void toggleMessagePayloadSize(final boolean resize)
 	{
+		resizeMessagePane = resize;
 		for (final SubscriptionController subscriptionController : connectionManager.getSubscriptionManager(connection).getSubscriptionControllers())
 		{
 			subscriptionController.toggleMessagePayloadSize(resize);
 		}
+	}
+	
+	public boolean isResizeMessagePane()
+	{
+		return resizeMessagePane;
 	}
 	
 	public void toggleDetailedViewVisibility()

@@ -209,7 +209,7 @@ public class ConnectionManager
 		final SubscriptionManager subscriptionManager = new SubscriptionManager(eventManager, configurationManager, uiEventQueue);			
 		
 		final SubscriptionController subscriptionController = subscriptionManager.createSubscriptionTab(
-				true, parent, connection.getStore(), null, connection);
+				true, parent, connection.getStore(), null, connection, connectionController);
 		subscriptionController.setConnectionController(connectionController);
 		subscriptionController.setFormatting(configurationManager.getConfiguration().getFormatting());
 		
@@ -294,7 +294,7 @@ public class ConnectionManager
         		name, 0, list.size(), list.size(), uiEventQueue, eventManager);               
         
 		final SubscriptionController subscriptionController = subscriptionManager.createSubscriptionTab(
-				true, parent, store, null, null);
+				true, parent, store, null, null, connectionController);
 		subscriptionController.setConnectionController(connectionController);
 		subscriptionController.setFormatting(configurationManager.getConfiguration().getFormatting());
 		subscriptionController.setReplayMode(true);

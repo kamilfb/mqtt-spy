@@ -166,6 +166,8 @@ public class SubscriptionController implements Initializable, ClearTabObserver, 
 
 	private TabStatus tabStatus;
 
+	private HBox titleBox;
+
 	public void initialize(URL location, ResourceBundle resources)
 	{			
 		statsLabel = new Label();
@@ -222,6 +224,26 @@ public class SubscriptionController implements Initializable, ClearTabObserver, 
 		});
 
 		updateMinHeights();		
+	}
+	
+	private ChangeListener<Number> createPaneTitleWidthListener()
+	{
+		return new ChangeListener<Number>()
+		{
+			@Override
+			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue)
+			{				 										
+				Platform.runLater(new Runnable()
+				{					
+					@Override
+					public void run()
+					{
+						final double absoluteSearchBoxX = searchBox.getLayoutX() + topicFilterBox.getLayoutX() + titleBox.getLayoutX();
+						updateTitleWidth(40, absoluteSearchBoxX);	
+					}
+				});
+			}
+		};
 	}
 	
 	public void init()
@@ -283,7 +305,7 @@ public class SubscriptionController implements Initializable, ClearTabObserver, 
 		searchBox = new TextField();
 		searchBox.setFont(new Font("System", 11));
 		searchBox.setPadding(new Insets(2, 5, 2, 5));
-		searchBox.setMaxWidth(80);
+		searchBox.setMaxWidth(400);
 		searchBox.textProperty().addListener(new ChangeListener<String>()
 		{
 			@Override
@@ -294,28 +316,15 @@ public class SubscriptionController implements Initializable, ClearTabObserver, 
 		});
 		
 		paneTitle = new AnchorPane();
-		final HBox titleBox = new HBox();
+		titleBox = new HBox();
 		titleBox.setPadding(new Insets(0, 0, 0, 0));		
 		topicFilterBox.getChildren().addAll(new Label(" [search topics: "), searchBox, new Label("] "));
 		titleBox.getChildren().addAll(new Label(SUMMARY_PANE_TITLE), topicFilterBox);
 		titleBox.prefWidth(Double.MAX_VALUE);
 		
 		paneTitle.setPadding(new Insets(0, 0, 0, 0));
-		summaryTitledPane.widthProperty().addListener(new ChangeListener<Number>()
-		{
-			@Override
-			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue)
-			{				 										
-				Platform.runLater(new Runnable()
-				{					
-					@Override
-					public void run()
-					{
-						updateTitleWidth(40);	
-					}
-				});
-			}
-		});
+		summaryTitledPane.widthProperty().addListener(createPaneTitleWidthListener());
+		statsLabel.widthProperty().addListener(createPaneTitleWidthListener());
 		
 		paneTitle.getChildren().addAll(titleBox, statsLabel);
 		
@@ -422,19 +431,21 @@ public class SubscriptionController implements Initializable, ClearTabObserver, 
 		}
 	}
 	
-	private void updateTitleWidth(final int value)
+	private void updateTitleWidth(final int margin, double absoluteSearchBoxX)
 	{
-		double width = summaryTitledPane.getWidth();
+		double titledPaneWidth = summaryTitledPane.getWidth();
 		
 		if (summaryTitledPane.getScene() != null)			
 		{
-			if (summaryTitledPane.getScene().getWidth() < width)
+			if (summaryTitledPane.getScene().getWidth() < titledPaneWidth)
 			{
-				width = summaryTitledPane.getScene().getWidth();
+				titledPaneWidth = summaryTitledPane.getScene().getWidth();
 			}
 		}
-		paneTitle.setPrefWidth(width - value);				
-		paneTitle.setMaxWidth(width - value);
+		paneTitle.setPrefWidth(titledPaneWidth - margin);				
+		paneTitle.setMaxWidth(titledPaneWidth - margin);
+		
+		searchBox.setPrefWidth(titledPaneWidth - absoluteSearchBoxX - statsLabel.getWidth() - 100);
 	}
 
 	public void setStore(final ManagedMessageStoreWithFiltering store)

@@ -107,7 +107,8 @@ public class SubscriptionManager
 		subscription.setDetails(subscriptionDetails);
 		
 		// Add a new tab
-		final SubscriptionController subscriptionController = createSubscriptionTab(false, parent, subscription, subscription, connection);
+		final SubscriptionController subscriptionController = createSubscriptionTab(
+				false, parent, subscription, subscription, connection, connectionController);
 		subscriptionController.getTab().setContextMenu(ContextMenuUtils.createSubscriptionTabContextMenu(
 				connection, subscription, eventManager, this, configurationManager, subscriptionController));
 		subscriptionController.setConnectionController(connectionController);
@@ -145,12 +146,13 @@ public class SubscriptionManager
 	 * @param observableMessageStore The message store to use
 	 * @param subscription The subscription object
 	 * @param connection Connection associated with this subscription
+	 * @param connectionController 
 	 * 
 	 * @return Created subscription controller for the tab
 	 */
-	public SubscriptionController createSubscriptionTab(final boolean allTab, final Object parent,
+	protected SubscriptionController createSubscriptionTab(final boolean allTab, final Object parent,
 			final ManagedMessageStoreWithFiltering observableMessageStore, final MqttSubscription subscription,
-			final MqttAsyncConnection connection)
+			final MqttAsyncConnection connection, final ConnectionController connectionController)
 	{
 		// Load a new tab and connection pane
 		final FXMLLoader loader = FxmlUtils.createFXMLLoader(parent, FxmlUtils.FXML_LOCATION + "SubscriptionPane.fxml");
@@ -166,6 +168,7 @@ public class SubscriptionManager
 		subscriptionController.setStore(observableMessageStore);
 		subscriptionController.setEventManager(eventManager);
 		subscriptionController.setTab(tab);
+		subscriptionController.toggleMessagePayloadSize(connectionController.isResizeMessagePane());
 		
 		if (connection != null)
 		{
