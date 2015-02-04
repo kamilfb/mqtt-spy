@@ -65,6 +65,7 @@
 								<RadioMenuItem fx:id="superSpyPerspective" mnemonicParsing="false" onAction="#showPerspective" text="Super Spy (subscriptions only)" toggleGroup="$perspective" />
 							</items>
 						</Menu>
+						<CheckMenuItem fx:id="resizeMessagePaneMenu" text="Resize message pane" onAction="#resizeMessagePane" />
 						<MenuItem mnemonicParsing="false" text="Converter" onAction="#showConverter" />
 					</items>
 				</Menu>

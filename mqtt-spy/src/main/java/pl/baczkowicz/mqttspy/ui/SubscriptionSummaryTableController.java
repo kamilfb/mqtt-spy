@@ -45,6 +45,7 @@ import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 import javafx.util.Callback;
 
 import org.controlsfx.control.action.Action;
@@ -342,6 +343,14 @@ public class SubscriptionSummaryTableController implements Initializable
 		statsPaneStage.setTitle("Message content chart");							
 		statsPaneStage.setScene(scene);			       
 		statsPaneStage.show();
+		statsPaneStage.setOnCloseRequest(new EventHandler<WindowEvent>()
+		{
+			@Override
+			public void handle(WindowEvent event)
+			{
+				statsPaneController.cleanup();
+			}
+		});
 	}
 	
 	public ContextMenu createTopicTableContextMenu()

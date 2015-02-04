@@ -79,7 +79,7 @@ public class StatsChartWindow extends AnchorPane
 		final LineChart<Number, Number> lc = new LineChart<Number, Number>(xAxis, yAxis);
 		
 		// Setup chart
-		lc.setId("lineStockDemo");
+		lc.setId("sampleDemo");
 		lc.setCreateSymbols(false);
 		// lc.setAnimated(false);
 		// lc.setLegendVisible(false);

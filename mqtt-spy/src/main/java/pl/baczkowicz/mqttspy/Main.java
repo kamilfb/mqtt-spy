@@ -21,6 +21,7 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
@@ -85,6 +86,7 @@ public class Main extends Application
 			mainController.setEventManager(eventManager);
 			mainController.setConfigurationManager(configurationManager);
 			mainController.setSelectedPerspective(ConfigurationUtils.getApplicationPerspective(configurationManager));
+			mainController.getResizeMessagePaneMenu().setSelected(ConfigurationUtils.getResizeMessagePane(configurationManager));
 
 			// Set the stage's properties
 			primaryStage.setScene(scene);	
@@ -96,6 +98,8 @@ public class Main extends Application
 			mainController.setLastHeight(height);
 			mainController.setLastWidth(width);
 			mainController.init();
+			final Image applicationIcon = new Image(getClass().getResourceAsStream("/images/mqtt-spy-logo.png"));
+		    primaryStage.getIcons().add(applicationIcon);
 			
 			// Show the main window
 			primaryStage.show();

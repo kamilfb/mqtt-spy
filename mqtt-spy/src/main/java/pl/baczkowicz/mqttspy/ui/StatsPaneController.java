@@ -199,16 +199,12 @@ public class StatsPaneController implements Initializable, MessageAddedObserver
 		
 		// This will perform a refresh
 		showRangeBox.setValue(showRangeBox.getItems().get(2));
-		final StatsPaneController controller = this;
-		eventManager.registerMessageAddedObserver(controller, store.getMessageList());
-		statsPane.getScene().getWindow().setOnCloseRequest(new EventHandler<WindowEvent>()
-		{
-			@Override
-			public void handle(WindowEvent event)
-			{
-				eventManager.deregisterMessageAddedObserver(controller);
-			}
-		});
+		eventManager.registerMessageAddedObserver(this, store.getMessageList());
+	}
+	
+	public void cleanup()
+	{
+		eventManager.deregisterMessageAddedObserver(this);
 	}
 	
 	private void divideMessagesByTopic(final Set<String> topics)

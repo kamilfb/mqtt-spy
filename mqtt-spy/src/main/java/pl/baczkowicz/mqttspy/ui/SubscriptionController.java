@@ -512,6 +512,7 @@ public class SubscriptionController implements Initializable, ClearTabObserver, 
 			searchWindowController.setConnection(connectionController.getConnection());
 			searchWindowController.setSubscriptionName(subscription != null ? subscription.getTopic() : SubscriptionManager.ALL_SUBSCRIPTIONS_TAB_TITLE);
 			searchWindowController.setEventManager(eventManager);
+			searchWindowController.setConnectionController(connectionController);
 			
 			eventManager.registerMessageAddedObserver(searchWindowController, store.getMessageList());
 			eventManager.registerMessageRemovedObserver(searchWindowController, store.getMessageList());
@@ -591,6 +592,11 @@ public class SubscriptionController implements Initializable, ClearTabObserver, 
 		else
 		{			
 			messagePane.setMaxHeight(50);
+		}
+		
+		if (searchWindowController != null)
+		{
+			searchWindowController.toggleMessagePayloadSize(resize);
 		}
 	}
 	

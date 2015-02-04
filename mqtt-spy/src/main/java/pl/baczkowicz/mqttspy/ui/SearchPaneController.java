@@ -37,6 +37,7 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 
 import org.slf4j.Logger;
@@ -113,6 +114,9 @@ public class SearchPaneController implements Initializable, MessageFormatChangeO
 	
 	@FXML
 	private Label textLabel;
+	
+	@FXML
+	private AnchorPane messagePane;
 	
 	@FXML 
 	private SplitPane splitPane;
@@ -201,6 +205,18 @@ public class SearchPaneController implements Initializable, MessageFormatChangeO
 		
 		eventManager.registerMessageAddedObserver(this, store.getMessageList());
 		eventManager.registerFormatChangeObserver(this, store);
+	}
+	
+	public void toggleMessagePayloadSize(final boolean resize)
+	{
+		if (resize)
+		{
+			messagePane.setMaxHeight(Double.MAX_VALUE);
+		}
+		else
+		{			
+			messagePane.setMaxHeight(50);
+		}
 	}
 	
 	private void refreshList()

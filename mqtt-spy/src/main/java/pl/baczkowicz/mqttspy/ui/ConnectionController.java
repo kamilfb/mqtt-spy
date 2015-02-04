@@ -26,6 +26,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.SplitPane;
@@ -150,7 +151,9 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 
 	private TabStatus tabStatus;
 
-	private boolean resizeMessagePane = true;
+	// private boolean resizeMessagePane = true;
+
+	private CheckMenuItem resizeMessageContentMenu = new CheckMenuItem();
 
 	private ChangeListener<Boolean> createChangeListener()
 	{
@@ -187,9 +190,6 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 			
 			scriptedPublicationsTitledPane.setExpanded(false);
 			
-			// panes.put(getNewPublicationPaneController(), true);
-			// panes.put(getPublicationScriptsPaneController(), true);
-			// panes.put(newSubscriptionPaneController, true);
 			newPublicationPaneController.getTitledPaneStatus().setVisibility(PaneVisibilityStatus.ATTACHED);
 			publicationScriptsPaneController.getTitledPaneStatus().setVisibility(PaneVisibilityStatus.ATTACHED);
 			newSubscriptionPaneController.getTitledPaneStatus().setVisibility(PaneVisibilityStatus.ATTACHED);
@@ -215,6 +215,13 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 			
 			tooltip = new Tooltip();
 			connectionTab.setTooltip(tooltip);
+		}
+		else
+		{
+			// If in replay more, remote the panes from the split pane altogether
+			splitPane.getItems().remove(publishMessageTitledPane);
+			splitPane.getItems().remove(scriptedPublicationsTitledPane);
+			splitPane.getItems().remove(newSubscriptionTitledPane);
 		}
 		
 		updateMinHeights();
@@ -377,7 +384,7 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 	
 	public void updateConnectionStats()
 	{
-		for (final SubscriptionController subscriptionController : connectionManager.getSubscriptionManager(connection).getSubscriptionControllers())
+		for (final SubscriptionController subscriptionController : connectionManager.getSubscriptionManager(this).getSubscriptionControllers())
 		{
 			subscriptionController.updateSubscriptionStats();
 		}
@@ -425,7 +432,7 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 		newSubscriptionPaneController.setDetailedViewVisibility(visible);
 		getNewPublicationPaneController().setDetailedViewVisibility(visible);
 		
-		for (final SubscriptionController subscriptionController : connectionManager.getSubscriptionManager(connection).getSubscriptionControllers())
+		for (final SubscriptionController subscriptionController : connectionManager.getSubscriptionManager(this).getSubscriptionControllers())
 		{
 			subscriptionController.setDetailedViewVisibility(visible);
 		}
@@ -433,16 +440,10 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 	
 	public void toggleMessagePayloadSize(final boolean resize)
 	{
-		resizeMessagePane = resize;
-		for (final SubscriptionController subscriptionController : connectionManager.getSubscriptionManager(connection).getSubscriptionControllers())
+		for (final SubscriptionController subscriptionController : connectionManager.getSubscriptionManager(this).getSubscriptionControllers())
 		{
 			subscriptionController.toggleMessagePayloadSize(resize);
 		}
-	}
-	
-	public boolean isResizeMessagePane()
-	{
-		return resizeMessagePane;
 	}
 	
 	public void toggleDetailedViewVisibility()
@@ -450,7 +451,7 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 		newSubscriptionPaneController.toggleDetailedViewVisibility();
 		getNewPublicationPaneController().toggleDetailedViewVisibility();
 		
-		for (final SubscriptionController subscriptionController : connectionManager.getSubscriptionManager(connection).getSubscriptionControllers())
+		for (final SubscriptionController subscriptionController : connectionManager.getSubscriptionManager(this).getSubscriptionControllers())
 		{
 			subscriptionController.toggleDetailedViewVisibility();
 		}
@@ -485,7 +486,7 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 		publicationScriptsPaneController.getTitledPaneStatus().setRequestedVisibility(PaneVisibilityStatus.NOT_VISIBLE);
 		newSubscriptionPaneController.getTitledPaneStatus().setRequestedVisibility(PaneVisibilityStatus.NOT_VISIBLE);						
 		updateVisiblePanes();
-		updateMenus();
+		// updateMenus();
 		
 		subscriptionsTitledPane.setText("Logged messages");
 	}
@@ -643,4 +644,14 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 	{
 		return publicationScriptsPaneController;
 	}
+
+	public CheckMenuItem getResizeMessageContentMenu()
+	{
+		return resizeMessageContentMenu;
+	}
+
+//	public void setResizeMessageContentMenu(CheckMenuItem resizeMessageContentMenu)
+//	{
+//		this.resizeMessageContentMenu = resizeMessageContentMenu;
+//	}
 }

@@ -211,7 +211,7 @@ public class NewSubscriptionController implements Initializable, TitledPaneContr
 		{
 			recordSubscriptionTopic(subscriptionDetails.getTopic());
 			
-			connectionManager.getSubscriptionManager(connection).
+			connectionManager.getSubscriptionManager(connectionController).
 				createSubscription(subscriptionColorPicker.getValue(), subscribe, subscriptionDetails, connection, connectionController, this);
 			
 			subscriptionColorPicker.setValue(colors.get(connection.getLastUsedSubscriptionId() % 16));

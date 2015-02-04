@@ -14,6 +14,8 @@
  */
 package pl.baczkowicz.mqttspy.ui.utils;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.CheckMenuItem;
@@ -416,15 +418,17 @@ public class ContextMenuUtils
 		view.getItems().add(new SeparatorMenuItem());
 		view.getItems().add(detailedView);
 		
-		final CheckMenuItem resizeMessageContent = new CheckMenuItem("Resize message pane with parent");	
-		resizeMessageContent.setSelected(true);
-		resizeMessageContent.setOnAction(new EventHandler<ActionEvent>()
+		final CheckMenuItem resizeMessageContent = connectionController.getResizeMessageContentMenu();
+		resizeMessageContent.setText("Resizable message pane");	
+		resizeMessageContent.selectedProperty().addListener(new ChangeListener<Boolean>()
 		{
-			public void handle(ActionEvent e)
-			{				
+			@Override
+			public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue)
+			{
 				connectionController.toggleMessagePayloadSize(resizeMessageContent.isSelected());
 			}
 		});
+		// connectionController.setResizeMessageContentMenu(resizeMessageContent);
 		view.getItems().add(resizeMessageContent);
 
 		detailedView.setOnAction(new EventHandler<ActionEvent>()
@@ -447,7 +451,10 @@ public class ContextMenuUtils
 	 * 
 	 * @return Created context menu
 	 */
-	public static ContextMenu createMessageLogMenu(final Tab tab, final ConnectionController connectionController)
+	public static ContextMenu createMessageLogMenu(
+			final Tab tab, 
+			final ConnectionController connectionController, 
+			final ConnectionManager connectionManager)
 	{
 		// Context menu
 		ContextMenu contextMenu = new ContextMenu();
@@ -458,7 +465,8 @@ public class ContextMenuUtils
 			@Override
 			public void handle(ActionEvent event)
 			{
-				TabUtils.requestClose(connectionController.getTab());				
+				connectionManager.closeOfflineTab(connectionController);
+				// TabUtils.requestClose(connectionController.getTab());				
 			}
 		});
 		
@@ -473,6 +481,22 @@ public class ContextMenuUtils
 				detachMenu, connectionController, 
 				"Message log " + tab.getText(), 0));
 		contextMenu.getItems().add(detachMenu);
+		
+		final Menu view = new Menu("[View] Pane visibility");	
+		final CheckMenuItem resizeMessageContent = connectionController.getResizeMessageContentMenu();
+		resizeMessageContent.setText("Resizable message pane");	
+		resizeMessageContent.selectedProperty().addListener(new ChangeListener<Boolean>()
+		{
+			@Override
+			public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue)
+			{
+				connectionController.toggleMessagePayloadSize(resizeMessageContent.isSelected());
+			}
+		});
+		// connectionController.setResizeMessageContentMenu(resizeMessageContent);
+		view.getItems().add(resizeMessageContent);
+		
+		contextMenu.getItems().add(view);
 
 		return contextMenu;
 	}

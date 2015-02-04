@@ -25,6 +25,7 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.RadioMenuItem;
 import javafx.scene.control.Tab;
@@ -94,6 +95,9 @@ public class MainController
 	
 	@FXML
 	private RadioMenuItem superSpyPerspective;
+	
+	@FXML
+	private CheckMenuItem resizeMessagePaneMenu;
 
 	private EditConnectionsController editConnectionsController;
 	
@@ -296,7 +300,9 @@ public class MainController
 		
 		statisticsManager.saveStats();
 		
-		configurationManager.saveUiProperties(getLastWidth(), getLastHeight(), stage.isMaximized(), selectedPerspective);
+		configurationManager.saveUiProperties(
+				getLastWidth(), getLastHeight(), stage.isMaximized(), 
+				selectedPerspective, resizeMessagePaneMenu.isSelected());
 		
 		System.exit(0);
 	}
@@ -498,6 +504,21 @@ public class MainController
 	}
 	
 	@FXML
+	private void resizeMessagePane()
+	{
+		// Connection tabs
+		for (final ConnectionController controller : connectionManager.getConnectionControllers())
+		{
+			controller.getResizeMessageContentMenu().setSelected(resizeMessagePaneMenu.isSelected());
+		}
+		// Offline (message log) tabs
+		for (final ConnectionController controller : connectionManager.getOfflineConnectionControllers())
+		{
+			controller.getResizeMessageContentMenu().setSelected(resizeMessagePaneMenu.isSelected());
+		}
+	}
+	
+	@FXML
 	private void restoreConfiguration()
 	{
 		if (DialogUtils.showDefaultConfigurationFileMissingChoice("Restore defaults", mainPane.getScene().getWindow()))
@@ -621,5 +642,10 @@ public class MainController
 	public void setLastHeight(double lastHeight)
 	{
 		this.lastHeight = lastHeight;
+	}
+
+	public CheckMenuItem getResizeMessagePaneMenu()
+	{
+		return resizeMessagePaneMenu;
 	}
 }

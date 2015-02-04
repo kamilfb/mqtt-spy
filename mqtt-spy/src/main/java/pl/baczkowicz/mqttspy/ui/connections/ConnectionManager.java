@@ -16,9 +16,11 @@ package pl.baczkowicz.mqttspy.ui.connections;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import javafx.application.Platform;
@@ -98,14 +100,16 @@ public class ConnectionManager
 	/** Map of connections and their tabs. */
 	private final Map<MqttAsyncConnection, Tab> connectionTabs = new HashMap<>();
 	
-	/** Map of connections and their subscription managers. */
-	private final Map<MqttAsyncConnection, SubscriptionManager> subscriptionManagers = new HashMap<>();
+	/** Map of connection controllers and their subscription managers. */
+	private final Map<ConnectionController, SubscriptionManager> subscriptionManagers = new HashMap<>();
 	
 	/** UI event queue. */
 	private final Queue<MqttSpyUIEvent> uiEventQueue;
 
 	/** Reconnection manager. */
 	private ReconnectionManager reconnectionManager;
+
+	private Set<ConnectionController> offlineConnectionControllers = new HashSet<>();
 
 	public ConnectionManager(final EventManager eventManager, final StatisticsManager statisticsManager, final ConfigurationManager configurationManager)
 	{
@@ -203,7 +207,8 @@ public class ConnectionManager
 		connectionController.setStatisticsManager(statisticsManager);
 		connectionController.setTabStatus(new TabStatus());
 		connectionController.getTabStatus().setVisibility(PaneVisibilityStatus.NOT_VISIBLE);
-				
+		connectionController.getResizeMessageContentMenu().setSelected(mainController.getResizeMessagePaneMenu().isSelected());
+		
 		final Tab connectionTab = createConnectionTab(connection.getProperties().getName(), connectionPane, connectionController);
 		
 		final SubscriptionManager subscriptionManager = new SubscriptionManager(eventManager, configurationManager, uiEventQueue);			
@@ -227,8 +232,8 @@ public class ConnectionManager
 				connectionController.getTabStatus().setVisibility(PaneVisibilityStatus.ATTACHED);
 				connectionController.getTabStatus().setParent(connectionTab.getTabPane());
 				
-				// TODO: move creation of the context menus outside the FX thread?
 				connectionTab.setContextMenu(ContextMenuUtils.createConnectionMenu(connection, connectionController, connectionManager));
+				
 				subscriptionController.getTab().setContextMenu(ContextMenuUtils.createAllSubscriptionsTabContextMenu(connection, eventManager, subscriptionManager, configurationManager));
 				
 				eventManager.registerConnectionStatusObserver(connectionController, connection);
@@ -252,7 +257,7 @@ public class ConnectionManager
 				
 				connectionControllers.put(connection, connectionController);
 				connectionTabs.put(connection, connectionTab);
-				subscriptionManagers.put(connection, subscriptionManager);
+				subscriptionManagers.put(connectionController, subscriptionManager);
 								
 				// Populate panes
 				mainController.populateConnectionPanes(connectionProperties.getConfiguredProperties(), connectionController);	
@@ -286,6 +291,7 @@ public class ConnectionManager
 		connectionController.setReplayMode(true);
 		connectionController.setTabStatus(new TabStatus());
 		connectionController.getTabStatus().setVisibility(PaneVisibilityStatus.NOT_VISIBLE);
+		connectionController.getResizeMessageContentMenu().setSelected(mainController.getResizeMessagePaneMenu().isSelected());
 		
 		final Tab replayTab = createConnectionTab(name, connectionPane, connectionController);
 		final SubscriptionManager subscriptionManager = new SubscriptionManager(eventManager, configurationManager, uiEventQueue);			
@@ -299,6 +305,8 @@ public class ConnectionManager
 		subscriptionController.setFormatting(configurationManager.getConfiguration().getFormatting());
 		subscriptionController.setReplayMode(true);
 		
+		final ConnectionManager manager = this;
+		
 		Platform.runLater(new Runnable()
 		{			
 			@Override
@@ -309,7 +317,7 @@ public class ConnectionManager
 								
 				mainController.addConnectionTab(replayTab);
 				
-				replayTab.setContextMenu(ContextMenuUtils.createMessageLogMenu(replayTab, connectionController));
+				replayTab.setContextMenu(ContextMenuUtils.createMessageLogMenu(replayTab, connectionController, manager));
 								
 				// Add "All" subscription tab
 				connectionController.getSubscriptionTabs().getTabs().clear();
@@ -318,8 +326,10 @@ public class ConnectionManager
 				connectionController.getTabStatus().setParent(replayTab.getTabPane());
 				// TODO: pane status
 				
+				offlineConnectionControllers.add(connectionController);
+				subscriptionManagers.put(connectionController, subscriptionManager);
 				// Apply perspective
-				connectionController.showReplayMode();
+				connectionController.showReplayMode();				
 				
 				// Process the messages
 		        for (final ReceivedMqttMessage mqttMessage : list)
@@ -371,13 +381,19 @@ public class ConnectionManager
 		TabUtils.requestClose(connectionControllers.get(connection).getTab());
 		connectionControllers.remove(connection);
 		connectionTabs.remove(connection);
-		subscriptionManagers.remove(connection);
+		subscriptionManagers.remove(connectionControllers.get(connection));
 		
 		// Stop all scripts
 		for (final Script script : connection.getScriptManager().getScripts().values())
 		{
 			connection.getScriptManager().stopScriptFile(script.getScriptFile());
 		}		
+	}
+		
+	public void closeOfflineTab(final ConnectionController connectionController)
+	{
+		TabUtils.requestClose(connectionController.getTab());	
+		offlineConnectionControllers.remove(connectionController);
 	}
 	
 	/**
@@ -498,14 +514,24 @@ public class ConnectionManager
 	}
 	
 	/**
+	 * Gets the connection controllers.
+	 * 
+	 * @return Collection of ConnectionController instances
+	 */
+	public Collection<ConnectionController> getOfflineConnectionControllers()
+	{
+		return offlineConnectionControllers;
+	}
+	
+	/**
 	 * Gets subscription manager for the given connection.
 	 * 
-	 * @param connection The connection for which to retrieve the subscription manager
+	 * @param connectionController The connection controller for which to retrieve the subscription manager
 	 * 
 	 * @return SubscriptionManager instance
 	 */
-	public SubscriptionManager getSubscriptionManager(final MqttAsyncConnection connection)
+	public SubscriptionManager getSubscriptionManager(final ConnectionController connectionController)
 	{
-		return subscriptionManagers.get(connection);
+		return subscriptionManagers.get(connectionController);
 	}
 }

@@ -168,7 +168,7 @@ public class SubscriptionManager
 		subscriptionController.setStore(observableMessageStore);
 		subscriptionController.setEventManager(eventManager);
 		subscriptionController.setTab(tab);
-		subscriptionController.toggleMessagePayloadSize(connectionController.isResizeMessagePane());
+		subscriptionController.toggleMessagePayloadSize(connectionController.getResizeMessageContentMenu().isSelected());
 		
 		if (connection != null)
 		{

@@ -41,6 +41,8 @@ public class ConfigurationUtils
 	public final static String HEIGHT_PROPERTY = "application.height";
 	
 	public final static String PERSPECTIVE_PROPERTY = "application.perspective";
+	
+	public final static String MESSAGE_PANE_RESIZE_PROPERTY = "application.panes.message.resize";
 
 	public static final String MAXIMIZED_PROPERTY = "application.maximized";
 		
@@ -200,6 +202,27 @@ public class ConfigurationUtils
 		{
 			logger.error("Invalid format " + value);
 			return MqttSpyPerspective.DEFAULT;
+		}
+	}
+	
+	public static boolean getResizeMessagePane(final ConfigurationManager configurationManager)
+	{
+		final String value = configurationManager.getUiPropertyFile().getProperty(MESSAGE_PANE_RESIZE_PROPERTY);
+		
+		// Default, when non present is true
+		if (value == null || value.isEmpty())
+		{
+			return Boolean.TRUE; 
+		}
+		
+		try
+		{
+			return Boolean.valueOf(value);
+		}
+		catch (IllegalArgumentException e)
+		{
+			logger.error("Invalid format " + value);
+			return Boolean.TRUE;
 		}
 	}
 }

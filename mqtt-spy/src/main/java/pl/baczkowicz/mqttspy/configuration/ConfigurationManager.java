@@ -460,12 +460,14 @@ public class ConfigurationManager
 		return uiPropertyFile;
 	}
 
-	public void saveUiProperties(final double width, final double height, boolean maximized, final MqttSpyPerspective selectedPerspective)
+	public void saveUiProperties(final double width, final double height, boolean maximized, 
+			final MqttSpyPerspective selectedPerspective, final boolean resizeMessagePane)
 	{
 		uiPropertyFile.setProperty(ConfigurationUtils.WIDTH_PROPERTY, String.valueOf(width));
 		uiPropertyFile.setProperty(ConfigurationUtils.HEIGHT_PROPERTY, String.valueOf(height));
 		uiPropertyFile.setProperty(ConfigurationUtils.MAXIMIZED_PROPERTY, String.valueOf(maximized));
 		uiPropertyFile.setProperty(ConfigurationUtils.PERSPECTIVE_PROPERTY, selectedPerspective.toString());
+		uiPropertyFile.setProperty(ConfigurationUtils.MESSAGE_PANE_RESIZE_PROPERTY, String.valueOf(resizeMessagePane));
 		
 		try
 		{

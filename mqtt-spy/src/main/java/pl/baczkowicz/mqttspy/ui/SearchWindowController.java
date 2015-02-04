@@ -79,6 +79,8 @@ public class SearchWindowController extends AnchorPane implements Initializable,
 	private EventManager eventManager;
 
 	private MqttAsyncConnection connection;
+
+	private ConnectionController connectionController;
 	
 	public void initialize(URL location, ResourceBundle resources)
 	{
@@ -130,11 +132,20 @@ public class SearchWindowController extends AnchorPane implements Initializable,
 		searchPaneController.setEventManager(eventManager);
 		searchPaneController.setStore(store);
 		searchPaneController.setConnection(connection);
+		searchPaneController.toggleMessagePayloadSize(connectionController.getResizeMessageContentMenu().isSelected());
 		searchPaneController.init();		
 		
 		searchPaneControllers.put(tab, searchPaneController);		
 
 		return tab;
+	}
+	
+	public void toggleMessagePayloadSize(final boolean resize)
+	{
+		for (final SearchPaneController controller : searchPaneControllers.values())
+		{
+			controller.toggleMessagePayloadSize(resize);
+		}
 	}
 
 	public void handleClose()
@@ -217,5 +228,10 @@ public class SearchWindowController extends AnchorPane implements Initializable,
 	public void setConnection(MqttAsyncConnection connection)
 	{
 		this.connection = connection;		
+	}
+	
+	public void setConnectionController(final ConnectionController connectionController)
+	{
+		this.connectionController = connectionController;
 	}
 }
