@@ -15,7 +15,6 @@
 package pl.baczkowicz.mqttspy.ui;
 
 import java.net.URL;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -26,20 +25,20 @@ import java.util.Set;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
+import javafx.scene.chart.XYChart.Data;
 import javafx.scene.chart.XYChart.Series;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.AnchorPane;
-import javafx.stage.WindowEvent;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
 import pl.baczkowicz.mqttspy.connectivity.MqttContent;
@@ -50,6 +49,7 @@ import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
 import pl.baczkowicz.mqttspy.ui.properties.MessageLimitProperties;
 import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
 import pl.baczkowicz.mqttspy.ui.utils.StylingUtils;
+import pl.baczkowicz.mqttspy.utils.TimeUtils;
 
 /**
  * Controller for stats pane.
@@ -60,6 +60,13 @@ public class StatsPaneController implements Initializable, MessageAddedObserver
 	// private final static Logger logger = LoggerFactory.getLogger(StatsPaneController.class);
 
 	private static final int ONE_SECOND = 1000;
+	
+	private static boolean lastAutoRefresh = true;
+	
+	private static boolean lastDisplaySymbols = true;
+	
+	private static MessageLimitProperties lastMessageLimit 
+		= new MessageLimitProperties("50 messages", 50, 0);
 
 	@FXML
 	private AnchorPane statsPane;
@@ -72,6 +79,9 @@ public class StatsPaneController implements Initializable, MessageAddedObserver
 	
 	@FXML
 	private CheckBox autoRefreshCheckBox;
+	
+	@FXML
+	private CheckBox displaySymbolsCheckBox;
 	
 	private ManagedMessageStoreWithFiltering store;
 
@@ -91,10 +101,39 @@ public class StatsPaneController implements Initializable, MessageAddedObserver
 	
 	public void initialize(URL location, ResourceBundle resources)
 	{
-
-		// Axis and chart
-		final SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
-        
+		autoRefreshCheckBox.selectedProperty().addListener(new ChangeListener<Boolean>()
+		{
+			@Override
+			public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue)
+			{
+				lastAutoRefresh = autoRefreshCheckBox.isSelected();
+				// Only refresh when auto-refresh enabled
+				if (lastAutoRefresh)
+				{
+					refresh();				
+				}
+			}
+		});
+		displaySymbolsCheckBox.selectedProperty().addListener(new ChangeListener<Boolean>()
+		{
+			@Override
+			public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue)
+			{
+				lastDisplaySymbols = displaySymbolsCheckBox.isSelected();
+				refresh();
+			}
+		});
+		showRangeBox.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener<Number>()
+		{
+			@Override
+			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue)
+			{
+				refresh();
+				lastMessageLimit = showRangeBox.getValue();
+			}
+		});
+		
+		// Axis and chart        
 		final NumberAxis xAxis = new NumberAxis();
         final NumberAxis yAxis = new NumberAxis();
         
@@ -105,7 +144,7 @@ public class StatsPaneController implements Initializable, MessageAddedObserver
 			public String toString(Number object)
 			{
 				final Date date = new Date(object.longValue());
-				return dateFormat.format(date);
+				return TimeUtils.TIME_SDF.format(date);
 			}
 			
 			@Override
@@ -119,16 +158,7 @@ public class StatsPaneController implements Initializable, MessageAddedObserver
 	}		
 
 	public void init()
-	{
-		showRangeBox.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener<Number>()
-		{
-			@Override
-			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue)
-			{
-				refresh();
-			}
-		});
-		
+	{		
 		showRangeBox.setCellFactory(new Callback<ListView<MessageLimitProperties>, ListCell<MessageLimitProperties>>()
 				{
 					@Override
@@ -184,8 +214,7 @@ public class StatsPaneController implements Initializable, MessageAddedObserver
 		showRangeBox.getItems().add(new MessageLimitProperties("30 minutes", 0, 1800 * ONE_SECOND));
 		showRangeBox.getItems().add(new MessageLimitProperties("1 hour", 0, 3600 * ONE_SECOND));
 		showRangeBox.getItems().add(new MessageLimitProperties("24 hours", 0, 86400 * ONE_SECOND));
-		
-		
+				
 		if (subscription != null)
 		{
 			refreshButton.setStyle(StylingUtils.createBaseRGBString(subscription.getColor()));
@@ -197,8 +226,18 @@ public class StatsPaneController implements Initializable, MessageAddedObserver
 		AnchorPane.setTopAnchor(lineChart, 45.0);
 		AnchorPane.setRightAnchor(lineChart, 0.0);
 		
-		// This will perform a refresh
-		showRangeBox.setValue(showRangeBox.getItems().get(2));
+		// Selecting a value will perform a refresh
+		for (final MessageLimitProperties limit : showRangeBox.getItems())
+		{
+			if (limit.getMessageLimit() == lastMessageLimit.getMessageLimit()
+					&& limit.getTimeLimit() == lastMessageLimit.getTimeLimit())
+			{
+				showRangeBox.setValue(limit);
+			}
+		}
+		autoRefreshCheckBox.setSelected(lastAutoRefresh);
+		displaySymbolsCheckBox.setSelected(lastDisplaySymbols);
+		
 		eventManager.registerMessageAddedObserver(this, store.getMessageList());
 	}
 	
@@ -225,13 +264,19 @@ public class StatsPaneController implements Initializable, MessageAddedObserver
 		}
 	}
 	
+	private static XYChart.Data<Number, Number> createDataObject(final MqttContent message)
+	{
+		final XYChart.Data<Number, Number> data = new XYChart.Data(
+    			message.getDate().getTime(), 
+    			Double.valueOf(message.getFormattedPayload()));				
+		return data;
+	}
+	
 	private void addMessageToSeries(final Series<Number, Number> series, final MqttContent message)
 	{
 		try
     	{
-    		series.getData().add(new XYChart.Data(
-    			message.getDate().getTime(), 
-    			Double.valueOf(message.getFormattedPayload())));
+    		series.getData().add(createDataObject(message));
     	}
     	catch (NumberFormatException e)
     	{
@@ -252,6 +297,7 @@ public class StatsPaneController implements Initializable, MessageAddedObserver
 	{		
 		divideMessagesByTopic(topics);
 		lineChart.getData().clear();
+		lineChart.setCreateSymbols(lastDisplaySymbols);
 		topicToSeries.clear();
 		
 		for (final String topic : topics)
@@ -286,9 +332,36 @@ public class StatsPaneController implements Initializable, MessageAddedObserver
 	        }
 	        
 	        lineChart.getData().add(series);
+	        populateTooltips(lineChart);
 		}
 	}
 	
+	private void populateTooltip(final Series<Number, Number> series, final Data<Number, Number> data)
+	{
+		final Date date = new Date();
+		date.setTime(data.getXValue().longValue());
+		
+		final Tooltip tooltip = new Tooltip(
+				"Topic = " + series.getName()
+				+ System.lineSeparator()
+				+ "Value = " + data.getYValue()
+				+ System.lineSeparator()
+				+ "Time = " + TimeUtils.TIME_SDF.format(date));
+		
+		Tooltip.install(data.getNode(), tooltip);
+	}
+	
+	private void populateTooltips(final LineChart<Number, Number> lineChart)
+	{
+		for (final Series<Number, Number> series : lineChart.getData())
+		{
+			for (final Data<Number, Number> data : series.getData())
+			{
+				populateTooltip(series, data);
+			}
+		}
+	}
+
 	@Override
 	public void onMessageAdded(final MqttContent message)
 	{
@@ -326,6 +399,8 @@ public class StatsPaneController implements Initializable, MessageAddedObserver
 			// Add the new message
 			chartData.get(topic).add(message);
 			addMessageToSeries(topicToSeries.get(topic), message);
+			populateTooltip(topicToSeries.get(topic), 
+					topicToSeries.get(topic).getData().get(topicToSeries.get(topic).getData().size() - 1));
 		}
 	}
 	

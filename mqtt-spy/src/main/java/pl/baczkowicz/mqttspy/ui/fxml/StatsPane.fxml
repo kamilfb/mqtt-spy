@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <!--
 /***********************************************************************************
  * 
@@ -15,6 +16,7 @@
  *    
  */
 -->
+
 <?import javafx.geometry.*?>
 <?import javafx.scene.image.*?>
 <?import javafx.scene.text.*?>
@@ -26,12 +28,13 @@
 
 <AnchorPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.baczkowicz.mqttspy.ui.StatsPaneController">
    <children>
-      <AnchorPane fx:id="statsPane" prefHeight="40.0" prefWidth="487.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" AnchorPane.bottomAnchor="0.0" >
+      <AnchorPane fx:id="statsPane" prefHeight="40.0" prefWidth="599.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
-            <Label layoutX="256.0" layoutY="12.0" text="Show" AnchorPane.rightAnchor="195.0" />
-            <ComboBox fx:id="showRangeBox" layoutX="254.0" layoutY="7.0" prefHeight="25.0" prefWidth="170.0" AnchorPane.rightAnchor="14.0" AnchorPane.topAnchor="7.0" />
-            <Button fx:id="refreshButton" layoutX="14.0" layoutY="9.0" mnemonicParsing="false" text="Refresh" onAction="#refresh" AnchorPane.leftAnchor="14.0" AnchorPane.topAnchor="7.0" />
-            <CheckBox fx:id="autoRefreshCheckBox" layoutX="94.0" layoutY="11.0" mnemonicParsing="false" text="Auto-refresh" AnchorPane.leftAnchor="100.0" />
+            <Label layoutX="368.0" layoutY="12.0" text="Show" AnchorPane.rightAnchor="185.0" />
+            <ComboBox fx:id="showRangeBox" layoutX="254.0" layoutY="7.0" prefHeight="25.0" prefWidth="170.0" AnchorPane.rightAnchor="7.0" AnchorPane.topAnchor="7.0" />
+            <Button fx:id="refreshButton" layoutX="14.0" layoutY="9.0" mnemonicParsing="false" onAction="#refresh" text="Refresh" AnchorPane.leftAnchor="7.0" AnchorPane.topAnchor="7.0" />
+            <CheckBox fx:id="autoRefreshCheckBox" layoutX="95.0" layoutY="10.0" mnemonicParsing="false" text="Auto-refresh" AnchorPane.leftAnchor="95.0" />
+            <CheckBox fx:id="displaySymbolsCheckBox" layoutX="229.0" layoutY="10.0" mnemonicParsing="false" text="Display points" AnchorPane.leftAnchor="220.0" />
          </children>
       </AnchorPane>
    </children>

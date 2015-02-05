@@ -486,7 +486,6 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 		publicationScriptsPaneController.getTitledPaneStatus().setRequestedVisibility(PaneVisibilityStatus.NOT_VISIBLE);
 		newSubscriptionPaneController.getTitledPaneStatus().setRequestedVisibility(PaneVisibilityStatus.NOT_VISIBLE);						
 		updateVisiblePanes();
-		// updateMenus();
 		
 		subscriptionsTitledPane.setText("Logged messages");
 	}

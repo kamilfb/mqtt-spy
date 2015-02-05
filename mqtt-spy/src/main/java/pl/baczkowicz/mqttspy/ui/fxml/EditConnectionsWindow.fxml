@@ -28,7 +28,7 @@
    <children>
       <ListView fx:id="connectionList" focusTraversable="false" prefHeight="269.0" prefWidth="342.0" AnchorPane.bottomAnchor="87.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="596.0" AnchorPane.topAnchor="0.0" />
       
-      <AnchorPane prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <AnchorPane prefHeight="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
       		<children>
    	      			<fx:include fx:id="editConnectionPane" source="EditConnectionPane.fxml" />
    	    	</children>

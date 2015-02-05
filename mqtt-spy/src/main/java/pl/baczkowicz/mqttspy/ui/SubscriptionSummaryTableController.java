@@ -340,9 +340,13 @@ public class SubscriptionSummaryTableController implements Initializable
 		scene.getStylesheets().addAll(filterTable.getScene().getStylesheets());		
 
 		final Stage statsPaneStage = new Stage();
-		statsPaneStage.setTitle("Message content chart");							
+		statsPaneStage.setTitle("Message content chart");
+		statsPaneStage.setWidth(600);
+		statsPaneStage.setHeight(470);
 		statsPaneStage.setScene(scene);			       
 		statsPaneStage.show();
+		// Resize to get axis right
+		statsPaneStage.setHeight(480);
 		statsPaneStage.setOnCloseRequest(new EventHandler<WindowEvent>()
 		{
 			@Override
@@ -501,7 +505,7 @@ public class SubscriptionSummaryTableController implements Initializable
 		allTopicsMenu.getItems().add(toggleAllTopicsItem);
 		
 		// Remove all filters
-		final MenuItem removeAllTopicsItem = new MenuItem("[Browse] Clear all selected topics");
+		final MenuItem removeAllTopicsItem = new MenuItem("[Browse] Deselect all topics");
 		removeAllTopicsItem.setOnAction(new EventHandler<ActionEvent>()
 		{
 			public void handle(ActionEvent e)
@@ -522,7 +526,7 @@ public class SubscriptionSummaryTableController implements Initializable
 		filteredTopicsMenu = new Menu("[Browse] Filtered topics");
 		
 		// Apply filtered filters
-		final MenuItem selectFilteredTopicsItem = new MenuItem("[Browse] Select filtered topics");
+		final MenuItem selectFilteredTopicsItem = new MenuItem("[Browse] Add filtered topics to selection");
 		selectFilteredTopicsItem.setOnAction(new EventHandler<ActionEvent>()
 		{
 			public void handle(ActionEvent e)
@@ -536,10 +540,28 @@ public class SubscriptionSummaryTableController implements Initializable
 				}
 			}
 		});		
-		filteredTopicsMenu.getItems().add(selectFilteredTopicsItem);		
+		filteredTopicsMenu.getItems().add(selectFilteredTopicsItem);
+		
+		
+		// Clear and add filtered filters
+		final MenuItem removeAllAndAddFilteredTopicsItem = new MenuItem("[Browse] Deselect all and selected filtered topics");
+		removeAllAndAddFilteredTopicsItem.setOnAction(new EventHandler<ActionEvent>()
+		{
+			public void handle(ActionEvent e)
+			{
+				final SubscriptionTopicSummaryProperties item = filterTable.getSelectionModel().getSelectedItem();
+				if (item != null)
+				{
+					store.setAllShowValues(false);
+					store.setShowValues(true, shownTopics);
+					eventManager.navigateToFirst(store);
+				}
+			}
+		});
+		filteredTopicsMenu.getItems().add(removeAllAndAddFilteredTopicsItem);
 		
 		// Toggle filtered filters
-		final MenuItem toggleFilteredTopicsItem = new MenuItem("[Browse] Toggle filtered topics");
+		final MenuItem toggleFilteredTopicsItem = new MenuItem("[Browse] Toggle selection for filtered topics");
 		toggleFilteredTopicsItem.setOnAction(new EventHandler<ActionEvent>()
 		{
 			public void handle(ActionEvent e)
@@ -556,7 +578,7 @@ public class SubscriptionSummaryTableController implements Initializable
 		filteredTopicsMenu.getItems().add(toggleFilteredTopicsItem);
 		
 		// Remove filtered filters
-		final MenuItem removeFilteredTopicsItem = new MenuItem("[Browse] Clear selected topics");
+		final MenuItem removeFilteredTopicsItem = new MenuItem("[Browse] Deselect filtered topics");
 		removeFilteredTopicsItem.setOnAction(new EventHandler<ActionEvent>()
 		{
 			public void handle(ActionEvent e)
