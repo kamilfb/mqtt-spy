@@ -23,6 +23,14 @@
    		<maven.build.timestamp.format>yyyy</maven.build.timestamp.format>
 	</properties>
 
+	<repositories>
+		<repository>
+			<id>gillius-org</id>
+			<name>Gillius.org Maven Repository</name>
+			<url>http://www.gillius.org/maven2</url>
+		</repository>
+	</repositories>
+
 	<dependencies>
 
 		<dependency>
@@ -47,6 +55,12 @@
 			<groupId>org.fxmisc.richtext</groupId>
 			<artifactId>richtextfx</artifactId>
 			<version>0.5.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.gillius</groupId>
+			<artifactId>jfxutils</artifactId>
+			<version>0.4-SNAPSHOT</version>
 		</dependency>
 
 		<!--=== TEST === -->

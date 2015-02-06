@@ -58,6 +58,8 @@
 		      	</graphic>
 		        <items>
 		        	<CheckMenuItem fx:id="displaySymbolsCheckBox" text="Display points"/>   
+		            <SeparatorMenuItem mnemonicParsing="false" />
+		            <MenuItem text="Reset chart" onAction="#reset"/>
 		        </items>
 		         <font>
 		            <Font size="11.0" />

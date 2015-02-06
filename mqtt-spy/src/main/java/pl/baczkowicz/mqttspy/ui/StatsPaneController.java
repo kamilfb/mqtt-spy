@@ -18,13 +18,23 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
 
+import org.gillius.jfxutils.chart.ChartPanManager;
+import org.gillius.jfxutils.chart.JFXChartUtil;
+import org.gillius.jfxutils.chart.StableTicksAxis;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.chart.LineChart;
@@ -40,6 +50,8 @@ import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.MenuButton;
 import javafx.scene.control.Tooltip;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
@@ -59,7 +71,7 @@ import pl.baczkowicz.mqttspy.utils.TimeUtils;
 public class StatsPaneController implements Initializable, MessageAddedObserver
 {
 	/** Diagnostic logger. */
-	// private final static Logger logger = LoggerFactory.getLogger(StatsPaneController.class);
+	private final static Logger logger = LoggerFactory.getLogger(StatsPaneController.class);
 	
 	private static boolean lastAutoRefresh = true;
 	
@@ -96,7 +108,7 @@ public class StatsPaneController implements Initializable, MessageAddedObserver
 	
 	private Map<String, List<MqttContent>> chartData = new HashMap<>();
 	
-	private Map<String, Series<Number, Number>> topicToSeries = new HashMap<>();
+	private Map<String, Series<Number, Number>> topicToSeries = new LinkedHashMap<>();
 	
 	private LineChart<Number, Number> lineChart;
 	
@@ -131,15 +143,16 @@ public class StatsPaneController implements Initializable, MessageAddedObserver
 			@Override
 			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue)
 			{
-				refresh();
 				lastMessageLimit = showRangeBox.getValue();
+				refresh();
 			}
 		});
 		
 		// Axis and chart        
 		final NumberAxis xAxis = new NumberAxis();
-        final NumberAxis yAxis = new NumberAxis();
-        
+        //final NumberAxis yAxis = new NumberAxis();
+		final StableTicksAxis yAxis = new StableTicksAxis();
+
         xAxis.setForceZeroInRange(false);
         xAxis.setTickLabelFormatter(new StringConverter<Number>()
 		{
@@ -156,6 +169,7 @@ public class StatsPaneController implements Initializable, MessageAddedObserver
 				return null;
 			}
 		});
+		// yAxis.setMinorTickCount(0);
         yAxis.setForceZeroInRange(false);
 		lineChart = new LineChart<>(xAxis, yAxis);
 	}		
@@ -245,6 +259,61 @@ public class StatsPaneController implements Initializable, MessageAddedObserver
 		displaySymbolsCheckBox.setSelected(lastDisplaySymbols);
 		
 		eventManager.registerMessageAddedObserver(this, store.getMessageList());
+		
+		setupPanAndZoom();
+	}
+	
+	/**
+	 * Based on FXUtils example.
+	 */
+	private void setupPanAndZoom()
+	{
+		// Panning works via either secondary (right) mouse or primary with ctrl
+		// held down
+		ChartPanManager panner = new ChartPanManager(lineChart);
+		panner.setMouseFilter(new EventHandler<MouseEvent>()
+		{
+			@Override
+			public void handle(MouseEvent mouseEvent)
+			{
+				if (mouseEvent.getButton() == MouseButton.SECONDARY
+						|| (mouseEvent.getButton() == MouseButton.PRIMARY && mouseEvent
+								.isShortcutDown()))
+				{
+					// let it through
+				}
+				else
+				{
+					mouseEvent.consume();
+				}
+			}
+		});
+		panner.start();
+		// Zooming works only via primary mouse button without ctrl held down
+		JFXChartUtil.setupZooming(lineChart, new EventHandler<MouseEvent>()
+		{
+			@Override
+			public void handle(MouseEvent mouseEvent)
+			{
+				if (mouseEvent.getButton() != MouseButton.PRIMARY
+						|| mouseEvent.isShortcutDown())
+					mouseEvent.consume();
+			}
+		});
+		
+		// Set up reset on double click
+		lineChart.setOnMouseClicked(new EventHandler<MouseEvent>()
+		{
+
+			@Override
+			public void handle(MouseEvent event)
+			{
+				if (event.getClickCount() == 2)
+				{
+					reset();
+				}
+			}
+		});
 	}
 	
 	public void cleanup()
@@ -258,6 +327,7 @@ public class StatsPaneController implements Initializable, MessageAddedObserver
 		for (final MqttContent message : store.getMessages())
 		{
 			final String topic = message.getTopic();
+			// logger.info("Topics = " + topics);
 			if (topics.contains(topic))
 			{
 				if (chartData.get(topic) == null)
@@ -268,6 +338,25 @@ public class StatsPaneController implements Initializable, MessageAddedObserver
 				chartData.get(topic).add(message);
 			}
 		}
+	}
+	
+	/**
+	 * Based on FXUtils example.
+	 */
+	@FXML
+	private void reset()
+	{
+		lineChart.getXAxis().setAutoRanging(true);
+		lineChart.getYAxis().setAutoRanging(true);
+
+		// Reset data to get ranging right
+		final ObservableList<XYChart.Series<Number, Number>> data = lineChart.getData();
+		lineChart.setData(FXCollections.<XYChart.Series<Number, Number>> emptyObservableList());
+		lineChart.setData(data);
+		lineChart.setData(FXCollections.<XYChart.Series<Number, Number>> emptyObservableList());
+		lineChart.setData(data);
+		//lineChart.getData().addAll(topicToSeries.values());
+		lineChart.setAnimated(true);
 	}
 	
 	private static XYChart.Data<Number, Number> createDataObject(final MqttContent message)
@@ -301,44 +390,53 @@ public class StatsPaneController implements Initializable, MessageAddedObserver
 	@FXML
 	private void refresh()
 	{		
-		divideMessagesByTopic(topics);
-		lineChart.getData().clear();
-		lineChart.setCreateSymbols(lastDisplaySymbols);
-		topicToSeries.clear();
-		
-		for (final String topic : topics)
+		synchronized (chartData)
 		{
-			final Series<Number, Number> series = new XYChart.Series<>();
-			topicToSeries.put(topic, series);
-	        series.setName(topic);
-	        
-	        final MessageLimitProperties limit = showRangeBox.getValue();
-	        final int itemsAvailable = chartData.get(topic).size();
-	        
-	        // Limit by number
-	        int startIndex = 0;	        
-	        if (limit.getMessageLimit() > 0 && limit.getMessageLimit() < itemsAvailable)
-	        {
-	        	startIndex = itemsAvailable - limit.getMessageLimit(); 
-	        }
-	        
-	        // Limit by time
-	        final Date now = new Date();
-	        
-	        for (int i = startIndex; i < itemsAvailable; i++)
-	        {
-	        	final MqttContent message = chartData.get(topic).get(chartData.get(topic).size() - i - 1);
-	        	
-	        	if (limit.getTimeLimit() > 0 && (message.getDate().getTime() + limit.getTimeLimit() < now.getTime()))
-	        	{
-	        		continue;
-	        	}
-	        	
-	        	addMessageToSeries(series, message);
-	        }
-	        
-	        lineChart.getData().add(series);
-	        populateTooltips(lineChart);
+			divideMessagesByTopic(topics);
+			lineChart.getData().clear();
+			lineChart.setCreateSymbols(lastDisplaySymbols);
+			topicToSeries.clear();
+			
+			for (final String topic : topics)
+			{
+				final List<MqttContent> extractedMessages = new ArrayList<>();
+				final Series<Number, Number> series = new XYChart.Series<>();
+				topicToSeries.put(topic, series);
+		        series.setName(topic);
+		        
+		        final MessageLimitProperties limit = showRangeBox.getValue();
+		        final int itemsAvailable = chartData.get(topic).size();
+		        
+		        // Limit by number
+		        int startIndex = 0;	        
+		        if (limit.getMessageLimit() > 0 && limit.getMessageLimit() < itemsAvailable)
+		        {
+		        	startIndex = itemsAvailable - limit.getMessageLimit(); 
+		        }
+		        
+		        // Limit by time
+		        final Date now = new Date();
+		        
+		        for (int i = startIndex; i < itemsAvailable; i++)
+		        {
+		        	final MqttContent message = chartData.get(topic).get(chartData.get(topic).size() - i - 1);
+		        	
+		        	if (limit.getTimeLimit() > 0 && (message.getDate().getTime() + limit.getTimeLimit() < now.getTime()))
+		        	{
+		        		continue;
+		        	}
+		        	
+		        	extractedMessages.add(message);
+		        	addMessageToSeries(series, message);
+		        }
+		        // logger.info("Populated = {}=?{}/{}", chartData.get(topic).size(), topicToSeries.get(topic).getData().size(), limit.getMessageLimit());
+				
+		        // For further processing, take only messages put on chart
+		        chartData.put(topic, extractedMessages);
+		        lineChart.getData().add(series);
+		        
+		        populateTooltips(lineChart);
+			}
 		}
 	}
 	
@@ -371,42 +469,50 @@ public class StatsPaneController implements Initializable, MessageAddedObserver
 	@Override
 	public void onMessageAdded(final MqttContent message)
 	{
-		// TODO: is that ever deregistered?
-		final String topic = message.getTopic();
-		final MessageLimitProperties limit = showRangeBox.getValue();
-		
-		if (autoRefreshCheckBox.isSelected() && topics.contains(topic))
-		{			
-			// Apply message limit			
-			if (limit.getMessageLimit() > 0 && chartData.get(topic).size() == limit.getMessageLimit())
-			{
-				chartData.get(topic).remove(0);
-				topicToSeries.get(topic).getData().remove(0);		
-			}
+		synchronized (chartData)
+		{
+			// TODO: is that ever deregistered?
+			final String topic = message.getTopic();
+			final MessageLimitProperties limit = showRangeBox.getValue();
+			//logger.info("Message limit = {}", limit.getMessageLimit());
+			//logger.info("Time limit = {}", limit.getTimeLimit());
 			
-			// Apply time limit
-			final Date now = new Date();
-			if (limit.getTimeLimit() > 0)
-			{
-				MqttContent oldestMessage = chartData.get(topic).get(0);
-				while (oldestMessage.getDate().getTime() + limit.getTimeLimit() < now.getTime())
+			if (autoRefreshCheckBox.isSelected() && topics.contains(topic))
+			{			
+				// Apply message limit			
+				while ((limit.getMessageLimit() > 0) && (chartData.get(topic).size() >= limit.getMessageLimit()))
 				{
+					//logger.info("Deleting = {}=?{}/{}", chartData.get(topic).size(), topicToSeries.get(topic).getData().size(), limit.getMessageLimit());
 					chartData.get(topic).remove(0);
 					topicToSeries.get(topic).getData().remove(0);
-					
-					if (chartData.get(topic).size() == 0)
+				}
+				
+				// Apply time limit
+				final Date now = new Date();
+				if (limit.getTimeLimit() > 0)
+				{
+					MqttContent oldestMessage = chartData.get(topic).get(0);
+					while (oldestMessage.getDate().getTime() + limit.getTimeLimit() < now.getTime())
 					{
-						break;
-					}
-					oldestMessage = chartData.get(topic).get(0);
-				}				
+						chartData.get(topic).remove(0);
+						topicToSeries.get(topic).getData().remove(0);
+						
+						if (chartData.get(topic).size() == 0)
+						{
+							break;
+						}
+						oldestMessage = chartData.get(topic).get(0);
+					}				
+				}
+				
+				// Add the new message
+				chartData.get(topic).add(message);
+				addMessageToSeries(topicToSeries.get(topic), message);
+				//logger.info("Added = {}=?{}/{}", chartData.get(topic).size(), topicToSeries.get(topic).getData().size(), limit.getMessageLimit());
+				
+				populateTooltip(topicToSeries.get(topic), 
+						topicToSeries.get(topic).getData().get(topicToSeries.get(topic).getData().size() - 1));
 			}
-			
-			// Add the new message
-			chartData.get(topic).add(message);
-			addMessageToSeries(topicToSeries.get(topic), message);
-			populateTooltip(topicToSeries.get(topic), 
-					topicToSeries.get(topic).getData().get(topicToSeries.get(topic).getData().size() - 1));
 		}
 	}
 	
