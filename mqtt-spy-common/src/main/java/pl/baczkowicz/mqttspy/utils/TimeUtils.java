@@ -21,6 +21,14 @@ import java.text.SimpleDateFormat;
  */
 public class TimeUtils
 {	
+	public static final int ONE_SECOND = 1000;
+
+	public static final int ONE_MINUTE = 60 * ONE_SECOND;
+	
+	public static final int ONE_HOUR = 60 * ONE_MINUTE;
+	
+	public static final int ONE_DAY = 24 * ONE_HOUR;
+	
 	public final static String DATE_FORMAT_WITH_MILLISECONDS = "yyyy/MM/dd HH:mm:ss:SSS";
 	
 	public final static String DATE_FORMAT_WITH_SECONDS = "yyyy/MM/dd HH:mm:ss";
