@@ -25,16 +25,45 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.collections.*?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.control.CheckMenuItem?>
 
 <AnchorPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.baczkowicz.mqttspy.ui.StatsPaneController">
    <children>
       <AnchorPane fx:id="statsPane" prefHeight="40.0" prefWidth="599.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
-            <Label layoutX="368.0" layoutY="12.0" text="Show" AnchorPane.rightAnchor="185.0" />
-            <ComboBox fx:id="showRangeBox" layoutX="254.0" layoutY="7.0" prefHeight="25.0" prefWidth="170.0" AnchorPane.rightAnchor="7.0" AnchorPane.topAnchor="7.0" />
-            <Button fx:id="refreshButton" layoutX="14.0" layoutY="9.0" mnemonicParsing="false" onAction="#refresh" text="Refresh" AnchorPane.leftAnchor="7.0" AnchorPane.topAnchor="7.0" />
-            <CheckBox fx:id="autoRefreshCheckBox" layoutX="95.0" layoutY="10.0" mnemonicParsing="false" text="Auto-refresh" AnchorPane.leftAnchor="95.0" />
-            <CheckBox fx:id="displaySymbolsCheckBox" layoutX="229.0" layoutY="10.0" mnemonicParsing="false" text="Display points" AnchorPane.leftAnchor="220.0" />
+         
+            <Label layoutX="368.0" layoutY="12.0" text="Show" AnchorPane.rightAnchor="285.0" />
+            <ComboBox fx:id="showRangeBox" focusTraversable="false" layoutY="7.0" prefHeight="25.0" prefWidth="150.0" AnchorPane.rightAnchor="127.0" AnchorPane.topAnchor="7.0" />
+            
+            <Button fx:id="refreshButton" layoutX="14.0" layoutY="9.0" prefHeight="25.0" prefWidth="100.0" mnemonicParsing="false" onAction="#refresh" text="Refresh" AnchorPane.leftAnchor="7.0" AnchorPane.topAnchor="7.0">
+            	<padding><Insets bottom="1.0" left="1.0" right="1.0" top="1.0" /></padding>
+		        <graphic>
+		      		<ImageView fitHeight="16" fitWidth="16" pickOnBounds="true">
+				         <image>
+				            <Image url="/images/refresh.png" />
+				         </image>
+				      </ImageView>
+		      	</graphic>
+            </Button>
+            
+            <CheckBox fx:id="autoRefreshCheckBox" focusTraversable="false" layoutY="10.0" mnemonicParsing="false" text="Auto-refresh" AnchorPane.leftAnchor="120.0" />
+
+			<MenuButton fx:id="optionsButton" focusTraversable="false" mnemonicParsing="false" prefWidth="110.0" text="Options" AnchorPane.rightAnchor="7.0" AnchorPane.topAnchor="7.0">
+		      	<graphic>
+		      		<ImageView fitHeight="18.0" fitWidth="18.0" pickOnBounds="true">
+				         <image>
+				            <Image url="/images/settings.png"/>
+				         </image>
+				      </ImageView>
+		      	</graphic>
+		        <items>
+		        	<CheckMenuItem fx:id="displaySymbolsCheckBox" text="Display points"/>   
+		        </items>
+		         <font>
+		            <Font size="11.0" />
+		         </font>
+		      </MenuButton>
+		      
          </children>
       </AnchorPane>
    </children>

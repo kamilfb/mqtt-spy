@@ -34,9 +34,11 @@ import javafx.scene.chart.XYChart.Data;
 import javafx.scene.chart.XYChart.Series;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.control.MenuButton;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.AnchorPane;
 import javafx.util.Callback;
@@ -58,8 +60,6 @@ public class StatsPaneController implements Initializable, MessageAddedObserver
 {
 	/** Diagnostic logger. */
 	// private final static Logger logger = LoggerFactory.getLogger(StatsPaneController.class);
-
-	private static final int ONE_SECOND = 1000;
 	
 	private static boolean lastAutoRefresh = true;
 	
@@ -81,7 +81,10 @@ public class StatsPaneController implements Initializable, MessageAddedObserver
 	private CheckBox autoRefreshCheckBox;
 	
 	@FXML
-	private CheckBox displaySymbolsCheckBox;
+	private CheckMenuItem displaySymbolsCheckBox;
+	
+	@FXML
+	private MenuButton optionsButton;
 	
 	private ManagedMessageStoreWithFiltering store;
 
@@ -208,12 +211,15 @@ public class StatsPaneController implements Initializable, MessageAddedObserver
 		showRangeBox.getItems().add(new MessageLimitProperties("10 messages", 10, 0));
 		showRangeBox.getItems().add(new MessageLimitProperties("50 messages", 50, 0));
 		showRangeBox.getItems().add(new MessageLimitProperties("100 messages", 100, 0));
-		showRangeBox.getItems().add(new MessageLimitProperties("1000 messages", 1000, 0));
-		showRangeBox.getItems().add(new MessageLimitProperties("1 minute", 0, 60 * ONE_SECOND));
-		showRangeBox.getItems().add(new MessageLimitProperties("5 minutes", 0, 300 * ONE_SECOND));
-		showRangeBox.getItems().add(new MessageLimitProperties("30 minutes", 0, 1800 * ONE_SECOND));
-		showRangeBox.getItems().add(new MessageLimitProperties("1 hour", 0, 3600 * ONE_SECOND));
-		showRangeBox.getItems().add(new MessageLimitProperties("24 hours", 0, 86400 * ONE_SECOND));
+		showRangeBox.getItems().add(new MessageLimitProperties("1k messages", 1000, 0));
+		showRangeBox.getItems().add(new MessageLimitProperties("10k messages", 10000, 0));
+		showRangeBox.getItems().add(new MessageLimitProperties("1 minute", 0, TimeUtils.ONE_MINUTE));
+		showRangeBox.getItems().add(new MessageLimitProperties("5 minutes", 0, 5 * TimeUtils.ONE_MINUTE));
+		showRangeBox.getItems().add(new MessageLimitProperties("30 minutes", 0, 30 * TimeUtils.ONE_MINUTE));
+		showRangeBox.getItems().add(new MessageLimitProperties("1 hour", 0, TimeUtils.ONE_HOUR));
+		showRangeBox.getItems().add(new MessageLimitProperties("24 hours", 0, TimeUtils.ONE_DAY));
+		showRangeBox.getItems().add(new MessageLimitProperties("48 hours", 0, 2 * TimeUtils.ONE_DAY));
+		showRangeBox.getItems().add(new MessageLimitProperties("1 week", 0, 7 * TimeUtils.ONE_DAY));
 				
 		if (subscription != null)
 		{

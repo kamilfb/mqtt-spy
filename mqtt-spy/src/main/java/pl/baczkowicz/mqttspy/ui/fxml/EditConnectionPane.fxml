@@ -43,7 +43,7 @@
  	  <Button fx:id="connectButton" focusTraversable="false" graphicTextGap="15" layoutY="317.0" mnemonicParsing="false" onAction="#createConnection" prefHeight="25.0" prefWidth="302.0" text="Open connection" AnchorPane.bottomAnchor="14.0" AnchorPane.rightAnchor="18.0">
 	   <padding><Insets bottom="1.0" left="1.0" right="1.0" top="1.0" /></padding>
 		    <graphic>
-		  		<ImageView fx:id="searchIcon" fitHeight="22" fitWidth="22" pickOnBounds="true">
+		  		<ImageView fitHeight="22" fitWidth="22" pickOnBounds="true">
 		       <image>
 		          <Image url="/images/button-connect.png" />
 		       </image>
@@ -54,7 +54,7 @@
       <Button fx:id="saveButton" focusTraversable="false" layoutX="14.0" layoutY="317.0" mnemonicParsing="false" onAction="#save" prefHeight="25.0" prefWidth="100.0" text="Apply" AnchorPane.bottomAnchor="14.0" AnchorPane.leftAnchor="14.0">
       	        <padding><Insets bottom="1.0" left="1.0" right="1.0" top="1.0" /></padding>
 		        <graphic>
-		      		<ImageView fx:id="searchIcon" fitHeight="16" fitWidth="16" pickOnBounds="true">
+		      		<ImageView fitHeight="16" fitWidth="16" pickOnBounds="true">
 				         <image>
 				            <Image url="/images/button-apply.png" />
 				         </image>
@@ -65,7 +65,7 @@
       <Button fx:id="undoButton" focusTraversable="false" layoutX="120.0" layoutY="317.0" mnemonicParsing="false" onAction="#undo" prefHeight="25.0" prefWidth="100.0" text="Undo" AnchorPane.bottomAnchor="14.0" AnchorPane.leftAnchor="120.0">
             	        <padding><Insets bottom="1.0" left="1.0" right="1.0" top="1.0" /></padding>
 		        <graphic>
-		      		<ImageView fx:id="searchIcon" fitHeight="16" fitWidth="16" pickOnBounds="true">
+		      		<ImageView fitHeight="16" fitWidth="16" pickOnBounds="true">
 				         <image>
 				            <Image url="/images/button-undo.png" />
 				         </image>
