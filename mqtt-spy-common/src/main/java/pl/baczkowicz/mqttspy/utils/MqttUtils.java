@@ -18,6 +18,9 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
+import org.eclipse.paho.client.mqttv3.MqttTopic;
+
+import pl.baczkowicz.mqttspy.exceptions.MqttSpyException;
 import pl.baczkowicz.mqttspy.utils.ConversionUtils;
 
 /**
@@ -153,5 +156,17 @@ public class MqttUtils
 		}
 		
 		return false;		
+	}
+	
+	public static void validateTopic(final String topic) throws MqttSpyException
+	{
+		try
+		{
+			MqttTopic.validate(topic, true);
+		}
+		catch (Exception e)
+		{
+			throw new MqttSpyException(e.getMessage(), e);
+		}
 	}
 }
