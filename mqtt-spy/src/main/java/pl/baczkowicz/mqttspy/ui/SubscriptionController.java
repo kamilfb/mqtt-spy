@@ -63,12 +63,14 @@ import pl.baczkowicz.mqttspy.events.observers.SubscriptionStatusChangeObserver;
 import pl.baczkowicz.mqttspy.stats.StatisticsManager;
 import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
 import pl.baczkowicz.mqttspy.ui.connections.SubscriptionManager;
+import pl.baczkowicz.mqttspy.ui.messagelog.MessageLogUtils;
 import pl.baczkowicz.mqttspy.ui.panes.TabController;
 import pl.baczkowicz.mqttspy.ui.panes.TabStatus;
 import pl.baczkowicz.mqttspy.ui.search.UniqueContentOnlyFilter;
 import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
 import pl.baczkowicz.mqttspy.ui.utils.FormattingUtils;
 import pl.baczkowicz.mqttspy.ui.utils.FxmlUtils;
+import pl.baczkowicz.mqttspy.ui.utils.UiUtils;
 
 /**
  * Controller for the subscription tab.
@@ -622,6 +624,34 @@ public class SubscriptionController implements Initializable, ClearTabObserver, 
 	private void copyMessagesToFile()
 	{
 		messageNavigationPaneController.copyMessagesToFile();
+	}
+	
+	@FXML
+	private void copyBrowsedTopic()
+	{
+		messageNavigationPaneController.copyMessageTopicToClipboard();
+	}
+	
+	@FXML
+	private void copyBrowsedTopics()
+	{
+		
+		UiUtils.copyToClipboard(MessageLogUtils.getAllTopicsAsString(
+				store.getFilteredMessageStore().getBrowsedTopics()));
+	}
+	
+	@FXML
+	private void copyFilteredTopics()
+	{
+		UiUtils.copyToClipboard(MessageLogUtils.getAllTopicsAsString(
+				getSummaryTablePaneController().getShownTopics()));
+	}
+	
+	@FXML
+	private void copyAllTopics()
+	{
+		UiUtils.copyToClipboard(MessageLogUtils.getAllTopicsAsString(
+				store.getAllTopics()));
 	}
 	
 	public MqttSubscription getSubscription()

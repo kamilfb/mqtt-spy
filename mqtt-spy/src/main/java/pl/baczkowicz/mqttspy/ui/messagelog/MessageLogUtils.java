@@ -14,6 +14,7 @@
  */
 package pl.baczkowicz.mqttspy.ui.messagelog;
 
+import java.util.Collection;
 import java.util.List;
 
 import pl.baczkowicz.mqttspy.common.generated.MessageLog;
@@ -53,6 +54,19 @@ public class MessageLogUtils
 		{
 			messages.append(SimpleMessageLogComposer.createReceivedMessageLog(MessageLogUtils.convert(message, null, null), 
 					new MessageLog(MessageLogEnum.XML_WITH_PLAIN_PAYLOAD, "", true, true, false, false, false)));
+			messages.append(System.lineSeparator());
+		}
+		
+		return messages.toString();
+	}
+	
+	public static String getAllTopicsAsString(final Collection<String> topics)
+	{
+		final StringBuffer messages = new StringBuffer();
+		
+		for (final String topic : topics)
+		{
+			messages.append(topic);
 			messages.append(System.lineSeparator());
 		}
 		

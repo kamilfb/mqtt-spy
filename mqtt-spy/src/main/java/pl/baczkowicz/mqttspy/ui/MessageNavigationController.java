@@ -408,7 +408,7 @@ public class MessageNavigationController implements Initializable, MessageIndexT
 
 	public static String getBrowsingTopicsInfo(final ManagedMessageStoreWithFiltering store)
 	{
-		final int selectedTopics = store.getFilteredMessageStore().getShownTopics().size();
+		final int selectedTopics = store.getFilteredMessageStore().getBrowsedTopics().size();
 		final int totalTopics = store.getAllTopics().size();
 		
 		return "browsing " + selectedTopics + "/" + totalTopics + " " + (totalTopics == 1? "topic" : "topics");		
@@ -456,6 +456,16 @@ public class MessageNavigationController implements Initializable, MessageIndexT
 		UiUtils.copyToClipboard(MessageLogUtils.getAllMessagesAsMessageLog(store));
 	}
 	
+
+	public void copyMessageTopicToClipboard()
+	{
+		if (getSelectedMessageIndex() > 0)
+		{
+			final MqttContent message = store.getMessages().get(getSelectedMessageIndex() - 1);
+			UiUtils.copyToClipboard(message.getTopic());
+		}
+	}
+	
 	public void copyMessageToFile()
 	{
 		if (getSelectedMessageIndex() > 0)
@@ -488,7 +498,7 @@ public class MessageNavigationController implements Initializable, MessageIndexT
 			FileUtils.writeToFile(selectedFile, MessageLogUtils.getAllMessagesAsMessageLog(store));
 		}
 	}
-	
+
 	private Window getParentWindow()
 	{
 		return messageLabel.getScene().getWindow();

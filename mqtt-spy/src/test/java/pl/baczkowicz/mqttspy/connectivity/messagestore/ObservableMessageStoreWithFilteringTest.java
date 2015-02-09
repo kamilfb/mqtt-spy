@@ -64,11 +64,11 @@ public class ObservableMessageStoreWithFilteringTest
 	public final void testDefaultActiveFilters()
 	{
 		testStoreMaxSize();
-		assertTrue(store.getFilteredMessageStore().getShownTopics().contains("t1"));
+		assertTrue(store.getFilteredMessageStore().getBrowsedTopics().contains("t1"));
 		
 		final MqttContent message = new MqttContent(2, "t2", new MqttMessage("test2".getBytes()));
 		store.messageReceived(message);
-		assertTrue(store.getFilteredMessageStore().getShownTopics().contains("t2"));
+		assertTrue(store.getFilteredMessageStore().getBrowsedTopics().contains("t2"));
 	}
 	
 	@Test
@@ -79,6 +79,6 @@ public class ObservableMessageStoreWithFilteringTest
 		
 		final MqttContent message = new MqttContent(3, "t3", new MqttMessage("test3".getBytes()));
 		store.messageReceived(message);
-		assertFalse(store.getFilteredMessageStore().getShownTopics().contains("t3"));
+		assertFalse(store.getFilteredMessageStore().getBrowsedTopics().contains("t3"));
 	}
 }

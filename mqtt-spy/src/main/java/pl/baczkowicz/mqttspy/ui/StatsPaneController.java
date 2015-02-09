@@ -46,6 +46,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.MenuButton;
@@ -60,6 +61,7 @@ import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
 import pl.baczkowicz.mqttspy.events.EventManager;
 import pl.baczkowicz.mqttspy.events.observers.MessageAddedObserver;
 import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
+import pl.baczkowicz.mqttspy.ui.charts.ChartMode;
 import pl.baczkowicz.mqttspy.ui.properties.MessageLimitProperties;
 import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
 import pl.baczkowicz.mqttspy.ui.utils.StylingUtils;
@@ -82,6 +84,9 @@ public class StatsPaneController implements Initializable, MessageAddedObserver
 
 	@FXML
 	private AnchorPane statsPane;
+	
+	@FXML
+	private Label showRangeLabel;
 	
 	@FXML
 	private ComboBox<MessageLimitProperties> showRangeBox;
@@ -113,7 +118,23 @@ public class StatsPaneController implements Initializable, MessageAddedObserver
 	private LineChart<Number, Number> lineChart;
 	
 	private boolean warningShown;
+
+	private String seriesTypeName;
+
+	private ChartMode chartMode;
+
+	private String seriesValueName;
+
+	private String seriesUnit;
 	
+	/**
+	 * @param seriesValueName the seriesValueName to set
+	 */
+	public void setSeriesValueName(String seriesValueName)
+	{
+		this.seriesValueName = seriesValueName;
+	}
+
 	public void initialize(URL location, ResourceBundle resources)
 	{
 		autoRefreshCheckBox.selectedProperty().addListener(new ChangeListener<Boolean>()
@@ -245,18 +266,28 @@ public class StatsPaneController implements Initializable, MessageAddedObserver
 		AnchorPane.setLeftAnchor(lineChart, 0.0);
 		AnchorPane.setTopAnchor(lineChart, 45.0);
 		AnchorPane.setRightAnchor(lineChart, 0.0);
-		
-		// Selecting a value will perform a refresh
-		for (final MessageLimitProperties limit : showRangeBox.getItems())
+						
+		if (ChartMode.USER_DRIVEN_MSG_PAYLOAD.equals(chartMode) || ChartMode.USER_DRIVEN_MSG_SIZE.equals(chartMode))
 		{
-			if (limit.getMessageLimit() == lastMessageLimit.getMessageLimit()
-					&& limit.getTimeLimit() == lastMessageLimit.getTimeLimit())
+			// Selecting a value will perform a refresh
+			for (final MessageLimitProperties limit : showRangeBox.getItems())
 			{
-				showRangeBox.setValue(limit);
+				if (limit.getMessageLimit() == lastMessageLimit.getMessageLimit()
+						&& limit.getTimeLimit() == lastMessageLimit.getTimeLimit())
+				{
+					showRangeBox.setValue(limit);
+				}
 			}
+			
+			autoRefreshCheckBox.setSelected(lastAutoRefresh);
+			displaySymbolsCheckBox.setSelected(lastDisplaySymbols);
 		}
-		autoRefreshCheckBox.setSelected(lastAutoRefresh);
-		displaySymbolsCheckBox.setSelected(lastDisplaySymbols);
+		else if (ChartMode.STATS.equals(chartMode))
+		{
+			showRangeBox.setVisible(false);
+			showRangeLabel.setVisible(false);
+			// autoRefreshCheckBox.setVisible(false);
+		}
 		
 		eventManager.registerMessageAddedObserver(this, store.getMessageList());
 		
@@ -329,14 +360,18 @@ public class StatsPaneController implements Initializable, MessageAddedObserver
 			final String topic = message.getTopic();
 			// logger.info("Topics = " + topics);
 			if (topics.contains(topic))
-			{
-				if (chartData.get(topic) == null)
-				{
-					chartData.put(topic, new ArrayList<MqttContent>());
-				}
-				
+			{				
+				createTopicIfDoesNotExist(topic);
 				chartData.get(topic).add(message);
 			}
+		}
+	}
+	
+	private void createTopicIfDoesNotExist(final String topic)
+	{
+		if (chartData.get(topic) == null)
+		{
+			chartData.put(topic, new ArrayList<MqttContent>());
 		}
 	}
 	
@@ -359,12 +394,24 @@ public class StatsPaneController implements Initializable, MessageAddedObserver
 		lineChart.setAnimated(true);
 	}
 	
-	private static XYChart.Data<Number, Number> createDataObject(final MqttContent message)
+	private XYChart.Data<Number, Number> createDataObject(final MqttContent message)
 	{
-		final XYChart.Data<Number, Number> data = new XYChart.Data(
-    			message.getDate().getTime(), 
-    			Double.valueOf(message.getFormattedPayload()));				
-		return data;
+		if (ChartMode.USER_DRIVEN_MSG_PAYLOAD.equals(chartMode))
+		{
+			final Double value = Double.valueOf(message.getFormattedPayload());
+			return new XYChart.Data(message.getDate().getTime(), value);	
+		}
+		else if (ChartMode.USER_DRIVEN_MSG_SIZE.equals(chartMode))
+		{
+			final Integer value = Integer .valueOf(message.getPayload().length());
+			return new XYChart.Data(message.getDate().getTime(), value);	
+		}
+		else
+		{
+			// TODO:
+		}
+					
+		return null;
 	}
 	
 	private void addMessageToSeries(final Series<Number, Number> series, final MqttContent message)
@@ -375,13 +422,14 @@ public class StatsPaneController implements Initializable, MessageAddedObserver
     	}
     	catch (NumberFormatException e)
     	{
-    		if (!warningShown)
+    		if (!warningShown && ChartMode.USER_DRIVEN_MSG_PAYLOAD.equals(chartMode))
     		{
     			DialogUtils.showWarning(
-    					"Invalid content", 
-    					"Message on topic \"" + message.getTopic() + "\" with payload \"" 
-    					+ message.getFormattedPayload() 
-    					+ "\" cannot be converted to a number - ignoring all invalid messages.");
+    					"Invalid content",
+    					"Payload \"" + message.getFormattedPayload() 
+    					+ "\" on \"" + message.getTopic() 
+    					+ "\" cannot be converted to a number - ignoring all invalid values.");
+    					
     			warningShown = true;
     		}
     	}
@@ -440,15 +488,21 @@ public class StatsPaneController implements Initializable, MessageAddedObserver
 		}
 	}
 	
+	/**
+	 * Populates the tooltip with data (chart-type independent).
+	 * 
+	 * @param series The series
+	 * @param data The data
+	 */
 	private void populateTooltip(final Series<Number, Number> series, final Data<Number, Number> data)
 	{
 		final Date date = new Date();
 		date.setTime(data.getXValue().longValue());
 		
 		final Tooltip tooltip = new Tooltip(
-				"Topic = " + series.getName()
+				seriesTypeName + " = " + series.getName()
 				+ System.lineSeparator()
-				+ "Value = " + data.getYValue()
+				+ seriesValueName + " = " + data.getYValue() + " " + seriesUnit
 				+ System.lineSeparator()
 				+ "Time = " + TimeUtils.TIME_SDF.format(date));
 		
@@ -469,10 +523,12 @@ public class StatsPaneController implements Initializable, MessageAddedObserver
 	@Override
 	public void onMessageAdded(final MqttContent message)
 	{
+		// TODO: is that ever deregistered?
 		synchronized (chartData)
-		{
-			// TODO: is that ever deregistered?
+		{	
 			final String topic = message.getTopic();
+			createTopicIfDoesNotExist(topic);		
+			
 			final MessageLimitProperties limit = showRangeBox.getValue();
 			//logger.info("Message limit = {}", limit.getMessageLimit());
 			//logger.info("Time limit = {}", limit.getTimeLimit());
@@ -514,6 +570,11 @@ public class StatsPaneController implements Initializable, MessageAddedObserver
 						topicToSeries.get(topic).getData().get(topicToSeries.get(topic).getData().size() - 1));
 			}
 		}
+	}	
+	
+	public void setChartMode(final ChartMode mode)
+	{
+		this.chartMode = mode;
 	}
 	
 	// ===============================
@@ -538,5 +599,15 @@ public class StatsPaneController implements Initializable, MessageAddedObserver
 	public void setStore(final ManagedMessageStoreWithFiltering store)
 	{
 		this.store = store;		
+	}	
+	
+	public void setSeriesTypeName(final String seriesTypeName)
+	{
+		this.seriesTypeName = seriesTypeName;
+	}
+
+	public void setSeriesUnit(String seriesUnit)
+	{
+		this.seriesUnit = seriesUnit;
 	}
 }

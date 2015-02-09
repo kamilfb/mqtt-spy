@@ -82,7 +82,7 @@ public class ManagedMessageStoreWithFiltering extends BasicMessageStore
 		// 3. Add it to the filtered store if:
 		// - message is not filtered out
 		// - all messages are shown or the topic is already on the list
-		if (!filteredStore.filterMessage(message, true) && (allTopicsShown || filteredStore.getShownTopics().contains(message.getTopic())))
+		if (!filteredStore.filterMessage(message, true) && (allTopicsShown || filteredStore.getBrowsedTopics().contains(message.getTopic())))
 		{
 			filteredStore.getFilteredMessages().add(message);
 			
@@ -133,7 +133,7 @@ public class ManagedMessageStoreWithFiltering extends BasicMessageStore
 	@Override
 	public boolean browsingFiltersEnabled()
 	{
-		return filteredStore.getShownTopics().size() != allTopics.size();
+		return filteredStore.getBrowsedTopics().size() != allTopics.size();
 	}
 	
 	@Override
@@ -200,7 +200,7 @@ public class ManagedMessageStoreWithFiltering extends BasicMessageStore
 		{
 			for (final String topic : topics)
 			{		
-				if (filteredStore.getShownTopics().contains(topic))				
+				if (filteredStore.getBrowsedTopics().contains(topic))				
 				{
 					topicsToRemove.add(topic);				
 				}

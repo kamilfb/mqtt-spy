@@ -182,6 +182,20 @@ public class ContextMenuUtils
 		// Separator
 		other.getItems().add(new SeparatorMenuItem());
 		
+		// Message load charts
+		MenuItem messageLoadChartItem = new MenuItem("[Graphing] Show message load chart");
+		messageLoadChartItem.setOnAction(new EventHandler<ActionEvent>()
+		{
+			public void handle(ActionEvent e)
+			{				
+				// TODO
+			}
+		});
+		contextMenu.getItems().add(messageLoadChartItem);
+		
+		// Separator
+		other.getItems().add(new SeparatorMenuItem());
+		
 		// Clear data
 		MenuItem clearItem = new MenuItem("[History] Clear subscription history");
 
@@ -281,6 +295,55 @@ public class ContextMenuUtils
 		});
 		contextMenu.getItems().add(removeItem);
 		
+		// Separator
+		contextMenu.getItems().add(new SeparatorMenuItem());
+
+		// Message load charts
+		Menu messageLoadChartItem = new Menu("[Graphing] Show message load charts");
+		
+		MenuItem showAllChartItem = new MenuItem("Show overall message load chart");
+		showAllChartItem.setOnAction(new EventHandler<ActionEvent>()
+		{
+			public void handle(ActionEvent e)
+			{
+				// TODO
+			}
+		});
+		messageLoadChartItem.getItems().add(showAllChartItem);
+		
+		messageLoadChartItem.getItems().add(new SeparatorMenuItem());
+		
+		MenuItem showPeriod1ChartItem = new MenuItem("Show 5s message load chart");
+		showPeriod1ChartItem.setOnAction(new EventHandler<ActionEvent>()
+		{
+			public void handle(ActionEvent e)
+			{
+				// TODO
+			}
+		});
+		messageLoadChartItem.getItems().add(showPeriod1ChartItem);
+		
+		MenuItem showPeriod2ChartItem = new MenuItem("Show 30s message load chart");
+		showPeriod2ChartItem.setOnAction(new EventHandler<ActionEvent>()
+		{
+			public void handle(ActionEvent e)
+			{
+				// TODO
+			}
+		});
+		messageLoadChartItem.getItems().add(showPeriod2ChartItem);
+		
+		MenuItem showPeriod3ChartItem = new MenuItem("Show 5min message load chart");
+		showPeriod3ChartItem.setOnAction(new EventHandler<ActionEvent>()
+		{
+			public void handle(ActionEvent e)
+			{
+				// TODO
+			}
+		});
+		messageLoadChartItem.getItems().add(showPeriod3ChartItem);
+		contextMenu.getItems().add(messageLoadChartItem);
+						
 		// Separator
 		contextMenu.getItems().add(new SeparatorMenuItem());
 

@@ -19,9 +19,12 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import javafx.application.Platform;
 import javafx.concurrent.Task;
+import javafx.event.EventHandler;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -33,6 +36,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Window;
 import javafx.util.Pair;
@@ -49,7 +53,11 @@ import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
 import pl.baczkowicz.mqttspy.configuration.ConfigurationUtils;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.connectivity.MqttConnectionStatus;
+import pl.baczkowicz.mqttspy.events.EventManager;
 import pl.baczkowicz.mqttspy.stats.StatisticsManager;
+import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
+import pl.baczkowicz.mqttspy.ui.StatsPaneController;
+import pl.baczkowicz.mqttspy.ui.charts.ChartMode;
 import pl.baczkowicz.mqttspy.utils.MqttUtils;
 import pl.baczkowicz.mqttspy.utils.ThreadingUtils;
 
@@ -471,5 +479,45 @@ public class DialogUtils
 		stage.setScene(scene);
 		
 		return stage;
+	}
+
+	public static void showMessageBasedCharts(Set<String> topics, 
+			final ManagedMessageStoreWithFiltering store,
+			final ChartMode mode, 
+			final String seriesType, final String seriesValueName, 
+			final String seriesUnit, final String title, 
+			final Scene parentScene, final EventManager eventManager)
+	{
+		final FXMLLoader loader = FxmlUtils.createFXMLLoader(parentScene, FxmlUtils.FXML_LOCATION + "StatsPane.fxml");
+		final AnchorPane statsWindow = FxmlUtils.loadAnchorPane(loader);
+		final StatsPaneController statsPaneController = ((StatsPaneController) loader.getController());		
+		statsPaneController.setEventManager(eventManager);
+		statsPaneController.setStore(store);
+		statsPaneController.setSeriesTypeName(seriesType);
+		statsPaneController.setTopics(topics);
+		statsPaneController.setChartMode(mode);
+		statsPaneController.setSeriesValueName(seriesValueName);
+		statsPaneController.setSeriesUnit(seriesUnit);
+		statsPaneController.init();
+		
+		Scene scene = new Scene(statsWindow);
+		scene.getStylesheets().addAll(parentScene.getStylesheets());		
+
+		final Stage statsPaneStage = new Stage();
+		statsPaneStage.setWidth(600);
+		statsPaneStage.setHeight(470);
+		statsPaneStage.setScene(scene);			       
+		statsPaneStage.setTitle(title);
+		statsPaneStage.show();
+		// Resize to get axis right
+		statsPaneStage.setHeight(480);
+		statsPaneStage.setOnCloseRequest(new EventHandler<WindowEvent>()
+		{
+			@Override
+			public void handle(WindowEvent event)
+			{
+				statsPaneController.cleanup();
+			}
+		});
 	}
 }

@@ -32,7 +32,7 @@
       <AnchorPane fx:id="statsPane" prefHeight="40.0" prefWidth="599.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
          
-            <Label layoutX="368.0" layoutY="12.0" text="Show" AnchorPane.rightAnchor="285.0" />
+            <Label fx:id="showRangeLabel" layoutX="368.0" layoutY="11.0" text="Show" AnchorPane.rightAnchor="285.0" />
             <ComboBox fx:id="showRangeBox" focusTraversable="false" layoutY="7.0" prefHeight="25.0" prefWidth="150.0" AnchorPane.rightAnchor="127.0" AnchorPane.topAnchor="7.0" />
             
             <Button fx:id="refreshButton" layoutX="14.0" layoutY="9.0" prefHeight="25.0" prefWidth="100.0" mnemonicParsing="false" onAction="#refresh" text="Refresh" AnchorPane.leftAnchor="7.0" AnchorPane.topAnchor="7.0">
@@ -57,7 +57,7 @@
 				      </ImageView>
 		      	</graphic>
 		        <items>
-		        	<CheckMenuItem fx:id="displaySymbolsCheckBox" text="Display points"/>   
+		        	<CheckMenuItem fx:id="displaySymbolsCheckBox" text="Display points and tooltips"/>   
 		            <SeparatorMenuItem mnemonicParsing="false" />
 		            <MenuItem text="Reset chart" onAction="#reset"/>
 		        </items>
