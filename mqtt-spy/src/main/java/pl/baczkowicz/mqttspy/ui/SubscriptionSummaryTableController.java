@@ -29,10 +29,8 @@ import javafx.collections.transformation.SortedList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
-import javafx.scene.Scene;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
@@ -43,9 +41,6 @@ import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.AnchorPane;
-import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
 import javafx.util.Callback;
 
 import org.controlsfx.control.action.Action;
@@ -59,7 +54,6 @@ import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
 import pl.baczkowicz.mqttspy.ui.charts.ChartMode;
 import pl.baczkowicz.mqttspy.ui.properties.SubscriptionTopicSummaryProperties;
 import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
-import pl.baczkowicz.mqttspy.ui.utils.FxmlUtils;
 import pl.baczkowicz.mqttspy.ui.utils.StylingUtils;
 import pl.baczkowicz.mqttspy.ui.utils.UiUtils;
 
@@ -333,13 +327,13 @@ public class SubscriptionSummaryTableController implements Initializable
 		{
 			DialogUtils.showMessageBasedCharts(topics, store, mode, 
 					"Topic", "Size", "bytes", "Message size chart", 
-					filterTable.getScene(), eventManager);
+					filterTable.getScene(), this, eventManager);
 		}
 		else
 		{
 			DialogUtils.showMessageBasedCharts(topics, store, mode, 
 					"Topic", "Value", "", "Message content chart",
-					filterTable.getScene(), eventManager);
+					filterTable.getScene(), this, eventManager);
 		}		
 	}
 	

@@ -16,6 +16,7 @@ package pl.baczkowicz.mqttspy.ui;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -60,6 +61,7 @@ import pl.baczkowicz.mqttspy.connectivity.MqttContent;
 import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
 import pl.baczkowicz.mqttspy.events.EventManager;
 import pl.baczkowicz.mqttspy.events.observers.MessageAddedObserver;
+import pl.baczkowicz.mqttspy.storage.BasicMessageStore;
 import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
 import pl.baczkowicz.mqttspy.ui.charts.ChartMode;
 import pl.baczkowicz.mqttspy.ui.properties.MessageLimitProperties;
@@ -103,13 +105,13 @@ public class StatsPaneController implements Initializable, MessageAddedObserver
 	@FXML
 	private MenuButton optionsButton;
 	
-	private ManagedMessageStoreWithFiltering store;
+	private BasicMessageStore store;
 
 	private EventManager eventManager;
 	
 	private MqttSubscription subscription;
 
-	private Set<String> topics;
+	private Collection<String> topics;
 	
 	private Map<String, List<MqttContent>> chartData = new HashMap<>();
 	
@@ -352,7 +354,7 @@ public class StatsPaneController implements Initializable, MessageAddedObserver
 		eventManager.deregisterMessageAddedObserver(this);
 	}
 	
-	private void divideMessagesByTopic(final Set<String> topics)
+	private void divideMessagesByTopic(final Collection<String> topics)
 	{
 		chartData.clear();
 		for (final MqttContent message : store.getMessages())
@@ -566,8 +568,11 @@ public class StatsPaneController implements Initializable, MessageAddedObserver
 				addMessageToSeries(topicToSeries.get(topic), message);
 				//logger.info("Added = {}=?{}/{}", chartData.get(topic).size(), topicToSeries.get(topic).getData().size(), limit.getMessageLimit());
 				
-				populateTooltip(topicToSeries.get(topic), 
+				if (topicToSeries.get(topic).getData().size() > 0)
+				{
+					populateTooltip(topicToSeries.get(topic), 
 						topicToSeries.get(topic).getData().get(topicToSeries.get(topic).getData().size() - 1));
+				}
 			}
 		}
 	}	
@@ -581,7 +586,7 @@ public class StatsPaneController implements Initializable, MessageAddedObserver
 	// === Setters and getters =======
 	// ===============================
 
-	public void setTopics(final Set<String> topics)
+	public void setTopics(final Collection<String> topics)
 	{
 		this.topics = topics;
 	}
@@ -596,7 +601,7 @@ public class StatsPaneController implements Initializable, MessageAddedObserver
 		this.eventManager = eventManager;
 	}
 	
-	public void setStore(final ManagedMessageStoreWithFiltering store)
+	public void setStore(final BasicMessageStore store)
 	{
 		this.store = store;		
 	}	

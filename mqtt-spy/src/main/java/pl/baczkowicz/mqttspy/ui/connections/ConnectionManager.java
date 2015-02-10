@@ -234,7 +234,8 @@ public class ConnectionManager
 				
 				connectionTab.setContextMenu(ContextMenuUtils.createConnectionMenu(connection, connectionController, connectionManager));
 				
-				subscriptionController.getTab().setContextMenu(ContextMenuUtils.createAllSubscriptionsTabContextMenu(connection, eventManager, subscriptionManager, configurationManager));
+				subscriptionController.getTab().setContextMenu(ContextMenuUtils.createAllSubscriptionsTabContextMenu(
+						connection, eventManager, subscriptionManager, configurationManager, subscriptionController));
 				
 				eventManager.registerConnectionStatusObserver(connectionController, connection);
 				// connection.addObserver(connectionController);											

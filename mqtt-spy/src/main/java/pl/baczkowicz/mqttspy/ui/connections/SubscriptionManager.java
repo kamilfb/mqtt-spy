@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.Queue;
 
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
@@ -94,6 +95,7 @@ public class SubscriptionManager
 	 * @param connection The connection for which to create this subscription
 	 * @param connectionController The connection controller
 	 * @param parent The parent UI node
+	 * @param scene 
 	 */
 	public void createSubscription(final Color color, final boolean subscribe, final TabbedSubscriptionDetails subscriptionDetails, 
 			final MqttAsyncConnection connection, final ConnectionController connectionController, final Object parent)

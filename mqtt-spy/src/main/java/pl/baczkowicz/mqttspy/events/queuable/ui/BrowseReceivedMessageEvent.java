@@ -21,11 +21,11 @@ public class BrowseReceivedMessageEvent implements MqttSpyUIEvent
 {
 	private final MqttContent message;
 	
-	private final MessageListWithObservableTopicSummary store;
+	private final MessageListWithObservableTopicSummary messageList;
 
-	public BrowseReceivedMessageEvent(final MessageListWithObservableTopicSummary store, final MqttContent message)
+	public BrowseReceivedMessageEvent(final MessageListWithObservableTopicSummary messageList, final MqttContent message)
 	{
-		this.store = store;
+		this.messageList = messageList;
 		this.message = message;
 	}
 
@@ -36,6 +36,6 @@ public class BrowseReceivedMessageEvent implements MqttSpyUIEvent
 
 	public MessageListWithObservableTopicSummary getList()
 	{
-		return store;
+		return messageList;
 	}
 }

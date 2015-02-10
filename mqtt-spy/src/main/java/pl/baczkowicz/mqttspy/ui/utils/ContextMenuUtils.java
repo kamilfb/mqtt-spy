@@ -14,10 +14,13 @@
  */
 package pl.baczkowicz.mqttspy.ui.utils;
 
+import java.util.Arrays;
+
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.scene.Scene;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Menu;
@@ -33,6 +36,7 @@ import pl.baczkowicz.mqttspy.events.EventManager;
 import pl.baczkowicz.mqttspy.stats.StatisticsManager;
 import pl.baczkowicz.mqttspy.ui.ConnectionController;
 import pl.baczkowicz.mqttspy.ui.SubscriptionController;
+import pl.baczkowicz.mqttspy.ui.charts.ChartMode;
 import pl.baczkowicz.mqttspy.ui.connections.ConnectionManager;
 import pl.baczkowicz.mqttspy.ui.connections.SubscriptionManager;
 import pl.baczkowicz.mqttspy.ui.panes.PaneVisibilityStatus;
@@ -58,7 +62,8 @@ public class ContextMenuUtils
 	 * @return The created context menu
 	 */
 	public static ContextMenu createSubscriptionTabContextMenu(
-			final MqttAsyncConnection connection, final MqttSubscription subscription, 
+			final MqttAsyncConnection connection, 
+			final MqttSubscription subscription, 
 			final EventManager eventManager, 
 			final SubscriptionManager subscriptionManager,
 			final ConfigurationManager configurationManager,
@@ -182,19 +187,30 @@ public class ContextMenuUtils
 		// Separator
 		other.getItems().add(new SeparatorMenuItem());
 		
+		// View
+		final MenuItem detachMenu = new MenuItem("[View] Detach to a separate window");
+		detachMenu.setOnAction(TabUtils.createTabDetachEvent(
+				detachMenu, subscriptionController, 
+				connection.getName() + " - " + subscription.getTopic(), 5));
+		other.getItems().add(detachMenu);		
+		
 		// Message load charts
 		MenuItem messageLoadChartItem = new MenuItem("[Graphing] Show message load chart");
 		messageLoadChartItem.setOnAction(new EventHandler<ActionEvent>()
 		{
 			public void handle(ActionEvent e)
-			{				
-				// TODO
+			{			
+				DialogUtils.showMessageBasedCharts(
+						Arrays.asList(SubscriptionController.AVG5_TOPIC, SubscriptionController.AVG30_TOPIC, SubscriptionController.AVG300_TOPIC),
+						subscriptionController.getStatsHistory(), 
+						ChartMode.USER_DRIVEN_MSG_PAYLOAD,
+						"Series", "Load", "msgs/s", "Message load statistics for " + subscription.getTopic(), subscriptionController.getScene(), subscriptionController, eventManager);
 			}
 		});
 		contextMenu.getItems().add(messageLoadChartItem);
 		
 		// Separator
-		other.getItems().add(new SeparatorMenuItem());
+		contextMenu.getItems().add(new SeparatorMenuItem());
 		
 		// Clear data
 		MenuItem clearItem = new MenuItem("[History] Clear subscription history");
@@ -208,14 +224,7 @@ public class ContextMenuUtils
 				subscription.clear();
 			}
 		});
-		contextMenu.getItems().add(clearItem);
-		
-		// View
-		final MenuItem detachMenu = new MenuItem("[View] Detach to a separate window");
-		detachMenu.setOnAction(TabUtils.createTabDetachEvent(
-				detachMenu, subscriptionController, 
-				connection.getName() + " - " + subscription.getTopic(), 5));
-		other.getItems().add(detachMenu);		
+		contextMenu.getItems().add(clearItem);		
 
 		return contextMenu;
 	}
@@ -231,9 +240,11 @@ public class ContextMenuUtils
 	 * @return Created context menu
 	 */
 	public static ContextMenu createAllSubscriptionsTabContextMenu(
-			final MqttAsyncConnection connection, final EventManager eventManager,
+			final MqttAsyncConnection connection, 
+			final EventManager eventManager,
 			final SubscriptionManager subscriptionManager,
-			final ConfigurationManager configurationManager)
+			final ConfigurationManager configurationManager,
+			final SubscriptionController subscriptionController)
 	{
 		final ContextMenu contextMenu = new ContextMenu();
 
@@ -298,51 +309,20 @@ public class ContextMenuUtils
 		// Separator
 		contextMenu.getItems().add(new SeparatorMenuItem());
 
-		// Message load charts
-		Menu messageLoadChartItem = new Menu("[Graphing] Show message load charts");
-		
-		MenuItem showAllChartItem = new MenuItem("Show overall message load chart");
+		MenuItem showAllChartItem = new MenuItem("[Graphing] Show overall message load chart");
 		showAllChartItem.setOnAction(new EventHandler<ActionEvent>()
 		{
 			public void handle(ActionEvent e)
 			{
-				// TODO
+				DialogUtils.showMessageBasedCharts(
+						Arrays.asList(SubscriptionController.AVG5_TOPIC, SubscriptionController.AVG30_TOPIC, SubscriptionController.AVG300_TOPIC),
+						subscriptionController.getStatsHistory(), 
+						ChartMode.USER_DRIVEN_MSG_PAYLOAD,
+						"Series", "Load", "msgs/s", "Message load statistics for all subscriptions", subscriptionController.getScene(), subscriptionController, eventManager);
 			}
 		});
-		messageLoadChartItem.getItems().add(showAllChartItem);
-		
-		messageLoadChartItem.getItems().add(new SeparatorMenuItem());
-		
-		MenuItem showPeriod1ChartItem = new MenuItem("Show 5s message load chart");
-		showPeriod1ChartItem.setOnAction(new EventHandler<ActionEvent>()
-		{
-			public void handle(ActionEvent e)
-			{
-				// TODO
-			}
-		});
-		messageLoadChartItem.getItems().add(showPeriod1ChartItem);
-		
-		MenuItem showPeriod2ChartItem = new MenuItem("Show 30s message load chart");
-		showPeriod2ChartItem.setOnAction(new EventHandler<ActionEvent>()
-		{
-			public void handle(ActionEvent e)
-			{
-				// TODO
-			}
-		});
-		messageLoadChartItem.getItems().add(showPeriod2ChartItem);
-		
-		MenuItem showPeriod3ChartItem = new MenuItem("Show 5min message load chart");
-		showPeriod3ChartItem.setOnAction(new EventHandler<ActionEvent>()
-		{
-			public void handle(ActionEvent e)
-			{
-				// TODO
-			}
-		});
-		messageLoadChartItem.getItems().add(showPeriod3ChartItem);
-		contextMenu.getItems().add(messageLoadChartItem);
+
+		contextMenu.getItems().add(showAllChartItem);
 						
 		// Separator
 		contextMenu.getItems().add(new SeparatorMenuItem());

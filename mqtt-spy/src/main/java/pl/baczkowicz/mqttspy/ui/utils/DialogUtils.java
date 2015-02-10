@@ -16,6 +16,7 @@ package pl.baczkowicz.mqttspy.ui.utils;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
@@ -55,7 +56,9 @@ import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.connectivity.MqttConnectionStatus;
 import pl.baczkowicz.mqttspy.events.EventManager;
 import pl.baczkowicz.mqttspy.stats.StatisticsManager;
+import pl.baczkowicz.mqttspy.storage.BasicMessageStore;
 import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
+import pl.baczkowicz.mqttspy.ui.MainController;
 import pl.baczkowicz.mqttspy.ui.StatsPaneController;
 import pl.baczkowicz.mqttspy.ui.charts.ChartMode;
 import pl.baczkowicz.mqttspy.utils.MqttUtils;
@@ -481,14 +484,14 @@ public class DialogUtils
 		return stage;
 	}
 
-	public static void showMessageBasedCharts(Set<String> topics, 
-			final ManagedMessageStoreWithFiltering store,
+	public static void showMessageBasedCharts(Collection<String> topics, 
+			final BasicMessageStore store,
 			final ChartMode mode, 
 			final String seriesType, final String seriesValueName, 
 			final String seriesUnit, final String title, 
-			final Scene parentScene, final EventManager eventManager)
+			final Scene parentScene, final Object parent, final EventManager eventManager)
 	{
-		final FXMLLoader loader = FxmlUtils.createFXMLLoader(parentScene, FxmlUtils.FXML_LOCATION + "StatsPane.fxml");
+		final FXMLLoader loader = FxmlUtils.createFXMLLoader(parent, FxmlUtils.FXML_LOCATION + "StatsPane.fxml");
 		final AnchorPane statsWindow = FxmlUtils.loadAnchorPane(loader);
 		final StatsPaneController statsPaneController = ((StatsPaneController) loader.getController());		
 		statsPaneController.setEventManager(eventManager);

@@ -24,6 +24,7 @@ import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ColorPicker;
@@ -212,8 +213,7 @@ public class NewSubscriptionController implements Initializable, TitledPaneContr
 		{
 			DialogUtils.showError("Invalid topic", "Cannot subscribe to an empty topic.");
 		}
-	}
-	
+	}	
 
 	public void subscribe(final TabbedSubscriptionDetails subscriptionDetails, final boolean subscribe)
 	{
@@ -223,7 +223,8 @@ public class NewSubscriptionController implements Initializable, TitledPaneContr
 			recordSubscriptionTopic(subscriptionDetails.getTopic());
 			
 			connectionManager.getSubscriptionManager(connectionController).
-				createSubscription(subscriptionColorPicker.getValue(), subscribe, subscriptionDetails, connection, connectionController, this);
+				createSubscription(subscriptionColorPicker.getValue(), subscribe, subscriptionDetails, 
+						connection, connectionController, this);
 			
 			subscriptionColorPicker.setValue(colors.get(connection.getLastUsedSubscriptionId() % 16));
 		}
