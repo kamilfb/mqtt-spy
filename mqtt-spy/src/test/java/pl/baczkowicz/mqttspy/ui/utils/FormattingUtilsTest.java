@@ -16,6 +16,11 @@ package pl.baczkowicz.mqttspy.ui.utils;
 
 import static org.junit.Assert.assertEquals;
 
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
+
+import org.apache.commons.codec.binary.Hex;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import pl.baczkowicz.mqttspy.configuration.generated.ConversionMethod;
@@ -48,6 +53,54 @@ public class FormattingUtilsTest
 	public final void testHexToString() throws ConversionException
 	{
 		assertEquals("test2", ConversionUtils.hexToString("7465737432"));
+	}
+	
+	@Test
+	public void testConversion1()
+	{
+		final String encodedString = "3f915604fffd";
+		assertEquals(encodedString, new String(encodedString.getBytes()));
+		assertEquals(encodedString.getBytes().length, new String(encodedString.getBytes()).getBytes().length);
+	}
+	
+	@Test
+	public final void testConversion2() throws ConversionException, UnsupportedEncodingException	
+	{
+		final String encodedString = "3f915604fffd";
+		assertEquals(12, encodedString.length());
+		assertEquals(12, encodedString.getBytes().length);
+		
+		final byte[] plainArray = ConversionUtils.hexToArray(encodedString);		
+		assertEquals(6, plainArray.length);		
+				
+		assertEquals(12, Hex.encodeHex(plainArray).length);
+		assertEquals(12, new String(Hex.encodeHex(plainArray)).length());
+		assertEquals(12, ConversionUtils.arrayToHex(plainArray).length());
+	}
+	
+	@Ignore
+	@Test
+	public final void testHexToStringToHex() throws ConversionException
+	{
+		final String testString = "3f915604fffd";
+		
+		assertEquals(true, Charset.isSupported("UTF-8"));
+		
+		//final Hex hex = new Hex(ConversionUtils.DEFAULT_CHARSET);
+		assertEquals(12, ConversionUtils.stringToArray(testString).length);
+		
+		assertEquals(6, ConversionUtils.hexToArray(testString).length);
+		assertEquals(6, ConversionUtils.arrayToString(ConversionUtils.hexToArray(testString)).length());
+		
+		assertEquals(6, ConversionUtils.hexToString(testString).length());
+		
+		assertEquals(6, ConversionUtils.hexToString(testString).getBytes().length);
+		
+		assertEquals(6, ConversionUtils.stringToArray(ConversionUtils.hexToString(testString)).length);
+		assertEquals(12, Hex.encodeHex(ConversionUtils.stringToArray(ConversionUtils.hexToString(testString))).length);
+		
+		// return new String(Hex.encodeHex());
+		assertEquals(testString, ConversionUtils.stringToHex(ConversionUtils.hexToString(testString)));
 	}
 	
 	/**
@@ -103,7 +156,7 @@ public class FormattingUtilsTest
 		function.getSubstringConversion().setFormat(ConversionMethod.BASE_64_DECODE);
 		customFormatter.getFunction().add(function);
 		
-		assertEquals("<Body>GOOD</Body>", FormattingUtils.formatText(customFormatter, "<Body>R09PRA==</Body>"));
+		assertEquals("<Body>GOOD</Body>", FormattingUtils.formatText(customFormatter, "<Body>R09PRA==</Body>", null));
 	}
 	
 	/**
@@ -121,7 +174,7 @@ public class FormattingUtilsTest
 		function.getSubstringConversion().setFormat(ConversionMethod.BASE_64_DECODE);
 		customFormatter.getFunction().add(function);
 		
-		assertEquals("GOOD", FormattingUtils.formatText(customFormatter, "<Body>R09PRA==</Body>"));
+		assertEquals("GOOD", FormattingUtils.formatText(customFormatter, "<Body>R09PRA==</Body>", null));
 	}
 	
 	/**
@@ -147,7 +200,7 @@ public class FormattingUtilsTest
 		function2.getSubstringExtract().setKeepTags(false);
 		customFormatter.getFunction().add(function2);
 		
-		assertEquals("GOOD", FormattingUtils.formatText(customFormatter, "some other stuff <Body>R09PRA==</Body> and even more stuff"));
+		assertEquals("GOOD", FormattingUtils.formatText(customFormatter, "some other stuff <Body>R09PRA==</Body> and even more stuff", null));
 	} 
 
 	/**

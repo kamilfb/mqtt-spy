@@ -206,14 +206,16 @@ public class MessageController implements Initializable, MessageIndexChangeObser
 		{
 			this.message = message;
 	
-			final String payload = new String(message.getMessage().getPayload());
+			final String payload = new String(message.getPayload());
 			logger.trace("Message payload = " + payload);
 	
 			topicField.setText(message.getTopic());
-			qosField.setText(String.valueOf(message.getMessage().getQos()));
+			qosField.setText(String.valueOf(message.getQoS()));
 			timeField.setText(TimeUtils.DATE_WITH_MILLISECONDS_SDF.format(message.getDate()));
-			populateLength(payload.length());
-			retainedField.setSelected(message.getMessage().isRetained());
+			retainedField.setSelected(message.isRetained());
+			
+			// Take the length of the raw byte array
+			populateLength(message.getRawMessage().getPayload().length);			
 	
 			showMessageData();
 		}

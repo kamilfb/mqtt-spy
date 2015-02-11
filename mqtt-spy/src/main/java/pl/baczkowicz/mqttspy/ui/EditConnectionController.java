@@ -73,6 +73,7 @@ import pl.baczkowicz.mqttspy.configuration.generated.UserAuthenticationOptions;
 import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnectionDetails;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.exceptions.ConfigurationException;
+import pl.baczkowicz.mqttspy.messages.ReceivedMqttMessage;
 import pl.baczkowicz.mqttspy.ui.connections.ConnectionManager;
 import pl.baczkowicz.mqttspy.ui.properties.BackgroundScriptProperties;
 import pl.baczkowicz.mqttspy.ui.properties.BaseTopicProperty;
@@ -1044,10 +1045,10 @@ public class EditConnectionController extends AnchorPane implements Initializabl
 		
 		if (lastWillAndTestament.isSelected())
 		{			
-			final BaseMqttMessage message = lastWillAndTestamentMessageController.readMessage(false);
+			final ReceivedMqttMessage message = lastWillAndTestamentMessageController.readMessage(false);
 			if (message != null)
 			{
-				connection.setLastWillAndTestament(message);
+				connection.setLastWillAndTestament(new BaseMqttMessage(message.getPayload(), message.getTopic(), message.getQoS(), message.isRetained()));
 			}
 		}		
 		

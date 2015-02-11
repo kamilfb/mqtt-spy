@@ -56,13 +56,13 @@ public class SimpleMessageLogComposer
 		// Quality of service
 		if (messageLogOptions.isLogQos())
 		{
-			appendAttribute(logMessage, "qos", String.valueOf(message.getMessage().getQos()));
+			appendAttribute(logMessage, "qos", String.valueOf(message.getQoS()));
 		}
 		
 		// Retained flag
 		if (messageLogOptions.isLogRetained())
 		{
-			appendAttribute(logMessage, "retained", String.valueOf(message.getMessage().isRetained()));
+			appendAttribute(logMessage, "retained", String.valueOf(message.isRetained()));
 		}
 		
 		// Connection info
@@ -95,7 +95,7 @@ public class SimpleMessageLogComposer
 	private static void populatePayload(final StringBuffer logMessage, final ReceivedMqttMessageWithSubscriptions message, final MessageLog messageLogOptions)
 	{
 		boolean encoded = MessageLogEnum.XML_WITH_ENCODED_PAYLOAD.equals(messageLogOptions.getValue());
-		final String payload = new String(message.getMessage().getPayload());
+		final String payload = new String(message.getPayload());
 		
 		// If the payload contains a new line character, encode it, as it would make the message log invalid (no new lines allowed for a message)
 		if (!encoded && 
@@ -116,7 +116,7 @@ public class SimpleMessageLogComposer
 		
 		if (encoded)
 		{
-			appendValue(logMessage, Base64.encodeBase64String(message.getMessage().getPayload()));
+			appendValue(logMessage, Base64.encodeBase64String(message.getRawMessage().getPayload()));
 		}
 		else
 		{			

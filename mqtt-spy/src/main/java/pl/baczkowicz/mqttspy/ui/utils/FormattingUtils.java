@@ -14,6 +14,8 @@
  */
 package pl.baczkowicz.mqttspy.ui.utils;
 
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.binary.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,7 +71,7 @@ public class FormattingUtils
 	 * 
 	 * @return The formatted text
 	 */
-	public static String formatText(final FormatterDetails customFormatter, final String text)
+	public static String formatText(final FormatterDetails customFormatter, final String text, final byte[] rawText)
 	{
 		logger.trace("Formatting '" + text + "' with " + customFormatter.getName());
 		String formattedText = text;
@@ -90,7 +92,15 @@ public class FormattingUtils
 			}
 			else if (function.getConversion() != null)
 			{
-				formattedText = convertText(function.getConversion().getFormat(), formattedText);
+				// Here we want the raw text, otherwise the encoding might be incorrect
+				if (customFormatter.getFunction().size() == 1 && rawText != null)
+				{
+					formattedText = convertText(function.getConversion().getFormat(), rawText);
+				}
+				else
+				{
+					formattedText = convertText(function.getConversion().getFormat(), formattedText);
+				}				
 			}
 			else if (function.getCharacterReplace() != null)
 			{
@@ -324,6 +334,31 @@ public class FormattingUtils
 	}
 	
 	/**
+	 * Converts the given text using the supplied method.
+	 * 
+	 * @param method The method to use for conversion
+	 * @param text The text to be converted
+	 * 
+	 * @return The converted text
+	 */
+	public static String convertText(final ConversionMethod method, final byte[] text)
+	{
+		switch (method)
+		{
+			case HEX_ENCODE:
+			{
+				return new String(Hex.encodeHex(text));
+			}
+			case BASE_64_ENCODE:
+			{
+				return Base64.encodeBase64String(text);
+			}
+			default:
+				return ConversionUtils.arrayToString(text);
+		}
+	}
+	
+	/**
 	 * Formats the given text using the supplied format.
 	 * 
 	 * @param format The format to use for conversion
@@ -335,9 +370,26 @@ public class FormattingUtils
 	{		
 		if (format != null)
 		{
-			return FormattingUtils.formatText(format, text);
+			return FormattingUtils.formatText(format, text, null);
 		}
 		return text;
+	}
+	
+	/**
+	 * Formats the given text using the supplied format.
+	 * 
+	 * @param format The format to use for conversion
+	 * @param text The text to be formatted
+	 * 
+	 * @return The formatted text
+	 */
+	public static String checkAndFormatText(final FormatterDetails format, final byte[] text)
+	{		
+		if (format != null)
+		{
+			return FormattingUtils.formatText(format, ConversionUtils.arrayToString(text), text);
+		}
+		return ConversionUtils.arrayToString(text);
 	}
 	
 	/**

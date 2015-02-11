@@ -59,7 +59,6 @@ import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.events.EventManager;
 import pl.baczkowicz.mqttspy.events.observers.ScriptListChangeObserver;
 import pl.baczkowicz.mqttspy.exceptions.ConversionException;
-import pl.baczkowicz.mqttspy.messages.BaseMqttMessageWrapper;
 import pl.baczkowicz.mqttspy.messages.ReceivedMqttMessage;
 import pl.baczkowicz.mqttspy.scripts.InteractiveScriptManager;
 import pl.baczkowicz.mqttspy.scripts.Script;
@@ -130,10 +129,8 @@ public class NewPublicationController implements Initializable, ScriptListChange
 
 	private MqttAsyncConnection connection;
 
-	private boolean plainSelected = true;
+	private ConversionMethod formatSelected = ConversionMethod.PLAIN;
 
-	private boolean previouslyPlainSelected = true;
-	
 	private boolean connected;
 
 	private boolean detailedView;
@@ -158,6 +155,7 @@ public class NewPublicationController implements Initializable, ScriptListChange
 		publicationTopicText.setItems(publicationTopics);
 		formatGroup.getToggles().get(0).setUserData(ConversionMethod.PLAIN);
 		formatGroup.getToggles().get(1).setUserData(ConversionMethod.HEX_DECODE);
+		formatGroup.getToggles().get(2).setUserData(ConversionMethod.BASE_64_DECODE);
 		formatGroup.selectToggle(formatGroup.getToggles().get(0));
 		
 		formatGroup.selectedToggleProperty().addListener(new ChangeListener<Toggle>()
@@ -168,14 +166,20 @@ public class NewPublicationController implements Initializable, ScriptListChange
 				// If plain has been selected
 				if (newValue != null)
 				{
-					if (formatGroup.getSelectedToggle().getUserData().equals(ConversionMethod.PLAIN))
+					switch ((ConversionMethod) formatGroup.getSelectedToggle().getUserData())
 					{
-						showAsPlain();
-					}
-					else
-					{
-						showAsHex();
-					}
+						case BASE_64_DECODE:
+							showAsBase64();
+							break;
+						case HEX_DECODE:
+							showAsHex();
+							break;
+						case PLAIN:
+							showAsPlain();
+							break;
+						default:
+							break;					
+					}					
 				}
 			}
 		});
@@ -256,8 +260,6 @@ public class NewPublicationController implements Initializable, ScriptListChange
 		publicationData.setWrapText(true);
 		
 		publishScript.getToggles().get(0).setUserData(null);
-		
-		//paneStatus.setVisibility(PaneVisibilityStatus.NOT_VISIBLE);
 	}		
 
 	public void init()
@@ -317,11 +319,9 @@ public class NewPublicationController implements Initializable, ScriptListChange
 		this.publicationTopicText.setDisable(!connected);
 	}
 	
-	@FXML
-	public void showAsPlain()
+	private void decodeToPlain()
 	{
-		plainSelected = true;
-		if (previouslyPlainSelected != plainSelected)
+		if (formatSelected.equals(ConversionMethod.HEX_DECODE))
 		{
 			try
 			{
@@ -332,7 +332,6 @@ public class NewPublicationController implements Initializable, ScriptListChange
 				publicationData.appendText(convertedText);
 				
 				formatMenu.setText("Input format: Plain");
-				previouslyPlainSelected = plainSelected;
 			}
 			catch (ConversionException e)
 			{
@@ -340,25 +339,65 @@ public class NewPublicationController implements Initializable, ScriptListChange
 				
 				formatGroup.selectToggle(formatGroup.getToggles().get(1));
 				formatMenu.setText("Input format: Hex");
-				plainSelected = false;
 			}
+		}
+		else if (formatSelected.equals(ConversionMethod.BASE_64_DECODE))
+		{
+			final String convertedText = ConversionUtils.base64ToString(publicationData.getText());
+			logger.info("Converted {} to {}", publicationData.getText(), convertedText);
+			
+			publicationData.clear();				
+			publicationData.appendText(convertedText);
+			
+			formatMenu.setText("Input format: Plain");
 		}
 	}
 	
 	@FXML
-	public void showAsHex()
+	public void showAsPlain()
 	{
-		plainSelected = false;
-		if (previouslyPlainSelected != plainSelected)
+		if (!ConversionMethod.PLAIN.equals(formatSelected))
 		{
-			final String convertedText = ConversionUtils.stringToHex(publicationData.getText());
+			decodeToPlain();
+			formatSelected = ConversionMethod.PLAIN;
+		}		
+	}
+	
+	@FXML
+	public void showAsHex()
+	{		
+		if (!ConversionMethod.HEX_DECODE.equals(formatSelected))
+		{
+			final ReceivedMqttMessage message = readMessage(true);
+			
+			// Use the raw format to ensure correct transformation between binary formats
+			final String convertedText = ConversionUtils.arrayToHex(message.getRawMessage().getPayload());
 			logger.info("Converted {} to {}", publicationData.getText(), convertedText);
 			
 			publicationData.clear();
 			publicationData.appendText(convertedText);
 			
 			formatMenu.setText("Input format: Hex");
-			previouslyPlainSelected = plainSelected;
+			formatSelected = ConversionMethod.HEX_DECODE;
+		}
+	}
+	
+	@FXML
+	public void showAsBase64()
+	{		
+		if (!ConversionMethod.BASE_64_DECODE.equals(formatSelected))
+		{
+			final ReceivedMqttMessage message = readMessage(true);
+			
+			// Use the raw format to ensure correct transformation between binary formats
+			final String convertedText = ConversionUtils.arrayToBase64(message.getRawMessage().getPayload());
+			logger.info("Converted {} to {}", publicationData.getText(), convertedText);
+			
+			publicationData.clear();
+			publicationData.appendText(convertedText);
+			
+			formatMenu.setText("Input format: Base64");
+			formatSelected = ConversionMethod.BASE_64_DECODE;
 		}
 	}
 	
@@ -429,7 +468,7 @@ public class NewPublicationController implements Initializable, ScriptListChange
 		}
 	}
 	
-	public BaseMqttMessage readMessage(final boolean verify)
+	public ReceivedMqttMessage readMessage(final boolean verify)
 	{
 		// Note: here using the editor, as the value stored directly in the ComboBox might
 		// not be committed yet, whereas the editor (TextField) has got the current text in it
@@ -443,20 +482,27 @@ public class NewPublicationController implements Initializable, ScriptListChange
 			return null;
 		}
 		
-		final BaseMqttMessage message = new BaseMqttMessage();
+		final ReceivedMqttMessage message = new ReceivedMqttMessage(0, topic, new MqttMessage());
 		try
 		{
-			String data = publicationData.getText();
-		
-			if (!previouslyPlainSelected)
+			if (formatSelected.equals(ConversionMethod.PLAIN))
 			{
-				data = ConversionUtils.hexToString(data);
+				final byte[] data = ConversionUtils.stringToArray(publicationData.getText());
+				message.getRawMessage().setPayload(data);
 			}
-					
-			message.setTopic(topic);
-			message.setQos(publicationQosChoice.getSelectionModel().getSelectedIndex());
-			message.setValue(data);
-			message.setRetained(retainedBox.isSelected());
+			else if (formatSelected.equals(ConversionMethod.HEX_DECODE))
+			{
+				final byte[] data = ConversionUtils.hexToArray(publicationData.getText());
+				message.getRawMessage().setPayload(data);
+			}								
+			else if (formatSelected.equals(ConversionMethod.BASE_64_DECODE))
+			{
+				final byte[] data = ConversionUtils.base64ToArray(publicationData.getText());
+				message.getRawMessage().setPayload(data);
+			}
+			
+			message.getRawMessage().setQos(publicationQosChoice.getSelectionModel().getSelectedIndex());
+			message.getRawMessage().setRetained(retainedBox.isSelected());
 			
 			return message;
 		}
@@ -470,7 +516,7 @@ public class NewPublicationController implements Initializable, ScriptListChange
 	@FXML
 	public void publish()
 	{						
-		final BaseMqttMessage message = readMessage(true);
+		final ReceivedMqttMessage message = readMessage(true);
 		
 		if (message != null)
 		{
@@ -481,7 +527,8 @@ public class NewPublicationController implements Initializable, ScriptListChange
 			if (script == null)
 			{			
 				logger.debug("Publishing with no script");
-				connection.publish(message.getTopic(), message.getValue(), message.getQos(), message.isRetained());
+				// This requires a proper byte[] to be passed, to be sure the encoding/format is not broken
+				connection.publish(message.getTopic(), message.getRawMessage().getPayload(), message.getQoS(), message.isRetained());
 			
 				recordPublicationTopic(message.getTopic());
 			}
@@ -490,19 +537,9 @@ public class NewPublicationController implements Initializable, ScriptListChange
 				logger.debug("Publishing with '{}' script", script.getName());
 				
 				// Publish with script
-				scriptManager.runScriptFileWithMessage(script, new BaseMqttMessageWrapper(message));
+				scriptManager.runScriptFileWithMessage(script, message);
 			}
 		}
-	}
-	
-	private ReceivedMqttMessage baseToReceived(final BaseMqttMessage message)
-	{
-		final MqttMessage mqttMessage = new MqttMessage();
-		mqttMessage.setQos(message.getQos());
-		mqttMessage.setRetained(message.isRetained());
-		mqttMessage.setPayload(message.getValue().getBytes());
-		
-		return new ReceivedMqttMessage(0, message.getTopic(), mqttMessage);
 	}
 	
 	/**
@@ -510,19 +547,17 @@ public class NewPublicationController implements Initializable, ScriptListChange
 	 * 
 	 * @param message The message to record
 	 */
-	private void recordMessage(final BaseMqttMessage message)
+	private void recordMessage(final ReceivedMqttMessage message)
 	{
 		// If the message is the same as previous one, remove the old one
 		if (recentMessages.size() > 0 
 				&& message.getTopic().equals(recentMessages.get(0).getTopic()) 
-				&& message.getValue().equals(recentMessages.get(0).getPayload()))
+				&& message.getPayload().equals(recentMessages.get(0).getPayload()))
 		{
 			recentMessages.remove(0);
 		}
 		
-		final ReceivedMqttMessage messageToStore = baseToReceived(message);
-		
-		recentMessages.add(0, messageToStore);
+		recentMessages.add(0, message);
 		
 		while (recentMessages.size() > MAX_RECENT_MESSAGES)
 		{
@@ -585,11 +620,11 @@ public class NewPublicationController implements Initializable, ScriptListChange
 	@FXML
 	private void saveCurrentAsScript()
 	{
-		final BaseMqttMessage message = readMessage(true);
+		final ReceivedMqttMessage message = readMessage(true);
 		
 		if (message != null)
 		{
-			saveAsScript(baseToReceived(message));
+			saveAsScript(message);
 		}
 	}
 	
@@ -672,11 +707,6 @@ public class NewPublicationController implements Initializable, ScriptListChange
 		{
 			logger.error("Cannot create the script file at " + scriptFile.getAbsolutePath(), e);
 		} 			
-		
-		
-		
-		
-		
 	}
 
 	/**

@@ -35,6 +35,7 @@ import pl.baczkowicz.mqttspy.scripts.Script;
 import pl.baczkowicz.mqttspy.stats.StatisticsManager;
 import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
 import pl.baczkowicz.mqttspy.ui.messagelog.MessageLogUtils;
+import pl.baczkowicz.mqttspy.utils.ConversionUtils;
 
 /**
  * Asynchronous MQTT connection with the extra UI elements required.
@@ -139,12 +140,17 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection
 	
 	public boolean publish(final String publicationTopic, final String data, final int qos, final boolean retained)
 	{
+		return publish(publicationTopic, ConversionUtils.stringToArray(data), qos, retained);
+	}
+	
+	public boolean publish(final String publicationTopic, final byte[] data, final int qos, final boolean retained)
+	{
 		if (canPublish())
 		{
 			try
 			{
 				logger.info("Publishing message on topic \"" + publicationTopic + "\". Payload = \"" + data + "\"");
-				client.publish(publicationTopic, data.getBytes(), qos, retained);
+				client.publish(publicationTopic, data, qos, retained);
 				
 				logger.trace("Published message on topic \"" + publicationTopic + "\". Payload = \"" + data + "\"");
 				statisticsManager.messagePublished(getId(), publicationTopic);

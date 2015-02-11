@@ -22,6 +22,7 @@ import pl.baczkowicz.mqttspy.common.generated.MqttConnectionDetails;
 import pl.baczkowicz.mqttspy.connectivity.reconnection.ReconnectionManager;
 import pl.baczkowicz.mqttspy.exceptions.ConfigurationException;
 import pl.baczkowicz.mqttspy.exceptions.MqttSpyException;
+import pl.baczkowicz.mqttspy.utils.ConversionUtils;
 
 /**
  * Simple synchronous MQTT connection.
@@ -103,7 +104,7 @@ public class SimpleMqttConnection extends MqttConnectionWithReconnection
 			try
 			{
 				logger.info("Publishing message on topic \"" + publicationTopic + "\". Payload = \"" + payload + "\"");
-				client.publish(publicationTopic, payload.getBytes(), qos, retained);
+				client.publish(publicationTopic, ConversionUtils.stringToArray(payload), qos, retained);
 				
 				logger.trace("Published message on topic \"" + publicationTopic + "\". Payload = \"" + payload + "\"");
 				

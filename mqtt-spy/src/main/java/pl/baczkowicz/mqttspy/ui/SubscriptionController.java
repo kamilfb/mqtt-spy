@@ -50,8 +50,6 @@ import javafx.stage.Window;
 import javafx.stage.WindowEvent;
 
 import org.eclipse.paho.client.mqttv3.MqttMessage;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.configuration.generated.ConversionMethod;
 import pl.baczkowicz.mqttspy.configuration.generated.FormatterDetails;
@@ -75,6 +73,7 @@ import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
 import pl.baczkowicz.mqttspy.ui.utils.FormattingUtils;
 import pl.baczkowicz.mqttspy.ui.utils.FxmlUtils;
 import pl.baczkowicz.mqttspy.ui.utils.UiUtils;
+import pl.baczkowicz.mqttspy.utils.ConversionUtils;
 
 /**
  * Controller for the subscription tab.
@@ -86,8 +85,6 @@ public class SubscriptionController implements Initializable, ClearTabObserver, 
 	public static final String AVG30_TOPIC = "30 second average";
 
 	public static final String AVG5_TOPIC = "5 second average";
-
-	private final static Logger logger = LoggerFactory.getLogger(SubscriptionController.class);
 
 	private static final int MIN_EXPANDED_SUMMARY_PANE_HEIGHT = 130;
 
@@ -613,9 +610,9 @@ public class SubscriptionController implements Initializable, ClearTabObserver, 
 					avg300sec == null ? 0 : avg300sec));
 		}
 		
-		final MqttContent avg5message = new MqttContent(0, AVG5_TOPIC, new MqttMessage(String.valueOf(avg5sec).getBytes()));
-		final MqttContent avg30message = new MqttContent(0, AVG30_TOPIC, new MqttMessage(String.valueOf(avg30sec).getBytes()));
-		final MqttContent avg300message = new MqttContent(0, AVG300_TOPIC, new MqttMessage(String.valueOf(avg300sec).getBytes()));
+		final MqttContent avg5message = new MqttContent(0, AVG5_TOPIC, new MqttMessage(ConversionUtils.stringToArray(String.valueOf(avg5sec))));
+		final MqttContent avg30message = new MqttContent(0, AVG30_TOPIC, new MqttMessage(ConversionUtils.stringToArray(String.valueOf(avg30sec))));
+		final MqttContent avg300message = new MqttContent(0, AVG300_TOPIC, new MqttMessage(ConversionUtils.stringToArray(String.valueOf(avg300sec))));
 		
 		statsHistory.storeMessage(avg5message);
 		statsHistory.storeMessage(avg30message);

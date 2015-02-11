@@ -23,13 +23,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
-import java.util.Set;
-
-import org.gillius.jfxutils.chart.ChartPanManager;
-import org.gillius.jfxutils.chart.JFXChartUtil;
-import org.gillius.jfxutils.chart.StableTicksAxis;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -57,12 +50,16 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
+
+import org.gillius.jfxutils.chart.ChartPanManager;
+import org.gillius.jfxutils.chart.JFXChartUtil;
+import org.gillius.jfxutils.chart.StableTicksAxis;
+
 import pl.baczkowicz.mqttspy.connectivity.MqttContent;
 import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
 import pl.baczkowicz.mqttspy.events.EventManager;
 import pl.baczkowicz.mqttspy.events.observers.MessageAddedObserver;
 import pl.baczkowicz.mqttspy.storage.BasicMessageStore;
-import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
 import pl.baczkowicz.mqttspy.ui.charts.ChartMode;
 import pl.baczkowicz.mqttspy.ui.properties.MessageLimitProperties;
 import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
@@ -74,9 +71,6 @@ import pl.baczkowicz.mqttspy.utils.TimeUtils;
  */
 public class StatsPaneController implements Initializable, MessageAddedObserver
 {
-	/** Diagnostic logger. */
-	private final static Logger logger = LoggerFactory.getLogger(StatsPaneController.class);
-	
 	private static boolean lastAutoRefresh = true;
 	
 	private static boolean lastDisplaySymbols = true;
@@ -173,7 +167,6 @@ public class StatsPaneController implements Initializable, MessageAddedObserver
 		
 		// Axis and chart        
 		final NumberAxis xAxis = new NumberAxis();
-        //final NumberAxis yAxis = new NumberAxis();
 		final StableTicksAxis yAxis = new StableTicksAxis();
 
         xAxis.setForceZeroInRange(false);
@@ -284,12 +277,11 @@ public class StatsPaneController implements Initializable, MessageAddedObserver
 			autoRefreshCheckBox.setSelected(lastAutoRefresh);
 			displaySymbolsCheckBox.setSelected(lastDisplaySymbols);
 		}
-		else if (ChartMode.STATS.equals(chartMode))
-		{
-			showRangeBox.setVisible(false);
-			showRangeLabel.setVisible(false);
-			// autoRefreshCheckBox.setVisible(false);
-		}
+//		else if (ChartMode.STATS.equals(chartMode))
+//		{
+//			showRangeBox.setVisible(false);
+//			showRangeLabel.setVisible(false);
+//		}
 		
 		eventManager.registerMessageAddedObserver(this, store.getMessageList());
 		
@@ -401,12 +393,12 @@ public class StatsPaneController implements Initializable, MessageAddedObserver
 		if (ChartMode.USER_DRIVEN_MSG_PAYLOAD.equals(chartMode))
 		{
 			final Double value = Double.valueOf(message.getFormattedPayload());
-			return new XYChart.Data(message.getDate().getTime(), value);	
+			return new XYChart.Data<Number, Number>(message.getDate().getTime(), value);	
 		}
 		else if (ChartMode.USER_DRIVEN_MSG_SIZE.equals(chartMode))
 		{
 			final Integer value = Integer .valueOf(message.getPayload().length());
-			return new XYChart.Data(message.getDate().getTime(), value);	
+			return new XYChart.Data<Number, Number>(message.getDate().getTime(), value);	
 		}
 		else
 		{

@@ -21,6 +21,7 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import pl.baczkowicz.mqttspy.configuration.generated.FormatterDetails;
 import pl.baczkowicz.mqttspy.messages.ReceivedMqttMessage;
 import pl.baczkowicz.mqttspy.ui.utils.FormattingUtils;
+import pl.baczkowicz.mqttspy.utils.ConversionUtils;
 
 public class MqttContent extends ReceivedMqttMessage
 {
@@ -32,33 +33,33 @@ public class MqttContent extends ReceivedMqttMessage
 	
 	public MqttContent(final MqttContent message)
 	{
-		super(message.getId(), message.getTopic(), copyMqttMessage(message.getMessage()));
+		super(message.getId(), message.getTopic(), copyMqttMessage(message.getRawMessage()));
 		this.formattedPayload = message.getFormattedPayload();
 		this.lastUsedFormatter = message.getLastUsedFormatter();
 		this.subscription = message.getSubscription();
-	}
-	
-	public FormatterDetails getLastUsedFormatter()
-	{
-		return lastUsedFormatter;
 	}
 
 	public MqttContent(final long id, final String topic, final MqttMessage message)
 	{
 		super(id, topic, message);
-		this.formattedPayload = new String(message.getPayload());
+		this.formattedPayload = ConversionUtils.arrayToString(message.getPayload());
 	}
 	
 	public MqttContent(final long id, final String topic, final MqttMessage message, final Date date)
 	{
 		super(id, topic, message, date);
-		this.formattedPayload = new String(message.getPayload());
+		this.formattedPayload = ConversionUtils.arrayToString(message.getPayload());
 	}
 	
 	public MqttContent(final ReceivedMqttMessage message)
 	{
-		super(message.getId(), message.getTopic(), message.getMessage(), message.getDate());
-		this.formattedPayload = new String(message.getMessage().getPayload());
+		super(message.getId(), message.getTopic(), message.getRawMessage(), message.getDate());
+		this.formattedPayload = message.getPayload();
+	}	
+	
+	public FormatterDetails getLastUsedFormatter()
+	{
+		return lastUsedFormatter;
 	}
 
 	public MqttSubscription getSubscription()
@@ -75,12 +76,13 @@ public class MqttContent extends ReceivedMqttMessage
 	{
 		if (formatter == null)
 		{
-			formattedPayload = new String(getMessage().getPayload());
+			formattedPayload = getPayload();
 		}		
 		else if (!formatter.equals(lastUsedFormatter))
 		{
 			lastUsedFormatter = formatter;
-			formattedPayload = FormattingUtils.checkAndFormatText(formatter, new String(getMessage().getPayload()));
+			// Use the raw payload to make sure any formatting/encoding that is applied is correct
+			formattedPayload = FormattingUtils.checkAndFormatText(formatter, getRawMessage().getPayload());
 		}
 	}
 	

@@ -32,7 +32,7 @@ public class MessageLogUtils
 			final ReceivedMqttMessage message, final BaseMqttConnection connection, final List<String> subscriptions)
 	{
 		final ReceivedMqttMessageWithSubscriptions messageWithSubs = new ReceivedMqttMessageWithSubscriptions(
-				message.getId(), message.getTopic(), message.getMessage(), message.getDate(), connection);
+				message.getId(), message.getTopic(), message.getRawMessage(), message.getDate(), connection);
 		
 		messageWithSubs.setSubscriptions(subscriptions);
 		

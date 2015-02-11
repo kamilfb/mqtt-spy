@@ -63,6 +63,7 @@
 		         </toggleGroup>
 		      </RadioMenuItem>
 		      <RadioMenuItem mnemonicParsing="false" text="Hex" toggleGroup="$formatGroup" />
+		      <RadioMenuItem mnemonicParsing="false" text="Base64" toggleGroup="$formatGroup" />
 		  </items>
 		</MenuButton>        
 		

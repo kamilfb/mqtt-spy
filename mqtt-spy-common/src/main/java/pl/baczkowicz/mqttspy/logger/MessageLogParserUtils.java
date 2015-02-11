@@ -32,6 +32,7 @@ import pl.baczkowicz.mqttspy.exceptions.MqttSpyException;
 import pl.baczkowicz.mqttspy.exceptions.XMLException;
 import pl.baczkowicz.mqttspy.messages.ReceivedMqttMessage;
 import pl.baczkowicz.mqttspy.tasks.ProgressUpdater;
+import pl.baczkowicz.mqttspy.utils.ConversionUtils;
 
 /**
  * Message log utilities.
@@ -184,7 +185,7 @@ public class MessageLogParserUtils
         	}
         	else
         	{
-        		mqttMessage.setPayload(loggedMessage.getValue().getBytes());
+        		mqttMessage.setPayload(ConversionUtils.stringToArray(loggedMessage.getValue()));
         	}
         	
         	mqttMessage.setQos(loggedMessage.getQos() == null ? 0 : loggedMessage.getQos());
