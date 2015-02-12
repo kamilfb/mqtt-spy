@@ -97,14 +97,27 @@ public class SimpleMqttConnection extends MqttConnectionWithReconnection
 	 * @param qos Requested quality of service
 	 * @param retained Whether the message should be retained
 	 */
-	public boolean publish(final String publicationTopic, final String payload, final int qos, final boolean retained)
+	public boolean publish(final String publicationTopic, final String payload, final int qos, final boolean retained)	
+	{
+		return publish(publicationTopic, ConversionUtils.stringToArray(payload), qos, retained);
+	}
+	
+	/**
+	 * Tries to publish a message to the given topic, with the provided payload, quality of service and retained flag.
+	 * 
+	 * @param publicationTopic Topic to which to publish the message
+	 * @param payload Message payload
+	 * @param qos Requested quality of service
+	 * @param retained Whether the message should be retained
+	 */
+	public boolean publish(final String publicationTopic, final byte[] payload, final int qos, final boolean retained)
 	{
 		if (canPublish())
 		{
 			try
 			{
 				logger.info("Publishing message on topic \"" + publicationTopic + "\". Payload = \"" + payload + "\"");
-				client.publish(publicationTopic, ConversionUtils.stringToArray(payload), qos, retained);
+				client.publish(publicationTopic, payload, qos, retained);
 				
 				logger.trace("Published message on topic \"" + publicationTopic + "\". Payload = \"" + payload + "\"");
 				

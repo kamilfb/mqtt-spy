@@ -37,8 +37,7 @@ public class ConversionUtils
 	/** Line separator for Windows. */
 	public static final String LINE_SEPARATOR_WIN = "\r\n"; 
 	
-	/** The default charset. */
-	
+	/** The default charset. */	
 	public static final String DEFAULT_CHARSET = "UTF-8";
 	
 	/**

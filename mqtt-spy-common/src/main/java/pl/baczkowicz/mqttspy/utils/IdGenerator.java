@@ -12,12 +12,12 @@
  *    Kamil Baczkowicz - initial API and implementation and/or initial documentation
  *    
  */
-package pl.baczkowicz.mqttspy.connectivity;
+package pl.baczkowicz.mqttspy.utils;
 
 /**
- * Class for generating connection IDs. 
+ * Class for generating IDs. 
  */
-public class ConnectionIdGenerator
+public class IdGenerator
 {
 	private int lastUsedId = 0;
 	
