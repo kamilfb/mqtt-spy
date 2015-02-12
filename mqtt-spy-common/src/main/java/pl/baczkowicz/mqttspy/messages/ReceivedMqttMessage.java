@@ -23,6 +23,7 @@ import pl.baczkowicz.mqttspy.utils.ConversionUtils;
 /**
  * Represents a message received on a topic (wraps the Paho's MqttMessage).
  */
+// TODO: find a better name for this class
 public class ReceivedMqttMessage implements IMqttMessage
 {
 	/** Topic on which the message was received. */

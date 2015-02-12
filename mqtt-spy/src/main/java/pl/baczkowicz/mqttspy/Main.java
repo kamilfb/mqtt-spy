@@ -30,10 +30,10 @@ import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
 import pl.baczkowicz.mqttspy.configuration.ConfigurationUtils;
-import pl.baczkowicz.mqttspy.connectivity.ConnectionIdGenerator;
 import pl.baczkowicz.mqttspy.events.EventManager;
 import pl.baczkowicz.mqttspy.ui.MainController;
 import pl.baczkowicz.mqttspy.ui.utils.FxmlUtils;
+import pl.baczkowicz.mqttspy.utils.IdGenerator;
 
 /** 
  * The main class, loading the app.
@@ -59,7 +59,7 @@ public class Main extends Application
 	public void start(final Stage primaryStage)
 	{
 		final EventManager eventManager = new EventManager();			
-		final ConnectionIdGenerator connectionIdGenerator = new ConnectionIdGenerator();
+		final IdGenerator connectionIdGenerator = new IdGenerator();
 				
 		try
 		{

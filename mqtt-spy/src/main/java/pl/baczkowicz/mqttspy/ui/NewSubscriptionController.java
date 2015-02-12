@@ -142,8 +142,6 @@ public class NewSubscriptionController implements Initializable, TitledPaneContr
 	        	}
 	        }
 	    });
-		
-		//paneStatus.setVisibility(PaneVisibilityStatus.NOT_VISIBLE);
 	}
 	
 	private void updateVisibility()

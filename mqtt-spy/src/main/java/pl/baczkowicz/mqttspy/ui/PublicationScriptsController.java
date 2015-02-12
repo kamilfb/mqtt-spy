@@ -292,8 +292,6 @@ public class PublicationScriptsController implements Initializable, ScriptStateC
 					return row;
 				}
 			});		
-		
-		// paneStatus.setVisibility(PaneVisibilityStatus.NOT_VISIBLE);
 	}
 	
 	public void init()

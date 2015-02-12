@@ -20,7 +20,6 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.scene.Scene;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Menu;
@@ -471,7 +470,6 @@ public class ContextMenuUtils
 				connectionController.toggleMessagePayloadSize(resizeMessageContent.isSelected());
 			}
 		});
-		// connectionController.setResizeMessageContentMenu(resizeMessageContent);
 		view.getItems().add(resizeMessageContent);
 
 		detailedView.setOnAction(new EventHandler<ActionEvent>()
@@ -508,8 +506,7 @@ public class ContextMenuUtils
 			@Override
 			public void handle(ActionEvent event)
 			{
-				connectionManager.closeOfflineTab(connectionController);
-				// TabUtils.requestClose(connectionController.getTab());				
+				connectionManager.closeOfflineTab(connectionController);				
 			}
 		});
 		
@@ -536,7 +533,6 @@ public class ContextMenuUtils
 				connectionController.toggleMessagePayloadSize(resizeMessageContent.isSelected());
 			}
 		});
-		// connectionController.setResizeMessageContentMenu(resizeMessageContent);
 		view.getItems().add(resizeMessageContent);
 		
 		contextMenu.getItems().add(view);

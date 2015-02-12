@@ -140,8 +140,6 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 	private ConnectionManager connectionManager;
 
 	private EventManager eventManager;
-
-	// private Map<TitledPaneController, Boolean> panes = new LinkedHashMap<>();
 	
 	private Map<TitledPane, TitledPaneController> paneToController = new HashMap<>();
 
@@ -150,8 +148,6 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 	private boolean replayMode;
 
 	private TabStatus tabStatus;
-
-	// private boolean resizeMessagePane = true;
 
 	private CheckMenuItem resizeMessageContentMenu = new CheckMenuItem();
 
@@ -648,9 +644,4 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 	{
 		return resizeMessageContentMenu;
 	}
-
-//	public void setResizeMessageContentMenu(CheckMenuItem resizeMessageContentMenu)
-//	{
-//		this.resizeMessageContentMenu = resizeMessageContentMenu;
-//	}
 }

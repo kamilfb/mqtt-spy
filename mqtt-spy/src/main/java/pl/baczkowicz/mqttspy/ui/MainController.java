@@ -180,12 +180,6 @@ public class MainController
 		controlPanelPaneController.setConnectionManager(connectionManager);
 		controlPanelPaneController.init();	
 		
-		// TODO: experimental code
-		// final StatsChartWindow statsWindow = new StatsChartWindow();		
-		// Scene scene = new Scene(statsWindow);
-		// scene.getStylesheets().addAll(mainPane.getScene().getStylesheets());		
-		// statsWindow.start(new Stage());
-		
 		new Thread(new ConnectionStatsUpdater(connectionManager)).start();
 	}		
 

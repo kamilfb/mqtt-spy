@@ -503,12 +503,6 @@ public class MessageNavigationController implements Initializable, MessageIndexT
 	{
 		return messageLabel.getScene().getWindow();
 	}
-
-//	public void setFilterActive(final boolean active)
-//	{
-//		filterActive = active;
-//		updateFilterStatus();
-//	}
 	
 	// ===============================
 	// === Setters and getters =======

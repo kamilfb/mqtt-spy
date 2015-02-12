@@ -35,13 +35,13 @@ import pl.baczkowicz.mqttspy.configuration.generated.TabbedSubscriptionDetails;
 import pl.baczkowicz.mqttspy.configuration.generated.UserAuthenticationOptions;
 import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnectionDetails;
 import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnectionDetailsV010;
-import pl.baczkowicz.mqttspy.connectivity.ConnectionIdGenerator;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
 import pl.baczkowicz.mqttspy.events.EventManager;
 import pl.baczkowicz.mqttspy.exceptions.XMLException;
 import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
 import pl.baczkowicz.mqttspy.ui.utils.MqttSpyPerspective;
+import pl.baczkowicz.mqttspy.utils.IdGenerator;
 import pl.baczkowicz.mqttspy.xml.XMLParser;
 
 /**
@@ -86,9 +86,9 @@ public class ConfigurationManager
 	
 	private final PropertyFileLoader uiPropertyFile;
 
-	private ConnectionIdGenerator connectionIdGenerator;
+	private IdGenerator connectionIdGenerator;
 
-	public ConfigurationManager(final EventManager eventManager, final ConnectionIdGenerator connectionIdGenerator) throws XMLException
+	public ConfigurationManager(final EventManager eventManager, final IdGenerator connectionIdGenerator) throws XMLException
 	{
 		// Load the default property file from classpath
 		this.defaultPropertyFile = new PropertyFileLoader();
@@ -233,26 +233,6 @@ public class ConfigurationManager
 		
 		return userHomeDirectory + DEFAULT_HOME_DIRECTORY_NAME + filePathSeparator;
 	}
-
-//	public boolean createDefaultConfigurationFile()
-//	{
-//		final File dest = getDefaultConfigurationFile();
-//		
-//		try
-//		{
-//			final File orig = new File(ConfigurationManager.class.getResource("/" + ConfigurationManager.DEFAULT_FILE_NAME).toURI()); 			
-//			Files.copy(orig.toPath(), dest.toPath(), StandardCopyOption.REPLACE_EXISTING);
-//			return true;
-//		}
-//		catch (IOException | URISyntaxException e)
-//		{
-//			setLastException(e);
-//			logger.error("Cannot create the default configuration file at " + dest.getAbsolutePath(), e);
-//			eventManager.notifyConfigurationFileCopyFailure();			
-//		}		
-//		
-//		return false;
-//	}	
 
 	public boolean saveConfiguration()
 	{
@@ -435,7 +415,7 @@ public class ConfigurationManager
 	 * 
 	 * @return the connectionIdGenerator
 	 */
-	public ConnectionIdGenerator getConnectionIdGenerator()
+	public IdGenerator getConnectionIdGenerator()
 	{
 		return connectionIdGenerator;
 	}

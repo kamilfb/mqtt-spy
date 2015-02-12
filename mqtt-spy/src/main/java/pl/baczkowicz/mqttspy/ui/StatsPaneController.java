@@ -185,7 +185,6 @@ public class StatsPaneController implements Initializable, MessageAddedObserver
 				return null;
 			}
 		});
-		// yAxis.setMinorTickCount(0);
         yAxis.setForceZeroInRange(false);
 		lineChart = new LineChart<>(xAxis, yAxis);
 	}		
@@ -384,7 +383,6 @@ public class StatsPaneController implements Initializable, MessageAddedObserver
 		lineChart.setData(data);
 		lineChart.setData(FXCollections.<XYChart.Series<Number, Number>> emptyObservableList());
 		lineChart.setData(data);
-		//lineChart.getData().addAll(topicToSeries.values());
 		lineChart.setAnimated(true);
 	}
 	
@@ -402,7 +400,7 @@ public class StatsPaneController implements Initializable, MessageAddedObserver
 		}
 		else
 		{
-			// TODO:
+			// Nothing to do for now
 		}
 					
 		return null;

@@ -23,6 +23,7 @@ import pl.baczkowicz.mqttspy.messages.ReceivedMqttMessage;
 import pl.baczkowicz.mqttspy.ui.utils.FormattingUtils;
 import pl.baczkowicz.mqttspy.utils.ConversionUtils;
 
+// TODO: extend ReceivedMqttMessageWithSubscriptions
 public class MqttContent extends ReceivedMqttMessage
 {
 	private MqttSubscription subscription;

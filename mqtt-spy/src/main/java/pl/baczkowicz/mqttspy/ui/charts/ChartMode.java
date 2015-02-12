@@ -16,5 +16,5 @@ package pl.baczkowicz.mqttspy.ui.charts;
 
 public enum ChartMode
 {
-	USER_DRIVEN_MSG_PAYLOAD, USER_DRIVEN_MSG_SIZE, PREDEFINED, STATS
+	USER_DRIVEN_MSG_PAYLOAD, USER_DRIVEN_MSG_SIZE/*, PREDEFINED, STATS*/
 }
