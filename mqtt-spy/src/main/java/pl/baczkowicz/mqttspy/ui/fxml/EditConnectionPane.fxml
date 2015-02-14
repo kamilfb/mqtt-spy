@@ -30,7 +30,7 @@
    <children>
       
       <!-- Connection name -->
-      <Label fx:id="connectionNameLabel" layoutX="14.0" layoutY="18.0" text="Connection name" />
+      <Label layoutX="14.0" layoutY="18.0" text="Connection name" />
       <TextField fx:id="connectionNameText" layoutX="262.0" layoutY="13.0" prefHeight="25.0" prefWidth="302.0" AnchorPane.leftAnchor="278.0" AnchorPane.rightAnchor="14.0" />
 
       <Label layoutX="39.0" layoutY="32.0" text="[auto-generated if = client ID@server URI]" textFill="#5e5e5e">
@@ -77,341 +77,39 @@
             
       <TabPane layoutY="301.0" prefHeight="241.0" prefWidth="594.0" tabClosingPolicy="UNAVAILABLE" AnchorPane.leftAnchor="4.0" AnchorPane.rightAnchor="4.0" AnchorPane.topAnchor="60.0">
         <tabs>
-          <Tab text="Connectivity">
-            <content>
-              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                     <children>  
-                              
-                        <!-- Broker URI -->
-                        <Label layoutX="23.0" layoutY="20.0" text="Server URI(s)" />
-                        <!--  onKeyReleased="#updateConnectionName" -->
-                        <TextField fx:id="brokerAddressText" layoutX="279.0" layoutY="15.0" prefHeight="25.0" prefWidth="259.0" promptText="tcp://localhost:1883" text="127.0.0.1" AnchorPane.leftAnchor="278.0" AnchorPane.rightAnchor="14.0" />
-                        
-                        <Label layoutX="48.0" layoutY="34.0" text="[e.g. localhost or tcp://mybroker:1883]" textFill="#5e5e5e">
-                        <!-- SSL: ssl://mybroker:8888 -->
-                           <font>
-                              <Font size="10.0" />
-                           </font>
-                        </Label>
-                        
-                        <Label layoutX="23.0" layoutY="70.0" text="Client ID" />
-                        <!-- onKeyReleased="#updateClientId" -->
-                        <TextField fx:id="clientIdText" layoutX="279.0" layoutY="63.0" prefHeight="25.0" prefWidth="209.0" promptText="e.g. your name" AnchorPane.leftAnchor="278.0" AnchorPane.rightAnchor="107.0" />
-                  	  <Label fx:id="lengthLabel" alignment="CENTER_RIGHT" layoutX="387.0" layoutY="88.0" prefHeight="14.0" prefWidth="100.0" text="Length = 0/23" AnchorPane.rightAnchor="107.0">
-                           <font>
-                              <Font size="10.0" />
-                           </font>
-                        </Label>
-                                         
-                        <Label layoutX="23.0" layoutY="184.0" text="Clean session" />
-                        <CheckBox fx:id="cleanSession" layoutX="190.0" layoutY="183.0" mnemonicParsing="false" selected="true" AnchorPane.rightAnchor="372.0" />
-                        <Label layoutX="48.0" layoutY="85.0" text="[keep it unique to avoid disconnections]" textFill="#5e5e5e">
-                           <font>
-                              <Font size="10.0" />
-                           </font>
-                        </Label>
-                        <Label layoutX="23.0" layoutY="118.0" text="Connection timeout [s]" />
-                        <Label layoutX="23.0" layoutY="151.0" text="Keep alive interval [s]" />
-                        <TextField fx:id="connectionTimeout" layoutX="190.0" layoutY="112.0" prefHeight="25.0" prefWidth="70.0" />
-                        <TextField fx:id="keepAlive" layoutX="190.0" layoutY="146.0" prefHeight="25.0" prefWidth="70.0" />
-                        <Button fx:id="addTimestampButton" focusTraversable="false" layoutX="485.0" layoutY="63.0" mnemonicParsing="false" onAction="#addTimestamp" prefHeight="25.0" prefWidth="87.0" text="Generate" textAlignment="CENTER" wrapText="true" AnchorPane.rightAnchor="14.0" />
-                        <Label layoutX="48.0" layoutY="47.0" text="[use semicolon (;) to seperate multiple URIs]" textFill="#5e5e5e">
-                           <font>
-                              <Font size="10.0" />
-                           </font>
-                        </Label>
-                        <CheckBox fx:id="reconnect" layoutX="486.0" layoutY="116.0" mnemonicParsing="false" />
-                        <Label layoutX="278.0" layoutY="185.0" text="Resubscribe on failure" />
-                        <TextField fx:id="reconnectionInterval" layoutX="485.0" layoutY="146.0" prefHeight="25.0" prefWidth="87.0" />
-                        <Label layoutX="278.0" layoutY="151.0" text="Reconnection interval [ms]" />
-                        <CheckBox fx:id="resubscribe" layoutX="486.0" layoutY="184.0" mnemonicParsing="false" />
-                        <Label layoutX="278.0" layoutY="117.0" text="Reconnect on failure" />
-                     </children>
-                  </AnchorPane>
-            </content>
-          </Tab>
-            <Tab text="Security">
-            <!-- TODO: this will be divided into two sub-tabs, one for authentication, one for SSL/TSL -->
+          	<Tab text="Connectivity">
               <content>
-                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                     <children>
-                     	<Label layoutX="23.0" layoutY="20.0" text="Enable user authentication" />
-                     	<CheckBox fx:id="userAuthentication" layoutX="279.0" layoutY="18.0" mnemonicParsing="false" />
-                     	
-                        <Label layoutX="23.0" layoutY="70.0" text="User name" />
-                        <TextField fx:id="username" disable="true" layoutX="279.0" layoutY="63.0" AnchorPane.leftAnchor="279.0" AnchorPane.rightAnchor="14.0" />
-                        <Label layoutX="23.0" layoutY="136.0" text="Password" />
-                        <PasswordField fx:id="password" disable="true" layoutX="279.0" layoutY="131.0" prefHeight="25.0" prefWidth="302.0" AnchorPane.leftAnchor="279.0" AnchorPane.rightAnchor="14.0" />
-                        <RadioButton fx:id="predefinedPassword" disable="true" layoutX="164.0" layoutY="135.0" mnemonicParsing="false" selected="true" text="Predefined">
-                           <toggleGroup>
-                              <ToggleGroup fx:id="passwordMode" />
-                           </toggleGroup>
-                        </RadioButton>
-                        <RadioButton fx:id="askForPassword" disable="true" layoutX="164.0" layoutY="166.0" mnemonicParsing="false" text="Ask before connecting" toggleGroup="$passwordMode" />                                                
-                        <RadioButton fx:id="predefinedUsername" disable="true" layoutX="164.0" layoutY="67.0" mnemonicParsing="false" selected="true" text="Predefined">
-                           <toggleGroup>
-                              <ToggleGroup fx:id="usernameMode" />
-                           </toggleGroup>
-                        </RadioButton>
-                        <RadioButton fx:id="askForUsername" disable="true" layoutX="164.0" layoutY="98.0" mnemonicParsing="false" text="Ask before connecting" toggleGroup="$usernameMode" />
-                     </children>
-                  </AnchorPane>
+              	<fx:include fx:id="editConnectionConnectivity" source="EditConnectionConnectivityPane.fxml" />
+              </content>
+          	</Tab>
+            <Tab text="Security">
+              <content>
+                <fx:include fx:id="editConnectionSecurity" source="EditConnectionSecurityPane.fxml" />
               </content>
             </Tab>
             <Tab text="Last Will">
                <content>
-                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                     <children>
-                        <Label layoutX="23.0" layoutY="20.0" text="Last Will and Testament" />
-                        <CheckBox fx:id="lastWillAndTestament" layoutX="279.0" layoutY="18.0" mnemonicParsing="false" />
-                        <AnchorPane layoutX="8.0" layoutY="64.0" minWidth="700" prefHeight="134.0" prefWidth="700">
-                     		<children>   
-                        		<fx:include fx:id="lastWillAndTestamentMessage" source="NewPublicationPane.fxml" />                        	
-                        	</children>
-                       	</AnchorPane>			
-                     </children>
-                  </AnchorPane>
+                  <fx:include fx:id="editConnectionLastWill" source="EditConnectionLastWillPane.fxml" />
                </content>
             </Tab>
             <Tab text="Publications">
               <content>
-                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                     <children>
-                        <TabPane prefHeight="200.0" prefWidth="200.0" side="LEFT" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="1.0">
-                          <tabs>
-                            <Tab text="Topics">
-                              <content>
-                                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                                       <children>
-                                       
-                                          <TableView fx:id="publicationsTable" editable="true" layoutY="13.0" prefHeight="145.0" prefWidth="525.0" AnchorPane.bottomAnchor="50.0" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="14.0" AnchorPane.topAnchor="14.0">
-                                            <columns>
-                                              <TableColumn fx:id="publicationTopicColumn" minWidth="300.0" prefWidth="500.0" text="Topic" />
-                                            </columns>
-                                          </TableView>
-                                          <Button fx:id="removePublicationButton" disable="true" focusTraversable="false" layoutX="394.0" mnemonicParsing="false" onAction="#removePublication" prefHeight="25.0" prefWidth="145" text="Remove topic" AnchorPane.bottomAnchor="14.0" AnchorPane.leftAnchor="394.0" AnchorPane.rightAnchor="14.0">
-                                                      <padding>
-                                                <Insets bottom="1.0" left="1.0" right="1.0" top="1.0" />
-                                             </padding>
-                  					        <graphic>
-                  					      		<ImageView fitHeight="16" fitWidth="16" pickOnBounds="true">
-                  							         <image>
-                  							            <Image url="/images/button-delete.png" />
-                  							         </image>
-                  							      </ImageView>
-                  					      	</graphic>
-                  		      			</Button>
-                  		      			
-                                          <Button fx:id="addPublicationButton" focusTraversable="false" mnemonicParsing="false" onAction="#addPublication" prefHeight="25.0" prefWidth="145" text="Add topic" AnchorPane.bottomAnchor="14.0" AnchorPane.rightAnchor="171.0">
-                                                      <padding>
-                                                <Insets bottom="1.0" left="1.0" right="1.0" top="1.0" />
-                                             </padding>
-                  					        <graphic>
-                  					      		<ImageView fitHeight="16" fitWidth="16" pickOnBounds="true">
-                  							         <image>
-                  							            <Image url="/images/button-add.png" />
-                  							         </image>
-                  							      </ImageView>
-                  					      	</graphic>
-                  			            </Button>
-                                          <Label layoutX="14.0" layoutY="159.0" prefHeight="43.0" prefWidth="214.0" text="Note: double click  to edit a table row, then Enter to submit the new value." textFill="#5e5e5e" wrapText="true">
-                                             <font>
-                                                <Font size="10.0" />
-                                             </font>
-                                          </Label>
-                                       </children>
-                                    </AnchorPane>
-                              </content>
-                            </Tab>
-                            <Tab text="Scripts">
-                              <content>
-                                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                                       <children>
-                                          <Label layoutX="14.0" layoutY="19.0" text="Directory with publication scripts" />
-                                          <TextField fx:id="publicationScriptsText" layoutX="237.0" layoutY="14.0" prefHeight="25.0" prefWidth="302.0" promptText="when empty, mqtt-spy's home dir is used" />
-                                          <Button fx:id="addScriptButton" focusTraversable="false" layoutX="237.0" layoutY="168.0" mnemonicParsing="false" onAction="#addScript" prefHeight="25.0" prefWidth="145" text="Add script">
-                                             <graphic>
-                                                <ImageView fitHeight="16" fitWidth="16" pickOnBounds="true">
-                                                   <image>
-                                                      <Image url="/images/button-add.png" />
-                                                   </image>
-                                                </ImageView>
-                                             </graphic>
-                                             <padding>
-                                                <Insets bottom="1.0" left="1.0" right="1.0" top="1.0" />
-                                             </padding>
-                                          </Button>
-                                          <Button fx:id="removeScriptButton" disable="true" focusTraversable="false" layoutX="394.0" layoutY="168.0" mnemonicParsing="false" onAction="#removeScript" prefHeight="25.0" prefWidth="145" text="Remove script">
-                                             <graphic>
-                                                <ImageView fitHeight="16" fitWidth="16" pickOnBounds="true">
-                                                   <image>
-                                                      <Image url="/images/button-delete.png" />
-                                                   </image>
-                                                </ImageView>
-                                             </graphic>
-                                             <padding>
-                                                <Insets bottom="1.0" left="1.0" right="1.0" top="1.0" />
-                                             </padding>
-                                          </Button>
-                                          <TableView fx:id="backgroundPublicationScriptsTable" editable="true" layoutY="78.0" prefHeight="79.0" prefWidth="525.0" AnchorPane.bottomAnchor="50.0" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="14.0" AnchorPane.topAnchor="78.0">
-                                             <columns>
-                                                <TableColumn fx:id="publicationScriptColumn" prefWidth="300.0" text="Script location" />
-                                                <TableColumn fx:id="publicationAutoStartColumn" maxWidth="100.0" minWidth="100.0" prefWidth="100.0" text="Auto-start" />
-                                                <TableColumn fx:id="publicationRepeatColumn" maxWidth="100.0" minWidth="100.0" prefWidth="100.0" text="Repeat" />
-                                             </columns>
-                                          </TableView>
-                                          <Label layoutX="14.0" layoutY="159.0" prefHeight="43.0" prefWidth="214.0" text="Note: double click  to edit a table row, then Enter to submit the new value." textFill="#5e5e5e" wrapText="true">
-                                             <font>
-                                                <Font size="10.0" />
-                                             </font>
-                                          </Label>
-                                          <Label layoutX="30.0" layoutY="32.0" prefHeight="15.0" prefWidth="207.0" text="(only used for auto-discovery of scripts)" textFill="#5e5e5e" wrapText="true">
-                                             <font>
-                                                <Font size="10.0" />
-                                             </font>
-                                          </Label>
-                                          <Separator layoutX="14.0" layoutY="51.0" prefHeight="3.0" prefWidth="525.0" />
-                                          <Label layoutX="14.0" layoutY="59.0" text="Predefined scripts:" />
-                                       </children>
-                                    </AnchorPane>
-                              </content>
-                            </Tab>
-                          </tabs>
-                        </TabPane>
-                     </children>
-                  </AnchorPane>
+                <fx:include fx:id="editConnectionPublications" source="EditConnectionPublicationsPane.fxml" />
               </content>
             </Tab>
             <Tab text="Subscriptions">
                <content>
-                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                     <children>
-                        <TabPane prefHeight="200.0" prefWidth="200.0" side="LEFT" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="1.0">
-                          <tabs>
-                            <Tab text="Topics">
-                              <content>
-                                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                                       <children>						
-                                       
-                                          <TableView fx:id="subscriptionsTable" editable="true" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="50.0" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="14.0" AnchorPane.topAnchor="14.0">
-                                             <columns>
-                                                <TableColumn fx:id="subscriptionTopicColumn" minWidth="150.0" prefWidth="167.0" text="Topic" />
-                                                <TableColumn fx:id="scriptColumn" prefWidth="165.0" text="Script" />
-                                                <TableColumn fx:id="qosSubscriptionColumn" prefWidth="55.0" text="QoS" />
-                                                <TableColumn fx:id="createTabSubscriptionColumn" prefWidth="120.0" text="Create tab" />
-                                             </columns>
-                                          </TableView>
-                                          <Button fx:id="removeSubscriptionButton" disable="true" focusTraversable="false" layoutX="394.0" mnemonicParsing="false" onAction="#removeSubscription" prefHeight="25.0" prefWidth="145" text="Remove topic" AnchorPane.bottomAnchor="14.0" AnchorPane.leftAnchor="394.0" AnchorPane.rightAnchor="14.0">
-                                              <padding>
-                                                <Insets bottom="1.0" left="1.0" right="1.0" top="1.0" />
-                                             </padding>
-                  					        <graphic>
-                  					      		<ImageView fx:id="searchIcon" fitHeight="16" fitWidth="16" pickOnBounds="true">
-                  							         <image>
-                  							            <Image url="/images/button-delete.png" />
-                  							         </image>
-                  							      </ImageView>
-                  					      	</graphic>
-                  		      			</Button>
-                  		      			
-                                          <Button fx:id="addSubscriptionButton" focusTraversable="false" mnemonicParsing="false" onAction="#addSubscription" prefHeight="25.0" prefWidth="145" text="Add topic" AnchorPane.bottomAnchor="14.0" AnchorPane.rightAnchor="171.0">
-                  			                                    <padding>
-                                                <Insets bottom="1.0" left="1.0" right="1.0" top="1.0" />
-                                             </padding>
-                  					        <graphic>
-                  					      		<ImageView fx:id="searchIcon" fitHeight="16" fitWidth="16" pickOnBounds="true">
-                  							         <image>
-                  							            <Image url="/images/button-add.png" />
-                  							         </image>
-                  							      </ImageView>
-                  					      	</graphic>
-                  			            </Button>
-                                          <Label layoutX="14.0" layoutY="159.0" prefHeight="43.0" prefWidth="214.0" text="Note: double click  to edit a table row, then Enter to submit the new value." textFill="#5e5e5e" wrapText="true">
-                                             <font>
-                                                <Font size="10.0" />
-                                             </font>
-                                          </Label>
-                                       </children>
-                                    </AnchorPane>
-                              </content>
-                            </Tab>
-                            <Tab text="Search">
-                              <content>
-                                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                                       <children>
-                  						<TextField fx:id="searchScriptsText" layoutX="237.0" layoutY="14.0" prefHeight="25.0" prefWidth="302.0" AnchorPane.leftAnchor="237.0" AnchorPane.rightAnchor="14.0" />
-                                          <Label layoutX="14.0" layoutY="19.0" text="Directory with search scripts" />
-                                       </children>
-                                    </AnchorPane>
-                              </content>
-                            </Tab>
-                          </tabs>
-                        </TabPane>
-                     </children>
-                  </AnchorPane>
+                  <fx:include fx:id="editConnectionSubscriptions" source="EditConnectionSubscriptionsPane.fxml" />
                </content>
-            </Tab>
-            
+            </Tab>            
             <Tab text="Log">
                <content>
-                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                  	<children>
-                  		<Label layoutX="23.0" layoutY="60.0" text="Message log location" />
-                  		<!-- 
-                  		<Label layoutX="40.0" layoutY="77.0" text="[leave empty to use default]" textFill="#5e5e5e">         
-                           <font>
-                              <Font size="10.0" />
-                           </font>
-                        </Label>                        
-                         -->
-                        <TextField fx:id="messageLogLocation" layoutX="279.0" layoutY="55.0" prefHeight="25.0" prefWidth="296.0" AnchorPane.rightAnchor="14.0" />
-
-                        <Label layoutX="23.0" layoutY="20.0" text="Logging mode" />
-                        <ComboBox fx:id="loggingMode" layoutX="279.0" layoutY="15" prefHeight="25.0" prefWidth="296.0" AnchorPane.rightAnchor="14.0" />
-                                                
-                  	</children>
-                  </AnchorPane>
+                  <fx:include fx:id="editConnectionMessageLog" source="EditConnectionMessageLogPane.fxml" />
                </content>
-            </Tab>
-            
+            </Tab>            
             <Tab text="Other">
                <content>
-                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                  	<children>
-                  		<Label layoutX="23.0" layoutY="20.0" text="Auto-open at start-up" />         
-                        <CheckBox fx:id="autoConnect" layoutX="238.0" layoutY="57.0" mnemonicParsing="false" selected="true" />
-                        <Label layoutX="23.0" layoutY="60.0" text="Auto-connect when opened" />
-                        <CheckBox fx:id="autoOpen" layoutX="238.0" layoutY="17.0" mnemonicParsing="false" selected="true" />
-                                                
-                        <Label layoutX="280.0" layoutY="20.0" text="Max messages stored" />
-                        <Label layoutX="285.0" layoutY="37.0" text="[keeps new messages and deletes old]" textFill="#5e5e5e">
-                           <font>
-                              <Font size="10.0" />
-                           </font>
-                        </Label>                                
-                        <TextField fx:id="maxMessagesStored" layoutX="484.0" layoutY="15.0" prefHeight="25.0" prefWidth="88.0" />
-                        
-                        <Label layoutX="23.0" layoutY="150.0" text="Message content formatter" />
-                        <ComboBox fx:id="formatter" layoutX="279.0" layoutY="145.0" prefHeight="25.0" prefWidth="296.0" AnchorPane.rightAnchor="14.0" />
-                        
-                        <Label layoutX="280.0" layoutY="60.0" text="Min messages per topic" />
-                        <Label layoutX="285.0" layoutY="77.0" text="[min messages to keep per topic]" textFill="#5e5e5e">
-                           <font>
-                              <Font size="10.0" />
-                           </font>
-                        </Label>                                
-                        
-                        <TextField fx:id="minMessagesPerTopicStored" layoutX="483.0" layoutY="55.0" prefHeight="25.0" prefWidth="89.0" />                        
-                        
-                        <Label layoutX="23.0" layoutY="100.0" text="Auto-subscribe when opened" />
-                        <Label layoutX="28.0" layoutY="117.0" text="[only for subscriptions with 'Create tab' set]" textFill="#5e5e5e">
-                           <font>
-                              <Font size="10.0" />
-                           </font>
-                        </Label>                        
-                        <CheckBox fx:id="autoSubscribe" layoutX="238.0" layoutY="97.0" mnemonicParsing="false" selected="true" />
-                  	</children>
-                  </AnchorPane>
+                  <fx:include fx:id="editConnectionOther" source="EditConnectionOtherPane.fxml" />
                </content>
             </Tab>
         </tabs>

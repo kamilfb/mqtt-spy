@@ -236,7 +236,7 @@ public class MainController
 			eventManager.deregisterConnectionStatusObserver(editConnectionsController);
 		}
 		
-		final FXMLLoader loader = FxmlUtils.createFXMLLoader(this, FxmlUtils.FXML_LOCATION + "EditConnectionsWindow.fxml");
+		final FXMLLoader loader = FxmlUtils.createFxmlLoaderForProjectFile("EditConnectionsWindow.fxml");
 		final AnchorPane connectionWindow = FxmlUtils.loadAnchorPane(loader);
 		editConnectionsController = ((EditConnectionsController) loader.getController());		
 		editConnectionsController.setMainController(this);
@@ -257,7 +257,7 @@ public class MainController
 	
 	private void initialiseConverterWindow()
 	{
-		final FXMLLoader loader = FxmlUtils.createFXMLLoader(this, FxmlUtils.FXML_LOCATION + "ConverterWindow.fxml");
+		final FXMLLoader loader = FxmlUtils.createFxmlLoaderForProjectFile("ConverterWindow.fxml");
 		final AnchorPane converterWindow = FxmlUtils.loadAnchorPane(loader);
 		
 		Scene scene = new Scene(converterWindow);

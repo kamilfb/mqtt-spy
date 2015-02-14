@@ -197,7 +197,7 @@ public class ConnectionManager
 		connection.setStatisticsManager(statisticsManager);
 
 		// Load a new tab and connection pane
-		final FXMLLoader loader = FxmlUtils.createFXMLLoader(parent, FxmlUtils.FXML_LOCATION + "ConnectionTab.fxml");
+		final FXMLLoader loader = FxmlUtils.createFxmlLoaderForProjectFile("ConnectionTab.fxml");
 		AnchorPane connectionPane = FxmlUtils.loadAnchorPane(loader);
 		
 		final ConnectionController connectionController = (ConnectionController) loader.getController();
@@ -214,7 +214,7 @@ public class ConnectionManager
 		final SubscriptionManager subscriptionManager = new SubscriptionManager(eventManager, configurationManager, uiEventQueue);			
 		
 		final SubscriptionController subscriptionController = subscriptionManager.createSubscriptionTab(
-				true, parent, connection.getStore(), null, connection, connectionController);
+				true, connection.getStore(), null, connection, connectionController);
 		subscriptionController.setConnectionController(connectionController);
 		subscriptionController.setFormatting(configurationManager.getConfiguration().getFormatting());
 		
@@ -277,10 +277,10 @@ public class ConnectionManager
 	 * @param name Name of the tab
 	 * @param list List of messages to display
 	 */
-	public void loadMessageLogTab(final MainController mainController, final Object parent, final String name, final List<ReceivedMqttMessage> list)
+	public void loadMessageLogTab(final MainController mainController, final String name, final List<ReceivedMqttMessage> list)
 	{		
 		// Load a new tab and connection pane
-		final FXMLLoader loader = FxmlUtils.createFXMLLoader(parent, FxmlUtils.FXML_LOCATION + "ConnectionTab.fxml");
+		final FXMLLoader loader = FxmlUtils.createFxmlLoaderForProjectFile("ConnectionTab.fxml");
 		AnchorPane connectionPane = FxmlUtils.loadAnchorPane(loader);
 		
 		final ConnectionController connectionController = (ConnectionController) loader.getController();
@@ -301,7 +301,7 @@ public class ConnectionManager
         		name, 0, list.size(), list.size(), uiEventQueue, eventManager);               
         
 		final SubscriptionController subscriptionController = subscriptionManager.createSubscriptionTab(
-				true, parent, store, null, null, connectionController);
+				true, store, null, null, connectionController);
 		subscriptionController.setConnectionController(connectionController);
 		subscriptionController.setFormatting(configurationManager.getConfiguration().getFormatting());
 		subscriptionController.setReplayMode(true);

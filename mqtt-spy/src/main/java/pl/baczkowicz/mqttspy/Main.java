@@ -15,7 +15,6 @@
 package pl.baczkowicz.mqttspy;
 
 import java.io.File;
-import java.net.URL;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -66,8 +65,8 @@ public class Main extends Application
 			final ConfigurationManager configurationManager = new ConfigurationManager(eventManager, connectionIdGenerator);			
 			
 			// Load the main window
-			final URL resource = getClass().getResource(FxmlUtils.FXML_PACKAGE + FxmlUtils.FXML_LOCATION + "MainWindow.fxml");
-			final FXMLLoader loader = new FXMLLoader(resource);
+			FxmlUtils.setParentClass(getClass());
+			final FXMLLoader loader = FxmlUtils.createFxmlLoaderForProjectFile("MainWindow.fxml");
 
 			// Get the associated pane
 			AnchorPane pane = (AnchorPane) loader.load();

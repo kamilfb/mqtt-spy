@@ -520,7 +520,7 @@ public class SubscriptionController implements Initializable, ClearTabObserver, 
 		if (searchStage == null)
 		{
 			// Create the search window controller
-			final FXMLLoader searchLoader = FxmlUtils.createFXMLLoader(this, FxmlUtils.FXML_LOCATION + "SearchWindow.fxml");
+			final FXMLLoader searchLoader = FxmlUtils.createFxmlLoaderForProjectFile("SearchWindow.fxml");
 			AnchorPane searchWindow = FxmlUtils.loadAnchorPane(searchLoader);
 			searchWindowController = (SearchWindowController) searchLoader.getController();
 			searchWindowController.setStore(store);

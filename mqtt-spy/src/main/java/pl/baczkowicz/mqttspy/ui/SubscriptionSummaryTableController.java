@@ -327,13 +327,13 @@ public class SubscriptionSummaryTableController implements Initializable
 		{
 			DialogUtils.showMessageBasedCharts(topics, store, mode, 
 					"Topic", "Size", "bytes", "Message size chart", 
-					filterTable.getScene(), this, eventManager);
+					filterTable.getScene(), eventManager);
 		}
 		else
 		{
 			DialogUtils.showMessageBasedCharts(topics, store, mode, 
 					"Topic", "Value", "", "Message content chart",
-					filterTable.getScene(), this, eventManager);
+					filterTable.getScene(), eventManager);
 		}		
 	}
 	

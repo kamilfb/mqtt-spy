@@ -486,9 +486,9 @@ public class DialogUtils
 			final ChartMode mode, 
 			final String seriesType, final String seriesValueName, 
 			final String seriesUnit, final String title, 
-			final Scene parentScene, final Object parent, final EventManager eventManager)
+			final Scene parentScene, final EventManager eventManager)
 	{
-		final FXMLLoader loader = FxmlUtils.createFXMLLoader(parent, FxmlUtils.FXML_LOCATION + "StatsPane.fxml");
+		final FXMLLoader loader = FxmlUtils.createFxmlLoaderForProjectFile("StatsPane.fxml");
 		final AnchorPane statsWindow = FxmlUtils.loadAnchorPane(loader);
 		final StatsPaneController statsPaneController = ((StatsPaneController) loader.getController());		
 		statsPaneController.setEventManager(eventManager);

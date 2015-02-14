@@ -109,7 +109,7 @@ public class SubscriptionManager
 		
 		// Add a new tab
 		final SubscriptionController subscriptionController = createSubscriptionTab(
-				false, parent, subscription, subscription, connection, connectionController);
+				false, subscription, subscription, connection, connectionController);
 		subscriptionController.getTab().setContextMenu(ContextMenuUtils.createSubscriptionTabContextMenu(
 				connection, subscription, eventManager, this, configurationManager, subscriptionController));
 		subscriptionController.setConnectionController(connectionController);
@@ -143,7 +143,6 @@ public class SubscriptionManager
 	 * Creates a subscription tab & controller with the given parameters.
 	 * 
 	 * @param allTab True if this is the 'all' tab
-	 * @param parent The parent UI node
 	 * @param observableMessageStore The message store to use
 	 * @param subscription The subscription object
 	 * @param connection Connection associated with this subscription
@@ -151,12 +150,12 @@ public class SubscriptionManager
 	 * 
 	 * @return Created subscription controller for the tab
 	 */
-	protected SubscriptionController createSubscriptionTab(final boolean allTab, final Object parent,
+	protected SubscriptionController createSubscriptionTab(final boolean allTab, 
 			final ManagedMessageStoreWithFiltering observableMessageStore, final MqttSubscription subscription,
 			final MqttAsyncConnection connection, final ConnectionController connectionController)
 	{
 		// Load a new tab and connection pane
-		final FXMLLoader loader = FxmlUtils.createFXMLLoader(parent, FxmlUtils.FXML_LOCATION + "SubscriptionPane.fxml");
+		final FXMLLoader loader = FxmlUtils.createFxmlLoaderForProjectFile("SubscriptionPane.fxml");
 
 		final AnchorPane subscriptionPane = FxmlUtils.loadAnchorPane(loader);
 		final SubscriptionController subscriptionController = ((SubscriptionController) loader.getController());

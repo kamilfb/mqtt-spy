@@ -203,7 +203,7 @@ public class ContextMenuUtils
 						Arrays.asList(SubscriptionController.AVG5_TOPIC, SubscriptionController.AVG30_TOPIC, SubscriptionController.AVG300_TOPIC),
 						subscriptionController.getStatsHistory(), 
 						ChartMode.USER_DRIVEN_MSG_PAYLOAD,
-						"Series", "Load", "msgs/s", "Message load statistics for " + subscription.getTopic(), subscriptionController.getScene(), subscriptionController, eventManager);
+						"Series", "Load", "msgs/s", "Message load statistics for " + subscription.getTopic(), subscriptionController.getScene(), eventManager);
 			}
 		});
 		contextMenu.getItems().add(messageLoadChartItem);
@@ -317,7 +317,7 @@ public class ContextMenuUtils
 						Arrays.asList(SubscriptionController.AVG5_TOPIC, SubscriptionController.AVG30_TOPIC, SubscriptionController.AVG300_TOPIC),
 						subscriptionController.getStatsHistory(), 
 						ChartMode.USER_DRIVEN_MSG_PAYLOAD,
-						"Series", "Load", "msgs/s", "Message load statistics for all subscriptions", subscriptionController.getScene(), subscriptionController, eventManager);
+						"Series", "Load", "msgs/s", "Message load statistics for all subscriptions", subscriptionController.getScene(), eventManager);
 			}
 		});
 

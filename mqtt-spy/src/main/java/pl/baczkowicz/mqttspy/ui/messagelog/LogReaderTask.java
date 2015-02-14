@@ -89,7 +89,7 @@ public class LogReaderTask extends TaskWithProgressUpdater<List<ReceivedMqttMess
 				@Override
 				public void run()
 				{
-					connectionManager.loadMessageLogTab(controller, controller, selectedFile.getName(), processedMessages);								
+					connectionManager.loadMessageLogTab(controller, selectedFile.getName(), processedMessages);								
 				}
 			});	
 			
