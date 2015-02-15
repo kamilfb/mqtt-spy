@@ -46,7 +46,7 @@ import org.jvnet.jaxb2_commons.lang.builder.JAXBToStringBuilder;
  *         &lt;element name="ServerURI" type="{http://www.w3.org/2001/XMLSchema}string" maxOccurs="unbounded"/>
  *         &lt;element name="ClientID" type="{http://www.w3.org/2001/XMLSchema}string"/>
  *         &lt;element name="UserCredentials" type="{http://baczkowicz.pl/mqtt-spy/common}UserCredentials" minOccurs="0"/>
- *         &lt;element name="LastWillAndTestament" type="{http://baczkowicz.pl/mqtt-spy/common}BaseMqttMessage" minOccurs="0"/>
+ *         &lt;element name="LastWillAndTestament" type="{http://baczkowicz.pl/mqtt-spy/common}SimpleMqttMessage" minOccurs="0"/>
  *         &lt;element name="CleanSession" type="{http://www.w3.org/2001/XMLSchema}boolean" minOccurs="0"/>
  *         &lt;element name="ConnectionTimeout" type="{http://www.w3.org/2001/XMLSchema}int" minOccurs="0"/>
  *         &lt;element name="KeepAliveInterval" type="{http://www.w3.org/2001/XMLSchema}int" minOccurs="0"/>
@@ -86,7 +86,7 @@ public class MqttConnectionDetails
     @XmlElement(name = "UserCredentials")
     protected UserCredentials userCredentials;
     @XmlElement(name = "LastWillAndTestament")
-    protected BaseMqttMessage lastWillAndTestament;
+    protected SimpleMqttMessage lastWillAndTestament;
     @XmlElement(name = "CleanSession")
     protected Boolean cleanSession;
     @XmlElement(name = "ConnectionTimeout")
@@ -108,7 +108,7 @@ public class MqttConnectionDetails
      * Fully-initialising value constructor
      * 
      */
-    public MqttConnectionDetails(final String name, final List<String> serverURI, final String clientID, final UserCredentials userCredentials, final BaseMqttMessage lastWillAndTestament, final Boolean cleanSession, final Integer connectionTimeout, final Integer keepAliveInterval, final ReconnectionSettings reconnectionSettings) {
+    public MqttConnectionDetails(final String name, final List<String> serverURI, final String clientID, final UserCredentials userCredentials, final SimpleMqttMessage lastWillAndTestament, final Boolean cleanSession, final Integer connectionTimeout, final Integer keepAliveInterval, final ReconnectionSettings reconnectionSettings) {
         super();
         this.name = name;
         this.serverURI = serverURI;
@@ -227,10 +227,10 @@ public class MqttConnectionDetails
      * 
      * @return
      *     possible object is
-     *     {@link BaseMqttMessage }
+     *     {@link SimpleMqttMessage }
      *     
      */
-    public BaseMqttMessage getLastWillAndTestament() {
+    public SimpleMqttMessage getLastWillAndTestament() {
         return lastWillAndTestament;
     }
 
@@ -239,10 +239,10 @@ public class MqttConnectionDetails
      * 
      * @param value
      *     allowed object is
-     *     {@link BaseMqttMessage }
+     *     {@link SimpleMqttMessage }
      *     
      */
-    public void setLastWillAndTestament(BaseMqttMessage value) {
+    public void setLastWillAndTestament(SimpleMqttMessage value) {
         this.lastWillAndTestament = value;
     }
 
@@ -365,7 +365,7 @@ public class MqttConnectionDetails
             toStringBuilder.append("userCredentials", theUserCredentials);
         }
         {
-            BaseMqttMessage theLastWillAndTestament;
+            SimpleMqttMessage theLastWillAndTestament;
             theLastWillAndTestament = this.getLastWillAndTestament();
             toStringBuilder.append("lastWillAndTestament", theLastWillAndTestament);
         }
@@ -479,9 +479,9 @@ public class MqttConnectionDetails
             copy.setUserCredentials(copyUserCredentials);
         }
         {
-            BaseMqttMessage sourceLastWillAndTestament;
+            SimpleMqttMessage sourceLastWillAndTestament;
             sourceLastWillAndTestament = this.getLastWillAndTestament();
-            BaseMqttMessage copyLastWillAndTestament = ((BaseMqttMessage) copyBuilder.copy(sourceLastWillAndTestament));
+            SimpleMqttMessage copyLastWillAndTestament = ((SimpleMqttMessage) copyBuilder.copy(sourceLastWillAndTestament));
             copy.setLastWillAndTestament(copyLastWillAndTestament);
         }
         {

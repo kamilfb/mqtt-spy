@@ -25,7 +25,7 @@ import org.junit.Test;
 import pl.baczkowicz.mqttspy.common.generated.MessageLog;
 import pl.baczkowicz.mqttspy.common.generated.MessageLogEnum;
 import pl.baczkowicz.mqttspy.connectivity.BaseMqttConnection;
-import pl.baczkowicz.mqttspy.messages.ReceivedMqttMessageWithSubscriptions;
+import pl.baczkowicz.mqttspy.messages.BaseMqttMessageWithSubscriptions;
 
 /**
  * Tests for the SimpleMessageLogComposer.
@@ -42,7 +42,7 @@ public class SimpleMessageLogComposerTest
 	};
 	
 	/**
-	 * Test method for {@link pl.baczkowicz.mqttspy.logger.MessageLogParserUtils#createReceivedMessageLog(pl.baczkowicz.mqttspy.messages.ReceivedMqttMessageWithSubscriptions, pl.baczkowicz.mqttspy.common.generated.MessageLog)}.
+	 * Test method for {@link pl.baczkowicz.mqttspy.logger.MessageLogParserUtils#createReceivedMessageLog(pl.baczkowicz.mqttspy.messages.BaseMqttMessageWithSubscriptions, pl.baczkowicz.mqttspy.common.generated.MessageLog)}.
 	 */
 	@Test
 	public void testCreateReceivedMessageLogWithPlainPayload()
@@ -51,7 +51,7 @@ public class SimpleMessageLogComposerTest
 		mqttMessage.setPayload(SAMPLE_PAYLOAD.getBytes());
 		
 		final BaseMqttConnection connection = context.mock(BaseMqttConnection.class); 
-		final ReceivedMqttMessageWithSubscriptions message = new ReceivedMqttMessageWithSubscriptions(1, "topic", mqttMessage, connection);
+		final BaseMqttMessageWithSubscriptions message = new BaseMqttMessageWithSubscriptions(1, "topic", mqttMessage, connection);
 		
 		final MessageLog messageLog = new MessageLog(MessageLogEnum.XML_WITH_PLAIN_PAYLOAD, null, false, false, false, false, false);
 		final long timestamp = message.getDate().getTime();
@@ -61,7 +61,7 @@ public class SimpleMessageLogComposerTest
 	}
 
 	/**
-	 * Test method for {@link pl.baczkowicz.mqttspy.logger.MessageLogParserUtils#createReceivedMessageLog(pl.baczkowicz.mqttspy.messages.ReceivedMqttMessageWithSubscriptions, pl.baczkowicz.mqttspy.common.generated.MessageLog)}.
+	 * Test method for {@link pl.baczkowicz.mqttspy.logger.MessageLogParserUtils#createReceivedMessageLog(pl.baczkowicz.mqttspy.messages.BaseMqttMessageWithSubscriptions, pl.baczkowicz.mqttspy.common.generated.MessageLog)}.
 	 * 
 	 * This is to cover Issue 18.
 	 */
@@ -72,7 +72,7 @@ public class SimpleMessageLogComposerTest
 		mqttMessage.setPayload("payload".getBytes());
 		
 		final BaseMqttConnection connection = context.mock(BaseMqttConnection.class); 
-		final ReceivedMqttMessageWithSubscriptions message = new ReceivedMqttMessageWithSubscriptions(1, "topic", mqttMessage, connection);
+		final BaseMqttMessageWithSubscriptions message = new BaseMqttMessageWithSubscriptions(1, "topic", mqttMessage, connection);
 		
 		final MessageLog messageLog = new MessageLog(MessageLogEnum.XML_WITH_ENCODED_PAYLOAD, null, false, false, false, false, false);
 		final long timestamp = message.getDate().getTime();

@@ -19,7 +19,6 @@ import java.util.Queue;
 
 import pl.baczkowicz.mqttspy.configuration.generated.ConversionMethod;
 import pl.baczkowicz.mqttspy.configuration.generated.FormatterDetails;
-import pl.baczkowicz.mqttspy.connectivity.MqttContent;
 import pl.baczkowicz.mqttspy.events.EventManager;
 import pl.baczkowicz.mqttspy.events.queuable.ui.MqttSpyUIEvent;
 import pl.baczkowicz.mqttspy.ui.utils.FormattingUtils;
@@ -48,7 +47,7 @@ public class BasicMessageStore implements MessageStore
 		this.uiEventQueue = uiEventQueue;
 	}
 	
-	public MqttContent storeMessage(final MqttContent message)
+	public UiMqttMessage storeMessage(final UiMqttMessage message)
 	{
 		if (message != null)
 		{
@@ -58,7 +57,7 @@ public class BasicMessageStore implements MessageStore
 		return null;
 	}
 
-	public List<MqttContent> getMessages()
+	public List<UiMqttMessage> getMessages()
 	{
 		return messages.getMessages();
 	}

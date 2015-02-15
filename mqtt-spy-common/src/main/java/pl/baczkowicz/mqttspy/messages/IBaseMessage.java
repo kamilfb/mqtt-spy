@@ -17,7 +17,7 @@ package pl.baczkowicz.mqttspy.messages;
 /**
  * Basic interface for an MQTT message (e.g. used by scripts accessing received or to be published messages.
  */
-public interface IMqttMessage
+public interface IBaseMessage
 {
 	/**
 	 * Gets the message's topic.

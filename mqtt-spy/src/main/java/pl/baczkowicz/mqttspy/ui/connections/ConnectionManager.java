@@ -42,7 +42,6 @@ import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnection
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnectionRunnable;
 import pl.baczkowicz.mqttspy.connectivity.MqttConnectionStatus;
-import pl.baczkowicz.mqttspy.connectivity.MqttContent;
 import pl.baczkowicz.mqttspy.connectivity.RuntimeConnectionProperties;
 import pl.baczkowicz.mqttspy.connectivity.handlers.MqttCallbackHandler;
 import pl.baczkowicz.mqttspy.connectivity.handlers.MqttDisconnectionResultHandler;
@@ -56,12 +55,13 @@ import pl.baczkowicz.mqttspy.events.queuable.ui.MqttSpyUIEvent;
 import pl.baczkowicz.mqttspy.exceptions.ConfigurationException;
 import pl.baczkowicz.mqttspy.exceptions.MqttSpyException;
 import pl.baczkowicz.mqttspy.logger.MqttMessageLogger;
-import pl.baczkowicz.mqttspy.messages.ReceivedMqttMessage;
-import pl.baczkowicz.mqttspy.messages.ReceivedMqttMessageWithSubscriptions;
+import pl.baczkowicz.mqttspy.messages.BaseMqttMessage;
+import pl.baczkowicz.mqttspy.messages.BaseMqttMessageWithSubscriptions;
 import pl.baczkowicz.mqttspy.scripts.InteractiveScriptManager;
 import pl.baczkowicz.mqttspy.scripts.Script;
 import pl.baczkowicz.mqttspy.stats.StatisticsManager;
 import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
+import pl.baczkowicz.mqttspy.storage.UiMqttMessage;
 import pl.baczkowicz.mqttspy.ui.ConnectionController;
 import pl.baczkowicz.mqttspy.ui.MainController;
 import pl.baczkowicz.mqttspy.ui.SubscriptionController;
@@ -277,7 +277,7 @@ public class ConnectionManager
 	 * @param name Name of the tab
 	 * @param list List of messages to display
 	 */
-	public void loadMessageLogTab(final MainController mainController, final String name, final List<ReceivedMqttMessage> list)
+	public void loadMessageLogTab(final MainController mainController, final String name, final List<BaseMqttMessage> list)
 	{		
 		// Load a new tab and connection pane
 		final FXMLLoader loader = FxmlUtils.createFxmlLoaderForProjectFile("ConnectionTab.fxml");
@@ -333,9 +333,9 @@ public class ConnectionManager
 				connectionController.showReplayMode();				
 				
 				// Process the messages
-		        for (final ReceivedMqttMessage mqttMessage : list)
+		        for (final BaseMqttMessage mqttMessage : list)
 		        {		        	
-		        	store.messageReceived(new MqttContent(mqttMessage));
+		        	store.messageReceived(new UiMqttMessage(mqttMessage, null));
 		        }
 			}
 		});		
@@ -426,7 +426,7 @@ public class ConnectionManager
 		if (messageLog != null && !messageLog.getValue().equals(MessageLogEnum.DISABLED) 
 				&& messageLog.getLogFile() != null && !messageLog.getLogFile().isEmpty())
 		{
-			final Queue<ReceivedMqttMessageWithSubscriptions> messageQueue= new LinkedBlockingQueue<ReceivedMqttMessageWithSubscriptions>();
+			final Queue<BaseMqttMessageWithSubscriptions> messageQueue= new LinkedBlockingQueue<BaseMqttMessageWithSubscriptions>();
 			
 			if (connection.getMessageLogger() == null)
 			{

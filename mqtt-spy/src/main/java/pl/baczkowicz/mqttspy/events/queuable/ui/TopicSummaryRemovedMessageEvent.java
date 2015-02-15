@@ -14,22 +14,22 @@
  */
 package pl.baczkowicz.mqttspy.events.queuable.ui;
 
-import pl.baczkowicz.mqttspy.connectivity.MqttContent;
 import pl.baczkowicz.mqttspy.storage.MessageListWithObservableTopicSummary;
+import pl.baczkowicz.mqttspy.storage.UiMqttMessage;
 
 public class TopicSummaryRemovedMessageEvent implements MqttSpyUIEvent
 {
-	private final MqttContent removed;
+	private final UiMqttMessage removed;
 
 	private final MessageListWithObservableTopicSummary list;
 
-	public TopicSummaryRemovedMessageEvent(final MessageListWithObservableTopicSummary list, final MqttContent removed)
+	public TopicSummaryRemovedMessageEvent(final MessageListWithObservableTopicSummary list, final UiMqttMessage removed)
 	{
 		this.list = list;
 		this.removed = removed;
 	}
 
-	public MqttContent getRemoved()
+	public UiMqttMessage getRemoved()
 	{
 		return removed;
 	}

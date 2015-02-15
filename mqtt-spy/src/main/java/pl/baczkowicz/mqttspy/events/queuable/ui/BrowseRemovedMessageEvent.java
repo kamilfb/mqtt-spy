@@ -14,25 +14,25 @@
  */
 package pl.baczkowicz.mqttspy.events.queuable.ui;
 
-import pl.baczkowicz.mqttspy.connectivity.MqttContent;
 import pl.baczkowicz.mqttspy.storage.MessageList;
+import pl.baczkowicz.mqttspy.storage.UiMqttMessage;
 
 public class BrowseRemovedMessageEvent implements MqttSpyUIEvent
 {
-	private final MqttContent message;
+	private final UiMqttMessage message;
 	
 	private final int messageIndex;
 
 	private final MessageList store;
 
-	public BrowseRemovedMessageEvent(final MessageList store, final MqttContent message, final int messageIndex)
+	public BrowseRemovedMessageEvent(final MessageList store, final UiMqttMessage message, final int messageIndex)
 	{
 		this.store = store;
 		this.message = message;
 		this.messageIndex = messageIndex;
 	}
 
-	public MqttContent getMessage()
+	public UiMqttMessage getMessage()
 	{
 		return message;
 	}

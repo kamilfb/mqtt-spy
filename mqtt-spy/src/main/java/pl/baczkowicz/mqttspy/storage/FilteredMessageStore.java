@@ -24,7 +24,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.configuration.generated.FormatterDetails;
-import pl.baczkowicz.mqttspy.connectivity.MqttContent;
 import pl.baczkowicz.mqttspy.ui.search.MessageFilter;
 
 /**
@@ -91,7 +90,7 @@ public class FilteredMessageStore extends BasicMessageStore
 			final int size = allMessages.getMessages().size();
 			for (int i = size - 1; i >= 0; i--)
 			{
-				final MqttContent message = allMessages.getMessages().get(i);
+				final UiMqttMessage message = allMessages.getMessages().get(i);
 				
 				if (browsedTopics.contains(message.getTopic()) && !filterMessage(message, false))
 				{
@@ -101,7 +100,7 @@ public class FilteredMessageStore extends BasicMessageStore
 		}
 	}	
 	
-	public boolean filterMessage(final MqttContent message, final boolean updateUi)
+	public boolean filterMessage(final UiMqttMessage message, final boolean updateUi)
 	{
 		for (final MessageFilter filter : messageFilters)
 		{
@@ -135,7 +134,7 @@ public class FilteredMessageStore extends BasicMessageStore
 		
 		synchronized (allMessages.getMessages())
 		{
-			for (MqttContent message : allMessages.getMessages())
+			for (UiMqttMessage message : allMessages.getMessages())
 			{
 				browsedTopics.add(message.getTopic());
 				

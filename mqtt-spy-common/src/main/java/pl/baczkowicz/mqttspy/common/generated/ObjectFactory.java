@@ -77,6 +77,14 @@ public class ObjectFactory {
     }
 
     /**
+     * Create an instance of {@link SimpleMqttMessage }
+     * 
+     */
+    public SimpleMqttMessage createSimpleMqttMessage() {
+        return new SimpleMqttMessage();
+    }
+
+    /**
      * Create an instance of {@link MqttConnectionDetails }
      * 
      */
@@ -114,14 +122,6 @@ public class ObjectFactory {
      */
     public UserCredentials createUserCredentials() {
         return new UserCredentials();
-    }
-
-    /**
-     * Create an instance of {@link BaseMqttMessage }
-     * 
-     */
-    public BaseMqttMessage createBaseMqttMessage() {
-        return new BaseMqttMessage();
     }
 
     /**

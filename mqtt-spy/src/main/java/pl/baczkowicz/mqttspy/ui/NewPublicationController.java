@@ -53,13 +53,13 @@ import org.fxmisc.richtext.StyleClassedTextArea;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import pl.baczkowicz.mqttspy.common.generated.BaseMqttMessage;
+import pl.baczkowicz.mqttspy.common.generated.SimpleMqttMessage;
 import pl.baczkowicz.mqttspy.configuration.generated.ConversionMethod;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.events.EventManager;
 import pl.baczkowicz.mqttspy.events.observers.ScriptListChangeObserver;
 import pl.baczkowicz.mqttspy.exceptions.ConversionException;
-import pl.baczkowicz.mqttspy.messages.ReceivedMqttMessage;
+import pl.baczkowicz.mqttspy.messages.BaseMqttMessage;
 import pl.baczkowicz.mqttspy.scripts.InteractiveScriptManager;
 import pl.baczkowicz.mqttspy.scripts.Script;
 import pl.baczkowicz.mqttspy.scripts.ScriptManager;
@@ -139,7 +139,7 @@ public class NewPublicationController implements Initializable, ScriptListChange
 
 	private EventManager eventManager;
 	
-	private List<ReceivedMqttMessage> recentMessages = new ArrayList<>();
+	private List<BaseMqttMessage> recentMessages = new ArrayList<>();
 
 	private TimeBasedKeyEventFilter timeBasedFilter;
 	
@@ -368,7 +368,7 @@ public class NewPublicationController implements Initializable, ScriptListChange
 	{		
 		if (!ConversionMethod.HEX_DECODE.equals(formatSelected))
 		{
-			final ReceivedMqttMessage message = readMessage(true);
+			final BaseMqttMessage message = readMessage(true);
 			
 			// Use the raw format to ensure correct transformation between binary formats
 			final String convertedText = ConversionUtils.arrayToHex(message.getRawMessage().getPayload());
@@ -387,7 +387,7 @@ public class NewPublicationController implements Initializable, ScriptListChange
 	{		
 		if (!ConversionMethod.BASE_64_DECODE.equals(formatSelected))
 		{
-			final ReceivedMqttMessage message = readMessage(true);
+			final BaseMqttMessage message = readMessage(true);
 			
 			// Use the raw format to ensure correct transformation between binary formats
 			final String convertedText = ConversionUtils.arrayToBase64(message.getRawMessage().getPayload());
@@ -438,9 +438,9 @@ public class NewPublicationController implements Initializable, ScriptListChange
 	 * 
 	 * @param message The message to display
 	 */
-	private void displayMessage(final ReceivedMqttMessage message)
+	private void displayMessage(final BaseMqttMessage message)
 	{
-		displayMessage(new BaseMqttMessage(message.getPayload(), message.getTopic(), message.getQoS(), message.isRetained()));	
+		displayMessage(new SimpleMqttMessage(message.getPayload(), message.getTopic(), message.getQoS(), message.isRetained()));	
 	}
 	
 	/**
@@ -448,7 +448,7 @@ public class NewPublicationController implements Initializable, ScriptListChange
 	 * 
 	 * @param message The message to display
 	 */
-	public void displayMessage(final BaseMqttMessage message)
+	public void displayMessage(final SimpleMqttMessage message)
 	{
 		if (message == null)
 		{
@@ -468,7 +468,7 @@ public class NewPublicationController implements Initializable, ScriptListChange
 		}
 	}
 	
-	public ReceivedMqttMessage readMessage(final boolean verify)
+	public BaseMqttMessage readMessage(final boolean verify)
 	{
 		// Note: here using the editor, as the value stored directly in the ComboBox might
 		// not be committed yet, whereas the editor (TextField) has got the current text in it
@@ -482,7 +482,7 @@ public class NewPublicationController implements Initializable, ScriptListChange
 			return null;
 		}
 		
-		final ReceivedMqttMessage message = new ReceivedMqttMessage(0, topic, new MqttMessage());
+		final BaseMqttMessage message = new BaseMqttMessage(0, topic, new MqttMessage());
 		try
 		{
 			if (formatSelected.equals(ConversionMethod.PLAIN))
@@ -516,7 +516,7 @@ public class NewPublicationController implements Initializable, ScriptListChange
 	@FXML
 	public void publish()
 	{						
-		final ReceivedMqttMessage message = readMessage(true);
+		final BaseMqttMessage message = readMessage(true);
 		
 		if (message != null)
 		{
@@ -547,7 +547,7 @@ public class NewPublicationController implements Initializable, ScriptListChange
 	 * 
 	 * @param message The message to record
 	 */
-	private void recordMessage(final ReceivedMqttMessage message)
+	private void recordMessage(final BaseMqttMessage message)
 	{
 		// If the message is the same as previous one, remove the old one
 		if (recentMessages.size() > 0 
@@ -583,7 +583,7 @@ public class NewPublicationController implements Initializable, ScriptListChange
 		}
 		
 		// Add all elements
-		for (final ReceivedMqttMessage message : recentMessages)
+		for (final BaseMqttMessage message : recentMessages)
 		{
 			final String topic = message.getTopic();
 			final String payload = message.getPayload().length() > 10 ? message.getPayload().substring(0, 10) + "..." : message.getPayload();
@@ -620,7 +620,7 @@ public class NewPublicationController implements Initializable, ScriptListChange
 	@FXML
 	private void saveCurrentAsScript()
 	{
-		final ReceivedMqttMessage message = readMessage(true);
+		final BaseMqttMessage message = readMessage(true);
 		
 		if (message != null)
 		{
@@ -628,7 +628,7 @@ public class NewPublicationController implements Initializable, ScriptListChange
 		}
 	}
 	
-	private void saveAsScript(final ReceivedMqttMessage message)
+	private void saveAsScript(final BaseMqttMessage message)
 	{
 		boolean valid = false;
 		
@@ -675,7 +675,7 @@ public class NewPublicationController implements Initializable, ScriptListChange
 	}
 	
 	private void createScriptFromMessage(final File scriptFile, 
-			final String configuredDirectory, final ReceivedMqttMessage message)
+			final String configuredDirectory, final BaseMqttMessage message)
 	{
 		final StringBuffer scriptText = new StringBuffer();
 		scriptText.append("mqttspy.publish(\"");

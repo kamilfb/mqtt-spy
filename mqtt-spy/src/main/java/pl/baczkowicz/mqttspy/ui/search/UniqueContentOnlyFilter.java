@@ -16,10 +16,10 @@ package pl.baczkowicz.mqttspy.ui.search;
 
 import java.util.Queue;
 
-import pl.baczkowicz.mqttspy.connectivity.MqttContent;
 import pl.baczkowicz.mqttspy.events.queuable.ui.BrowseRemovedMessageEvent;
 import pl.baczkowicz.mqttspy.events.queuable.ui.MqttSpyUIEvent;
 import pl.baczkowicz.mqttspy.storage.MessageList;
+import pl.baczkowicz.mqttspy.storage.UiMqttMessage;
 
 public class UniqueContentOnlyFilter implements MessageFilter
 {
@@ -36,18 +36,18 @@ public class UniqueContentOnlyFilter implements MessageFilter
 	}
 	
 	@Override
-	public boolean filter(final MqttContent message, final MessageList messageList, final boolean updateUi)
+	public boolean filter(final UiMqttMessage message, final MessageList messageList, final boolean updateUi)
 	{
 		if (!uniqueContentOnly || messageList.getMessages().size() == 0)
 		{
 			return false;			
 		}
 		
-		final MqttContent lastMessage = messageList.getMessages().get(0);
+		final UiMqttMessage lastMessage = messageList.getMessages().get(0);
 		
 		if (message.getFormattedPayload().equals(lastMessage.getFormattedPayload()) && message.getTopic().equals(lastMessage.getTopic()))
 		{
-			final MqttContent deletedMessage = messageList.getMessages().remove(0);
+			final UiMqttMessage deletedMessage = messageList.getMessages().remove(0);
 			
 			if (updateUi)
 			{

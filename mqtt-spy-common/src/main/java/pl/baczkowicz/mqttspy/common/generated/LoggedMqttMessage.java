@@ -38,7 +38,7 @@ import org.jvnet.jaxb2_commons.lang.builder.JAXBToStringBuilder;
  * <pre>
  * &lt;complexType name="LoggedMqttMessage">
  *   &lt;simpleContent>
- *     &lt;extension base="&lt;http://baczkowicz.pl/mqtt-spy/common>BaseMqttMessage">
+ *     &lt;extension base="&lt;http://baczkowicz.pl/mqtt-spy/common>SimpleMqttMessage">
  *       &lt;attribute name="id" use="required" type="{http://www.w3.org/2001/XMLSchema}int" />
  *       &lt;attribute name="timestamp" use="required" type="{http://www.w3.org/2001/XMLSchema}long" />
  *       &lt;attribute name="connection" type="{http://www.w3.org/2001/XMLSchema}string" />
@@ -55,7 +55,7 @@ import org.jvnet.jaxb2_commons.lang.builder.JAXBToStringBuilder;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "LoggedMqttMessage")
 public class LoggedMqttMessage
-    extends BaseMqttMessage
+    extends SimpleMqttMessage
     implements CopyTo, Copyable, Equals, HashCode, ToString
 {
 

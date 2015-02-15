@@ -21,7 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.logger.MessageLogParserUtils;
-import pl.baczkowicz.mqttspy.messages.ReceivedMqttMessage;
+import pl.baczkowicz.mqttspy.messages.BaseMqttMessage;
 import pl.baczkowicz.mqttspy.utils.ThreadingUtils;
 import pl.baczkowicz.mqttspy.utils.TimeUtils;
 
@@ -34,7 +34,7 @@ public class MessageLogIO implements IMessageLogIO, Runnable
 	private final static Logger logger = LoggerFactory.getLogger(MessageLogIO.class);
 	
 	/** Messages. */
-	private List<ReceivedMqttMessage> messages;	
+	private List<BaseMqttMessage> messages;	
 
 	/** Current replay time (as in the message log). */
 	private long replayTime;
@@ -124,7 +124,7 @@ public class MessageLogIO implements IMessageLogIO, Runnable
 	}
 	
 	@Override
-	public ReceivedMqttMessage getMessage(final int messageIndex)
+	public BaseMqttMessage getMessage(final int messageIndex)
 	{
 		if (messages != null && messages.size() > messageIndex)
 		{

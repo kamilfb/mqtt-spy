@@ -34,6 +34,7 @@ import pl.baczkowicz.mqttspy.scripts.InteractiveScriptManager;
 import pl.baczkowicz.mqttspy.scripts.Script;
 import pl.baczkowicz.mqttspy.stats.StatisticsManager;
 import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
+import pl.baczkowicz.mqttspy.storage.UiMqttMessage;
 import pl.baczkowicz.mqttspy.ui.messagelog.MessageLogUtils;
 import pl.baczkowicz.mqttspy.utils.ConversionUtils;
 
@@ -89,19 +90,19 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection
 		setConnectionStatus(status);
 	}
 	
-	public void messageReceived(final MqttContent receivedMessage)
+	public void messageReceived(final UiMqttMessage receivedMessage)
 	{		
 		final List<String> matchingSubscriptionTopics = getTopicMatcher().getMatchingSubscriptions(receivedMessage.getTopic());
 				
 		final List<String> matchingActiveSubscriptionTopics = new ArrayList<String>();
 		
-		MqttContent message = new MqttContent(receivedMessage);
+		UiMqttMessage message = new UiMqttMessage(receivedMessage);
 		
 		// For all found subscriptions
 		for (final String matchingSubscription : matchingSubscriptionTopics)
 		{					
 			// Create a copy of the message for each subscription
-			message = new MqttContent(receivedMessage);
+			message = new UiMqttMessage(receivedMessage);
 			
 			// Get the mqtt-spy's subscription object
 			final MqttSubscription mqttSubscription = subscriptions.get(matchingSubscription);

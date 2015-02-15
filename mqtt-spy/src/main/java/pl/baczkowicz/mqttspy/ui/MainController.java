@@ -50,7 +50,7 @@ import pl.baczkowicz.mqttspy.events.EventManager;
 import pl.baczkowicz.mqttspy.exceptions.ConfigurationException;
 import pl.baczkowicz.mqttspy.exceptions.MqttSpyUncaughtExceptionHandler;
 import pl.baczkowicz.mqttspy.exceptions.XMLException;
-import pl.baczkowicz.mqttspy.messages.ReceivedMqttMessage;
+import pl.baczkowicz.mqttspy.messages.BaseMqttMessage;
 import pl.baczkowicz.mqttspy.stats.ConnectionStatsUpdater;
 import pl.baczkowicz.mqttspy.stats.StatisticsManager;
 import pl.baczkowicz.mqttspy.ui.connections.ConnectionManager;
@@ -220,7 +220,7 @@ public class MainController
 
 		if (selectedFile != null)
 		{			
-			final TaskWithProgressUpdater<List<ReceivedMqttMessage>> readAndProcess = new LogReaderTask(selectedFile, connectionManager, this);
+			final TaskWithProgressUpdater<List<BaseMqttMessage>> readAndProcess = new LogReaderTask(selectedFile, connectionManager, this);
 			
 			DialogUtils.showWorkerDialog(readAndProcess);
 			

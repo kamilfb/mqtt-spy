@@ -43,7 +43,6 @@ import javafx.stage.Window;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import pl.baczkowicz.mqttspy.connectivity.MqttContent;
 import pl.baczkowicz.mqttspy.events.EventManager;
 import pl.baczkowicz.mqttspy.events.observers.MessageAddedObserver;
 import pl.baczkowicz.mqttspy.events.observers.MessageIndexIncrementObserver;
@@ -51,6 +50,7 @@ import pl.baczkowicz.mqttspy.events.observers.MessageIndexToFirstObserver;
 import pl.baczkowicz.mqttspy.events.observers.MessageRemovedObserver;
 import pl.baczkowicz.mqttspy.storage.BasicMessageStore;
 import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
+import pl.baczkowicz.mqttspy.storage.UiMqttMessage;
 import pl.baczkowicz.mqttspy.ui.messagelog.MessageLogUtils;
 import pl.baczkowicz.mqttspy.ui.utils.TextUtils;
 import pl.baczkowicz.mqttspy.ui.utils.UiUtils;
@@ -255,7 +255,7 @@ public class MessageNavigationController implements Initializable, MessageIndexT
 	// === Other methods ==
 	// ====================
 		
-	public void onMessageAdded(final MqttContent message)
+	public void onMessageAdded(final UiMqttMessage message)
 	{
 		// This is registered for filtered messages only
 		if (showLatest())
@@ -298,7 +298,7 @@ public class MessageNavigationController implements Initializable, MessageIndexT
 		updateIndex(false);			
 	}
 	
-	public void onMessageRemoved(final MqttContent message, final int messageIndex)
+	public void onMessageRemoved(final UiMqttMessage message, final int messageIndex)
 	{
 		if (messageIndex < selectedMessage)
 		{
@@ -461,7 +461,7 @@ public class MessageNavigationController implements Initializable, MessageIndexT
 	{
 		if (getSelectedMessageIndex() > 0)
 		{
-			final MqttContent message = store.getMessages().get(getSelectedMessageIndex() - 1);
+			final UiMqttMessage message = store.getMessages().get(getSelectedMessageIndex() - 1);
 			UiUtils.copyToClipboard(message.getTopic());
 		}
 	}

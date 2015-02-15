@@ -24,7 +24,6 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import pl.baczkowicz.mqttspy.connectivity.MqttContent;
 import pl.baczkowicz.mqttspy.events.EventManager;
 import pl.baczkowicz.mqttspy.events.queuable.ui.BrowseReceivedMessageEvent;
 import pl.baczkowicz.mqttspy.events.queuable.ui.MqttSpyUIEvent;
@@ -65,7 +64,7 @@ public class ManagedMessageStoreWithFiltering extends BasicMessageStore
 	 * 
 	 * @param message Received message
 	 */
-	public void messageReceived(final MqttContent message)
+	public void messageReceived(final UiMqttMessage message)
 	{	
 		// Record the current state of topics
 		final boolean allTopicsShown = !browsingFiltersEnabled();		
@@ -77,7 +76,7 @@ public class ManagedMessageStoreWithFiltering extends BasicMessageStore
 		allTopics.add(message.getTopic());
 		
 		// 2. Add the message to 'all messages' store - oldest could be removed if the store has reached its max size 
-		final MqttContent removed = storeMessage(message);
+		final UiMqttMessage removed = storeMessage(message);
 		
 		// 3. Add it to the filtered store if:
 		// - message is not filtered out
@@ -109,7 +108,7 @@ public class ManagedMessageStoreWithFiltering extends BasicMessageStore
 	}	
 	
 	@Override
-	public List<MqttContent> getMessages()
+	public List<UiMqttMessage> getMessages()
 	{		
 		return filteredStore.getFilteredMessages().getMessages();
 	}

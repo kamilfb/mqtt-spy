@@ -23,11 +23,11 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.CheckBox;
 import javafx.scene.layout.AnchorPane;
-import pl.baczkowicz.mqttspy.common.generated.BaseMqttMessage;
+import pl.baczkowicz.mqttspy.common.generated.SimpleMqttMessage;
 import pl.baczkowicz.mqttspy.common.generated.PublicationDetails;
 import pl.baczkowicz.mqttspy.configuration.ConfiguredConnectionDetails;
 import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnectionDetails;
-import pl.baczkowicz.mqttspy.messages.ReceivedMqttMessage;
+import pl.baczkowicz.mqttspy.messages.BaseMqttMessage;
 import pl.baczkowicz.mqttspy.ui.EditConnectionController;
 import pl.baczkowicz.mqttspy.ui.NewPublicationController;
 
@@ -96,10 +96,10 @@ public class EditConnectionLastWillController extends AnchorPane implements Init
 	{			
 		if (lastWillAndTestament.isSelected())
 		{			
-			final ReceivedMqttMessage message = lastWillAndTestamentMessageController.readMessage(false);
+			final BaseMqttMessage message = lastWillAndTestamentMessageController.readMessage(false);
 			if (message != null)
 			{
-				connection.setLastWillAndTestament(new BaseMqttMessage(message.getPayload(), message.getTopic(), message.getQoS(), message.isRetained()));
+				connection.setLastWillAndTestament(new SimpleMqttMessage(message.getPayload(), message.getTopic(), message.getQoS(), message.isRetained()));
 			}
 		}		
 		

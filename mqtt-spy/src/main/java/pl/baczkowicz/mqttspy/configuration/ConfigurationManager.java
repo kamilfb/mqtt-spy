@@ -26,7 +26,7 @@ import javax.xml.namespace.QName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import pl.baczkowicz.mqttspy.common.generated.BaseMqttMessage;
+import pl.baczkowicz.mqttspy.common.generated.SimpleMqttMessage;
 import pl.baczkowicz.mqttspy.configuration.generated.Connectivity;
 import pl.baczkowicz.mqttspy.configuration.generated.FormatterDetails;
 import pl.baczkowicz.mqttspy.configuration.generated.Formatting;
@@ -173,7 +173,7 @@ public class ConfigurationManager
 				
 				if (connectionDetailsV010.getLastWillAndTestament() != null)
 				{
-					details.setLastWillAndTestament(new BaseMqttMessage(
+					details.setLastWillAndTestament(new SimpleMqttMessage(
 							connectionDetailsV010.getLastWillAndTestament().getPayload(), 
 							connectionDetailsV010.getLastWillAndTestament().getTopic(), 
 							connectionDetailsV010.getLastWillAndTestament().getQoS(), 

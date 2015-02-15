@@ -19,7 +19,6 @@ import java.util.Queue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import pl.baczkowicz.mqttspy.connectivity.MqttContent;
 import pl.baczkowicz.mqttspy.events.queuable.ui.BrowseRemovedMessageEvent;
 import pl.baczkowicz.mqttspy.events.queuable.ui.MqttSpyUIEvent;
 import pl.baczkowicz.mqttspy.events.queuable.ui.TopicSummaryRemovedMessageEvent;
@@ -61,7 +60,7 @@ public class MessageStoreGarbageCollector implements Runnable
 		// logger.trace("[{}] Checking if can delete messages...", messages.getName());
 		for (int i = messages.getMessages().size() - 1; i >=0; i--)				
 		{
-			final MqttContent element = messages.getMessages().get(i);
+			final UiMqttMessage element = messages.getMessages().get(i);
 								
 			final int count = messages.getTopicSummary().getCountForTopic(element.getTopic());
 			if (count > minMessagesPerTopic)

@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.common.generated.MessageLog;
 import pl.baczkowicz.mqttspy.common.generated.MessageLogEnum;
-import pl.baczkowicz.mqttspy.messages.ReceivedMqttMessageWithSubscriptions;
+import pl.baczkowicz.mqttspy.messages.BaseMqttMessageWithSubscriptions;
 import pl.baczkowicz.mqttspy.utils.ConversionUtils;
 
 /**
@@ -44,7 +44,7 @@ public class SimpleMessageLogComposer
      * 
      * @return The log message as string
      */
-	public static String createReceivedMessageLog(final ReceivedMqttMessageWithSubscriptions message, final MessageLog messageLogOptions)
+	public static String createReceivedMessageLog(final BaseMqttMessageWithSubscriptions message, final MessageLog messageLogOptions)
 	{
 		final StringBuffer logMessage = new StringBuffer();
 		logMessage.append("<MqttMessage");
@@ -72,10 +72,10 @@ public class SimpleMessageLogComposer
 		}
 		
 		// Subscription (logs the first one only)
-		if (messageLogOptions.isLogSubscription() && message.getSubscriptions() != null && message.getSubscriptions().size() > 0)
+		if (messageLogOptions.isLogSubscription() && message.getMatchingSubscriptionTopics() != null && message.getMatchingSubscriptionTopics().size() > 0)
 		{
 			// Log the first matching subscription
-			appendAttribute(logMessage, "subscription", message.getSubscriptions().get(0));
+			appendAttribute(logMessage, "subscription", message.getMatchingSubscriptionTopics().get(0));
 		}
 		
 		populatePayload(logMessage, message, messageLogOptions);
@@ -92,7 +92,7 @@ public class SimpleMessageLogComposer
 	 * @param message The message to be logged 
      * @param messageLogOptions Logging options
 	 */
-	private static void populatePayload(final StringBuffer logMessage, final ReceivedMqttMessageWithSubscriptions message, final MessageLog messageLogOptions)
+	private static void populatePayload(final StringBuffer logMessage, final BaseMqttMessageWithSubscriptions message, final MessageLog messageLogOptions)
 	{
 		boolean encoded = MessageLogEnum.XML_WITH_ENCODED_PAYLOAD.equals(messageLogOptions.getValue());
 		final String payload = new String(message.getPayload());

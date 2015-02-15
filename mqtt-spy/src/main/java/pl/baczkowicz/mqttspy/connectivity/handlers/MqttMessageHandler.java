@@ -20,7 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
-import pl.baczkowicz.mqttspy.connectivity.MqttContent;
+import pl.baczkowicz.mqttspy.storage.UiMqttMessage;
 import pl.baczkowicz.mqttspy.utils.ThreadingUtils;
 
 /**
@@ -33,11 +33,11 @@ public class MqttMessageHandler implements Runnable
 {
 	private final static Logger logger = LoggerFactory.getLogger(MqttMessageHandler.class);
 	
-	private final Queue<MqttContent> queue;
+	private final Queue<UiMqttMessage> queue;
 
 	private MqttAsyncConnection connection;
 
-	public MqttMessageHandler(final MqttAsyncConnection connection, final Queue<MqttContent> queue)
+	public MqttMessageHandler(final MqttAsyncConnection connection, final Queue<UiMqttMessage> queue)
 	{
 		this.queue = queue;
 		this.connection = connection;
@@ -50,7 +50,7 @@ public class MqttMessageHandler implements Runnable
 		{
 			if (queue.size() > 0)
 			{
-				final MqttContent content = queue.remove();
+				final UiMqttMessage content = queue.remove();
 				connection.messageReceived(content);
 				
 				// Let other threads do stuff

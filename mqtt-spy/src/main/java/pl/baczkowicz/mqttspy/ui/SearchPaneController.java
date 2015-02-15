@@ -44,7 +44,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
-import pl.baczkowicz.mqttspy.connectivity.MqttContent;
 import pl.baczkowicz.mqttspy.events.EventManager;
 import pl.baczkowicz.mqttspy.events.observers.MessageAddedObserver;
 import pl.baczkowicz.mqttspy.events.observers.MessageFormatChangeObserver;
@@ -52,6 +51,7 @@ import pl.baczkowicz.mqttspy.scripts.Script;
 import pl.baczkowicz.mqttspy.scripts.ScriptManager;
 import pl.baczkowicz.mqttspy.storage.FilteredMessageStore;
 import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
+import pl.baczkowicz.mqttspy.storage.UiMqttMessage;
 import pl.baczkowicz.mqttspy.ui.properties.MqttContentProperties;
 import pl.baczkowicz.mqttspy.ui.search.InlineScriptMatcher;
 import pl.baczkowicz.mqttspy.ui.search.ScriptMatcher;
@@ -306,7 +306,7 @@ public class SearchPaneController implements Initializable, MessageFormatChangeO
 		searchField.requestFocus();
 	}
 	
-	private void processMessages(final List<MqttContent> messages)
+	private void processMessages(final List<UiMqttMessage> messages)
 	{
 		final SearchMatcher matcher = getSearchMatcher();
 		
@@ -340,7 +340,7 @@ public class SearchPaneController implements Initializable, MessageFormatChangeO
 		}
 	}
 	
-	private boolean processMessage(final MqttContent message, final SearchMatcher matcher)
+	private boolean processMessage(final UiMqttMessage message, final SearchMatcher matcher)
 	{
 		seachedCount++;
 		
@@ -355,7 +355,7 @@ public class SearchPaneController implements Initializable, MessageFormatChangeO
 		return false;
 	}
 	
-	private void messageFound(final MqttContent message)
+	private void messageFound(final UiMqttMessage message)
 	{	
 		foundMessages.add(0, new MqttContentProperties(message, store.getFormatter()));
 		
@@ -422,7 +422,7 @@ public class SearchPaneController implements Initializable, MessageFormatChangeO
 	}
 
 	@Override
-	public void onMessageAdded(final MqttContent message)
+	public void onMessageAdded(final UiMqttMessage message)
 	{
 		// TODO: is that ever deregistered?
 		if (autoRefreshCheckBox.isSelected())

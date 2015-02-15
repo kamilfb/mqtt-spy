@@ -54,7 +54,6 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import pl.baczkowicz.mqttspy.configuration.generated.ConversionMethod;
 import pl.baczkowicz.mqttspy.configuration.generated.FormatterDetails;
 import pl.baczkowicz.mqttspy.configuration.generated.Formatting;
-import pl.baczkowicz.mqttspy.connectivity.MqttContent;
 import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
 import pl.baczkowicz.mqttspy.connectivity.RuntimeConnectionProperties;
 import pl.baczkowicz.mqttspy.events.EventManager;
@@ -64,6 +63,7 @@ import pl.baczkowicz.mqttspy.events.queuable.ui.BrowseReceivedMessageEvent;
 import pl.baczkowicz.mqttspy.stats.StatisticsManager;
 import pl.baczkowicz.mqttspy.storage.BasicMessageStore;
 import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
+import pl.baczkowicz.mqttspy.storage.UiMqttMessage;
 import pl.baczkowicz.mqttspy.ui.connections.SubscriptionManager;
 import pl.baczkowicz.mqttspy.ui.messagelog.MessageLogUtils;
 import pl.baczkowicz.mqttspy.ui.panes.TabController;
@@ -610,9 +610,12 @@ public class SubscriptionController implements Initializable, ClearTabObserver, 
 					avg300sec == null ? 0 : avg300sec));
 		}
 		
-		final MqttContent avg5message = new MqttContent(0, AVG5_TOPIC, new MqttMessage(ConversionUtils.stringToArray(String.valueOf(avg5sec))));
-		final MqttContent avg30message = new MqttContent(0, AVG30_TOPIC, new MqttMessage(ConversionUtils.stringToArray(String.valueOf(avg30sec))));
-		final MqttContent avg300message = new MqttContent(0, AVG300_TOPIC, new MqttMessage(ConversionUtils.stringToArray(String.valueOf(avg300sec))));
+		final UiMqttMessage avg5message = new UiMqttMessage(0, AVG5_TOPIC, 
+				new MqttMessage(ConversionUtils.stringToArray(String.valueOf(avg5sec))), subscription.getConnection());
+		final UiMqttMessage avg30message = new UiMqttMessage(0, AVG30_TOPIC, 
+				new MqttMessage(ConversionUtils.stringToArray(String.valueOf(avg30sec))), subscription.getConnection());
+		final UiMqttMessage avg300message = new UiMqttMessage(0, AVG300_TOPIC, 
+				new MqttMessage(ConversionUtils.stringToArray(String.valueOf(avg300sec))), subscription.getConnection());
 		
 		statsHistory.storeMessage(avg5message);
 		statsHistory.storeMessage(avg30message);

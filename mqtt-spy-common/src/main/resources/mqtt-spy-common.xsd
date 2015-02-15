@@ -23,7 +23,7 @@
 	<!-- === MESSAGES ========= -->
 	<!-- ====================== -->
 	
-	<xs:complexType name="BaseMqttMessage">
+	<xs:complexType name="SimpleMqttMessage">
 		 <xs:simpleContent>
       		<xs:extension base="xs:string">
         		<xs:attribute name="topic" 				type="xs:string" use="required" />
@@ -49,7 +49,7 @@
 					<xs:element name="ClientID" 			type="xs:string" />
 					
 					<xs:element name="UserCredentials" 		type="mqttspycommon:UserCredentials" 		minOccurs="0" maxOccurs="1" />
-					<xs:element name="LastWillAndTestament" type="mqttspycommon:BaseMqttMessage"		minOccurs="0" maxOccurs="1" />
+					<xs:element name="LastWillAndTestament" type="mqttspycommon:SimpleMqttMessage"		minOccurs="0" maxOccurs="1" />
 					
 					<xs:element name="CleanSession" 		type="xs:boolean" 				minOccurs="0" maxOccurs="1" />
 					<xs:element name="ConnectionTimeout" 	type="xs:int" 					minOccurs="0" maxOccurs="1" />
@@ -123,7 +123,7 @@
 
 	<xs:complexType name="LoggedMqttMessage">
 		<xs:complexContent>
-			<xs:extension base="mqttspycommon:BaseMqttMessage">
+			<xs:extension base="mqttspycommon:SimpleMqttMessage">
 				<xs:attribute name="id" 			type="xs:int" use="required" />			
 				<xs:attribute name="timestamp" 		type="xs:long" use="required" />				
 				<xs:attribute name="connection" 	type="xs:string" />

@@ -23,8 +23,7 @@ import pl.baczkowicz.mqttspy.utils.ConversionUtils;
 /**
  * Represents a message received on a topic (wraps the Paho's MqttMessage).
  */
-// TODO: find a better name for this class
-public class ReceivedMqttMessage implements IMqttMessage
+public class BaseMqttMessage implements IBaseMessage
 {
 	/** Topic on which the message was received. */
 	private final String topic;
@@ -39,13 +38,13 @@ public class ReceivedMqttMessage implements IMqttMessage
 	private final long id;
 	
 	/**
-	 * Creates a ReceivedMqttMessage from the given parameters.
+	 * Creates a BaseMqttMessage from the given parameters.
 	 * 
 	 * @param id Message ID
 	 * @param topic Topic on which it was received
 	 * @param message The received message
 	 */
-	public ReceivedMqttMessage(final long id, final String topic, final MqttMessage message)
+	public BaseMqttMessage(final long id, final String topic, final MqttMessage message)
 	{
 		this.id = id;
 		this.topic = topic;
@@ -54,14 +53,14 @@ public class ReceivedMqttMessage implements IMqttMessage
 	}
 	
 	/**
-	 * Creates a ReceivedMqttMessage from the given parameters.
+	 * Creates a BaseMqttMessage from the given parameters.
 	 * 
 	 * @param id Message ID
 	 * @param topic Topic on which it was received
 	 * @param message The received message
 	 * @param date When the message was received
 	 */
-	public ReceivedMqttMessage(final long id, final String topic, final MqttMessage message, final Date date)
+	public BaseMqttMessage(final long id, final String topic, final MqttMessage message, final Date date)
 	{
 		this.id = id;
 		this.topic = topic;

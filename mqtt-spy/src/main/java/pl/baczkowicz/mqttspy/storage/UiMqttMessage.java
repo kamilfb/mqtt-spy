@@ -12,49 +12,52 @@
  *    Kamil Baczkowicz - initial API and implementation and/or initial documentation
  *    
  */
-package pl.baczkowicz.mqttspy.connectivity;
+package pl.baczkowicz.mqttspy.storage;
 
 import java.util.Date;
 
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
 import pl.baczkowicz.mqttspy.configuration.generated.FormatterDetails;
-import pl.baczkowicz.mqttspy.messages.ReceivedMqttMessage;
+import pl.baczkowicz.mqttspy.connectivity.BaseMqttConnection;
+import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
+import pl.baczkowicz.mqttspy.messages.BaseMqttMessage;
+import pl.baczkowicz.mqttspy.messages.BaseMqttMessageWithSubscriptions;
 import pl.baczkowicz.mqttspy.ui.utils.FormattingUtils;
 import pl.baczkowicz.mqttspy.utils.ConversionUtils;
 
-// TODO: extend ReceivedMqttMessageWithSubscriptions
-public class MqttContent extends ReceivedMqttMessage
+public class UiMqttMessage extends BaseMqttMessageWithSubscriptions
 {
+	/** The UI subscription object - first matching. */ 
 	private MqttSubscription subscription;
 	
 	private FormatterDetails lastUsedFormatter;
 	
 	private String formattedPayload;
 	
-	public MqttContent(final MqttContent message)
+	public UiMqttMessage(final UiMqttMessage message)
 	{
-		super(message.getId(), message.getTopic(), copyMqttMessage(message.getRawMessage()));
+		super(message.getId(), message.getTopic(), copyMqttMessage(message.getRawMessage()), message.getConnection());
 		this.formattedPayload = message.getFormattedPayload();
 		this.lastUsedFormatter = message.getLastUsedFormatter();
 		this.subscription = message.getSubscription();
 	}
 
-	public MqttContent(final long id, final String topic, final MqttMessage message)
+	public UiMqttMessage(final long id, final String topic, final MqttMessage message, final BaseMqttConnection connection)
 	{
-		super(id, topic, message);
+		super(id, topic, message, connection);
 		this.formattedPayload = ConversionUtils.arrayToString(message.getPayload());
 	}
 	
-	public MqttContent(final long id, final String topic, final MqttMessage message, final Date date)
+	public UiMqttMessage(final long id, final String topic, final MqttMessage message, final Date date, final BaseMqttConnection connection)
 	{
-		super(id, topic, message, date);
+		super(id, topic, message, date, connection);
 		this.formattedPayload = ConversionUtils.arrayToString(message.getPayload());
 	}
 	
-	public MqttContent(final ReceivedMqttMessage message)
+	public UiMqttMessage(final BaseMqttMessage message, final BaseMqttConnection connection)
 	{
-		super(message.getId(), message.getTopic(), message.getRawMessage(), message.getDate());
+		super(message.getId(), message.getTopic(), message.getRawMessage(), message.getDate(), connection);
 		this.formattedPayload = message.getPayload();
 	}	
 	

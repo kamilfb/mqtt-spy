@@ -34,10 +34,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.configuration.generated.FormatterDetails;
-import pl.baczkowicz.mqttspy.connectivity.MqttContent;
 import pl.baczkowicz.mqttspy.events.observers.MessageFormatChangeObserver;
 import pl.baczkowicz.mqttspy.events.observers.MessageIndexChangeObserver;
 import pl.baczkowicz.mqttspy.storage.BasicMessageStore;
+import pl.baczkowicz.mqttspy.storage.UiMqttMessage;
 import pl.baczkowicz.mqttspy.ui.search.SearchOptions;
 import pl.baczkowicz.mqttspy.ui.utils.FormattingUtils;
 import pl.baczkowicz.mqttspy.utils.TimeUtils;
@@ -78,7 +78,7 @@ public class MessageController implements Initializable, MessageIndexChangeObser
 
 	private BasicMessageStore store;
 	
-	private MqttContent message;
+	private UiMqttMessage message;
 
 	private FormatterDetails selectionFormat = null;
 
@@ -167,7 +167,7 @@ public class MessageController implements Initializable, MessageIndexChangeObser
 	{
 		if (messageIndex > 0)
 		{
-			MqttContent message = null; 
+			UiMqttMessage message = null; 
 		
 			// Optimised for showing the latest message
 			if (messageIndex == 1)
@@ -182,7 +182,7 @@ public class MessageController implements Initializable, MessageIndexChangeObser
 			{
 				synchronized (store)
 				{
-					final List<MqttContent> messages = store.getMessages();
+					final List<UiMqttMessage> messages = store.getMessages();
 					
 					// Make sure we don't try to re-display a message that is not in the store anymore
 					if (messageIndex <= messages.size())
@@ -199,7 +199,7 @@ public class MessageController implements Initializable, MessageIndexChangeObser
 		}
 	}
 
-	public void populate(final MqttContent message)
+	public void populate(final UiMqttMessage message)
 	{
 		// Don't populate with the same message object
 		if (message != null && !message.equals(this.message))

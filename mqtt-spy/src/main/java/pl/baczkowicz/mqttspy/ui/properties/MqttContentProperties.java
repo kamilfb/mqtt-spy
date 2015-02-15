@@ -17,8 +17,8 @@ package pl.baczkowicz.mqttspy.ui.properties;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import pl.baczkowicz.mqttspy.configuration.generated.FormatterDetails;
-import pl.baczkowicz.mqttspy.connectivity.MqttContent;
 import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
+import pl.baczkowicz.mqttspy.storage.UiMqttMessage;
 import pl.baczkowicz.mqttspy.utils.TimeUtils;
 
 /**
@@ -33,7 +33,7 @@ public class MqttContentProperties extends BaseTopicProperty
 	private StringProperty lastReceivedPayload;
 
 	/** Last message. */
-	private MqttContent mqttContent;
+	private UiMqttMessage mqttContent;
 
 	/**
 	 * Creates MqttContentProperties with the supplied parameters.
@@ -41,7 +41,7 @@ public class MqttContentProperties extends BaseTopicProperty
 	 * @param message The last received message object
 	 * @param format The formatting settings to be used for the payload
 	 */
-	public MqttContentProperties(final MqttContent message, final FormatterDetails format)
+	public MqttContentProperties(final UiMqttMessage message, final FormatterDetails format)
 	{
 		super(message.getTopic());
 		this.lastReceivedTimestamp = new SimpleStringProperty();
@@ -75,7 +75,7 @@ public class MqttContentProperties extends BaseTopicProperty
 	 * @param message The last received message
 	 * @param format The format to use
 	 */
-	public void setMessage(final MqttContent message, final FormatterDetails format)
+	public void setMessage(final UiMqttMessage message, final FormatterDetails format)
 	{
 		this.mqttContent = message;
 

@@ -14,25 +14,25 @@
  */
 package pl.baczkowicz.mqttspy.events.queuable.ui;
 
-import pl.baczkowicz.mqttspy.connectivity.MqttContent;
 import pl.baczkowicz.mqttspy.storage.MessageListWithObservableTopicSummary;
+import pl.baczkowicz.mqttspy.storage.UiMqttMessage;
 
 public class TopicSummaryNewMessageEvent implements MqttSpyUIEvent
 {
-	private final MqttContent added;
+	private final UiMqttMessage added;
 	
 	private final boolean showTopic;
 
 	private final MessageListWithObservableTopicSummary list;
 
-	public TopicSummaryNewMessageEvent(final MessageListWithObservableTopicSummary list, final MqttContent added, final boolean showTopic)
+	public TopicSummaryNewMessageEvent(final MessageListWithObservableTopicSummary list, final UiMqttMessage added, final boolean showTopic)
 	{
 		this.list = list;
 		this.added = added;
 		this.showTopic = showTopic;
 	}
 	
-	public MqttContent getAdded()
+	public UiMqttMessage getAdded()
 	{
 		return added;
 	}

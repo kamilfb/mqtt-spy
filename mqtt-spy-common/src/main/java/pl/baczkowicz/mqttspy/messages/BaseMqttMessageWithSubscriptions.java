@@ -24,20 +24,20 @@ import pl.baczkowicz.mqttspy.connectivity.BaseMqttConnection;
 /**
  * Extension of the ReceivedMqttMessage for storing the matching subscriptions and connection.
  */
-public class ReceivedMqttMessageWithSubscriptions extends ReceivedMqttMessage
+public class BaseMqttMessageWithSubscriptions extends BaseMqttMessage
 {
 	/** Subscriptions matching the message's topic. */
-	private List<String> subscriptions;
+	private List<String> matchingSubscriptionTopics;
 	
 	/** The connection on which the message was received. */
 	private final BaseMqttConnection connection;
 	
 	/**
-	 * Creates a ReceivedMqttMessageWithSubscriptions from the given message.
+	 * Creates a BaseMqttMessageWithSubscriptions from the given message.
 	 * 
 	 * @param message Message to copy from
 	 */
-	public ReceivedMqttMessageWithSubscriptions(final ReceivedMqttMessageWithSubscriptions message)
+	public BaseMqttMessageWithSubscriptions(final BaseMqttMessageWithSubscriptions message)
 	{
 		this(
 				message.getId(), message.getTopic(), 
@@ -45,25 +45,25 @@ public class ReceivedMqttMessageWithSubscriptions extends ReceivedMqttMessage
 				copyMqttMessage(message.getRawMessage()), 
 				message.getDate(), message.getConnection());
 		
-		this.setSubscriptions(message.getSubscriptions());
+		this.setMatchingSubscriptionTopics(message.getMatchingSubscriptionTopics());
 	}
 	
 	/**
-	 * Creates a ReceivedMqttMessageWithSubscriptions from the given parameters.
+	 * Creates a BaseMqttMessageWithSubscriptions from the given parameters.
 	 * 
 	 * @param id Message ID
 	 * @param topic Topic on which the message was received
 	 * @param message The received MqttMessage object
 	 * @param connection The connection on which it was received
 	 */
-	public ReceivedMqttMessageWithSubscriptions(final long id, final String topic, final MqttMessage message, final BaseMqttConnection connection)
+	public BaseMqttMessageWithSubscriptions(final long id, final String topic, final MqttMessage message, final BaseMqttConnection connection)
 	{
 		super(id, topic, message);
 		this.connection = connection;
 	}
 	
 	/**
-	 * Creates a ReceivedMqttMessageWithSubscriptions from the given parameters.
+	 * Creates a BaseMqttMessageWithSubscriptions from the given parameters.
 	 * 
 	 * @param id Message ID
 	 * @param topic Topic on which the message was received
@@ -71,7 +71,7 @@ public class ReceivedMqttMessageWithSubscriptions extends ReceivedMqttMessage
 	 * @param date When the message was received
 	 * @param connection The connection on which it was received
 	 */
-	public ReceivedMqttMessageWithSubscriptions(final long id, final String topic, final MqttMessage message, final Date date, final BaseMqttConnection connection)
+	public BaseMqttMessageWithSubscriptions(final long id, final String topic, final MqttMessage message, final Date date, final BaseMqttConnection connection)
 	{
 		super(id, topic, message, date);
 		this.connection = connection;
@@ -82,9 +82,9 @@ public class ReceivedMqttMessageWithSubscriptions extends ReceivedMqttMessage
 	 * 
 	 * @return List of matching subscriptions
 	 */
-	public List<String> getSubscriptions()
+	public List<String> getMatchingSubscriptionTopics()
 	{
-		return subscriptions;
+		return matchingSubscriptionTopics;
 	}
 
 	/**
@@ -92,9 +92,9 @@ public class ReceivedMqttMessageWithSubscriptions extends ReceivedMqttMessage
 	 * 
 	 * @param subscriptions The matching subscriptions to set
 	 */
-	public void setSubscriptions(final List<String> subscriptions)
+	public void setMatchingSubscriptionTopics(final List<String> subscriptions)
 	{
-		this.subscriptions = subscriptions;
+		this.matchingSubscriptionTopics = subscriptions;
 	}
 
 	/**

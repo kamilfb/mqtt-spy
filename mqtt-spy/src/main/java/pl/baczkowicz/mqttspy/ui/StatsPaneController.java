@@ -55,11 +55,11 @@ import org.gillius.jfxutils.chart.ChartPanManager;
 import org.gillius.jfxutils.chart.JFXChartUtil;
 import org.gillius.jfxutils.chart.StableTicksAxis;
 
-import pl.baczkowicz.mqttspy.connectivity.MqttContent;
 import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
 import pl.baczkowicz.mqttspy.events.EventManager;
 import pl.baczkowicz.mqttspy.events.observers.MessageAddedObserver;
 import pl.baczkowicz.mqttspy.storage.BasicMessageStore;
+import pl.baczkowicz.mqttspy.storage.UiMqttMessage;
 import pl.baczkowicz.mqttspy.ui.charts.ChartMode;
 import pl.baczkowicz.mqttspy.ui.properties.MessageLimitProperties;
 import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
@@ -107,7 +107,7 @@ public class StatsPaneController implements Initializable, MessageAddedObserver
 
 	private Collection<String> topics;
 	
-	private Map<String, List<MqttContent>> chartData = new HashMap<>();
+	private Map<String, List<UiMqttMessage>> chartData = new HashMap<>();
 	
 	private Map<String, Series<Number, Number>> topicToSeries = new LinkedHashMap<>();
 	
@@ -348,7 +348,7 @@ public class StatsPaneController implements Initializable, MessageAddedObserver
 	private void divideMessagesByTopic(final Collection<String> topics)
 	{
 		chartData.clear();
-		for (final MqttContent message : store.getMessages())
+		for (final UiMqttMessage message : store.getMessages())
 		{
 			final String topic = message.getTopic();
 			// logger.info("Topics = " + topics);
@@ -364,7 +364,7 @@ public class StatsPaneController implements Initializable, MessageAddedObserver
 	{
 		if (chartData.get(topic) == null)
 		{
-			chartData.put(topic, new ArrayList<MqttContent>());
+			chartData.put(topic, new ArrayList<UiMqttMessage>());
 		}
 	}
 	
@@ -386,7 +386,7 @@ public class StatsPaneController implements Initializable, MessageAddedObserver
 		lineChart.setAnimated(true);
 	}
 	
-	private XYChart.Data<Number, Number> createDataObject(final MqttContent message)
+	private XYChart.Data<Number, Number> createDataObject(final UiMqttMessage message)
 	{
 		if (ChartMode.USER_DRIVEN_MSG_PAYLOAD.equals(chartMode))
 		{
@@ -406,7 +406,7 @@ public class StatsPaneController implements Initializable, MessageAddedObserver
 		return null;
 	}
 	
-	private void addMessageToSeries(final Series<Number, Number> series, final MqttContent message)
+	private void addMessageToSeries(final Series<Number, Number> series, final UiMqttMessage message)
 	{
 		try
     	{
@@ -439,7 +439,7 @@ public class StatsPaneController implements Initializable, MessageAddedObserver
 			
 			for (final String topic : topics)
 			{
-				final List<MqttContent> extractedMessages = new ArrayList<>();
+				final List<UiMqttMessage> extractedMessages = new ArrayList<>();
 				final Series<Number, Number> series = new XYChart.Series<>();
 				topicToSeries.put(topic, series);
 		        series.setName(topic);
@@ -459,7 +459,7 @@ public class StatsPaneController implements Initializable, MessageAddedObserver
 		        
 		        for (int i = startIndex; i < itemsAvailable; i++)
 		        {
-		        	final MqttContent message = chartData.get(topic).get(chartData.get(topic).size() - i - 1);
+		        	final UiMqttMessage message = chartData.get(topic).get(chartData.get(topic).size() - i - 1);
 		        	
 		        	if (limit.getTimeLimit() > 0 && (message.getDate().getTime() + limit.getTimeLimit() < now.getTime()))
 		        	{
@@ -513,7 +513,7 @@ public class StatsPaneController implements Initializable, MessageAddedObserver
 	}
 
 	@Override
-	public void onMessageAdded(final MqttContent message)
+	public void onMessageAdded(final UiMqttMessage message)
 	{
 		// TODO: is that ever deregistered?
 		synchronized (chartData)
@@ -539,7 +539,7 @@ public class StatsPaneController implements Initializable, MessageAddedObserver
 				final Date now = new Date();
 				if (limit.getTimeLimit() > 0)
 				{
-					MqttContent oldestMessage = chartData.get(topic).get(0);
+					UiMqttMessage oldestMessage = chartData.get(topic).get(0);
 					while (oldestMessage.getDate().getTime() + limit.getTimeLimit() < now.getTime())
 					{
 						chartData.get(topic).remove(0);
