@@ -35,7 +35,6 @@ import pl.baczkowicz.mqttspy.scripts.Script;
 import pl.baczkowicz.mqttspy.stats.StatisticsManager;
 import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
 import pl.baczkowicz.mqttspy.storage.UiMqttMessage;
-import pl.baczkowicz.mqttspy.ui.messagelog.MessageLogUtils;
 import pl.baczkowicz.mqttspy.utils.ConversionUtils;
 
 /**
@@ -66,13 +65,11 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection
 
 	private InteractiveScriptManager scriptManager;
 
-	// private Queue<ReceivedMqttMessageWithSubscriptions> messageLogQueue;
-
 	private MqttMessageLogger messageLogger;
 
 	public MqttAsyncConnection(final ReconnectionManager reconnectionManager, final RuntimeConnectionProperties properties, 
 			final MqttConnectionStatus status, final EventManager eventManager,
-			final Queue<MqttSpyUIEvent> uiEventQueue/*, final Queue<ReceivedMqttMessageWithSubscriptions> queue*/)
+			final Queue<MqttSpyUIEvent> uiEventQueue)
 	{ 
 		super(reconnectionManager, properties);
 		
@@ -86,7 +83,6 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection
 		this.setPreferredStoreSize(properties.getMaxMessagesStored());
 		this.properties = properties;
 		this.eventManager = eventManager;
-		// this.messageLogQueue = queue;
 		setConnectionStatus(status);
 	}
 	
@@ -130,7 +126,8 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection
 		// If logging is enabled
 		if (messageLogger != null && messageLogger.isRunning())
 		{
-			messageLogger.getQueue().add(MessageLogUtils.convert(message, this, matchingSubscriptionTopics));
+			message.setMatchingSubscriptionTopics(matchingSubscriptionTopics);
+			messageLogger.getQueue().add(message);
 		}
 		
 		statisticsManager.messageReceived(getId(), matchingActiveSubscriptionTopics);
