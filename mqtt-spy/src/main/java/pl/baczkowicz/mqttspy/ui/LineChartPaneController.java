@@ -67,9 +67,9 @@ import pl.baczkowicz.mqttspy.ui.utils.StylingUtils;
 import pl.baczkowicz.mqttspy.utils.TimeUtils;
 
 /**
- * Controller for stats pane.
+ * Controller for line chart pane.
  */
-public class StatsPaneController implements Initializable, MessageAddedObserver
+public class LineChartPaneController implements Initializable, MessageAddedObserver
 {
 	private static boolean lastAutoRefresh = true;
 	
@@ -79,7 +79,7 @@ public class StatsPaneController implements Initializable, MessageAddedObserver
 		= new MessageLimitProperties("50 messages", 50, 0);
 
 	@FXML
-	private AnchorPane statsPane;
+	private AnchorPane chartPane;
 	
 	@FXML
 	private Label showRangeLabel;
@@ -255,7 +255,7 @@ public class StatsPaneController implements Initializable, MessageAddedObserver
 			refreshButton.setStyle(StylingUtils.createBaseRGBString(subscription.getColor()));
 		}
 		
-		statsPane.getChildren().add(lineChart);
+		chartPane.getChildren().add(lineChart);
 		AnchorPane.setBottomAnchor(lineChart, 0.0);
 		AnchorPane.setLeftAnchor(lineChart, 0.0);
 		AnchorPane.setTopAnchor(lineChart, 45.0);

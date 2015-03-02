@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Optional;
 
 import javafx.application.Platform;
+import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
@@ -56,8 +57,10 @@ import pl.baczkowicz.mqttspy.connectivity.MqttConnectionStatus;
 import pl.baczkowicz.mqttspy.events.EventManager;
 import pl.baczkowicz.mqttspy.stats.StatisticsManager;
 import pl.baczkowicz.mqttspy.storage.BasicMessageStore;
-import pl.baczkowicz.mqttspy.ui.StatsPaneController;
+import pl.baczkowicz.mqttspy.ui.LineChartPaneController;
+import pl.baczkowicz.mqttspy.ui.PieChartPaneController;
 import pl.baczkowicz.mqttspy.ui.charts.ChartMode;
+import pl.baczkowicz.mqttspy.ui.properties.SubscriptionTopicSummaryProperties;
 import pl.baczkowicz.mqttspy.utils.MqttUtils;
 import pl.baczkowicz.mqttspy.utils.ThreadingUtils;
 
@@ -481,16 +484,16 @@ public class DialogUtils
 		return stage;
 	}
 
-	public static void showMessageBasedCharts(Collection<String> topics, 
+	public static void showMessageBasedLineCharts(Collection<String> topics, 
 			final BasicMessageStore store,
 			final ChartMode mode, 
 			final String seriesType, final String seriesValueName, 
 			final String seriesUnit, final String title, 
 			final Scene parentScene, final EventManager eventManager)
 	{
-		final FXMLLoader loader = FxmlUtils.createFxmlLoaderForProjectFile("StatsPane.fxml");
+		final FXMLLoader loader = FxmlUtils.createFxmlLoaderForProjectFile("LineChartPane.fxml");
 		final AnchorPane statsWindow = FxmlUtils.loadAnchorPane(loader);
-		final StatsPaneController statsPaneController = ((StatsPaneController) loader.getController());		
+		final LineChartPaneController statsPaneController = ((LineChartPaneController) loader.getController());		
 		statsPaneController.setEventManager(eventManager);
 		statsPaneController.setStore(store);
 		statsPaneController.setSeriesTypeName(seriesType);
@@ -517,6 +520,35 @@ public class DialogUtils
 			public void handle(WindowEvent event)
 			{
 				statsPaneController.cleanup();
+			}
+		});
+	}
+	
+	public static void showMessageBasedPieCharts(final String title, 
+			final Scene parentScene, final ObservableList<SubscriptionTopicSummaryProperties> observableList)
+	{
+		final FXMLLoader loader = FxmlUtils.createFxmlLoaderForProjectFile("PieChartPane.fxml");
+		final AnchorPane chartWindow = FxmlUtils.loadAnchorPane(loader);
+		final PieChartPaneController chartPaneController = ((PieChartPaneController) loader.getController());		
+		chartPaneController.setObservableList(observableList);
+		chartPaneController.init();
+		
+		Scene scene = new Scene(chartWindow);
+		scene.getStylesheets().addAll(parentScene.getStylesheets());		
+
+		final Stage statsPaneStage = new Stage();
+		statsPaneStage.setWidth(800);
+		statsPaneStage.setHeight(600);
+		statsPaneStage.setScene(scene);			       
+		statsPaneStage.setTitle(title);
+		statsPaneStage.show();
+
+		statsPaneStage.setOnCloseRequest(new EventHandler<WindowEvent>()
+		{
+			@Override
+			public void handle(WindowEvent event)
+			{
+				chartPaneController.cleanup();
 			}
 		});
 	}

@@ -49,6 +49,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.configuration.generated.TabbedSubscriptionDetails;
+import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.events.EventManager;
 import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
 import pl.baczkowicz.mqttspy.ui.charts.ChartMode;
@@ -65,7 +66,7 @@ public class SubscriptionSummaryTableController implements Initializable
 {
 	private static final int CHART_TOPIC_COUNT = 10;
 
-	final static Logger logger = LoggerFactory.getLogger(SubscriptionSummaryTableController.class);
+	private final static Logger logger = LoggerFactory.getLogger(SubscriptionSummaryTableController.class);
 
 	private ManagedMessageStoreWithFiltering store; 
 	
@@ -241,7 +242,7 @@ public class SubscriptionSummaryTableController implements Initializable
 	
 	public void init()
 	{		
-		filterTable.setContextMenu(createTopicTableContextMenu());		
+		filterTable.setContextMenu(createTopicTableContextMenu(connectionController.getConnection()));		
 		
 		nonFilteredData = store.getNonFilteredMessageList().getTopicSummary().getObservableMessagesPerTopic();
 		
@@ -321,23 +322,25 @@ public class SubscriptionSummaryTableController implements Initializable
 		}
 	}
 		
-	private void showChartsWindow(final Set<String> topics, final ChartMode mode)
+	private void showChartsWindow(final Set<String> topics, final ChartMode mode, final MqttAsyncConnection connection)
 	{
+		final String connectionName = connection != null ? " - " + connection.getName() : "";
+		
 		if (ChartMode.USER_DRIVEN_MSG_SIZE.equals(mode))
 		{
-			DialogUtils.showMessageBasedCharts(topics, store, mode, 
-					"Topic", "Size", "bytes", "Message size chart", 
+			DialogUtils.showMessageBasedLineCharts(topics, store, mode, 
+					"Topic", "Size", "bytes", "Message size chart" + connectionName, 
 					filterTable.getScene(), eventManager);
 		}
 		else
 		{
-			DialogUtils.showMessageBasedCharts(topics, store, mode, 
-					"Topic", "Value", "", "Message content chart",
+			DialogUtils.showMessageBasedLineCharts(topics, store, mode, 
+					"Topic", "Value", "", "Message content chart" + connectionName,
 					filterTable.getScene(), eventManager);
 		}		
 	}
 	
-	public ContextMenu createTopicTableContextMenu()
+	public ContextMenu createTopicTableContextMenu(final MqttAsyncConnection connection)
 	{
 		final ContextMenu contextMenu = new ContextMenu();
 		
@@ -412,7 +415,10 @@ public class SubscriptionSummaryTableController implements Initializable
 				if (item != null)
 				{
 					final String topic = item.topicProperty().getValue();					
-					showChartsWindow(new HashSet<String>(Arrays.asList(topic)), ChartMode.USER_DRIVEN_MSG_PAYLOAD);
+					showChartsWindow(
+							new HashSet<String>(Arrays.asList(topic)), 
+							ChartMode.USER_DRIVEN_MSG_PAYLOAD, 
+							connection);
 				}
 			}
 		});
@@ -440,7 +446,7 @@ public class SubscriptionSummaryTableController implements Initializable
 							return;
 						}
 					}
-					showChartsWindow(topics, ChartMode.USER_DRIVEN_MSG_PAYLOAD);
+					showChartsWindow(topics, ChartMode.USER_DRIVEN_MSG_PAYLOAD, connection);
 				}
 			}
 		});
@@ -458,7 +464,7 @@ public class SubscriptionSummaryTableController implements Initializable
 				if (item != null)
 				{
 					final String topic = item.topicProperty().getValue();					
-					showChartsWindow(new HashSet<String>(Arrays.asList(topic)), ChartMode.USER_DRIVEN_MSG_SIZE);
+					showChartsWindow(new HashSet<String>(Arrays.asList(topic)), ChartMode.USER_DRIVEN_MSG_SIZE, connection);
 				}
 			}
 		});
@@ -486,7 +492,7 @@ public class SubscriptionSummaryTableController implements Initializable
 							return;
 						}
 					}
-					showChartsWindow(topics, ChartMode.USER_DRIVEN_MSG_SIZE);
+					showChartsWindow(topics, ChartMode.USER_DRIVEN_MSG_SIZE, connection);
 				}
 			}
 		});

@@ -199,14 +199,29 @@ public class ContextMenuUtils
 		{
 			public void handle(ActionEvent e)
 			{			
-				DialogUtils.showMessageBasedCharts(
+				DialogUtils.showMessageBasedLineCharts(
 						Arrays.asList(SubscriptionController.AVG5_TOPIC, SubscriptionController.AVG30_TOPIC, SubscriptionController.AVG300_TOPIC),
 						subscriptionController.getStatsHistory(), 
 						ChartMode.USER_DRIVEN_MSG_PAYLOAD,
-						"Series", "Load", "msgs/s", "Message load statistics for " + subscription.getTopic(), subscriptionController.getScene(), eventManager);
+						"Series", "Load", "msgs/s", 
+						"Message load statistics for " + subscription.getTopic() + " - " + connection.getName(), 
+						subscriptionController.getScene(), eventManager);
 			}
-		});
+		});			
 		contextMenu.getItems().add(messageLoadChartItem);
+		
+		// Message count charts
+		MenuItem messageCountChartItem = new MenuItem("[Graphing] Show message count chart");
+		messageCountChartItem.setOnAction(new EventHandler<ActionEvent>()
+		{
+			public void handle(ActionEvent e)
+			{			
+				DialogUtils.showMessageBasedPieCharts("Message count statistics for " + subscription.getTopic(), 
+						subscriptionController.getScene(),
+						subscriptionController.getSubscription().getNonFilteredMessageList().getTopicSummary().getObservableMessagesPerTopic());
+			}
+		});			
+		contextMenu.getItems().add(messageCountChartItem);
 		
 		// Separator
 		contextMenu.getItems().add(new SeparatorMenuItem());
@@ -313,11 +328,13 @@ public class ContextMenuUtils
 		{
 			public void handle(ActionEvent e)
 			{
-				DialogUtils.showMessageBasedCharts(
+				DialogUtils.showMessageBasedLineCharts(
 						Arrays.asList(SubscriptionController.AVG5_TOPIC, SubscriptionController.AVG30_TOPIC, SubscriptionController.AVG300_TOPIC),
 						subscriptionController.getStatsHistory(), 
 						ChartMode.USER_DRIVEN_MSG_PAYLOAD,
-						"Series", "Load", "msgs/s", "Message load statistics for all subscriptions", subscriptionController.getScene(), eventManager);
+						"Series", "Load", "msgs/s", 
+						"Message load statistics for all subscriptions - " + connection.getName(), 
+						subscriptionController.getScene(), eventManager);
 			}
 		});
 

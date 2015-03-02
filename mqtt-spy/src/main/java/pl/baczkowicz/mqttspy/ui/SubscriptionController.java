@@ -611,11 +611,11 @@ public class SubscriptionController implements Initializable, ClearTabObserver, 
 		}
 		
 		final UiMqttMessage avg5message = new UiMqttMessage(0, AVG5_TOPIC, 
-				new MqttMessage(ConversionUtils.stringToArray(String.valueOf(avg5sec))), subscription.getConnection());
+				new MqttMessage(ConversionUtils.stringToArray(String.valueOf(avg5sec))), null);
 		final UiMqttMessage avg30message = new UiMqttMessage(0, AVG30_TOPIC, 
-				new MqttMessage(ConversionUtils.stringToArray(String.valueOf(avg30sec))), subscription.getConnection());
+				new MqttMessage(ConversionUtils.stringToArray(String.valueOf(avg30sec))), null);
 		final UiMqttMessage avg300message = new UiMqttMessage(0, AVG300_TOPIC, 
-				new MqttMessage(ConversionUtils.stringToArray(String.valueOf(avg300sec))), subscription.getConnection());
+				new MqttMessage(ConversionUtils.stringToArray(String.valueOf(avg300sec))), null);
 		
 		statsHistory.storeMessage(avg5message);
 		statsHistory.storeMessage(avg30message);
