@@ -53,6 +53,12 @@ public class ObservableTopicSummary extends TopicSummary
 			{				
 				observableTopicSummaryList.add(newAdded);
 			}
+			else
+			{
+				// Set the updated object to notify the observers of the list
+				final SubscriptionTopicSummaryProperties updated = topicToSummaryMapping.get(message.getTopic());
+				observableTopicSummaryList.set(observableTopicSummaryList.indexOf(updated), updated);
+			}
 			
 			return newAdded;
 		}				

@@ -15,14 +15,12 @@
 package pl.baczkowicz.mqttspy.ui;
 
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.ResourceBundle;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.Set;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -32,10 +30,15 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.chart.PieChart;
+import javafx.scene.chart.PieChart.Data;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import pl.baczkowicz.mqttspy.ui.properties.SubscriptionTopicSummaryProperties;
 
 /**
@@ -125,15 +128,36 @@ public class PieChartPaneController implements Initializable, ListChangeListener
 	
 	private void refreshFromList(final Collection<SubscriptionTopicSummaryProperties> list)
 	{
+		final Set<String> currentTopics = new HashSet<String>();
+		currentTopics.addAll(pieChartDataMapping.keySet());
+		
 		synchronized (pieChartData)
 		{
 			for (final SubscriptionTopicSummaryProperties newValue : list)
 			{
 				final String topic = newValue.topicProperty().getValue();
-				pieChartDataMapping.put(topic, new PieChart.Data(topic, newValue.countProperty().getValue()));
+				final Data lastValue = pieChartDataMapping.get(topic);
+				
+				if (lastValue == null)
+				{
+					final PieChart.Data data = new PieChart.Data(topic, newValue.countProperty().getValue());
+					pieChartDataMapping.put(topic, data);
+					pieChartData.add(data);
+				}
+				else
+				{
+					lastValue.setPieValue(newValue.countProperty().getValue());
+				}
+				
+				// Mark as processed
+				currentTopics.remove(topic);
 			}
 			
-			pieChartData.setAll(pieChartDataMapping.values());
+			// Remove objects not on the list
+			for (final String topic : currentTopics)
+			{
+				pieChartData.remove(pieChartDataMapping.get(topic));
+			}
 		}
 	}
 	
