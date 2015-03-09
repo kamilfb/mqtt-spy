@@ -37,15 +37,18 @@
 	<!-- === CONNECTIVITY === -->
 	<!-- ==================== -->
 	
-	<xs:complexType name="ConnectionDetails" />
+	<xs:complexType name="ConnectionDetails">
+		<xs:sequence>
+				<xs:element name="Name" 				type="xs:string" 					minOccurs="0" maxOccurs="1" />
+				<xs:element name="Protocol" 			type="mqttspycommon:ProtocolEnum" 	minOccurs="0" maxOccurs="1" />
+   		</xs:sequence>
+	</xs:complexType>	
 		
 	<xs:complexType name="MqttConnectionDetails">
 		<xs:complexContent>
 			<xs:extension base="mqttspycommon:ConnectionDetails">
 				<xs:sequence>
-					<xs:element name="Name" 				type="xs:string" 				minOccurs="0" maxOccurs="1" />
-					
-					<xs:element name="ServerURI" 			type="xs:string" 				minOccurs="1" maxOccurs="unbounded" />
+					<xs:element name="ServerURI" 			type="xs:string" 					minOccurs="1" maxOccurs="unbounded" />
 					<xs:element name="ClientID" 			type="xs:string" />
 					
 					<xs:element name="UserCredentials" 		type="mqttspycommon:UserCredentials" 		minOccurs="0" maxOccurs="1" />
@@ -89,6 +92,13 @@
 		<xs:restriction base="xs:int" >
 			<xs:minInclusive value="0" />
 			<xs:maxInclusive value="2" />
+		</xs:restriction>
+	</xs:simpleType>
+	
+	<xs:simpleType name="ProtocolEnum">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="MQTT 3.1.1" />		
+			<xs:enumeration value="MQTT 3.1" />
 		</xs:restriction>
 	</xs:simpleType>
 	

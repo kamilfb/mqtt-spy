@@ -23,9 +23,14 @@ import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
+import javafx.util.Callback;
+import javafx.util.StringConverter;
 
 import org.controlsfx.control.action.Action;
 import org.controlsfx.dialog.Dialog;
@@ -33,9 +38,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.common.generated.MessageLog;
+import pl.baczkowicz.mqttspy.common.generated.ProtocolEnum;
 import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
 import pl.baczkowicz.mqttspy.configuration.ConfigurationUtils;
 import pl.baczkowicz.mqttspy.configuration.ConfiguredConnectionDetails;
+import pl.baczkowicz.mqttspy.configuration.generated.FormatterDetails;
 import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnectionDetails;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.exceptions.ConfigurationException;
@@ -61,6 +68,9 @@ public class EditConnectionController extends AnchorPane implements Initializabl
 	
 	@FXML
 	private TextField connectionNameText;
+	
+	@FXML
+	private ComboBox<ProtocolEnum> protocolCombo;
 	
 	// Action buttons
 	
@@ -123,6 +133,15 @@ public class EditConnectionController extends AnchorPane implements Initializabl
 
 	private boolean emptyConnectionList;
 	
+	private final ChangeListener basicOnChangeListener = new ChangeListener()
+	{
+		@Override
+		public void changed(ObservableValue observable, Object oldValue, Object newValue)
+		{
+			onChange();			
+		}		
+	};
+	
 	// ===============================
 	// === Initialisation ============
 	// ===============================
@@ -138,6 +157,57 @@ public class EditConnectionController extends AnchorPane implements Initializabl
 			}		
 		});
 		
+		protocolCombo.getSelectionModel().selectedIndexProperty().addListener(basicOnChangeListener);
+		protocolCombo.setCellFactory(new Callback<ListView<ProtocolEnum>, ListCell<ProtocolEnum>>()
+		{
+			@Override
+			public ListCell<ProtocolEnum> call(ListView<ProtocolEnum> l)
+			{
+				return new ListCell<ProtocolEnum>()
+				{
+					@Override
+					protected void updateItem(ProtocolEnum item, boolean empty)
+					{
+						super.updateItem(item, empty);
+						if (item == null || empty)
+						{
+							setText(null);
+						}
+						else
+						{									
+							setText(item.value());
+						}
+					}
+				};
+			}
+		});
+		protocolCombo.setConverter(new StringConverter<ProtocolEnum>()
+		{
+			@Override
+			public String toString(ProtocolEnum item)
+			{
+				if (item == null)
+				{
+					return null;
+				}
+				else
+				{
+					return item.value();
+				}
+			}
+
+			@Override
+			public ProtocolEnum fromString(String id)
+			{
+				return null;
+			}
+		});
+		
+		for (ProtocolEnum protocolEnum : ProtocolEnum.values())
+		{
+			protocolCombo.getItems().add(protocolEnum);
+		}
+		
 		editConnectionConnectivityController.setParent(this);
 		editConnectionLastWillController.setParent(this);
 		editConnectionMessageLogController.setParent(this);
@@ -145,6 +215,8 @@ public class EditConnectionController extends AnchorPane implements Initializabl
 		editConnectionPublicationsController.setParent(this);
 		editConnectionSecurityController.setParent(this);
 		editConnectionSubscriptionsController.setParent(this);
+		
+		
 	}
 
 	public void init()
@@ -305,6 +377,7 @@ public class EditConnectionController extends AnchorPane implements Initializabl
 		ConfigurationUtils.populateConnectionDefaults(connection);
 		
 		connection.setName(connectionNameText.getText());
+		connection.setProtocol(protocolCombo.getSelectionModel().getSelectedItem());
 		
 		editConnectionConnectivityController.readValues(connection);
 		editConnectionOtherController.readValues(connection);
@@ -390,6 +463,7 @@ public class EditConnectionController extends AnchorPane implements Initializabl
 		ConfigurationUtils.populateConnectionDefaults(connection);
 		
 		connectionNameText.setText(connection.getName());
+		protocolCombo.getSelectionModel().select(connection.getProtocol());
 		
 		editConnectionConnectivityController.displayConnectionDetails(connection);
 		editConnectionSecurityController.displayConnectionDetails(connection);
