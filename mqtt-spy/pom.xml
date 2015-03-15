@@ -21,6 +21,8 @@
 		
 		<timestamp>${maven.build.timestamp}</timestamp>
    		<maven.build.timestamp.format>yyyy</maven.build.timestamp.format>
+   		<maven.compiler.source>1.8</maven.compiler.source>
+    	<maven.compiler.target>1.8</maven.compiler.target>   		
 	</properties>
 
 	<repositories>
