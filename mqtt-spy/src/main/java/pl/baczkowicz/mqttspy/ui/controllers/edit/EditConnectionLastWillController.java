@@ -96,7 +96,7 @@ public class EditConnectionLastWillController extends AnchorPane implements Init
 	{			
 		if (lastWillAndTestament.isSelected())
 		{			
-			final BaseMqttMessage message = lastWillAndTestamentMessageController.readMessage(false);
+			final BaseMqttMessage message = lastWillAndTestamentMessageController.readMessage(false, false);
 			if (message != null)
 			{
 				connection.setLastWillAndTestament(new SimpleMqttMessage(message.getPayload(), message.getTopic(), message.getQoS(), message.isRetained()));

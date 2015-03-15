@@ -42,6 +42,18 @@
 	-fx-stroke: 	red;
 }
 
+.noNewLines
+{
+	-fx-text-fill: 	black;
+	-fx-stroke: 	black;
+}
+
+.newLinesPresent
+{
+	-fx-text-fill: 	red;
+	-fx-stroke: 	red;
+}
+
 .buttonArea
 {
 	-fx-background-color: white; 

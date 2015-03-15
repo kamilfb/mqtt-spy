@@ -223,7 +223,15 @@ public class MessageController implements Initializable, MessageIndexChangeObser
 	
 	private void populateLength(final long length)
 	{
-		lengthTooltip.setText("Message length = " + length);
+		populatePayloadLength(lengthLabel, lengthTooltip, length);
+	}
+	
+	public static void populatePayloadLength(final Label lengthLabel, final Tooltip lengthTooltip, final long length)
+	{
+		if (lengthTooltip != null)
+		{
+			lengthTooltip.setText("Message length = " + length);
+		}
 		
 		if (length < 1000)
 		{

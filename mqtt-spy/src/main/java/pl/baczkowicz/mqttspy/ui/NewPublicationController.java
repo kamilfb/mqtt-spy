@@ -28,6 +28,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -112,6 +113,9 @@ public class NewPublicationController implements Initializable, ScriptListChange
 	
 	@FXML
 	private Label publicationQosLabel;
+	
+	@FXML
+	private Label lengthLabel;
 	
 	@FXML
 	private MenuButton formatMenu;
@@ -258,6 +262,34 @@ public class NewPublicationController implements Initializable, ScriptListChange
 	    });
 			
 		publicationData.setWrapText(true);
+		publicationData.setOnKeyReleased(new EventHandler<Event>()
+		{
+			@Override
+			public void handle(Event event)
+			{					
+				final BaseMqttMessage values = readMessage(false, true);
+				
+				String payload = "";
+				if (values != null)
+				{
+					payload = values.getPayload();
+				}
+				
+				MessageController.populatePayloadLength(lengthLabel, null, payload.length());
+				
+				lengthLabel.getStyleClass().removeAll("newLinesPresent", "noNewLines");
+				if (payload.contains(ConversionUtils.LINE_SEPARATOR_LINUX) 
+						|| payload.contains(ConversionUtils.LINE_SEPARATOR_WIN) 
+						|| payload.contains(ConversionUtils.LINE_SEPARATOR_MAC))
+				{					
+					lengthLabel.getStyleClass().add("newLinesPresent");
+				}
+				else
+				{
+					lengthLabel.getStyleClass().add("noNewLines");
+				}
+			}
+		});
 		
 		publishScript.getToggles().get(0).setUserData(null);
 	}		
@@ -368,7 +400,7 @@ public class NewPublicationController implements Initializable, ScriptListChange
 	{		
 		if (!ConversionMethod.HEX_DECODE.equals(formatSelected))
 		{
-			final BaseMqttMessage message = readMessage(true);
+			final BaseMqttMessage message = readMessage(false, false);
 			
 			// Use the raw format to ensure correct transformation between binary formats
 			final String convertedText = ConversionUtils.arrayToHex(message.getRawMessage().getPayload());
@@ -387,7 +419,7 @@ public class NewPublicationController implements Initializable, ScriptListChange
 	{		
 		if (!ConversionMethod.BASE_64_DECODE.equals(formatSelected))
 		{
-			final BaseMqttMessage message = readMessage(true);
+			final BaseMqttMessage message = readMessage(false, false);
 			
 			// Use the raw format to ensure correct transformation between binary formats
 			final String convertedText = ConversionUtils.arrayToBase64(message.getRawMessage().getPayload());
@@ -468,7 +500,7 @@ public class NewPublicationController implements Initializable, ScriptListChange
 		}
 	}
 	
-	public BaseMqttMessage readMessage(final boolean verify)
+	public BaseMqttMessage readMessage(final boolean verify, final boolean ignoreErrors)
 	{
 		// Note: here using the editor, as the value stored directly in the ComboBox might
 		// not be committed yet, whereas the editor (TextField) has got the current text in it
@@ -508,7 +540,10 @@ public class NewPublicationController implements Initializable, ScriptListChange
 		}
 		catch (ConversionException e)
 		{
-			showAndLogHexError();
+			if (!ignoreErrors)
+			{
+				showAndLogHexError();
+			}
 			return null;
 		}		
 	}
@@ -516,7 +551,7 @@ public class NewPublicationController implements Initializable, ScriptListChange
 	@FXML
 	public void publish()
 	{						
-		final BaseMqttMessage message = readMessage(true);
+		final BaseMqttMessage message = readMessage(true, false);
 		
 		if (message != null)
 		{
@@ -620,7 +655,7 @@ public class NewPublicationController implements Initializable, ScriptListChange
 	@FXML
 	private void saveCurrentAsScript()
 	{
-		final BaseMqttMessage message = readMessage(true);
+		final BaseMqttMessage message = readMessage(true, false);
 		
 		if (message != null)
 		{
