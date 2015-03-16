@@ -143,8 +143,8 @@ img {
 
 p img {
   display: inline;
-  margin: 10;
-  padding: 20;
+  margin: 10px;
+  padding: 20px;
   vertical-align: middle;
   text-align: center;
   border: none;
@@ -302,7 +302,7 @@ Full-Width Styles
 
 #project_tagline {
   color: #fff;
-  font-size: 24px;
+  font-size: 20px;
   font-weight: 300;
   background: none;
   text-shadow: #111 0px 0px 10px;
