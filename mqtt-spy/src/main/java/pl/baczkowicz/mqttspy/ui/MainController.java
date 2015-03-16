@@ -524,7 +524,7 @@ public class MainController
 	@FXML
 	private void openProjectWebsite()
 	{
-		application.getHostServices().showDocument("https://code.google.com/p/mqtt-spy/");
+		application.getHostServices().showDocument("http://kamilfb.github.io/mqtt-spy/");
 	}
 	
 	@FXML
@@ -536,31 +536,31 @@ public class MainController
 	@FXML
 	private void overviewWiki()
 	{
-		application.getHostServices().showDocument("https://code.google.com/p/mqtt-spy/wiki/Overview");		
+		application.getHostServices().showDocument("https://github.com/kamilfb/mqtt-spy/wiki/Overview");		
 	}
 	
 	@FXML
 	private void changelogWiki()
 	{
-		application.getHostServices().showDocument("https://code.google.com/p/mqtt-spy/wiki/Changelog");
+		application.getHostServices().showDocument("https://github.com/kamilfb/mqtt-spy/wiki/Changelog");
 	}
 	
 	@FXML
 	private void scriptingWiki()
 	{
-		application.getHostServices().showDocument("https://code.google.com/p/mqtt-spy/wiki/Scripting");
+		application.getHostServices().showDocument("https://github.com/kamilfb/mqtt-spy/wiki/Scripting");
 	}
 	
 	@FXML
 	private void messageSearchWiki()
 	{
-		application.getHostServices().showDocument("https://code.google.com/p/mqtt-spy/wiki/MessageSearch");
+		application.getHostServices().showDocument("https://github.com/kamilfb/mqtt-spy/wiki/MessageSearch");
 	}
 	
 	@FXML
 	private void loggingWiki()
 	{
-		application.getHostServices().showDocument("https://code.google.com/p/mqtt-spy/wiki/Logging");
+		application.getHostServices().showDocument("https://github.com/kamilfb/mqtt-spy/wiki/Logging");
 	}
 
 	public void setApplication(Application application)

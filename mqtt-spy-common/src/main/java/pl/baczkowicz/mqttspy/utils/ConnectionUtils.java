@@ -17,8 +17,6 @@ package pl.baczkowicz.mqttspy.utils;
 import java.util.List;
 
 import pl.baczkowicz.mqttspy.common.generated.MqttConnectionDetails;
-import pl.baczkowicz.mqttspy.utils.ConnectionUtils;
-import pl.baczkowicz.mqttspy.utils.MqttUtils;
 
 /**
  * Connection utils.
@@ -108,10 +106,15 @@ public class ConnectionUtils
 		}
 		
 		if (connectionDetails.getClientID() == null
-				|| connectionDetails.getClientID().trim().isEmpty() 
-				|| connectionDetails.getClientID().length() > MqttUtils.MAX_CLIENT_LENGTH)
+				|| connectionDetails.getClientID().trim().isEmpty())
 		{
-			return "Client ID cannot be empty or longer than " + MqttUtils.MAX_CLIENT_LENGTH;
+			return "Client ID cannot be empty";
+		}
+	
+		if (MqttUtils.limitClientId(connectionDetails.getProtocol()) 
+						&& connectionDetails.getClientID().length() > MqttUtils.MAX_CLIENT_LENGTH_FOR_3_1)
+		{
+			return "Client ID cannot longer than " + MqttUtils.MAX_CLIENT_LENGTH_FOR_3_1;
 		}
 		
 		if (connectionDetails.getLastWillAndTestament() != null)

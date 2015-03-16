@@ -24,6 +24,7 @@ import javax.xml.bind.annotation.XmlType;
  * <pre>
  * &lt;simpleType name="ProtocolEnum">
  *   &lt;restriction base="{http://www.w3.org/2001/XMLSchema}string">
+ *     &lt;enumeration value="MQTT Default"/>
  *     &lt;enumeration value="MQTT 3.1.1"/>
  *     &lt;enumeration value="MQTT 3.1"/>
  *   &lt;/restriction>
@@ -36,6 +37,8 @@ import javax.xml.bind.annotation.XmlType;
 @XmlEnum
 public enum ProtocolEnum {
 
+    @XmlEnumValue("MQTT Default")
+    MQTT_DEFAULT("MQTT Default"),
     @XmlEnumValue("MQTT 3.1.1")
     MQTT_3_1_1("MQTT 3.1.1"),
     @XmlEnumValue("MQTT 3.1")

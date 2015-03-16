@@ -535,4 +535,9 @@ public class EditConnectionController extends AnchorPane implements Initializabl
 	{
 		return connectionNameText;
 	}
+	
+	public ConfiguredConnectionDetails getEditedConnectionDetails()
+	{
+		return editedConnectionDetails;
+	}
 }

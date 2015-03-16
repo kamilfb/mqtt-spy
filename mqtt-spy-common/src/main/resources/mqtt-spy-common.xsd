@@ -97,6 +97,7 @@
 	
 	<xs:simpleType name="ProtocolEnum">
 		<xs:restriction base="xs:string">
+			<xs:enumeration value="MQTT Default" />
 			<xs:enumeration value="MQTT 3.1.1" />		
 			<xs:enumeration value="MQTT 3.1" />
 		</xs:restriction>

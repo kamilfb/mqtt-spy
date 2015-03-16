@@ -166,14 +166,15 @@ public class EditConnectionConnectivityController extends AnchorPane implements 
 		String clientId = clientIdText.getText();
 		String newClientId = clientId;
 		
-		if (clientId.length() > MqttUtils.MAX_CLIENT_LENGTH)
+		if (MqttUtils.limitClientId(parent.getEditedConnectionDetails().getProtocol()) 
+				&& clientId.length() > MqttUtils.MAX_CLIENT_LENGTH_FOR_3_1)
 		{
-			newClientId = clientId.substring(0, MqttUtils.MAX_CLIENT_LENGTH);
+			newClientId = clientId.substring(0, MqttUtils.MAX_CLIENT_LENGTH_FOR_3_1);
 		}
 		
 		if (addTimestamp)
 		{
-			newClientId = MqttUtils.generateClientIdWithTimestamp(newClientId);
+			newClientId = MqttUtils.generateClientIdWithTimestamp(newClientId, parent.getEditedConnectionDetails().getProtocol());
 		}
 		
 		if (!clientId.equals(newClientId))
@@ -188,8 +189,15 @@ public class EditConnectionConnectivityController extends AnchorPane implements 
 	}
 
 	public void updateClientIdLength()
-	{					
-		lengthLabel.setText("Length = " + clientIdText.getText().length() + "/" + MqttUtils.MAX_CLIENT_LENGTH);
+	{				
+		if (MqttUtils.limitClientId(parent.getEditedConnectionDetails().getProtocol()))
+		{
+			lengthLabel.setText("Length = " + clientIdText.getText().length() + "/" + MqttUtils.MAX_CLIENT_LENGTH_FOR_3_1);
+		}
+		else
+		{
+			lengthLabel.setText("Length = " + clientIdText.getText().length());
+		}
 	}
 
 	// ===============================

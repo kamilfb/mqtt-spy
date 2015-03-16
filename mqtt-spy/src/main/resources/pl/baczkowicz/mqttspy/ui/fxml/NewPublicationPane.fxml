@@ -37,7 +37,7 @@
         
         <!-- Data -->        
         <Label layoutX="14.0" text="Data" AnchorPane.topAnchor="31.0" />
-        <Label fx:id="lengthLabel" layoutX="7.0" prefWidth="47.0" text="(0)" AnchorPane.topAnchor="44.0" alignment="CENTER" contentDisplay="CENTER" >
+        <Label fx:id="lengthLabel" layoutX="7.0" prefWidth="47.0" text="(0B)" AnchorPane.topAnchor="44.0" alignment="CENTER" contentDisplay="CENTER" >
          <font>
             <Font size="11.0" />
          </font>
