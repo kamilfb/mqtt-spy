@@ -9,7 +9,7 @@ body {
 
 h1, h2, h3, h4, h5, h6 {
   color:#222;
-  margin:10 10 20px;
+  margin:50 50 20px;
 }
 
 p, ul, ol, table, pre, dl {
@@ -21,10 +21,12 @@ h1, h2, h3 {
 }
 
 h1 {
+  padding:50px;
   font-size:28px;
 }
 
 h2 {
+  padding:50px;
   color:#393939;
   font-size:14px;
 }
