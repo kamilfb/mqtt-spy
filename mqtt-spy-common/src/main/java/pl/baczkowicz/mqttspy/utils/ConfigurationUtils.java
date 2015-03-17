@@ -63,7 +63,7 @@ public class ConfigurationUtils
 	{	
 		if (connection.getProtocol() == null)
 		{
-			connection.setProtocol(ProtocolEnum.MQTT_3_1_1);
+			connection.setProtocol(ProtocolEnum.MQTT_DEFAULT);
 		}
 		
 		if (connection.getName() == null || connection.getName().isEmpty())
