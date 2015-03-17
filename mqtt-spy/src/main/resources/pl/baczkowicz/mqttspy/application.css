@@ -89,7 +89,7 @@
 
 #connectionList .list-cell:filled:selected .text 
 {
-       -fx-fill: white;
+   -fx-fill: white;
 }
 
 #connectionList .list-cell:filled:odd 
@@ -105,11 +105,6 @@
 .table-row-cell:selected 
 {
 	-fx-background-color: -fx-focus-color;
-}
-
-.table-row-cell:selected .text 
-{
-       -fx-fill: white;
 }
 
 /* Connections */
