@@ -112,6 +112,9 @@ public class NewPublicationController implements Initializable, ScriptListChange
 	private Label retainedLabel;
 	
 	@FXML
+	private Label dataLabel;
+	
+	@FXML
 	private Label publicationQosLabel;
 	
 	@FXML
@@ -438,19 +441,19 @@ public class NewPublicationController implements Initializable, ScriptListChange
 		if (detailedView)
 		{
 			AnchorPane.setRightAnchor(publicationTopicText, 327.0);
-			publicationQosChoice.setVisible(true);
-			publicationQosLabel.setVisible(true);
-			retainedBox.setVisible(true);
-			retainedLabel.setVisible(true);
+			AnchorPane.setTopAnchor(dataLabel, 31.0);
 		}
 		else
 		{
 			AnchorPane.setRightAnchor(publicationTopicText, 128.0);
-			publicationQosChoice.setVisible(false);
-			publicationQosLabel.setVisible(false);
-			retainedBox.setVisible(false);
-			retainedLabel.setVisible(false);
+			AnchorPane.setTopAnchor(dataLabel, 37.0);
 		}
+		
+		publicationQosChoice.setVisible(detailedView);
+		publicationQosLabel.setVisible(detailedView);
+		retainedBox.setVisible(detailedView);
+		retainedLabel.setVisible(detailedView);
+		lengthLabel.setVisible(detailedView);
 	}
 	
 	public void setDetailedViewVisibility(final boolean visible)

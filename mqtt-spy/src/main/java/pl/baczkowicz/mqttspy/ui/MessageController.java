@@ -123,19 +123,17 @@ public class MessageController implements Initializable, MessageIndexChangeObser
 			
 			// Apply sizing and visibility
 			AnchorPane.setRightAnchor(topicField, 342.0);
-			qosField.setVisible(true);
-			retainedField.setVisible(true);
-			qosFieldLabel.setVisible(true);
-			retainedFieldLabel.setVisible(true);
 		}
 		else
 		{
-			AnchorPane.setRightAnchor(topicField, 205.0);
-			qosField.setVisible(false);
-			retainedField.setVisible(false);
-			qosFieldLabel.setVisible(false);
-			retainedFieldLabel.setVisible(false);
+			AnchorPane.setRightAnchor(topicField, 205.0);		
 		}
+		
+		qosField.setVisible(detailedView);
+		retainedField.setVisible(detailedView);
+		qosFieldLabel.setVisible(detailedView);
+		retainedFieldLabel.setVisible(detailedView);
+		lengthLabel.setVisible(detailedView);
 	}
 	
 	public void setDetailedViewVisibility(final boolean visible)
