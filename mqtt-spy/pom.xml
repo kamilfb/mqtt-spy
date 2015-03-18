@@ -38,7 +38,19 @@
 		<dependency>
 			<groupId>pl.baczkowicz.mqttspy</groupId>
 			<artifactId>mqtt-spy-common</artifactId>
-			<version>0.0.8</version>
+			<version>0.0.8</version>			 
+			<exclusions>
+				<exclusion>
+					<artifactId>maven-jaxb2-plugin</artifactId>
+					<groupId>org.jvnet.jaxb2.maven2</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.apache.maven</groupId>
+			<artifactId>maven-artifact</artifactId>
+			<version>3.0</version>
 		</dependency>
 
 		<dependency>
@@ -56,7 +68,7 @@
 		<dependency>
 			<groupId>org.fxmisc.richtext</groupId>
 			<artifactId>richtextfx</artifactId>
-			<version>0.6</version>
+			<version>0.6.3</version>
 		</dependency>
 
 		<dependency>
