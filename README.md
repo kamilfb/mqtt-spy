@@ -1,9 +1,15 @@
 <img src="http://baczkowicz.pl/mqtt-spy/images/mqtt-spy-logo.png" align="left" hspace="30" vspace="5">
 
-mqtt-spy is an open source utility intended to help you with monitoring activity on MQTT topics. It's been designed to deal with high volumes of messages, as well as occasional publications.
+Welcome to the mqtt-spy source code repository.
 
-mqtt-spy is a JavaFX application, so in theory should work on any operating system with an appropriate version of Java 8 installed. Tried on Linux Mint 16/17 and Windows 7/8 (note: because of the ControlsFX dependency, versions prior to 0.1.0 are not fully compatible with JRE/JDK 8u20 & above).
+For more information on the available functionality, see the project's wiki at https://github.com/kamilfb/mqtt-spy/wiki.
 
-mqtt-spy-daemon is a Java-based command line tool that does not require a GUI environment. Basic functionality works with Java 7, whereas some of the advanced features like scripting require Java 8 to be installed.
+The branching model (not fully in place yet) is as follows*:
 
-For more information see the project's wiki at https://github.com/kamilfb/mqtt-spy/wiki.
+  * master branch - where all the official releases live; tag for each release
+  * development branch - where all the work is actually taking place
+  * feature and release branches - used when required; for experimenting with new features and for major releases respectively
+
+\* - this has been heavily influenced by http://nvie.com/posts/a-successful-git-branching-model/.
+
+The eclipse_paho_contribution branch is what was submitted to the Eclipse Paho project in https://bugs.eclipse.org/bugs/show_bug.cgi?id=458899.
