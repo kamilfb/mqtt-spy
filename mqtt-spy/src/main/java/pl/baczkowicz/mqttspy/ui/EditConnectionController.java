@@ -214,13 +214,19 @@ public class EditConnectionController extends AnchorPane implements Initializabl
 		editConnectionPublicationsController.setParent(this);
 		editConnectionSecurityController.setParent(this);
 		editConnectionSubscriptionsController.setParent(this);
-		
-		
 	}
 
 	public void init()
 	{
-		// Nothing to do
+		editConnectionOtherController.setConfigurationManager(configurationManager);
+		
+		editConnectionConnectivityController.init();
+		editConnectionLastWillController.init();
+		editConnectionMessageLogController.init();
+		editConnectionOtherController.init();
+		editConnectionPublicationsController.init();
+		editConnectionSecurityController.init();
+		editConnectionSubscriptionsController.init();
 	}
 
 	// ===============================
