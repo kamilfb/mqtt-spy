@@ -484,6 +484,24 @@ public class MessageNavigationController implements Initializable, MessageIndexT
 		}
 	}
 	
+	public void copyMessageToBinaryFile()
+	{
+		if (getSelectedMessageIndex() > 0)
+		{
+			final FileChooser fileChooser = new FileChooser();
+			fileChooser.setTitle("Select file to save to");
+			String extensions = "*";
+			fileChooser.setSelectedExtensionFilter(new ExtensionFilter("File", extensions));
+	
+			final File selectedFile = fileChooser.showSaveDialog(getParentWindow());
+	
+			if (selectedFile != null)
+			{
+				FileUtils.writeToFile(selectedFile, store.getMessages().get(getSelectedMessageIndex() - 1).getRawMessage().getPayload());
+			}
+		}
+	}
+	
 	public void copyMessagesToFile()
 	{
 		final FileChooser fileChooser = new FileChooser();

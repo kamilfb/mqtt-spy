@@ -60,7 +60,7 @@
             <Font name="System" size="11.0" />
          </font>
       </StyleClassedTextArea>
-      <Label layoutX="10.0" layoutY="40.0" text="Data" AnchorPane.leftAnchor="10.0">
+      <Label fx:id="dataLabel" layoutX="10.0" layoutY="40.0" text="Data" AnchorPane.leftAnchor="10.0">
          <font>
             <Font size="11.0" />
          </font>

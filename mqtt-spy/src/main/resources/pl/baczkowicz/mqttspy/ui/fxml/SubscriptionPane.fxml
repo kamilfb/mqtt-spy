@@ -83,8 +83,10 @@
             				<MenuItem text="[Clipboard] This message" onAction="#copyMessageToClipboard"/>
 		            		<MenuItem text="[Clipboard] All browsed messages" onAction="#copyMessagesToClipboard"/>
 		            		<SeparatorMenuItem mnemonicParsing="false" />
-		            		<MenuItem text="[File] This message" onAction="#copyMessageToFile"/>
-		            		<MenuItem text="[File] All browsed messages" onAction="#copyMessagesToFile"/>
+		            		<MenuItem text="[Message log file] This message" onAction="#copyMessageToFile"/>
+		            		<MenuItem text="[Message log file] All browsed messages" onAction="#copyMessagesToFile"/>
+		            		<SeparatorMenuItem mnemonicParsing="false" />
+		            		<MenuItem text="[Binary file] This message" onAction="#copyMessageToBinaryFile"/>
             			</items>
             		</Menu>
             		<Menu text="Topics">

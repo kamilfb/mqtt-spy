@@ -43,6 +43,7 @@ import javafx.scene.layout.HBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.events.EventManager;
 import pl.baczkowicz.mqttspy.events.observers.MessageAddedObserver;
@@ -138,6 +139,8 @@ public class SearchPaneController implements Initializable, MessageFormatChangeO
 	private ScriptManager scriptManager;
 
 	private UniqueContentOnlyFilter uniqueContentOnlyFilter;
+
+	private ConfigurationManager configurationManager;
 	
 	public void initialize(URL location, ResourceBundle resources)
 	{
@@ -187,6 +190,7 @@ public class SearchPaneController implements Initializable, MessageFormatChangeO
 		eventManager.registerChangeMessageIndexObserver(messageListTablePaneController, foundMessageStore);
 		
 		messagePaneController.setStore(foundMessageStore);
+		messagePaneController.setConfingurationManager(configurationManager);
 		messagePaneController.init();		
 		// The search pane's message browser wants to know about changing indices and format
 		eventManager.registerChangeMessageIndexObserver(messagePaneController, foundMessageStore);
@@ -510,5 +514,10 @@ public class SearchPaneController implements Initializable, MessageFormatChangeO
 	public void setConnection(MqttAsyncConnection connection)
 	{
 		this.connection = connection;		
+	}
+	
+	public void setConfingurationManager(final ConfigurationManager configurationManager)
+	{
+		this.configurationManager = configurationManager;
 	}
 }

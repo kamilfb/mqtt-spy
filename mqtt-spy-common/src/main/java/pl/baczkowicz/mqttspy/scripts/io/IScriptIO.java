@@ -40,6 +40,16 @@ public interface IScriptIO
 	void publish(final String publicationTopic, final String payload, final int qos, final boolean retained);
 	
 	/**
+	 * Publishes a message with the given payload, qos and retained flag to the given topic.
+	 * 
+	 * @param publicationTopic The publication topic
+	 * @param payload The payload of the message
+	 * @param qos The quality of service to be used
+	 * @param retained The retained flag
+	 */
+	void publish(final String publicationTopic, final byte[] payload, final int qos, final boolean retained);
+	
+	/**
 	 * Informs the java side the script is still alive.
 	 */
 	void touch();
