@@ -9,7 +9,7 @@
  *
  * Contributors:
  * 
- *    Kamil Baczkowicz - minor changes in the extended class, based on ControlsFx code
+ *    Kamil Baczkowicz - minor changes in the extended class, derivative work created from ControlsFX (http://fxexperience.com/controlsfx/)
  *    
  */
 package org.controlsfx.dialog;
