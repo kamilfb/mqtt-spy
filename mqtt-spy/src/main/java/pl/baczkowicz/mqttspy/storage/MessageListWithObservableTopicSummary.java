@@ -24,11 +24,12 @@ public class MessageListWithObservableTopicSummary extends MessageList
 {
 	private final ObservableTopicSummary topicSummary;
 	
-	public MessageListWithObservableTopicSummary(int preferredSize, int maxSize, String name, FormatterDetails messageFormat)
+	public MessageListWithObservableTopicSummary(final int preferredSize, final int maxSize, 
+			final String name, final FormatterDetails messageFormat, final int maxPayloadLength)
 	{
 		super(preferredSize, maxSize, name);
 				
-		this.topicSummary = new ObservableTopicSummary(name);
+		this.topicSummary = new ObservableTopicSummary(name, maxPayloadLength);
 		this.topicSummary.setFormatter(messageFormat);
 	}
 

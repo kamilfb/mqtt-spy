@@ -55,7 +55,7 @@ public class UiProperties
 	{
 		if (summaryMaxPayloadLength == null)
 		{
-			summaryMaxPayloadLength = ConfigurationUtils.getIntegerProperty(SUMMARYTABLE_PAYLOAD_MAX, 100, configurationManager);
+			summaryMaxPayloadLength = ConfigurationUtils.getIntegerProperty(SUMMARYTABLE_PAYLOAD_MAX, 250, configurationManager);
 		}
 		
 		return summaryMaxPayloadLength;

@@ -18,6 +18,8 @@ import java.util.Queue;
 
 import javafx.scene.paint.Color;
 import pl.baczkowicz.mqttspy.common.generated.SubscriptionDetails;
+import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
+import pl.baczkowicz.mqttspy.configuration.UiProperties;
 import pl.baczkowicz.mqttspy.events.EventManager;
 import pl.baczkowicz.mqttspy.events.queuable.ui.MqttSpyUIEvent;
 import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
@@ -47,10 +49,12 @@ public class MqttSubscription extends ManagedMessageStoreWithFiltering
 	private SubscriptionDetails details;
 
 	public MqttSubscription(final String topic, final Integer qos, final Color color, 
-			final int minMessagesPerTopic, final int preferredStoreSize, final Queue<MqttSpyUIEvent> uiEventQueue, final EventManager eventManager)
+			final int minMessagesPerTopic, final int preferredStoreSize, final Queue<MqttSpyUIEvent> uiEventQueue, final EventManager eventManager, 
+			final ConfigurationManager configurationManager)
 	{
 		// Max size is double the preferred size
-		super(topic, minMessagesPerTopic, preferredStoreSize, preferredStoreSize * 2, uiEventQueue, eventManager);
+		super(topic, minMessagesPerTopic, preferredStoreSize, preferredStoreSize * 2, uiEventQueue, eventManager, 
+				UiProperties.getSummaryMaxPayloadLength(configurationManager));
 		
 		this.topic = topic;
 		this.qos = qos;

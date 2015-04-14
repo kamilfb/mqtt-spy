@@ -48,8 +48,6 @@ import org.controlsfx.dialog.Dialog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
-import pl.baczkowicz.mqttspy.configuration.UiProperties;
 import pl.baczkowicz.mqttspy.configuration.generated.TabbedSubscriptionDetails;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.events.EventManager;
@@ -100,8 +98,6 @@ public class SubscriptionSummaryTableController implements Initializable
 	private ObservableList<SubscriptionTopicSummaryProperties> nonFilteredData;
 	
 	private Set<String> shownTopics = new HashSet<>();
-
-	private ConfigurationManager configurationManager;
 	
 	public void initialize(URL location, ResourceBundle resources)
 	{				
@@ -134,7 +130,7 @@ public class SubscriptionSummaryTableController implements Initializable
 
 		topicColumn.setCellValueFactory(new PropertyValueFactory<SubscriptionTopicSummaryProperties, String>("topic"));
 
-		contentColumn.setCellValueFactory(new PropertyValueFactory<SubscriptionTopicSummaryProperties, String>("lastReceivedPayload"));
+		contentColumn.setCellValueFactory(new PropertyValueFactory<SubscriptionTopicSummaryProperties, String>("lastReceivedPayloadShort"));
 		contentColumn.setCellFactory(new Callback<TableColumn<SubscriptionTopicSummaryProperties, String>, TableCell<SubscriptionTopicSummaryProperties, String>>()
 				{
 					public TableCell<SubscriptionTopicSummaryProperties, String> call(
@@ -148,8 +144,7 @@ public class SubscriptionSummaryTableController implements Initializable
 								super.updateItem(item, empty);
 								if (!isEmpty())
 								{								
-									final int lengthToDisplay = Math.min(item.length(), UiProperties.getSummaryMaxPayloadLength(configurationManager)); 
-									setText(item.substring(0, lengthToDisplay));
+									setText(item);
 								}
 								else
 								{
@@ -157,7 +152,6 @@ public class SubscriptionSummaryTableController implements Initializable
 								}
 							}
 						};
-						cell.setAlignment(Pos.TOP_CENTER);
 						
 						return cell;
 					}
@@ -683,11 +677,6 @@ public class SubscriptionSummaryTableController implements Initializable
 	public void setEventManager(final EventManager eventManager)
 	{
 		this.eventManager = eventManager;
-	}
-	
-	public void setConfingurationManager(final ConfigurationManager configurationManager)
-	{
-		this.configurationManager = configurationManager;
 	}
 	
 	public void setStore(final ManagedMessageStoreWithFiltering store)

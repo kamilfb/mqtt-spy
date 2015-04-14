@@ -268,14 +268,13 @@ public class SubscriptionController implements Initializable, ClearTabObserver, 
 		statsHistory = new BasicMessageStore(
 				"stats" + store.getName(), 
 				store.getMessageList().getPreferredSize(), store.getMessageList().getMaxSize(), 
-				store.getUiEventQueue(), eventManager);
+				store.getUiEventQueue(), eventManager, 0);
 		
 		eventManager.registerClearTabObserver(this, store);
 		
 		getSummaryTablePaneController().setStore(store);
 		getSummaryTablePaneController().setConnectionController(connectionController);
 		getSummaryTablePaneController().setEventManager(eventManager);
-		getSummaryTablePaneController().setConfingurationManager(configurationManager);
 		getSummaryTablePaneController().init();
 		
 		messagePaneController.setStore(store);

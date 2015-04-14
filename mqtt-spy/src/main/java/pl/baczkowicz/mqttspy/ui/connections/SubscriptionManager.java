@@ -103,7 +103,7 @@ public class SubscriptionManager
 		final MqttSubscription subscription = new MqttSubscription(subscriptionDetails.getTopic(),
 				subscriptionDetails.getQos(), color,
 				connection.getProperties().getConfiguredProperties().getMinMessagesStoredPerTopic(),
-				connection.getPreferredStoreSize(), uiEventQueue, eventManager);
+				connection.getPreferredStoreSize(), uiEventQueue, eventManager, configurationManager);
 		subscription.setConnection(connection);
 		subscription.setDetails(subscriptionDetails);
 		
