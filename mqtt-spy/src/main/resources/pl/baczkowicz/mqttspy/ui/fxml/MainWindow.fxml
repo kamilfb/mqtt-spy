@@ -91,7 +91,7 @@
 						</Menu>
 			
 						<SeparatorMenuItem mnemonicParsing="false" />
-						<MenuItem mnemonicParsing="false" onAction="#openFundraisingPage" text="Donate to UNICEF" />
+						<MenuItem mnemonicParsing="false" onAction="#openGettingInvolved" text="Get involved and make mqtt-spy better" />
 						
 						<SeparatorMenuItem mnemonicParsing="false" />
 						<MenuItem mnemonicParsing="false" onAction="#openProjectWebsite" text="About" />

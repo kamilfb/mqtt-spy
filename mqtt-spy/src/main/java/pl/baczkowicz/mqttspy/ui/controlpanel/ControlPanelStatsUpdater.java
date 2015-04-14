@@ -63,11 +63,11 @@ public class ControlPanelStatsUpdater implements Runnable
 	/** Flag indicating whether the stats are being played automatically (true) or have been paused (false). */
 	private boolean statsPlaying;
 	
-	/** List of UNICEF messages. */
-	private List<String> unicefDetails = new ArrayList<String>(Arrays.asList(
-			"Finding mqtt-spy useful? Donate to UNICEF each month at the", 
-			"Like your mqtt-spy? Why not to donate to UNICEF this month at the", 
-			"Using mqtt-spy on a regular basis? Please donate to UNICEF at the"));
+	/** List of getting involved messages. */
+	private List<String> gettingInvolvedDetails = new ArrayList<String>(Arrays.asList(
+			"Finding mqtt-spy useful? Get involved and make mqtt-spy even better", 
+			"Like your mqtt-spy? Get involved and see how you can help at", 
+			"Using mqtt-spy on a regular basis? See how you can help the project at"));
 
 	/** The controller of the stats control panel item. */
 	private final ControlPanelItemController controlPanelItemController;
@@ -112,23 +112,23 @@ public class ControlPanelStatsUpdater implements Runnable
 
 		final List<Node> items  = new ArrayList<Node>();
 
-		// UNICEF details
+		// Getting involved details
 		final Random r = new Random();
-		items.add(new Label(unicefDetails.get(r.nextInt(unicefDetails.size()))));
+		items.add(new Label(gettingInvolvedDetails.get(r.nextInt(gettingInvolvedDetails.size()))));
 
-		final Hyperlink unicef = new Hyperlink();
-		unicef.setText("unicef.org.uk mqtt-spy page");
-		unicef.setOnAction(new EventHandler<ActionEvent>()
+		final Hyperlink getInvolved = new Hyperlink();
+		getInvolved.setText("http://github.com/kamilfb/mqtt-spy/wiki/Getting-involved");
+		getInvolved.setOnAction(new EventHandler<ActionEvent>()
 		{
 			@Override
 			public void handle(ActionEvent event)
 			{
-				application.getHostServices().showDocument("http://fundraise.unicef.org.uk/MyPage/mqtt-spy");
+				application.getHostServices().showDocument("http://github.com/kamilfb/mqtt-spy/wiki/Getting-involved");
 			}
 		});
-		items.add(unicef);
+		items.add(getInvolved);
 		
-		items.add(new Label("!"));
+		items.add(new Label(":)"));
 		controlPanelItemController.getDetails().getChildren().addAll(items);
 		
 		statsPlaying = true;
