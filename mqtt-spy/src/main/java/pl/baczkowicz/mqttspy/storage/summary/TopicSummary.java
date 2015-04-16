@@ -38,9 +38,12 @@ public class TopicSummary extends TopicMessageCount
 	
 	protected FormatterDetails messageFormat;
 
-	public TopicSummary(final String name)
+	private int maxPayloadLength;
+
+	public TopicSummary(final String name, final int maxPayloadLength)
 	{
 		super(name);
+		this.maxPayloadLength = maxPayloadLength;
 	}
 	
 	public void clear()
@@ -80,7 +83,7 @@ public class TopicSummary extends TopicMessageCount
 	
 			if (value == null)
 			{
-				value = new SubscriptionTopicSummaryProperties(false, 1, message, messageFormat);
+				value = new SubscriptionTopicSummaryProperties(false, 1, message, messageFormat, maxPayloadLength);
 				topicToSummaryMapping.put(message.getTopic(), value);
 				newElement = value;
 			}

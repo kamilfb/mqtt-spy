@@ -47,11 +47,11 @@ public class ManagedMessageStoreWithFiltering extends BasicMessageStore
 	private FilteredMessageStore filteredStore;
 	
 	public ManagedMessageStoreWithFiltering(final String name, final int minMessagesPerTopic, final int preferredSize, final int maxSize, 
-			final Queue<MqttSpyUIEvent> uiEventQueue, final EventManager eventManager)
+			final Queue<MqttSpyUIEvent> uiEventQueue, final EventManager eventManager, final int maxPayloadLength)
 	{
-		super(name, preferredSize, maxSize, uiEventQueue, eventManager);
+		super(name, preferredSize, maxSize, uiEventQueue, eventManager, maxPayloadLength);
 		
-		filteredStore = new FilteredMessageStore(messages, preferredSize, maxSize, name, messageFormat);		
+		filteredStore = new FilteredMessageStore(messages, preferredSize, maxSize, name, messageFormat, maxPayloadLength);		
 		
 		new Thread(new MessageStoreGarbageCollector(this, messages, uiEventQueue, minMessagesPerTopic, true, false)).start();
 		new Thread(new MessageStoreGarbageCollector(this, filteredStore.getFilteredMessages(), uiEventQueue, minMessagesPerTopic, false, true)).start();

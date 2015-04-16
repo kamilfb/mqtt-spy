@@ -34,6 +34,7 @@ import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
 import pl.baczkowicz.mqttspy.events.EventManager;
@@ -81,6 +82,8 @@ public class SearchWindowController extends AnchorPane implements Initializable,
 	private MqttAsyncConnection connection;
 
 	private ConnectionController connectionController;
+
+	private ConfigurationManager configurationManager;
 	
 	public void initialize(URL location, ResourceBundle resources)
 	{
@@ -131,6 +134,7 @@ public class SearchWindowController extends AnchorPane implements Initializable,
 		searchPaneController.setTab(tab);
 		searchPaneController.setEventManager(eventManager);
 		searchPaneController.setStore(store);
+		searchPaneController.setConfingurationManager(configurationManager);
 		searchPaneController.setConnection(connection);
 		searchPaneController.toggleMessagePayloadSize(connectionController.getResizeMessageContentMenu().isSelected());
 		searchPaneController.init();		
@@ -233,5 +237,10 @@ public class SearchWindowController extends AnchorPane implements Initializable,
 	public void setConnectionController(final ConnectionController connectionController)
 	{
 		this.connectionController = connectionController;
+	}
+	
+	public void setConfingurationManager(final ConfigurationManager configurationManager)
+	{
+		this.configurationManager = configurationManager;
 	}
 }

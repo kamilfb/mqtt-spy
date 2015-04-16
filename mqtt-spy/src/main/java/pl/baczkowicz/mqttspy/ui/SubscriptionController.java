@@ -51,6 +51,7 @@ import javafx.stage.WindowEvent;
 
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
+import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
 import pl.baczkowicz.mqttspy.configuration.generated.ConversionMethod;
 import pl.baczkowicz.mqttspy.configuration.generated.FormatterDetails;
 import pl.baczkowicz.mqttspy.configuration.generated.Formatting;
@@ -179,6 +180,8 @@ public class SubscriptionController implements Initializable, ClearTabObserver, 
 
 	private HBox titleBox;
 
+	private ConfigurationManager configurationManager;
+
 	public void initialize(URL location, ResourceBundle resources)
 	{			
 		statsLabel = new Label();
@@ -265,7 +268,7 @@ public class SubscriptionController implements Initializable, ClearTabObserver, 
 		statsHistory = new BasicMessageStore(
 				"stats" + store.getName(), 
 				store.getMessageList().getPreferredSize(), store.getMessageList().getMaxSize(), 
-				store.getUiEventQueue(), eventManager);
+				store.getUiEventQueue(), eventManager, 0);
 		
 		eventManager.registerClearTabObserver(this, store);
 		
@@ -275,6 +278,7 @@ public class SubscriptionController implements Initializable, ClearTabObserver, 
 		getSummaryTablePaneController().init();
 		
 		messagePaneController.setStore(store);
+		messagePaneController.setConfingurationManager(configurationManager);
 		messagePaneController.init();
 		// The search pane's message browser wants to know about changing indices and format
 		eventManager.registerChangeMessageIndexObserver(messagePaneController, store);
@@ -528,6 +532,7 @@ public class SubscriptionController implements Initializable, ClearTabObserver, 
 			searchWindowController.setConnection(connectionController.getConnection());
 			searchWindowController.setSubscriptionName(subscription != null ? subscription.getTopic() : SubscriptionManager.ALL_SUBSCRIPTIONS_TAB_TITLE);
 			searchWindowController.setEventManager(eventManager);
+			searchWindowController.setConfingurationManager(configurationManager);
 			searchWindowController.setConnectionController(connectionController);
 			
 			eventManager.registerMessageAddedObserver(searchWindowController, store.getMessageList());
@@ -702,6 +707,12 @@ public class SubscriptionController implements Initializable, ClearTabObserver, 
 				store.getAllTopics()));
 	}
 	
+	@FXML
+	private void copyMessageToBinaryFile()
+	{
+		messageNavigationPaneController.copyMessageToBinaryFile();
+	}
+	
 	public MqttSubscription getSubscription()
 	{
 		return subscription;
@@ -746,6 +757,11 @@ public class SubscriptionController implements Initializable, ClearTabObserver, 
 	public ConnectionController getConnectionController()
 	{
 		return connectionController;
+	}
+	
+	public void setConfingurationManager(final ConfigurationManager configurationManager)
+	{
+		this.configurationManager = configurationManager;
 	}
 
 	public Scene getScene()

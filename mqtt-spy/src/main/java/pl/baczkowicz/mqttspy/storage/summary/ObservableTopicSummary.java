@@ -29,9 +29,9 @@ public class ObservableTopicSummary extends TopicSummary
 {
 	private final ObservableList<SubscriptionTopicSummaryProperties> observableTopicSummaryList = FXCollections.observableArrayList();
 
-	public ObservableTopicSummary(final String name)
+	public ObservableTopicSummary(final String name, final int maxPayloadLength)
 	{
-		super(name);
+		super(name, maxPayloadLength);
 	}
 	
 	public void clear()

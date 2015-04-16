@@ -9,7 +9,8 @@
  *
  * Contributors:
  * 
- *    Kamil Baczkowicz - initial API and implementation and/or initial documentation
+ *    Kamil Baczkowicz - initial API and implementation and/or initial documentation; 
+ *    					 partially derivative work created from the JFXUtils examples (https://github.com/gillius/jfxutils).
  *    
  */
 package pl.baczkowicz.mqttspy.ui;
@@ -288,7 +289,7 @@ public class LineChartPaneController implements Initializable, MessageAddedObser
 	}
 	
 	/**
-	 * Based on FXUtils example.
+	 * Sets up pan and zoom. Derivative work created from the JFXUtils examples (https://github.com/gillius/jfxutils).
 	 */
 	private void setupPanAndZoom()
 	{
@@ -369,7 +370,7 @@ public class LineChartPaneController implements Initializable, MessageAddedObser
 	}
 	
 	/**
-	 * Based on FXUtils example.
+	 * Reset chart. Derivative work created from the JFXUtils examples (https://github.com/gillius/jfxutils).
 	 */
 	@FXML
 	private void reset()

@@ -31,21 +31,29 @@ public class MqttContentProperties extends BaseTopicProperty
 	
 	/** Last payload .*/
 	private StringProperty lastReceivedPayload;
+	
+	/** Last payload - short.*/
+	private StringProperty lastReceivedPayloadShort;
 
 	/** Last message. */
 	private UiMqttMessage mqttContent;
+
+	private int maxPayloadLength;
 
 	/**
 	 * Creates MqttContentProperties with the supplied parameters.
 	 * 
 	 * @param message The last received message object
 	 * @param format The formatting settings to be used for the payload
+	 * @param maxPayloadLength Maximum payload length - to make sure UI remains responsive for large messages
 	 */
-	public MqttContentProperties(final UiMqttMessage message, final FormatterDetails format)
+	public MqttContentProperties(final UiMqttMessage message, final FormatterDetails format, final int maxPayloadLength)
 	{
 		super(message.getTopic());
 		this.lastReceivedTimestamp = new SimpleStringProperty();
 		this.lastReceivedPayload = new SimpleStringProperty();
+		this.lastReceivedPayloadShort = new SimpleStringProperty();
+		this.maxPayloadLength = maxPayloadLength;
 		setMessage(message, format);
 	}
 	
@@ -80,7 +88,20 @@ public class MqttContentProperties extends BaseTopicProperty
 		this.mqttContent = message;
 
 		this.lastReceivedTimestamp.set(TimeUtils.DATE_WITH_MILLISECONDS_SDF.format(mqttContent.getDate()));
-		this.lastReceivedPayload.set(mqttContent.getFormattedPayload(format));
+		
+		final String formattedText = mqttContent.getFormattedPayload(format);
+		
+		if (maxPayloadLength > 0)
+		{			
+			final int lengthToSet = Math.min(formattedText.length(), maxPayloadLength); 
+			this.lastReceivedPayloadShort.set(formattedText.substring(0, lengthToSet));			
+		}
+		else
+		{		
+			this.lastReceivedPayloadShort.set(formattedText);
+		}
+		
+		this.lastReceivedPayload.set(formattedText);
 	}
 
 	/**
@@ -111,5 +132,15 @@ public class MqttContentProperties extends BaseTopicProperty
 	public StringProperty lastReceivedPayloadProperty()
 	{
 		return lastReceivedPayload;
+	}
+	
+	/**
+	 * Gets the last received payload property - shorter version.
+	 * 
+	 * @return Formatted, last received payload, returned as StringProperty
+	 */
+	public StringProperty lastReceivedPayloadShortProperty()
+	{
+		return lastReceivedPayloadShort;
 	}
 }

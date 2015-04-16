@@ -145,6 +145,26 @@ public class ScriptIO implements IScriptIO
 	}
 	
 	@Override
+	public void publish(final String publicationTopic, final byte[] data, final int qos, final boolean retained)
+	{
+		touch();
+
+		if (!script.getStatus().equals(ScriptRunningState.RUNNING))
+		{
+			ScriptRunner.changeState(eventManager, script.getName(), ScriptRunningState.RUNNING, script, executor);
+		}
+		
+		logger.debug("[JS {}] Publishing message to {} with payload size = {}, qos = {}, retained = {}", 
+				script.getName(), publicationTopic, data.length, qos, retained);
+		final boolean published = connection.publish(publicationTopic, data, qos, retained);
+		
+		if (published)
+		{				
+			updatePublished();
+		}
+	}
+	
+	@Override
 	public void publish(final String publicationTopic, final String data, final int qos, final boolean retained)
 	{
 		touch();
@@ -154,29 +174,35 @@ public class ScriptIO implements IScriptIO
 			ScriptRunner.changeState(eventManager, script.getName(), ScriptRunningState.RUNNING, script, executor);
 		}
 		
-		logger.debug("[JS {}] Publishing message to {} with payload = {}, qos = {}, retained = {}", script.getName(), publicationTopic, data, qos, retained);
+		logger.debug("[JS {}] Publishing message to {} with payload = {}, qos = {}, retained = {}", 
+				script.getName(), publicationTopic, data, qos, retained);
 		final boolean published = connection.publish(publicationTopic, data, qos, retained);
 		
 		if (published)
 		{				
-			publishedMessages++;
-			
-			if (executor != null)
-			{
-				executor.execute(new Runnable()
-				{			
-					public void run()
-					{
-						script.setLastPublished(new Date());
-						script.setMessagesPublished(publishedMessages);				
-					}
-				});
-			}
-			else
-			{
-				script.setLastPublished(new Date());
-				script.setMessagesPublished(publishedMessages);		
-			}
+			updatePublished();
+		}
+	}
+	
+	private void updatePublished()
+	{
+		publishedMessages++;
+		
+		if (executor != null)
+		{
+			executor.execute(new Runnable()
+			{			
+				public void run()
+				{
+					script.setLastPublished(new Date());
+					script.setMessagesPublished(publishedMessages);				
+				}
+			});
+		}
+		else
+		{
+			script.setLastPublished(new Date());
+			script.setMessagesPublished(publishedMessages);		
 		}
 	}
 
