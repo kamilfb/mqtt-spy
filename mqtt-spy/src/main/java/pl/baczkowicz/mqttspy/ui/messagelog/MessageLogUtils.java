@@ -14,34 +14,20 @@
  */
 package pl.baczkowicz.mqttspy.ui.messagelog;
 
-import java.util.List;
+import java.util.Collection;
 
 import pl.baczkowicz.mqttspy.common.generated.MessageLog;
 import pl.baczkowicz.mqttspy.common.generated.MessageLogEnum;
-import pl.baczkowicz.mqttspy.connectivity.BaseMqttConnection;
-import pl.baczkowicz.mqttspy.connectivity.MqttContent;
 import pl.baczkowicz.mqttspy.logger.SimpleMessageLogComposer;
-import pl.baczkowicz.mqttspy.messages.ReceivedMqttMessage;
-import pl.baczkowicz.mqttspy.messages.ReceivedMqttMessageWithSubscriptions;
 import pl.baczkowicz.mqttspy.storage.BasicMessageStore;
+import pl.baczkowicz.mqttspy.storage.UiMqttMessage;
 
 public class MessageLogUtils
 {
-	public static ReceivedMqttMessageWithSubscriptions convert(
-			final ReceivedMqttMessage message, final BaseMqttConnection connection, final List<String> subscriptions)
-	{
-		final ReceivedMqttMessageWithSubscriptions messageWithSubs = new ReceivedMqttMessageWithSubscriptions(
-				message.getId(), message.getTopic(), message.getMessage(), message.getDate(), connection);
-		
-		messageWithSubs.setSubscriptions(subscriptions);
-		
-		return messageWithSubs;
-	}
-		
 	public static String getCurrentMessageAsMessageLog(final BasicMessageStore store, final int messageIndex)
 	{
-		final MqttContent message = store.getMessages().get(messageIndex);
-		return SimpleMessageLogComposer.createReceivedMessageLog(MessageLogUtils.convert(message, null, null), 
+		final UiMqttMessage message = store.getMessages().get(messageIndex);
+		return SimpleMessageLogComposer.createReceivedMessageLog(message, 
 				new MessageLog(MessageLogEnum.XML_WITH_PLAIN_PAYLOAD, "", true, true, false, false, false));
 	}
 	
@@ -49,10 +35,23 @@ public class MessageLogUtils
 	{
 		final StringBuffer messages = new StringBuffer();
 		
-		for (final MqttContent message : store.getMessages())
+		for (final UiMqttMessage message : store.getMessages())
 		{
-			messages.append(SimpleMessageLogComposer.createReceivedMessageLog(MessageLogUtils.convert(message, null, null), 
+			messages.append(SimpleMessageLogComposer.createReceivedMessageLog(message, 
 					new MessageLog(MessageLogEnum.XML_WITH_PLAIN_PAYLOAD, "", true, true, false, false, false)));
+			messages.append(System.lineSeparator());
+		}
+		
+		return messages.toString();
+	}
+	
+	public static String getAllTopicsAsString(final Collection<String> topics)
+	{
+		final StringBuffer messages = new StringBuffer();
+		
+		for (final String topic : topics)
+		{
+			messages.append(topic);
 			messages.append(System.lineSeparator());
 		}
 		

@@ -27,6 +27,8 @@ import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import pl.baczkowicz.mqttspy.utils.ConversionUtils;
+
 /**
  * Controller for the converter window.
  */
@@ -54,7 +56,7 @@ public class ConverterController implements Initializable
 			@Override
 			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue)
 			{
-				encodedText.setText(Base64.encodeBase64String(newValue.getBytes()));			
+				encodedText.setText(Base64.encodeBase64String(ConversionUtils.stringToArray(newValue)));			
 			}
 		});		
 		
@@ -63,7 +65,7 @@ public class ConverterController implements Initializable
 			@Override
 			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue)
 			{
-				decodedText.setText(new String(Base64.decodeBase64(newValue)));			
+				decodedText.setText(ConversionUtils.arrayToString(Base64.decodeBase64(newValue)));			
 			}
 		});
 	}	

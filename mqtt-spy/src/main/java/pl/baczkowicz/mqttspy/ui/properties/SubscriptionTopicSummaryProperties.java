@@ -19,7 +19,7 @@ import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import pl.baczkowicz.mqttspy.configuration.generated.FormatterDetails;
-import pl.baczkowicz.mqttspy.connectivity.MqttContent;
+import pl.baczkowicz.mqttspy.storage.UiMqttMessage;
 
 /**
  * Properties displayed in the subscription topic summary table.
@@ -40,7 +40,7 @@ public class SubscriptionTopicSummaryProperties extends MqttContentProperties
 	 * @param message The last message
 	 * @param format The formatter details
 	 */
-	public SubscriptionTopicSummaryProperties(final Boolean show, final Integer count, final MqttContent message, final FormatterDetails format)
+	public SubscriptionTopicSummaryProperties(final Boolean show, final Integer count, final UiMqttMessage message, final FormatterDetails format)
 	{
 		super(message, format);
 		

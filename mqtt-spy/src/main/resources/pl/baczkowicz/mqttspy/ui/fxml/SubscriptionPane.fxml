@@ -78,11 +78,23 @@
         	
         	<Menu fx:id="exportMenu" mnemonicParsing="false" text="Export">
             	<items>
-            		<MenuItem text="[Clipboard] This message" onAction="#copyMessageToClipboard"/>
-            		<MenuItem text="[Clipboard] All browsed messages" onAction="#copyMessagesToClipboard"/>
-            		<SeparatorMenuItem mnemonicParsing="false" />
-            		<MenuItem text="[Message log] This message" onAction="#copyMessageToFile"/>
-            		<MenuItem text="[Message log] All browsed messages" onAction="#copyMessagesToFile"/>
+            		<Menu text="Messages">
+            			<items>
+            				<MenuItem text="[Clipboard] This message" onAction="#copyMessageToClipboard"/>
+		            		<MenuItem text="[Clipboard] All browsed messages" onAction="#copyMessagesToClipboard"/>
+		            		<SeparatorMenuItem mnemonicParsing="false" />
+		            		<MenuItem text="[File] This message" onAction="#copyMessageToFile"/>
+		            		<MenuItem text="[File] All browsed messages" onAction="#copyMessagesToFile"/>
+            			</items>
+            		</Menu>
+            		<Menu text="Topics">
+            			<items>
+            				<MenuItem text="[Clipboard] This topic" onAction="#copyBrowsedTopic" />
+            				<MenuItem text="[Clipboard] All browsed topics" onAction="#copyBrowsedTopics" />
+            				<MenuItem text="[Clipboard] All filtered topics" onAction="#copyFilteredTopics" />
+            				<MenuItem text="[Clipboard] All topics" onAction="#copyAllTopics" />
+            			</items>
+            		</Menu>
             	</items>
             </Menu>    
         </items>

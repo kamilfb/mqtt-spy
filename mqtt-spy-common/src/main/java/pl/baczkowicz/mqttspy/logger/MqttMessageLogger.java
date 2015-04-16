@@ -20,7 +20,7 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.RollingFileAppender;
 
 import pl.baczkowicz.mqttspy.common.generated.MessageLog;
-import pl.baczkowicz.mqttspy.messages.ReceivedMqttMessageWithSubscriptions;
+import pl.baczkowicz.mqttspy.messages.BaseMqttMessageWithSubscriptions;
 import pl.baczkowicz.mqttspy.utils.ThreadingUtils;
 import pl.baczkowicz.mqttspy.utils.Utils;
 
@@ -39,7 +39,7 @@ public class MqttMessageLogger implements Runnable
 	private Logger localLogger;
 	
 	/** Received messages that are to be logged. */
-	private final Queue<ReceivedMqttMessageWithSubscriptions> queue;
+	private final Queue<BaseMqttMessageWithSubscriptions> queue;
 
 	/** Message log settings. */
 	private final MessageLog messageLogSettings;
@@ -57,7 +57,7 @@ public class MqttMessageLogger implements Runnable
 	 * @param connectionSettings The connection details
 	 */
 	public MqttMessageLogger(
-			final int connectionId, final Queue<ReceivedMqttMessageWithSubscriptions> queue, 
+			final int connectionId, final Queue<BaseMqttMessageWithSubscriptions> queue, 
 			final MessageLog messageLogSettings, 
 			final boolean useAsTemplate, final int sleepWhenNoMessages)
 	{
@@ -164,7 +164,7 @@ public class MqttMessageLogger implements Runnable
 		running = false;
 	}
 	
-	public Queue<ReceivedMqttMessageWithSubscriptions> getQueue()
+	public Queue<BaseMqttMessageWithSubscriptions> getQueue()
 	{
 		return queue;
 	}

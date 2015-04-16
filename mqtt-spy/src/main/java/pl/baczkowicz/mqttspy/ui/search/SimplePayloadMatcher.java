@@ -14,7 +14,7 @@
  */
 package pl.baczkowicz.mqttspy.ui.search;
 
-import pl.baczkowicz.mqttspy.connectivity.MqttContent;
+import pl.baczkowicz.mqttspy.storage.UiMqttMessage;
 
 public class SimplePayloadMatcher implements SearchMatcher
 {	
@@ -29,7 +29,7 @@ public class SimplePayloadMatcher implements SearchMatcher
 	}
 	
 	@Override
-	public boolean matches(final MqttContent message)
+	public boolean matches(final UiMqttMessage message)
 	{
 		return matches(message.getFormattedPayload());
 	}

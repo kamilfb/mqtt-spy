@@ -18,16 +18,18 @@ import java.util.Date;
 
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
+import pl.baczkowicz.mqttspy.utils.ConversionUtils;
+
 /**
  * Represents a message received on a topic (wraps the Paho's MqttMessage).
  */
-public class ReceivedMqttMessage implements IMqttMessage
+public class BaseMqttMessage implements IBaseMessage
 {
 	/** Topic on which the message was received. */
 	private final String topic;
 	
 	/** The received message. */
-	private final MqttMessage message;
+	private final MqttMessage rawMessage;
 
 	/** When the message was received. */
 	private Date date;
@@ -36,33 +38,33 @@ public class ReceivedMqttMessage implements IMqttMessage
 	private final long id;
 	
 	/**
-	 * Creates a ReceivedMqttMessage from the given parameters.
+	 * Creates a BaseMqttMessage from the given parameters.
 	 * 
 	 * @param id Message ID
 	 * @param topic Topic on which it was received
 	 * @param message The received message
 	 */
-	public ReceivedMqttMessage(final long id, final String topic, final MqttMessage message)
+	public BaseMqttMessage(final long id, final String topic, final MqttMessage message)
 	{
 		this.id = id;
 		this.topic = topic;
-		this.message = message;
+		this.rawMessage = message;
 		this.date = new Date();
 	}
 	
 	/**
-	 * Creates a ReceivedMqttMessage from the given parameters.
+	 * Creates a BaseMqttMessage from the given parameters.
 	 * 
 	 * @param id Message ID
 	 * @param topic Topic on which it was received
 	 * @param message The received message
 	 * @param date When the message was received
 	 */
-	public ReceivedMqttMessage(final long id, final String topic, final MqttMessage message, final Date date)
+	public BaseMqttMessage(final long id, final String topic, final MqttMessage message, final Date date)
 	{
 		this.id = id;
 		this.topic = topic;
-		this.message = message;
+		this.rawMessage = message;
 		this.date = date;
 	}
 	
@@ -89,9 +91,9 @@ public class ReceivedMqttMessage implements IMqttMessage
 	 * 
 	 * @return MqttMessage
 	 */
-	public MqttMessage getMessage()
+	public MqttMessage getRawMessage()
 	{
-		return message;
+		return rawMessage;
 	}
 
 	/**
@@ -125,24 +127,24 @@ public class ReceivedMqttMessage implements IMqttMessage
 	@Override
 	public String getPayload()
 	{
-		return new String(this.message.getPayload());
+		return ConversionUtils.arrayToString(this.rawMessage.getPayload());
 	}
 	
 	@Override
 	public void setPayload(final String payload)
 	{
-		this.message.setPayload(payload.getBytes());
+		this.rawMessage.setPayload(ConversionUtils.stringToArray(payload));
 	}
 	
 	@Override
 	public int getQoS()
 	{
-		return this.message.getQos();
+		return this.rawMessage.getQos();
 	}
 	
 	@Override
 	public boolean isRetained()
 	{
-		return this.message.isRetained();
+		return this.rawMessage.isRetained();
 	}
 }

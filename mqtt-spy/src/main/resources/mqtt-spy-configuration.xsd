@@ -91,7 +91,7 @@
 		<xs:complexContent>
 			<xs:extension base="mqttspycommon:ConnectionDetails">
 				<xs:sequence>
-					<xs:element name="Name" 				type="xs:string" />
+					<!-- <xs:element name="Name" 				type="xs:string" /> -->
 					<xs:element name="ServerURI" 			type="xs:string" />
 					<xs:element name="ClientID" 			type="xs:string" />
 					

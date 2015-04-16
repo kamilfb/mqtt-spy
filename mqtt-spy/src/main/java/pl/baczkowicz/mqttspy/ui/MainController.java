@@ -25,6 +25,7 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.RadioMenuItem;
 import javafx.scene.control.Tab;
@@ -49,7 +50,7 @@ import pl.baczkowicz.mqttspy.events.EventManager;
 import pl.baczkowicz.mqttspy.exceptions.ConfigurationException;
 import pl.baczkowicz.mqttspy.exceptions.MqttSpyUncaughtExceptionHandler;
 import pl.baczkowicz.mqttspy.exceptions.XMLException;
-import pl.baczkowicz.mqttspy.messages.ReceivedMqttMessage;
+import pl.baczkowicz.mqttspy.messages.BaseMqttMessage;
 import pl.baczkowicz.mqttspy.stats.ConnectionStatsUpdater;
 import pl.baczkowicz.mqttspy.stats.StatisticsManager;
 import pl.baczkowicz.mqttspy.ui.connections.ConnectionManager;
@@ -94,6 +95,9 @@ public class MainController
 	
 	@FXML
 	private RadioMenuItem superSpyPerspective;
+	
+	@FXML
+	private CheckMenuItem resizeMessagePaneMenu;
 
 	private EditConnectionsController editConnectionsController;
 	
@@ -176,12 +180,6 @@ public class MainController
 		controlPanelPaneController.setConnectionManager(connectionManager);
 		controlPanelPaneController.init();	
 		
-		// TODO: experimental code
-		// final StatsChartWindow statsWindow = new StatsChartWindow();		
-		// Scene scene = new Scene(statsWindow);
-		// scene.getStylesheets().addAll(mainPane.getScene().getStylesheets());		
-		// statsWindow.start(new Stage());
-		
 		new Thread(new ConnectionStatsUpdater(connectionManager)).start();
 	}		
 
@@ -222,7 +220,7 @@ public class MainController
 
 		if (selectedFile != null)
 		{			
-			final TaskWithProgressUpdater<List<ReceivedMqttMessage>> readAndProcess = new LogReaderTask(selectedFile, connectionManager, this);
+			final TaskWithProgressUpdater<List<BaseMqttMessage>> readAndProcess = new LogReaderTask(selectedFile, connectionManager, this);
 			
 			DialogUtils.showWorkerDialog(readAndProcess);
 			
@@ -238,7 +236,7 @@ public class MainController
 			eventManager.deregisterConnectionStatusObserver(editConnectionsController);
 		}
 		
-		final FXMLLoader loader = FxmlUtils.createFXMLLoader(this, FxmlUtils.FXML_LOCATION + "EditConnectionsWindow.fxml");
+		final FXMLLoader loader = FxmlUtils.createFxmlLoaderForProjectFile("EditConnectionsWindow.fxml");
 		final AnchorPane connectionWindow = FxmlUtils.loadAnchorPane(loader);
 		editConnectionsController = ((EditConnectionsController) loader.getController());		
 		editConnectionsController.setMainController(this);
@@ -259,7 +257,7 @@ public class MainController
 	
 	private void initialiseConverterWindow()
 	{
-		final FXMLLoader loader = FxmlUtils.createFXMLLoader(this, FxmlUtils.FXML_LOCATION + "ConverterWindow.fxml");
+		final FXMLLoader loader = FxmlUtils.createFxmlLoaderForProjectFile("ConverterWindow.fxml");
 		final AnchorPane converterWindow = FxmlUtils.loadAnchorPane(loader);
 		
 		Scene scene = new Scene(converterWindow);
@@ -296,7 +294,9 @@ public class MainController
 		
 		statisticsManager.saveStats();
 		
-		configurationManager.saveUiProperties(getLastWidth(), getLastHeight(), stage.isMaximized(), selectedPerspective);
+		configurationManager.saveUiProperties(
+				getLastWidth(), getLastHeight(), stage.isMaximized(), 
+				selectedPerspective, resizeMessagePaneMenu.isSelected());
 		
 		System.exit(0);
 	}
@@ -498,6 +498,21 @@ public class MainController
 	}
 	
 	@FXML
+	private void resizeMessagePane()
+	{
+		// Connection tabs
+		for (final ConnectionController controller : connectionManager.getConnectionControllers())
+		{
+			controller.getResizeMessageContentMenu().setSelected(resizeMessagePaneMenu.isSelected());
+		}
+		// Offline (message log) tabs
+		for (final ConnectionController controller : connectionManager.getOfflineConnectionControllers())
+		{
+			controller.getResizeMessageContentMenu().setSelected(resizeMessagePaneMenu.isSelected());
+		}
+	}
+	
+	@FXML
 	private void restoreConfiguration()
 	{
 		if (DialogUtils.showDefaultConfigurationFileMissingChoice("Restore defaults", mainPane.getScene().getWindow()))
@@ -509,7 +524,7 @@ public class MainController
 	@FXML
 	private void openProjectWebsite()
 	{
-		application.getHostServices().showDocument("https://code.google.com/p/mqtt-spy/");
+		application.getHostServices().showDocument("http://kamilfb.github.io/mqtt-spy/");
 	}
 	
 	@FXML
@@ -521,31 +536,31 @@ public class MainController
 	@FXML
 	private void overviewWiki()
 	{
-		application.getHostServices().showDocument("https://code.google.com/p/mqtt-spy/wiki/Overview");		
+		application.getHostServices().showDocument("https://github.com/kamilfb/mqtt-spy/wiki/Overview");		
 	}
 	
 	@FXML
 	private void changelogWiki()
 	{
-		application.getHostServices().showDocument("https://code.google.com/p/mqtt-spy/wiki/Changelog");
+		application.getHostServices().showDocument("https://github.com/kamilfb/mqtt-spy/wiki/Changelog");
 	}
 	
 	@FXML
 	private void scriptingWiki()
 	{
-		application.getHostServices().showDocument("https://code.google.com/p/mqtt-spy/wiki/Scripting");
+		application.getHostServices().showDocument("https://github.com/kamilfb/mqtt-spy/wiki/Scripting");
 	}
 	
 	@FXML
 	private void messageSearchWiki()
 	{
-		application.getHostServices().showDocument("https://code.google.com/p/mqtt-spy/wiki/MessageSearch");
+		application.getHostServices().showDocument("https://github.com/kamilfb/mqtt-spy/wiki/MessageSearch");
 	}
 	
 	@FXML
 	private void loggingWiki()
 	{
-		application.getHostServices().showDocument("https://code.google.com/p/mqtt-spy/wiki/Logging");
+		application.getHostServices().showDocument("https://github.com/kamilfb/mqtt-spy/wiki/Logging");
 	}
 
 	public void setApplication(Application application)
@@ -621,5 +636,10 @@ public class MainController
 	public void setLastHeight(double lastHeight)
 	{
 		this.lastHeight = lastHeight;
+	}
+
+	public CheckMenuItem getResizeMessagePaneMenu()
+	{
+		return resizeMessagePaneMenu;
 	}
 }

@@ -90,6 +90,11 @@ public class EventManager implements IScriptEventManager
 		messageAddedObservers.put(observer, filter);
 	}
 	
+	public void deregisterMessageAddedObserver(final MessageAddedObserver observer)
+	{
+		messageAddedObservers.remove(observer);
+	}
+	
 	public void registerMessageRemovedObserver(final MessageRemovedObserver observer, final MessageList filter)
 	{
 		messageRemovedObservers.put(observer, filter);

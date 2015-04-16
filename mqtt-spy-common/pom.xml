@@ -3,11 +3,14 @@
 	
 	<groupId>pl.baczkowicz.mqttspy</groupId>
 	<artifactId>mqtt-spy-common</artifactId>
-	<version>0.0.5</version>
+	<version>0.0.8</version>
   
   	<properties>
+  		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>  		
    		<timestamp>${maven.build.timestamp}</timestamp>
    		<maven.build.timestamp.format>yyyy</maven.build.timestamp.format>
+   		<maven.compiler.source>1.8</maven.compiler.source>
+    	<maven.compiler.target>1.8</maven.compiler.target>   		
 	</properties>
 
   	<repositories>
@@ -49,7 +52,7 @@
 		<dependency>
 			<groupId>org.eclipse.paho</groupId>
 			<artifactId>org.eclipse.paho.client.mqttv3</artifactId>
-			<version>1.0.1</version>
+			<version>1.0.2</version>
 		</dependency> 
 
 		<dependency>
@@ -131,11 +134,18 @@
 		</dependency>
 		
 		<!--=== SCHEMAS/JAXB === -->
-		<dependency>
-			<groupId>org.jvnet.jaxb2.maven2</groupId>
-			<artifactId>maven-jaxb2-plugin</artifactId>
-			<version>0.9.0</version>
-		</dependency>
+    <dependency>
+      <groupId>org.jvnet.jaxb2.maven2</groupId>
+      <artifactId>maven-jaxb2-plugin</artifactId>
+      <version>0.9.0</version>
+      <exclusions>
+        <exclusion>
+          <groupId>javax.xml.bind</groupId>
+          <artifactId>jsr173_api</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
 		<dependency>
 			<groupId>org.jvnet.jaxb2_commons</groupId>
 			<artifactId>jaxb2-commons-lang</artifactId>

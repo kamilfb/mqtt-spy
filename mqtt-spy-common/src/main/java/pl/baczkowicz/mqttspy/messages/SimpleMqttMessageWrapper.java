@@ -14,22 +14,22 @@
  */
 package pl.baczkowicz.mqttspy.messages;
 
-import pl.baczkowicz.mqttspy.common.generated.BaseMqttMessage;
+import pl.baczkowicz.mqttspy.common.generated.SimpleMqttMessage;
 
 /**
- * Wrapper around the base MQTT message, exposing standard access methods.
+ * Wrapper around the XSD-based simple MQTT message, exposing standard access methods.
  */
-public class BaseMqttMessageWrapper implements IMqttMessage
+public class SimpleMqttMessageWrapper implements IBaseMessage
 {
 	/** Wrapped MQTT message. */
-	private final BaseMqttMessage message;
+	private final SimpleMqttMessage message;
 
 	/**
 	 * Creates a BaseMqttMessageWrapper from the provided message.
 	 * 
 	 * @param message The message to be wrapped
 	 */
-	public BaseMqttMessageWrapper(final BaseMqttMessage message)
+	public SimpleMqttMessageWrapper(final SimpleMqttMessage message)
 	{
 		this.message = message;
 	}

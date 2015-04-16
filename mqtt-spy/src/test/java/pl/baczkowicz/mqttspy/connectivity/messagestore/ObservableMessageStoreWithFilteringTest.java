@@ -24,9 +24,9 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.junit.Before;
 import org.junit.Test;
 
-import pl.baczkowicz.mqttspy.connectivity.MqttContent;
 import pl.baczkowicz.mqttspy.events.queuable.ui.MqttSpyUIEvent;
 import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
+import pl.baczkowicz.mqttspy.storage.UiMqttMessage;
 
 public class ObservableMessageStoreWithFilteringTest
 {
@@ -42,7 +42,7 @@ public class ObservableMessageStoreWithFilteringTest
 	@Test
 	public final void testStoreMaxSize()
 	{
-		final MqttContent message = new MqttContent(1, "t1", new MqttMessage("test1".getBytes()));
+		final UiMqttMessage message = new UiMqttMessage(1, "t1", new MqttMessage("test1".getBytes()), null);
 		
 		store.messageReceived(message);
 				
@@ -64,11 +64,11 @@ public class ObservableMessageStoreWithFilteringTest
 	public final void testDefaultActiveFilters()
 	{
 		testStoreMaxSize();
-		assertTrue(store.getFilteredMessageStore().getShownTopics().contains("t1"));
+		assertTrue(store.getFilteredMessageStore().getBrowsedTopics().contains("t1"));
 		
-		final MqttContent message = new MqttContent(2, "t2", new MqttMessage("test2".getBytes()));
+		final UiMqttMessage message = new UiMqttMessage(2, "t2", new MqttMessage("test2".getBytes()), null);
 		store.messageReceived(message);
-		assertTrue(store.getFilteredMessageStore().getShownTopics().contains("t2"));
+		assertTrue(store.getFilteredMessageStore().getBrowsedTopics().contains("t2"));
 	}
 	
 	@Test
@@ -77,8 +77,8 @@ public class ObservableMessageStoreWithFilteringTest
 		testDefaultActiveFilters();
 		store.getFilteredMessageStore().updateTopicFilter("t2", false);
 		
-		final MqttContent message = new MqttContent(3, "t3", new MqttMessage("test3".getBytes()));
+		final UiMqttMessage message = new UiMqttMessage(3, "t3", new MqttMessage("test3".getBytes()), null);
 		store.messageReceived(message);
-		assertFalse(store.getFilteredMessageStore().getShownTopics().contains("t3"));
+		assertFalse(store.getFilteredMessageStore().getBrowsedTopics().contains("t3"));
 	}
 }

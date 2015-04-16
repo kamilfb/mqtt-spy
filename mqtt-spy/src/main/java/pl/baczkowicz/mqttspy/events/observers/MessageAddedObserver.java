@@ -14,9 +14,9 @@
  */
 package pl.baczkowicz.mqttspy.events.observers;
 
-import pl.baczkowicz.mqttspy.connectivity.MqttContent;
+import pl.baczkowicz.mqttspy.storage.UiMqttMessage;
 
 public interface MessageAddedObserver
 {
-	void onMessageAdded(final MqttContent message);
+	void onMessageAdded(final UiMqttMessage message);
 }

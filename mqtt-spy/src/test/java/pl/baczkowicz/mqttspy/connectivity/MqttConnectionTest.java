@@ -35,6 +35,7 @@ import pl.baczkowicz.mqttspy.events.queuable.ui.MqttSpyUIEvent;
 import pl.baczkowicz.mqttspy.exceptions.ConfigurationException;
 import pl.baczkowicz.mqttspy.exceptions.XMLException;
 import pl.baczkowicz.mqttspy.stats.StatisticsManager;
+import pl.baczkowicz.mqttspy.storage.UiMqttMessage;
 
 public class MqttConnectionTest extends TestCase
 {
@@ -115,7 +116,7 @@ public class MqttConnectionTest extends TestCase
 		assertTrue(connection.subscribe(subscription));
 
 		// This should handle the message
-		MqttContent message = new MqttContent(1, message_TOPIC, new MqttMessage("test".getBytes()));
+		UiMqttMessage message = new UiMqttMessage(1, message_TOPIC, new MqttMessage("test".getBytes()), connection);
 		connection.messageReceived(message);
 
 		// This should remove the subscription
@@ -178,7 +179,7 @@ public class MqttConnectionTest extends TestCase
 		assertTrue(connection.subscribe(subscription));
 
 		// This should handle the message
-		MqttContent message = new MqttContent(1, message_TOPIC, new MqttMessage("test".getBytes()));
+		UiMqttMessage message = new UiMqttMessage(1, message_TOPIC, new MqttMessage("test".getBytes()), connection);
 		connection.messageReceived(message);
 
 		// This should remove the subscription

@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
 import pl.baczkowicz.mqttspy.common.generated.ScriptDetails;
 import pl.baczkowicz.mqttspy.connectivity.IMqttConnection;
 import pl.baczkowicz.mqttspy.exceptions.CriticalException;
-import pl.baczkowicz.mqttspy.messages.IMqttMessage;
+import pl.baczkowicz.mqttspy.messages.IBaseMessage;
 import pl.baczkowicz.mqttspy.scripts.io.ScriptIO;
 import pl.baczkowicz.mqttspy.utils.FileUtils;
 
@@ -339,7 +339,7 @@ public class ScriptManager
 	 * @param script The script to run
 	 * @param message The message to be passed onto the script
 	 */
-	public void runScriptFileWithReceivedMessage(final String scriptFile, final IMqttMessage receivedMessage)
+	public void runScriptFileWithReceivedMessage(final String scriptFile, final IBaseMessage receivedMessage)
 	{
 		final Script script = getScriptObjectFromName(scriptFile);
 		
@@ -359,7 +359,7 @@ public class ScriptManager
 	 * @param script The script to run
 	 * @param message The message to be passed onto the script
 	 */
-	public void runScriptFileWithMessage(final Script script, final IMqttMessage message)
+	public void runScriptFileWithMessage(final Script script, final IBaseMessage message)
 	{				
 		runScriptFileWithMessage(script, ScriptManager.MESSAGE_PARAMETER, message, true);
 	}
@@ -372,7 +372,7 @@ public class ScriptManager
 	 * @param message The message to be passed onto the script
 	 * @param asynchronous Whether the call should be asynchronous
 	 */
-	public void runScriptFileWithMessage(final Script script, final String parameterName, final IMqttMessage message, final boolean asynchronous)
+	public void runScriptFileWithMessage(final Script script, final String parameterName, final IBaseMessage message, final boolean asynchronous)
 	{				
 		script.getScriptEngine().put(parameterName, message);
 		runScript(script, asynchronous);		

@@ -23,6 +23,7 @@ import pl.baczkowicz.mqttspy.events.queuable.ui.MqttSpyUIEvent;
 import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
 import pl.baczkowicz.mqttspy.ui.SubscriptionController;
 
+// TODO: split the logic from UI
 public class MqttSubscription extends ManagedMessageStoreWithFiltering
 {
 	private int id;

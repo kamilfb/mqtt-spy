@@ -18,6 +18,10 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
+import org.eclipse.paho.client.mqttv3.MqttTopic;
+
+import pl.baczkowicz.mqttspy.common.generated.ProtocolEnum;
+import pl.baczkowicz.mqttspy.exceptions.MqttSpyException;
 import pl.baczkowicz.mqttspy.utils.ConversionUtils;
 
 /**
@@ -41,7 +45,7 @@ public class MqttUtils
 	public static final String TOPIC_DELIMITER = "/";
 	
 	/** Max client length for MQTT 3.1. */
-	public static final int MAX_CLIENT_LENGTH = 23;
+	public static final int MAX_CLIENT_LENGTH_FOR_3_1 = 23;
 
 	/** Client ID timestamp delimiter. */
 	private static final String CLIENT_ID_TIMESTAMP_DELIMITER = "_";
@@ -76,7 +80,7 @@ public class MqttUtils
 	 * 
 	 * @return The generated client ID
 	 */
-	public static String generateClientIdWithTimestamp(final String clientId)
+	public static String generateClientIdWithTimestamp(final String clientId, final ProtocolEnum protocol)
 	{
 		final int addedLength = CLIENT_ID_TIMESTAMP_FORMAT.length() + CLIENT_ID_TIMESTAMP_DELIMITER.length();
 		final int index = clientId.lastIndexOf(CLIENT_ID_TIMESTAMP_DELIMITER);
@@ -88,14 +92,24 @@ public class MqttUtils
 			newClientId = newClientId.substring(0, index); 
 		}		
 	
-		if (newClientId.length() + addedLength > MAX_CLIENT_LENGTH)
+		if (limitClientId(protocol) && newClientId.length() + addedLength > MAX_CLIENT_LENGTH_FOR_3_1)
 		{
-			newClientId = newClientId.substring(0, MAX_CLIENT_LENGTH - addedLength);
+			newClientId = newClientId.substring(0, MAX_CLIENT_LENGTH_FOR_3_1 - addedLength);
 		}
 
 		newClientId = newClientId + CLIENT_ID_TIMESTAMP_DELIMITER + CLIENT_ID_SDF.format(new Date());
 
 		return newClientId;
+	}
+	
+	public static boolean limitClientId(final ProtocolEnum protocol)
+	{
+		if (ProtocolEnum.MQTT_3_1.equals(protocol) || ProtocolEnum.MQTT_DEFAULT.equals(protocol))
+		{
+			return true;
+		}
+		
+		return false;
 	}
 	
 	/**
@@ -153,5 +167,17 @@ public class MqttUtils
 		}
 		
 		return false;		
+	}
+	
+	public static void validateTopic(final String topic) throws MqttSpyException
+	{
+		try
+		{
+			MqttTopic.validate(topic, true);
+		}
+		catch (Exception e)
+		{
+			throw new MqttSpyException(e.getMessage(), e);
+		}
 	}
 }

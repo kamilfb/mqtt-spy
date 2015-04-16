@@ -24,7 +24,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.configuration.generated.FormatterDetails;
-import pl.baczkowicz.mqttspy.connectivity.MqttContent;
 import pl.baczkowicz.mqttspy.ui.search.MessageFilter;
 
 /**
@@ -35,7 +34,7 @@ public class FilteredMessageStore extends BasicMessageStore
 	final static Logger logger = LoggerFactory.getLogger(FilteredMessageStore.class);
 	
 	/** This is the same as 'show' flag on topic summary. */
-	private final Set<String> shownTopics = new HashSet<String>();
+	private final Set<String> browsedTopics = new HashSet<String>();
 	
 	//private final MessageListWithObservableTopicSummary filteredMessages;
 
@@ -91,9 +90,9 @@ public class FilteredMessageStore extends BasicMessageStore
 			final int size = allMessages.getMessages().size();
 			for (int i = size - 1; i >= 0; i--)
 			{
-				final MqttContent message = allMessages.getMessages().get(i);
+				final UiMqttMessage message = allMessages.getMessages().get(i);
 				
-				if (shownTopics.contains(message.getTopic()) && !filterMessage(message, false))
+				if (browsedTopics.contains(message.getTopic()) && !filterMessage(message, false))
 				{
 					messages.add(message);								
 				}
@@ -101,7 +100,7 @@ public class FilteredMessageStore extends BasicMessageStore
 		}
 	}	
 	
-	public boolean filterMessage(final MqttContent message, final boolean updateUi)
+	public boolean filterMessage(final UiMqttMessage message, final boolean updateUi)
 	{
 		for (final MessageFilter filter : messageFilters)
 		{
@@ -135,9 +134,9 @@ public class FilteredMessageStore extends BasicMessageStore
 		
 		synchronized (allMessages.getMessages())
 		{
-			for (MqttContent message : allMessages.getMessages())
+			for (UiMqttMessage message : allMessages.getMessages())
 			{
-				shownTopics.add(message.getTopic());
+				browsedTopics.add(message.getTopic());
 				
 				if (!filterMessage(message, false))
 				{
@@ -149,25 +148,25 @@ public class FilteredMessageStore extends BasicMessageStore
 	
 	public void removeAllTopicFilters()
 	{
-		synchronized (shownTopics)
+		synchronized (browsedTopics)
 		{
-			shownTopics.clear();
+			browsedTopics.clear();
 			messages.clear();
 		}
 	}
 	
 	public boolean applyTopicFilters(final Collection<String> topics, final boolean recreateStore)
 	{
-		synchronized (shownTopics)
+		synchronized (browsedTopics)
 		{
 			boolean updated = false;
 			
 			for (final String topic : topics)
 			{
-				if (!shownTopics.contains(topic))
+				if (!browsedTopics.contains(topic))
 				{
 					logger.debug("Adding {} to active filters for {}; recreate = {}", topic, allMessages.getName(), recreateStore);
-					shownTopics.add(topic);														
+					browsedTopics.add(topic);														
 					updated = true;
 				}
 			}
@@ -190,16 +189,16 @@ public class FilteredMessageStore extends BasicMessageStore
 	
 	public boolean removeTopicFilters(final Collection<String> topics)
 	{
-		synchronized (shownTopics)
+		synchronized (browsedTopics)
 		{
 			boolean updated = false;
 			
 			for (final String topic : topics)
 			{
-				if (shownTopics.contains(topic))
+				if (browsedTopics.contains(topic))
 				{
 					logger.debug("Removing {} from active filters for {}", topic, allMessages.getName());
-					shownTopics.remove(topic);		
+					browsedTopics.remove(topic);		
 					updated = true;
 				}
 			}
@@ -223,8 +222,8 @@ public class FilteredMessageStore extends BasicMessageStore
 		return messages;
 	}
 
-	public Set<String> getShownTopics()
+	public Set<String> getBrowsedTopics()
 	{
-		return Collections.unmodifiableSet(shownTopics);
+		return Collections.unmodifiableSet(browsedTopics);
 	}
 }

@@ -23,6 +23,7 @@ import pl.baczkowicz.mqttspy.exceptions.CriticalException;
 /**
  * FXML-related utilities.
  */
+@SuppressWarnings("rawtypes")
 public class FxmlUtils
 {
 	/** Package with all FXML files. */
@@ -30,7 +31,22 @@ public class FxmlUtils
 
 	/** Folder with all FXML files. */
 	public static final String FXML_LOCATION = "fxml/";
+	
+	/** The parent class to be used for getting resources. */
+	private static Class parentClass;
 
+	/**
+	 * Creates an FXML loader.
+	 * 
+	 * @param localFxmlFile The FXML file to load
+	 * 
+	 * @return FXMLLoader Created FXML loader
+	 */
+	public static FXMLLoader createFxmlLoaderForProjectFile(final String localFxmlFile)
+	{
+		return createFxmlLoader(parentClass, FxmlUtils.FXML_PACKAGE + FxmlUtils.FXML_LOCATION + localFxmlFile);
+	}
+	
 	/**
 	 * Creates an FXML loader.
 	 * 
@@ -39,9 +55,9 @@ public class FxmlUtils
 	 * 
 	 * @return FXMLLoader
 	 */
-	public static FXMLLoader createFXMLLoader(final Object parent, final String fxmlFile)
+	public static FXMLLoader createFxmlLoader(final Class parent, final String fxmlFile)
 	{
-		return new FXMLLoader(parent.getClass().getResource(fxmlFile));
+		return new FXMLLoader(parent.getResource(fxmlFile));
 	}
 	
 	/**
@@ -62,5 +78,25 @@ public class FxmlUtils
 			// TODO: log
 			throw new CriticalException("Cannot load FXML", e);
 		}
+	}
+
+	/**
+	 * Gets the parent class.
+	 * 
+	 * @return the parentClass
+	 */
+	public static Class getParentClass()
+	{
+		return parentClass;
+	}
+
+	/**
+	 * Sets the parent class.
+	 * 
+	 * @param parentClass the parentClass to set
+	 */
+	public static void setParentClass(Class parentClass)
+	{
+		FxmlUtils.parentClass = parentClass;
 	}
 }

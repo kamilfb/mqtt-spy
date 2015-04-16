@@ -34,7 +34,8 @@ import pl.baczkowicz.mqttspy.scripts.InteractiveScriptManager;
 import pl.baczkowicz.mqttspy.scripts.Script;
 import pl.baczkowicz.mqttspy.stats.StatisticsManager;
 import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
-import pl.baczkowicz.mqttspy.ui.messagelog.MessageLogUtils;
+import pl.baczkowicz.mqttspy.storage.UiMqttMessage;
+import pl.baczkowicz.mqttspy.utils.ConversionUtils;
 
 /**
  * Asynchronous MQTT connection with the extra UI elements required.
@@ -64,13 +65,11 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection
 
 	private InteractiveScriptManager scriptManager;
 
-	// private Queue<ReceivedMqttMessageWithSubscriptions> messageLogQueue;
-
 	private MqttMessageLogger messageLogger;
 
 	public MqttAsyncConnection(final ReconnectionManager reconnectionManager, final RuntimeConnectionProperties properties, 
 			final MqttConnectionStatus status, final EventManager eventManager,
-			final Queue<MqttSpyUIEvent> uiEventQueue/*, final Queue<ReceivedMqttMessageWithSubscriptions> queue*/)
+			final Queue<MqttSpyUIEvent> uiEventQueue)
 	{ 
 		super(reconnectionManager, properties);
 		
@@ -84,23 +83,22 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection
 		this.setPreferredStoreSize(properties.getMaxMessagesStored());
 		this.properties = properties;
 		this.eventManager = eventManager;
-		// this.messageLogQueue = queue;
 		setConnectionStatus(status);
 	}
 	
-	public void messageReceived(final MqttContent receivedMessage)
+	public void messageReceived(final UiMqttMessage receivedMessage)
 	{		
 		final List<String> matchingSubscriptionTopics = getTopicMatcher().getMatchingSubscriptions(receivedMessage.getTopic());
 				
 		final List<String> matchingActiveSubscriptionTopics = new ArrayList<String>();
 		
-		MqttContent message = new MqttContent(receivedMessage);
+		UiMqttMessage message = new UiMqttMessage(receivedMessage);
 		
 		// For all found subscriptions
 		for (final String matchingSubscription : matchingSubscriptionTopics)
 		{					
 			// Create a copy of the message for each subscription
-			message = new MqttContent(receivedMessage);
+			message = new UiMqttMessage(receivedMessage);
 			
 			// Get the mqtt-spy's subscription object
 			final MqttSubscription mqttSubscription = subscriptions.get(matchingSubscription);
@@ -128,7 +126,8 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection
 		// If logging is enabled
 		if (messageLogger != null && messageLogger.isRunning())
 		{
-			messageLogger.getQueue().add(MessageLogUtils.convert(message, this, matchingSubscriptionTopics));
+			message.setMatchingSubscriptionTopics(matchingSubscriptionTopics);
+			messageLogger.getQueue().add(message);
 		}
 		
 		statisticsManager.messageReceived(getId(), matchingActiveSubscriptionTopics);
@@ -139,12 +138,17 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection
 	
 	public boolean publish(final String publicationTopic, final String data, final int qos, final boolean retained)
 	{
+		return publish(publicationTopic, ConversionUtils.stringToArray(data), qos, retained);
+	}
+	
+	public boolean publish(final String publicationTopic, final byte[] data, final int qos, final boolean retained)
+	{
 		if (canPublish())
 		{
 			try
 			{
 				logger.info("Publishing message on topic \"" + publicationTopic + "\". Payload = \"" + data + "\"");
-				client.publish(publicationTopic, data.getBytes(), qos, retained);
+				client.publish(publicationTopic, data, qos, retained);
 				
 				logger.trace("Published message on topic \"" + publicationTopic + "\". Payload = \"" + data + "\"");
 				statisticsManager.messagePublished(getId(), publicationTopic);

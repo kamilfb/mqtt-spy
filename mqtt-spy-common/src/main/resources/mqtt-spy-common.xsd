@@ -23,7 +23,7 @@
 	<!-- === MESSAGES ========= -->
 	<!-- ====================== -->
 	
-	<xs:complexType name="BaseMqttMessage">
+	<xs:complexType name="SimpleMqttMessage">
 		 <xs:simpleContent>
       		<xs:extension base="xs:string">
         		<xs:attribute name="topic" 				type="xs:string" use="required" />
@@ -37,19 +37,22 @@
 	<!-- === CONNECTIVITY === -->
 	<!-- ==================== -->
 	
-	<xs:complexType name="ConnectionDetails" />
+	<xs:complexType name="ConnectionDetails">
+		<xs:sequence>
+				<xs:element name="Name" 				type="xs:string" 					minOccurs="0" maxOccurs="1" />
+				<xs:element name="Protocol" 			type="mqttspycommon:ProtocolEnum" 	minOccurs="0" maxOccurs="1" />
+   		</xs:sequence>
+	</xs:complexType>	
 		
 	<xs:complexType name="MqttConnectionDetails">
 		<xs:complexContent>
 			<xs:extension base="mqttspycommon:ConnectionDetails">
 				<xs:sequence>
-					<xs:element name="Name" 				type="xs:string" 				minOccurs="0" maxOccurs="1" />
-					
-					<xs:element name="ServerURI" 			type="xs:string" 				minOccurs="1" maxOccurs="unbounded" />
+					<xs:element name="ServerURI" 			type="xs:string" 					minOccurs="1" maxOccurs="unbounded" />
 					<xs:element name="ClientID" 			type="xs:string" />
 					
 					<xs:element name="UserCredentials" 		type="mqttspycommon:UserCredentials" 		minOccurs="0" maxOccurs="1" />
-					<xs:element name="LastWillAndTestament" type="mqttspycommon:BaseMqttMessage"		minOccurs="0" maxOccurs="1" />
+					<xs:element name="LastWillAndTestament" type="mqttspycommon:SimpleMqttMessage"		minOccurs="0" maxOccurs="1" />
 					
 					<xs:element name="CleanSession" 		type="xs:boolean" 				minOccurs="0" maxOccurs="1" />
 					<xs:element name="ConnectionTimeout" 	type="xs:int" 					minOccurs="0" maxOccurs="1" />
@@ -92,6 +95,14 @@
 		</xs:restriction>
 	</xs:simpleType>
 	
+	<xs:simpleType name="ProtocolEnum">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="MQTT Default" />
+			<xs:enumeration value="MQTT 3.1.1" />		
+			<xs:enumeration value="MQTT 3.1" />
+		</xs:restriction>
+	</xs:simpleType>
+	
 	<!-- ==================== -->
 	<!-- === TASKS ========== -->
 	<!-- ==================== -->
@@ -123,7 +134,7 @@
 
 	<xs:complexType name="LoggedMqttMessage">
 		<xs:complexContent>
-			<xs:extension base="mqttspycommon:BaseMqttMessage">
+			<xs:extension base="mqttspycommon:SimpleMqttMessage">
 				<xs:attribute name="id" 			type="xs:int" use="required" />			
 				<xs:attribute name="timestamp" 		type="xs:long" use="required" />				
 				<xs:attribute name="connection" 	type="xs:string" />

@@ -31,7 +31,7 @@ import pl.baczkowicz.mqttspy.common.generated.SubscriptionDetails;
 import pl.baczkowicz.mqttspy.connectivity.BaseMqttConnection;
 import pl.baczkowicz.mqttspy.daemon.configuration.generated.DaemonMqttConnectionDetails;
 import pl.baczkowicz.mqttspy.logger.MqttMessageLogger;
-import pl.baczkowicz.mqttspy.messages.ReceivedMqttMessageWithSubscriptions;
+import pl.baczkowicz.mqttspy.messages.BaseMqttMessageWithSubscriptions;
 import pl.baczkowicz.mqttspy.scripts.ScriptManager;
 
 /**
@@ -43,7 +43,7 @@ public class MqttCallbackHandler implements MqttCallback
 	private final static Logger logger = LoggerFactory.getLogger(MqttCallbackHandler.class);
 	
 	/** Stores all received messages, so that we don't block the receiving thread. */
-	private final Queue<ReceivedMqttMessageWithSubscriptions> messageQueue = new LinkedBlockingQueue<ReceivedMqttMessageWithSubscriptions>();
+	private final Queue<BaseMqttMessageWithSubscriptions> messageQueue = new LinkedBlockingQueue<BaseMqttMessageWithSubscriptions>();
 	
 	/** Logs all received messages (if configured). */
 	private final MqttMessageLogger messageLogger;
@@ -109,17 +109,17 @@ public class MqttCallbackHandler implements MqttCallback
 			logger.debug("[{}] Received message on topic \"{}\". Payload = \"{}\"", messageQueue.size(), topic, new String(message.getPayload()));
 		}
 		
-		final ReceivedMqttMessageWithSubscriptions receivedMessage = new ReceivedMqttMessageWithSubscriptions(currentId, topic, message, connection);
+		final BaseMqttMessageWithSubscriptions receivedMessage = new BaseMqttMessageWithSubscriptions(currentId, topic, message, connection);
 		
 		// Check matching subscriptions
 		final List<String> matchingSubscriptions = connection.getTopicMatcher().getMatchingSubscriptions(receivedMessage.getTopic());
-		receivedMessage.setSubscriptions(matchingSubscriptions);
+		receivedMessage.setMatchingSubscriptionTopics(matchingSubscriptions);
 		
 		// Before scripts
 		if (connectionSettings.getMessageLog().isLogBeforeScripts())
 		{
 			// Log a copy, so that it cannot be modified
-			logMessage(new ReceivedMqttMessageWithSubscriptions(receivedMessage));
+			logMessage(new BaseMqttMessageWithSubscriptions(receivedMessage));
 		}
 		
 		// If configured, run scripts for the matching subscriptions
@@ -147,7 +147,7 @@ public class MqttCallbackHandler implements MqttCallback
 	 *  
 	 * @param receivedMessage The received message
 	 */
-	public void logMessage(final ReceivedMqttMessageWithSubscriptions receivedMessage)
+	public void logMessage(final BaseMqttMessageWithSubscriptions receivedMessage)
 	{
 		// Add the received message to queue for logging
 		if (!MessageLogEnum.DISABLED.equals(connectionSettings.getMessageLog().getValue()))

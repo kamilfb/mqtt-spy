@@ -4,7 +4,7 @@
 
 	<groupId>pl.baczkowicz.mqttspy</groupId>
 	<artifactId>mqtt-spy</artifactId>
-	<version>0.1.7-beta</version>
+	<version>0.1.9-beta</version>
 	<packaging>jar</packaging>
 
 	<name>mqtt-spy</name>
@@ -21,14 +21,36 @@
 		
 		<timestamp>${maven.build.timestamp}</timestamp>
    		<maven.build.timestamp.format>yyyy</maven.build.timestamp.format>
+   		<maven.compiler.source>1.8</maven.compiler.source>
+    	<maven.compiler.target>1.8</maven.compiler.target>   		
 	</properties>
+
+	<repositories>
+		<repository>
+			<id>gillius-org</id>
+			<name>Gillius.org Maven Repository</name>
+			<url>http://www.gillius.org/maven2</url>
+		</repository>
+	</repositories>
 
 	<dependencies>
 
 		<dependency>
 			<groupId>pl.baczkowicz.mqttspy</groupId>
 			<artifactId>mqtt-spy-common</artifactId>
-			<version>0.0.5</version>
+			<version>0.0.8</version>			 
+			<exclusions>
+				<exclusion>
+					<artifactId>maven-jaxb2-plugin</artifactId>
+					<groupId>org.jvnet.jaxb2.maven2</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.apache.maven</groupId>
+			<artifactId>maven-artifact</artifactId>
+			<version>3.0</version>
 		</dependency>
 
 		<dependency>
@@ -46,7 +68,13 @@
 		<dependency>
 			<groupId>org.fxmisc.richtext</groupId>
 			<artifactId>richtextfx</artifactId>
-			<version>0.5.1</version>
+			<version>0.6.3</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.gillius</groupId>
+			<artifactId>jfxutils</artifactId>
+			<version>0.4-SNAPSHOT</version>
 		</dependency>
 
 		<!--=== TEST === -->

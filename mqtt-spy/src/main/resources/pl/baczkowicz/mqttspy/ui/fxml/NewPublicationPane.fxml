@@ -36,7 +36,12 @@
         <ComboBox fx:id="publicationTopicText" editable="true" layoutX="53.0" layoutY="10.0" prefHeight="26.0" AnchorPane.leftAnchor="53.0" AnchorPane.rightAnchor="327" AnchorPane.topAnchor="0.0" />
         
         <!-- Data -->        
-        <Label layoutX="14.0" layoutY="37.0" text="Data" AnchorPane.topAnchor="37.0" />		     
+        <Label fx:id="dataLabel" layoutX="14.0" text="Data" AnchorPane.topAnchor="31.0" />
+        <Label fx:id="lengthLabel" layoutX="5.0" prefWidth="47.0" text="(0B)" AnchorPane.topAnchor="44.0" alignment="CENTER" contentDisplay="CENTER" >
+         <font>
+            <Font size="11.0" />
+         </font>
+      	</Label>        		    
         <StyleClassedTextArea fx:id="publicationData" prefHeight="25.0" AnchorPane.bottomAnchor="1.0" AnchorPane.leftAnchor="52.0" AnchorPane.rightAnchor="326" AnchorPane.topAnchor="31.0" />
         
         <!-- Retained flag -->
@@ -63,6 +68,7 @@
 		         </toggleGroup>
 		      </RadioMenuItem>
 		      <RadioMenuItem mnemonicParsing="false" text="Hex" toggleGroup="$formatGroup" />
+		      <RadioMenuItem mnemonicParsing="false" text="Base64" toggleGroup="$formatGroup" />
 		  </items>
 		</MenuButton>        
 		

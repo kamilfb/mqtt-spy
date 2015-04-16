@@ -38,10 +38,10 @@ import javafx.util.Callback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import pl.baczkowicz.mqttspy.connectivity.MqttContent;
 import pl.baczkowicz.mqttspy.events.EventManager;
 import pl.baczkowicz.mqttspy.events.observers.MessageIndexChangeObserver;
 import pl.baczkowicz.mqttspy.storage.BasicMessageStore;
+import pl.baczkowicz.mqttspy.storage.UiMqttMessage;
 import pl.baczkowicz.mqttspy.ui.properties.MqttContentProperties;
 import pl.baczkowicz.mqttspy.ui.utils.StylingUtils;
 import pl.baczkowicz.mqttspy.ui.utils.UiUtils;
@@ -154,7 +154,7 @@ public class MessageListTableController implements Initializable, MessageIndexCh
 		final MqttContentProperties item = messageTable.getSelectionModel().getSelectedItem();
 		if (item != null)
 		{
-			final List<MqttContent> list = store.getMessages();
+			final List<UiMqttMessage> list = store.getMessages();
 			for (int i = 0; i < store.getMessages().size(); i++)
 			{
 				if (list.get(i).getId() == item.getId())

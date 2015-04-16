@@ -18,9 +18,8 @@ import java.util.Collection;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
 import pl.baczkowicz.mqttspy.configuration.generated.FormatterDetails;
-import pl.baczkowicz.mqttspy.connectivity.MqttContent;
+import pl.baczkowicz.mqttspy.storage.UiMqttMessage;
 import pl.baczkowicz.mqttspy.ui.properties.SubscriptionTopicSummaryProperties;
 
 /**
@@ -44,7 +43,7 @@ public class ObservableTopicSummary extends TopicSummary
 		}
 	}
 	
-	public SubscriptionTopicSummaryProperties addMessage(final MqttContent message)
+	public SubscriptionTopicSummaryProperties addMessage(final UiMqttMessage message)
 	{
 		synchronized (topicToSummaryMapping)
 		{
@@ -53,6 +52,12 @@ public class ObservableTopicSummary extends TopicSummary
 			if (newAdded != null)
 			{				
 				observableTopicSummaryList.add(newAdded);
+			}
+			else
+			{
+				// Set the updated object to notify the observers of the list
+				final SubscriptionTopicSummaryProperties updated = topicToSummaryMapping.get(message.getTopic());
+				observableTopicSummaryList.set(observableTopicSummaryList.indexOf(updated), updated);
 			}
 			
 			return newAdded;

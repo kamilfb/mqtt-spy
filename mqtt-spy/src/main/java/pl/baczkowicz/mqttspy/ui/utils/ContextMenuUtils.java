@@ -14,6 +14,10 @@
  */
 package pl.baczkowicz.mqttspy.ui.utils;
 
+import java.util.Arrays;
+
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.CheckMenuItem;
@@ -31,6 +35,7 @@ import pl.baczkowicz.mqttspy.events.EventManager;
 import pl.baczkowicz.mqttspy.stats.StatisticsManager;
 import pl.baczkowicz.mqttspy.ui.ConnectionController;
 import pl.baczkowicz.mqttspy.ui.SubscriptionController;
+import pl.baczkowicz.mqttspy.ui.charts.ChartMode;
 import pl.baczkowicz.mqttspy.ui.connections.ConnectionManager;
 import pl.baczkowicz.mqttspy.ui.connections.SubscriptionManager;
 import pl.baczkowicz.mqttspy.ui.panes.PaneVisibilityStatus;
@@ -56,7 +61,8 @@ public class ContextMenuUtils
 	 * @return The created context menu
 	 */
 	public static ContextMenu createSubscriptionTabContextMenu(
-			final MqttAsyncConnection connection, final MqttSubscription subscription, 
+			final MqttAsyncConnection connection, 
+			final MqttSubscription subscription, 
 			final EventManager eventManager, 
 			final SubscriptionManager subscriptionManager,
 			final ConfigurationManager configurationManager,
@@ -180,6 +186,46 @@ public class ContextMenuUtils
 		// Separator
 		other.getItems().add(new SeparatorMenuItem());
 		
+		// View
+		final MenuItem detachMenu = new MenuItem("[View] Detach to a separate window");
+		detachMenu.setOnAction(TabUtils.createTabDetachEvent(
+				detachMenu, subscriptionController, 
+				connection.getName() + " - " + subscription.getTopic(), 5));
+		other.getItems().add(detachMenu);		
+		
+		// Message load charts
+		MenuItem messageLoadChartItem = new MenuItem("[Graphing] Show message load chart");
+		messageLoadChartItem.setOnAction(new EventHandler<ActionEvent>()
+		{
+			public void handle(ActionEvent e)
+			{			
+				DialogUtils.showMessageBasedLineCharts(
+						Arrays.asList(SubscriptionController.AVG5_TOPIC, SubscriptionController.AVG30_TOPIC, SubscriptionController.AVG300_TOPIC),
+						subscriptionController.getStatsHistory(), 
+						ChartMode.USER_DRIVEN_MSG_PAYLOAD,
+						"Series", "Load", "msgs/s", 
+						"Message load statistics for " + subscription.getTopic() + " - " + connection.getName(), 
+						subscriptionController.getScene(), eventManager);
+			}
+		});			
+		contextMenu.getItems().add(messageLoadChartItem);
+		
+		// Message count charts
+		MenuItem messageCountChartItem = new MenuItem("[Graphing] Show message count chart");
+		messageCountChartItem.setOnAction(new EventHandler<ActionEvent>()
+		{
+			public void handle(ActionEvent e)
+			{			
+				DialogUtils.showMessageBasedPieCharts("Message count statistics for " + subscription.getTopic(), 
+						subscriptionController.getScene(),
+						subscriptionController.getSubscription().getNonFilteredMessageList().getTopicSummary().getObservableMessagesPerTopic());
+			}
+		});			
+		contextMenu.getItems().add(messageCountChartItem);
+		
+		// Separator
+		contextMenu.getItems().add(new SeparatorMenuItem());
+		
 		// Clear data
 		MenuItem clearItem = new MenuItem("[History] Clear subscription history");
 
@@ -192,14 +238,7 @@ public class ContextMenuUtils
 				subscription.clear();
 			}
 		});
-		contextMenu.getItems().add(clearItem);
-		
-		// View
-		final MenuItem detachMenu = new MenuItem("[View] Detach to a separate window");
-		detachMenu.setOnAction(TabUtils.createTabDetachEvent(
-				detachMenu, subscriptionController, 
-				connection.getName() + " - " + subscription.getTopic(), 5));
-		other.getItems().add(detachMenu);		
+		contextMenu.getItems().add(clearItem);		
 
 		return contextMenu;
 	}
@@ -215,9 +254,11 @@ public class ContextMenuUtils
 	 * @return Created context menu
 	 */
 	public static ContextMenu createAllSubscriptionsTabContextMenu(
-			final MqttAsyncConnection connection, final EventManager eventManager,
+			final MqttAsyncConnection connection, 
+			final EventManager eventManager,
 			final SubscriptionManager subscriptionManager,
-			final ConfigurationManager configurationManager)
+			final ConfigurationManager configurationManager,
+			final SubscriptionController subscriptionController)
 	{
 		final ContextMenu contextMenu = new ContextMenu();
 
@@ -279,6 +320,26 @@ public class ContextMenuUtils
 		});
 		contextMenu.getItems().add(removeItem);
 		
+		// Separator
+		contextMenu.getItems().add(new SeparatorMenuItem());
+
+		MenuItem showAllChartItem = new MenuItem("[Graphing] Show overall message load chart");
+		showAllChartItem.setOnAction(new EventHandler<ActionEvent>()
+		{
+			public void handle(ActionEvent e)
+			{
+				DialogUtils.showMessageBasedLineCharts(
+						Arrays.asList(SubscriptionController.AVG5_TOPIC, SubscriptionController.AVG30_TOPIC, SubscriptionController.AVG300_TOPIC),
+						subscriptionController.getStatsHistory(), 
+						ChartMode.USER_DRIVEN_MSG_PAYLOAD,
+						"Series", "Load", "msgs/s", 
+						"Message load statistics for all subscriptions - " + connection.getName(), 
+						subscriptionController.getScene(), eventManager);
+			}
+		});
+
+		contextMenu.getItems().add(showAllChartItem);
+						
 		// Separator
 		contextMenu.getItems().add(new SeparatorMenuItem());
 
@@ -416,12 +477,13 @@ public class ContextMenuUtils
 		view.getItems().add(new SeparatorMenuItem());
 		view.getItems().add(detailedView);
 		
-		final CheckMenuItem resizeMessageContent = new CheckMenuItem("Resize message pane with parent");	
-		resizeMessageContent.setSelected(true);
-		resizeMessageContent.setOnAction(new EventHandler<ActionEvent>()
+		final CheckMenuItem resizeMessageContent = connectionController.getResizeMessageContentMenu();
+		resizeMessageContent.setText("Resizable message pane");	
+		resizeMessageContent.selectedProperty().addListener(new ChangeListener<Boolean>()
 		{
-			public void handle(ActionEvent e)
-			{				
+			@Override
+			public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue)
+			{
 				connectionController.toggleMessagePayloadSize(resizeMessageContent.isSelected());
 			}
 		});
@@ -447,7 +509,10 @@ public class ContextMenuUtils
 	 * 
 	 * @return Created context menu
 	 */
-	public static ContextMenu createMessageLogMenu(final Tab tab, final ConnectionController connectionController)
+	public static ContextMenu createMessageLogMenu(
+			final Tab tab, 
+			final ConnectionController connectionController, 
+			final ConnectionManager connectionManager)
 	{
 		// Context menu
 		ContextMenu contextMenu = new ContextMenu();
@@ -458,7 +523,7 @@ public class ContextMenuUtils
 			@Override
 			public void handle(ActionEvent event)
 			{
-				TabUtils.requestClose(connectionController.getTab());				
+				connectionManager.closeOfflineTab(connectionController);				
 			}
 		});
 		
@@ -473,6 +538,21 @@ public class ContextMenuUtils
 				detachMenu, connectionController, 
 				"Message log " + tab.getText(), 0));
 		contextMenu.getItems().add(detachMenu);
+		
+		final Menu view = new Menu("[View] Pane visibility");	
+		final CheckMenuItem resizeMessageContent = connectionController.getResizeMessageContentMenu();
+		resizeMessageContent.setText("Resizable message pane");	
+		resizeMessageContent.selectedProperty().addListener(new ChangeListener<Boolean>()
+		{
+			@Override
+			public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue)
+			{
+				connectionController.toggleMessagePayloadSize(resizeMessageContent.isSelected());
+			}
+		});
+		view.getItems().add(resizeMessageContent);
+		
+		contextMenu.getItems().add(view);
 
 		return contextMenu;
 	}

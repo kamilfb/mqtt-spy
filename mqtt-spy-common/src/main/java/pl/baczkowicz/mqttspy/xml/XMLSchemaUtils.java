@@ -110,8 +110,7 @@ public class XMLSchemaUtils
 				}
 				else
 				{
-					final InputStream resourceAsStream = XMLSchemaUtils.class
-							.getResourceAsStream(resourceLocation);
+					final InputStream resourceAsStream = XMLSchemaUtils.class.getResourceAsStream(resourceLocation);
 					if (resourceAsStream == null)
 					{
 						throw new XMLException("Cannot load the schema from file or classpath - fix the schema or amend the location: " + resourceLocation);

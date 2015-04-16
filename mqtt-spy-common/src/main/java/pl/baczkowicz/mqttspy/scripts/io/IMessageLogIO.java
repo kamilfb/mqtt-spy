@@ -14,7 +14,7 @@
  */
 package pl.baczkowicz.mqttspy.scripts.io;
 
-import pl.baczkowicz.mqttspy.messages.ReceivedMqttMessage;
+import pl.baczkowicz.mqttspy.messages.BaseMqttMessage;
 
 /**
  * Defines the interface between a script and the MessageLog object.
@@ -74,5 +74,5 @@ public interface IMessageLogIO
 	 * 
 	 * @return ReceivedMqttMessage
 	 */
-	ReceivedMqttMessage getMessage(final int messageIndex);
+	BaseMqttMessage getMessage(final int messageIndex);
 }

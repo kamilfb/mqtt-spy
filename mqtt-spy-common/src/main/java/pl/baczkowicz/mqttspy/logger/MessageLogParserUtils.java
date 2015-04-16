@@ -30,8 +30,9 @@ import org.slf4j.LoggerFactory;
 import pl.baczkowicz.mqttspy.common.generated.LoggedMqttMessage;
 import pl.baczkowicz.mqttspy.exceptions.MqttSpyException;
 import pl.baczkowicz.mqttspy.exceptions.XMLException;
-import pl.baczkowicz.mqttspy.messages.ReceivedMqttMessage;
+import pl.baczkowicz.mqttspy.messages.BaseMqttMessage;
 import pl.baczkowicz.mqttspy.tasks.ProgressUpdater;
+import pl.baczkowicz.mqttspy.utils.ConversionUtils;
 
 /**
  * Message log utilities.
@@ -50,7 +51,7 @@ public class MessageLogParserUtils
 	 * 
 	 * @throws MqttSpyException Thrown when cannot process the given file
 	 */
-	public static List<ReceivedMqttMessage> readAndConvertMessageLog(final File selectedFile) throws MqttSpyException
+	public static List<BaseMqttMessage> readAndConvertMessageLog(final File selectedFile) throws MqttSpyException
 	{
 		return processMessageLog(parseMessageLog(readMessageLog(selectedFile), null, 0, 0), null, 0, 0);
 	}
@@ -152,11 +153,11 @@ public class MessageLogParserUtils
 	 * 
 	 * @return List of MQTT message objects (ReceivedMqttMessage)
 	 */
-	public static List<ReceivedMqttMessage> processMessageLog(
+	public static List<BaseMqttMessage> processMessageLog(
 			final List<LoggedMqttMessage> list, final ProgressUpdater progress,
 			final long current, final long max)
 	{
-		final List<ReceivedMqttMessage> mqttMessageList = new ArrayList<ReceivedMqttMessage>();
+		final List<BaseMqttMessage> mqttMessageList = new ArrayList<BaseMqttMessage>();
 		long item = 0;
 		
 		// Process the messages
@@ -184,13 +185,13 @@ public class MessageLogParserUtils
         	}
         	else
         	{
-        		mqttMessage.setPayload(loggedMessage.getValue().getBytes());
+        		mqttMessage.setPayload(ConversionUtils.stringToArray(loggedMessage.getValue()));
         	}
         	
         	mqttMessage.setQos(loggedMessage.getQos() == null ? 0 : loggedMessage.getQos());
         	mqttMessage.setRetained(loggedMessage.isRetained() == null ? false : loggedMessage.isRetained());
         	
-        	mqttMessageList.add(new ReceivedMqttMessage(loggedMessage.getId(), loggedMessage.getTopic(), mqttMessage, new Date(loggedMessage.getTimestamp())));
+        	mqttMessageList.add(new BaseMqttMessage(loggedMessage.getId(), loggedMessage.getTopic(), mqttMessage, new Date(loggedMessage.getTimestamp())));
         }
         logger.info("Message log - processed {} MQTT messages", list.size());		        	
         

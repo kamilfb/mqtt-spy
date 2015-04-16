@@ -12,3 +12,4 @@ target/
 /mqtt-spy-daemon.messages
 /mqtt-spy.messages
 /log2.messages
+/mqtt-spy.log.1

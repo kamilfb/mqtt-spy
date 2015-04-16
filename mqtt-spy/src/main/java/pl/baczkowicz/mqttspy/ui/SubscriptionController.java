@@ -49,8 +49,7 @@ import javafx.stage.Stage;
 import javafx.stage.Window;
 import javafx.stage.WindowEvent;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.eclipse.paho.client.mqttv3.MqttMessage;
 
 import pl.baczkowicz.mqttspy.configuration.generated.ConversionMethod;
 import pl.baczkowicz.mqttspy.configuration.generated.FormatterDetails;
@@ -60,22 +59,32 @@ import pl.baczkowicz.mqttspy.connectivity.RuntimeConnectionProperties;
 import pl.baczkowicz.mqttspy.events.EventManager;
 import pl.baczkowicz.mqttspy.events.observers.ClearTabObserver;
 import pl.baczkowicz.mqttspy.events.observers.SubscriptionStatusChangeObserver;
+import pl.baczkowicz.mqttspy.events.queuable.ui.BrowseReceivedMessageEvent;
 import pl.baczkowicz.mqttspy.stats.StatisticsManager;
+import pl.baczkowicz.mqttspy.storage.BasicMessageStore;
 import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
+import pl.baczkowicz.mqttspy.storage.UiMqttMessage;
 import pl.baczkowicz.mqttspy.ui.connections.SubscriptionManager;
+import pl.baczkowicz.mqttspy.ui.messagelog.MessageLogUtils;
 import pl.baczkowicz.mqttspy.ui.panes.TabController;
 import pl.baczkowicz.mqttspy.ui.panes.TabStatus;
 import pl.baczkowicz.mqttspy.ui.search.UniqueContentOnlyFilter;
 import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
 import pl.baczkowicz.mqttspy.ui.utils.FormattingUtils;
 import pl.baczkowicz.mqttspy.ui.utils.FxmlUtils;
+import pl.baczkowicz.mqttspy.ui.utils.UiUtils;
+import pl.baczkowicz.mqttspy.utils.ConversionUtils;
 
 /**
  * Controller for the subscription tab.
  */
 public class SubscriptionController implements Initializable, ClearTabObserver, SubscriptionStatusChangeObserver, TabController
 {
-	final static Logger logger = LoggerFactory.getLogger(SubscriptionController.class);
+	public static final String AVG300_TOPIC = "5 minute average";
+
+	public static final String AVG30_TOPIC = "30 second average";
+
+	public static final String AVG5_TOPIC = "5 second average";
 
 	private static final int MIN_EXPANDED_SUMMARY_PANE_HEIGHT = 130;
 
@@ -135,6 +144,8 @@ public class SubscriptionController implements Initializable, ClearTabObserver, 
 	private ToggleButton searchButton;
 
 	private ManagedMessageStoreWithFiltering store; 
+	
+	private BasicMessageStore statsHistory;
 
 	private Tab tab;
 
@@ -165,6 +176,8 @@ public class SubscriptionController implements Initializable, ClearTabObserver, 
 	private UniqueContentOnlyFilter uniqueContentOnlyFilter;
 
 	private TabStatus tabStatus;
+
+	private HBox titleBox;
 
 	public void initialize(URL location, ResourceBundle resources)
 	{			
@@ -224,10 +237,35 @@ public class SubscriptionController implements Initializable, ClearTabObserver, 
 		updateMinHeights();		
 	}
 	
+	private ChangeListener<Number> createPaneTitleWidthListener()
+	{
+		return new ChangeListener<Number>()
+		{
+			@Override
+			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue)
+			{				 										
+				Platform.runLater(new Runnable()
+				{					
+					@Override
+					public void run()
+					{
+						final double absoluteSearchBoxX = searchBox.getLayoutX() + topicFilterBox.getLayoutX() + titleBox.getLayoutX();
+						updateTitleWidth(40, absoluteSearchBoxX);	
+					}
+				});
+			}
+		};
+	}
+	
 	public void init()
 	{
 		final Tooltip summaryTitledPaneTooltip = new Tooltip(
 				"Load, the average number of messages per second, is calculated over the following intervals: " +  DialogUtils.getPeriodList() + ".");
+				
+		statsHistory = new BasicMessageStore(
+				"stats" + store.getName(), 
+				store.getMessageList().getPreferredSize(), store.getMessageList().getMaxSize(), 
+				store.getUiEventQueue(), eventManager);
 		
 		eventManager.registerClearTabObserver(this, store);
 		
@@ -283,7 +321,7 @@ public class SubscriptionController implements Initializable, ClearTabObserver, 
 		searchBox = new TextField();
 		searchBox.setFont(new Font("System", 11));
 		searchBox.setPadding(new Insets(2, 5, 2, 5));
-		searchBox.setMaxWidth(80);
+		searchBox.setMaxWidth(400);
 		searchBox.textProperty().addListener(new ChangeListener<String>()
 		{
 			@Override
@@ -294,28 +332,15 @@ public class SubscriptionController implements Initializable, ClearTabObserver, 
 		});
 		
 		paneTitle = new AnchorPane();
-		final HBox titleBox = new HBox();
+		titleBox = new HBox();
 		titleBox.setPadding(new Insets(0, 0, 0, 0));		
 		topicFilterBox.getChildren().addAll(new Label(" [search topics: "), searchBox, new Label("] "));
 		titleBox.getChildren().addAll(new Label(SUMMARY_PANE_TITLE), topicFilterBox);
 		titleBox.prefWidth(Double.MAX_VALUE);
 		
 		paneTitle.setPadding(new Insets(0, 0, 0, 0));
-		summaryTitledPane.widthProperty().addListener(new ChangeListener<Number>()
-		{
-			@Override
-			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue)
-			{				 										
-				Platform.runLater(new Runnable()
-				{					
-					@Override
-					public void run()
-					{
-						updateTitleWidth(40);	
-					}
-				});
-			}
-		});
+		summaryTitledPane.widthProperty().addListener(createPaneTitleWidthListener());
+		statsLabel.widthProperty().addListener(createPaneTitleWidthListener());
 		
 		paneTitle.getChildren().addAll(titleBox, statsLabel);
 		
@@ -422,19 +447,21 @@ public class SubscriptionController implements Initializable, ClearTabObserver, 
 		}
 	}
 	
-	private void updateTitleWidth(final int value)
+	private void updateTitleWidth(final int margin, double absoluteSearchBoxX)
 	{
-		double width = summaryTitledPane.getWidth();
+		double titledPaneWidth = summaryTitledPane.getWidth();
 		
 		if (summaryTitledPane.getScene() != null)			
 		{
-			if (summaryTitledPane.getScene().getWidth() < width)
+			if (summaryTitledPane.getScene().getWidth() < titledPaneWidth)
 			{
-				width = summaryTitledPane.getScene().getWidth();
+				titledPaneWidth = summaryTitledPane.getScene().getWidth();
 			}
 		}
-		paneTitle.setPrefWidth(width - value);				
-		paneTitle.setMaxWidth(width - value);
+		paneTitle.setPrefWidth(titledPaneWidth - margin);				
+		paneTitle.setMaxWidth(titledPaneWidth - margin);
+		
+		searchBox.setPrefWidth(titledPaneWidth - absoluteSearchBoxX - statsLabel.getWidth() - 100);
 	}
 
 	public void setStore(final ManagedMessageStoreWithFiltering store)
@@ -493,7 +520,7 @@ public class SubscriptionController implements Initializable, ClearTabObserver, 
 		if (searchStage == null)
 		{
 			// Create the search window controller
-			final FXMLLoader searchLoader = FxmlUtils.createFXMLLoader(this, FxmlUtils.FXML_LOCATION + "SearchWindow.fxml");
+			final FXMLLoader searchLoader = FxmlUtils.createFxmlLoaderForProjectFile("SearchWindow.fxml");
 			AnchorPane searchWindow = FxmlUtils.loadAnchorPane(searchLoader);
 			searchWindowController = (SearchWindowController) searchLoader.getController();
 			searchWindowController.setStore(store);
@@ -501,6 +528,7 @@ public class SubscriptionController implements Initializable, ClearTabObserver, 
 			searchWindowController.setConnection(connectionController.getConnection());
 			searchWindowController.setSubscriptionName(subscription != null ? subscription.getTopic() : SubscriptionManager.ALL_SUBSCRIPTIONS_TAB_TITLE);
 			searchWindowController.setEventManager(eventManager);
+			searchWindowController.setConnectionController(connectionController);
 			
 			eventManager.registerMessageAddedObserver(searchWindowController, store.getMessageList());
 			eventManager.registerMessageRemovedObserver(searchWindowController, store.getMessageList());
@@ -547,20 +575,32 @@ public class SubscriptionController implements Initializable, ClearTabObserver, 
 		final String topicCountText = filteredTopics + (topicCount == 1 ? "1 topic" : topicCount + " topics");
 		final String messageCountText = messageCount == 1 ? "1 message" : messageCount + " messages";
 		
+		Double avg5sec = 0.0;
+		Double avg30sec = 0.0;
+		Double avg300sec = 0.0;
+		
 		if (subscription == null)
 		{
+			avg5sec = StatisticsManager.getMessagesReceived(connectionProperties.getId(), 5).overallCount;
+			avg30sec = StatisticsManager.getMessagesReceived(connectionProperties.getId(), 30).overallCount;
+			avg300sec = StatisticsManager.getMessagesReceived(connectionProperties.getId(), 300).overallCount;
+			
 			statsLabel.setText(String.format(SUMMARY_PANE_STATS_FORMAT, 
 				topicCountText,
 				messageCountText,
-				StatisticsManager.getMessagesReceived(connectionProperties.getId(), 5).overallCount,
-				StatisticsManager.getMessagesReceived(connectionProperties.getId(), 30).overallCount,
-				StatisticsManager.getMessagesReceived(connectionProperties.getId(), 300).overallCount));
+				avg5sec,
+				avg30sec,
+				avg300sec));						
 		}
 		else
 		{
-			final Double avg5sec = StatisticsManager.getMessagesReceived(connectionProperties.getId(), 5).messageCount.get(subscription.getTopic());
-			final Double avg30sec = StatisticsManager.getMessagesReceived(connectionProperties.getId(), 30).messageCount.get(subscription.getTopic());
-			final Double avg300sec = StatisticsManager.getMessagesReceived(connectionProperties.getId(), 300).messageCount.get(subscription.getTopic());
+			avg5sec = StatisticsManager.getMessagesReceived(connectionProperties.getId(), 5).messageCount.get(subscription.getTopic());
+			avg30sec = StatisticsManager.getMessagesReceived(connectionProperties.getId(), 30).messageCount.get(subscription.getTopic());
+			avg300sec = StatisticsManager.getMessagesReceived(connectionProperties.getId(), 300).messageCount.get(subscription.getTopic());
+			
+			avg5sec = avg5sec == null ? 0 : avg5sec;
+			avg30sec = avg30sec == null ? 0 : avg30sec;
+			avg300sec = avg300sec == null ? 0 : avg300sec;
 			
 			statsLabel.setText(String.format(SUMMARY_PANE_STATS_FORMAT, 
 					topicCountText,
@@ -569,6 +609,28 @@ public class SubscriptionController implements Initializable, ClearTabObserver, 
 					avg30sec == null ? 0 : avg30sec, 
 					avg300sec == null ? 0 : avg300sec));
 		}
+		
+		final UiMqttMessage avg5message = new UiMqttMessage(0, AVG5_TOPIC, 
+				new MqttMessage(ConversionUtils.stringToArray(String.valueOf(avg5sec))), null);
+		final UiMqttMessage avg30message = new UiMqttMessage(0, AVG30_TOPIC, 
+				new MqttMessage(ConversionUtils.stringToArray(String.valueOf(avg30sec))), null);
+		final UiMqttMessage avg300message = new UiMqttMessage(0, AVG300_TOPIC, 
+				new MqttMessage(ConversionUtils.stringToArray(String.valueOf(avg300sec))), null);
+		
+		statsHistory.storeMessage(avg5message);
+		statsHistory.storeMessage(avg30message);
+		statsHistory.storeMessage(avg300message);
+		eventManager.notifyMessageAdded(new BrowseReceivedMessageEvent(statsHistory.getMessageList(), avg5message));
+		eventManager.notifyMessageAdded(new BrowseReceivedMessageEvent(statsHistory.getMessageList(), avg30message));
+		eventManager.notifyMessageAdded(new BrowseReceivedMessageEvent(statsHistory.getMessageList(), avg300message));
+	}
+
+	/**
+	 * @return the statsHistory
+	 */
+	public BasicMessageStore getStatsHistory()
+	{
+		return statsHistory;
 	}
 
 	public void toggleMessagePayloadSize(final boolean resize)
@@ -580,6 +642,11 @@ public class SubscriptionController implements Initializable, ClearTabObserver, 
 		else
 		{			
 			messagePane.setMaxHeight(50);
+		}
+		
+		if (searchWindowController != null)
+		{
+			searchWindowController.toggleMessagePayloadSize(resize);
 		}
 	}
 	
@@ -605,6 +672,34 @@ public class SubscriptionController implements Initializable, ClearTabObserver, 
 	private void copyMessagesToFile()
 	{
 		messageNavigationPaneController.copyMessagesToFile();
+	}
+	
+	@FXML
+	private void copyBrowsedTopic()
+	{
+		messageNavigationPaneController.copyMessageTopicToClipboard();
+	}
+	
+	@FXML
+	private void copyBrowsedTopics()
+	{
+		
+		UiUtils.copyToClipboard(MessageLogUtils.getAllTopicsAsString(
+				store.getFilteredMessageStore().getBrowsedTopics()));
+	}
+	
+	@FXML
+	private void copyFilteredTopics()
+	{
+		UiUtils.copyToClipboard(MessageLogUtils.getAllTopicsAsString(
+				getSummaryTablePaneController().getShownTopics()));
+	}
+	
+	@FXML
+	private void copyAllTopics()
+	{
+		UiUtils.copyToClipboard(MessageLogUtils.getAllTopicsAsString(
+				store.getAllTopics()));
 	}
 	
 	public MqttSubscription getSubscription()
@@ -651,5 +746,10 @@ public class SubscriptionController implements Initializable, ClearTabObserver, 
 	public ConnectionController getConnectionController()
 	{
 		return connectionController;
+	}
+
+	public Scene getScene()
+	{
+		return splitPane.getScene();
 	}
 }

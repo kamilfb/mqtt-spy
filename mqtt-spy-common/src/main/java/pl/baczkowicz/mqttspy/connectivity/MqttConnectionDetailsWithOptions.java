@@ -18,6 +18,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 
 import pl.baczkowicz.mqttspy.common.generated.MqttConnectionDetails;
+import pl.baczkowicz.mqttspy.common.generated.ProtocolEnum;
 import pl.baczkowicz.mqttspy.exceptions.ConfigurationException;
 import pl.baczkowicz.mqttspy.utils.ConfigurationUtils;
 import pl.baczkowicz.mqttspy.utils.ConversionUtils;
@@ -43,6 +44,7 @@ public class MqttConnectionDetailsWithOptions extends MqttConnectionDetails
 	public MqttConnectionDetailsWithOptions(final int id, final MqttConnectionDetails details) throws ConfigurationException
 	{
 		this.id = id;
+		this.setProtocol(details.getProtocol());
 		
 		// Copy all parameters
 		this.setName(details.getName());
@@ -78,6 +80,19 @@ public class MqttConnectionDetailsWithOptions extends MqttConnectionDetails
 		// Populate MQTT options
 		options = new MqttConnectOptions();
 				
+		if (ProtocolEnum.MQTT_3_1_1.equals(getProtocol()))
+		{
+			options.setMqttVersion(MqttConnectOptions.MQTT_VERSION_3_1_1);
+		}
+		else if (ProtocolEnum.MQTT_3_1.equals(getProtocol()))
+		{
+			options.setMqttVersion(MqttConnectOptions.MQTT_VERSION_3_1);
+		}
+		else
+		{
+			options.setMqttVersion(MqttConnectOptions.MQTT_VERSION_DEFAULT);
+		}
+		
 		if (getServerURI().size() > 1)
 		{
 			options.setServerURIs(getServerURI().toArray(new String[getServerURI().size()]));

@@ -34,10 +34,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.configuration.generated.FormatterDetails;
-import pl.baczkowicz.mqttspy.connectivity.MqttContent;
 import pl.baczkowicz.mqttspy.events.observers.MessageFormatChangeObserver;
 import pl.baczkowicz.mqttspy.events.observers.MessageIndexChangeObserver;
 import pl.baczkowicz.mqttspy.storage.BasicMessageStore;
+import pl.baczkowicz.mqttspy.storage.UiMqttMessage;
 import pl.baczkowicz.mqttspy.ui.search.SearchOptions;
 import pl.baczkowicz.mqttspy.ui.utils.FormattingUtils;
 import pl.baczkowicz.mqttspy.utils.TimeUtils;
@@ -78,7 +78,7 @@ public class MessageController implements Initializable, MessageIndexChangeObser
 
 	private BasicMessageStore store;
 	
-	private MqttContent message;
+	private UiMqttMessage message;
 
 	private FormatterDetails selectionFormat = null;
 
@@ -123,19 +123,17 @@ public class MessageController implements Initializable, MessageIndexChangeObser
 			
 			// Apply sizing and visibility
 			AnchorPane.setRightAnchor(topicField, 342.0);
-			qosField.setVisible(true);
-			retainedField.setVisible(true);
-			qosFieldLabel.setVisible(true);
-			retainedFieldLabel.setVisible(true);
 		}
 		else
 		{
-			AnchorPane.setRightAnchor(topicField, 205.0);
-			qosField.setVisible(false);
-			retainedField.setVisible(false);
-			qosFieldLabel.setVisible(false);
-			retainedFieldLabel.setVisible(false);
+			AnchorPane.setRightAnchor(topicField, 205.0);		
 		}
+		
+		qosField.setVisible(detailedView);
+		retainedField.setVisible(detailedView);
+		qosFieldLabel.setVisible(detailedView);
+		retainedFieldLabel.setVisible(detailedView);
+		lengthLabel.setVisible(detailedView);
 	}
 	
 	public void setDetailedViewVisibility(final boolean visible)
@@ -167,7 +165,7 @@ public class MessageController implements Initializable, MessageIndexChangeObser
 	{
 		if (messageIndex > 0)
 		{
-			MqttContent message = null; 
+			UiMqttMessage message = null; 
 		
 			// Optimised for showing the latest message
 			if (messageIndex == 1)
@@ -182,7 +180,7 @@ public class MessageController implements Initializable, MessageIndexChangeObser
 			{
 				synchronized (store)
 				{
-					final List<MqttContent> messages = store.getMessages();
+					final List<UiMqttMessage> messages = store.getMessages();
 					
 					// Make sure we don't try to re-display a message that is not in the store anymore
 					if (messageIndex <= messages.size())
@@ -199,21 +197,23 @@ public class MessageController implements Initializable, MessageIndexChangeObser
 		}
 	}
 
-	public void populate(final MqttContent message)
+	public void populate(final UiMqttMessage message)
 	{
 		// Don't populate with the same message object
 		if (message != null && !message.equals(this.message))
 		{
 			this.message = message;
 	
-			final String payload = new String(message.getMessage().getPayload());
+			final String payload = new String(message.getPayload());
 			logger.trace("Message payload = " + payload);
 	
 			topicField.setText(message.getTopic());
-			qosField.setText(String.valueOf(message.getMessage().getQos()));
+			qosField.setText(String.valueOf(message.getQoS()));
 			timeField.setText(TimeUtils.DATE_WITH_MILLISECONDS_SDF.format(message.getDate()));
-			populateLength(payload.length());
-			retainedField.setSelected(message.getMessage().isRetained());
+			retainedField.setSelected(message.isRetained());
+			
+			// Take the length of the raw byte array
+			populateLength(message.getRawMessage().getPayload().length);			
 	
 			showMessageData();
 		}
@@ -221,7 +221,15 @@ public class MessageController implements Initializable, MessageIndexChangeObser
 	
 	private void populateLength(final long length)
 	{
-		lengthTooltip.setText("Message length = " + length);
+		populatePayloadLength(lengthLabel, lengthTooltip, length);
+	}
+	
+	public static void populatePayloadLength(final Label lengthLabel, final Tooltip lengthTooltip, final long length)
+	{
+		if (lengthTooltip != null)
+		{
+			lengthTooltip.setText("Message length = " + length);
+		}
 		
 		if (length < 1000)
 		{

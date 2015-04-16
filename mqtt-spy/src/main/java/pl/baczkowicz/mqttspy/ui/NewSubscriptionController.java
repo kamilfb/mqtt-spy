@@ -39,6 +39,7 @@ import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.configuration.generated.TabbedSubscriptionDetails;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
+import pl.baczkowicz.mqttspy.exceptions.MqttSpyException;
 import pl.baczkowicz.mqttspy.ui.connections.ConnectionManager;
 import pl.baczkowicz.mqttspy.ui.keyboard.TimeBasedKeyEventFilter;
 import pl.baczkowicz.mqttspy.ui.panes.TitledPaneController;
@@ -141,8 +142,6 @@ public class NewSubscriptionController implements Initializable, TitledPaneContr
 	        	}
 	        }
 	    });
-		
-		//paneStatus.setVisibility(PaneVisibilityStatus.NOT_VISIBLE);
 	}
 	
 	private void updateVisibility()
@@ -191,18 +190,27 @@ public class NewSubscriptionController implements Initializable, TitledPaneContr
 		if (subscriptionTopicText.getValue() != null)
 		{
 			final String subscriptionTopic = subscriptionTopicText.getValue().toString();
-			final TabbedSubscriptionDetails subscriptionDetails = new TabbedSubscriptionDetails();
-			subscriptionDetails.setTopic(subscriptionTopic);
-			subscriptionDetails.setQos(subscriptionQosChoice.getSelectionModel().getSelectedIndex());
-						
-			subscribe(subscriptionDetails, true);			
+			
+			try
+			{
+				MqttUtils.validateTopic(subscriptionTopic);
+			
+				final TabbedSubscriptionDetails subscriptionDetails = new TabbedSubscriptionDetails();
+				subscriptionDetails.setTopic(subscriptionTopic);
+				subscriptionDetails.setQos(subscriptionQosChoice.getSelectionModel().getSelectedIndex());
+							
+				subscribe(subscriptionDetails, true);
+			}
+			catch (MqttSpyException e)
+			{
+				DialogUtils.showError("Invalid topic", "Provided topic is not valid. " + e.getMessage());
+			}
 		}
 		else
 		{
 			DialogUtils.showError("Invalid topic", "Cannot subscribe to an empty topic.");
 		}
-	}
-	
+	}	
 
 	public void subscribe(final TabbedSubscriptionDetails subscriptionDetails, final boolean subscribe)
 	{
@@ -211,8 +219,9 @@ public class NewSubscriptionController implements Initializable, TitledPaneContr
 		{
 			recordSubscriptionTopic(subscriptionDetails.getTopic());
 			
-			connectionManager.getSubscriptionManager(connection).
-				createSubscription(subscriptionColorPicker.getValue(), subscribe, subscriptionDetails, connection, connectionController, this);
+			connectionManager.getSubscriptionManager(connectionController).
+				createSubscription(subscriptionColorPicker.getValue(), subscribe, subscriptionDetails, 
+						connection, connectionController, this);
 			
 			subscriptionColorPicker.setValue(colors.get(connection.getLastUsedSubscriptionId() % 16));
 		}

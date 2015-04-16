@@ -15,12 +15,12 @@
 package pl.baczkowicz.mqttspy;
 
 import java.io.File;
-import java.net.URL;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
@@ -29,10 +29,10 @@ import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
 import pl.baczkowicz.mqttspy.configuration.ConfigurationUtils;
-import pl.baczkowicz.mqttspy.connectivity.ConnectionIdGenerator;
 import pl.baczkowicz.mqttspy.events.EventManager;
 import pl.baczkowicz.mqttspy.ui.MainController;
 import pl.baczkowicz.mqttspy.ui.utils.FxmlUtils;
+import pl.baczkowicz.mqttspy.utils.IdGenerator;
 
 /** 
  * The main class, loading the app.
@@ -58,15 +58,15 @@ public class Main extends Application
 	public void start(final Stage primaryStage)
 	{
 		final EventManager eventManager = new EventManager();			
-		final ConnectionIdGenerator connectionIdGenerator = new ConnectionIdGenerator();
+		final IdGenerator connectionIdGenerator = new IdGenerator();
 				
 		try
 		{
 			final ConfigurationManager configurationManager = new ConfigurationManager(eventManager, connectionIdGenerator);			
 			
 			// Load the main window
-			final URL resource = getClass().getResource(FxmlUtils.FXML_PACKAGE + FxmlUtils.FXML_LOCATION + "MainWindow.fxml");
-			final FXMLLoader loader = new FXMLLoader(resource);
+			FxmlUtils.setParentClass(getClass());
+			final FXMLLoader loader = FxmlUtils.createFxmlLoaderForProjectFile("MainWindow.fxml");
 
 			// Get the associated pane
 			AnchorPane pane = (AnchorPane) loader.load();
@@ -85,6 +85,7 @@ public class Main extends Application
 			mainController.setEventManager(eventManager);
 			mainController.setConfigurationManager(configurationManager);
 			mainController.setSelectedPerspective(ConfigurationUtils.getApplicationPerspective(configurationManager));
+			mainController.getResizeMessagePaneMenu().setSelected(ConfigurationUtils.getResizeMessagePane(configurationManager));
 
 			// Set the stage's properties
 			primaryStage.setScene(scene);	
@@ -96,6 +97,8 @@ public class Main extends Application
 			mainController.setLastHeight(height);
 			mainController.setLastWidth(width);
 			mainController.init();
+			final Image applicationIcon = new Image(getClass().getResourceAsStream("/images/mqtt-spy-logo.png"));
+		    primaryStage.getIcons().add(applicationIcon);
 			
 			// Show the main window
 			primaryStage.show();

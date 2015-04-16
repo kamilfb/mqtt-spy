@@ -21,8 +21,6 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import pl.baczkowicz.mqttspy.connectivity.MqttContent;
-
 /**
  * Class for storing received messages.
  */
@@ -34,7 +32,7 @@ public class MessageList
 	
 	public static final int DEFAULT_MIN_MESSAGES_PER_TOPIC = 10;
 
-	private final List<MqttContent> messages;
+	private final List<UiMqttMessage> messages;
 
 	private final int maxSize;
 
@@ -47,7 +45,7 @@ public class MessageList
 		this.name = name;
 		this.preferredSize = preferredSize;
 		this.maxSize = maxSize;
-		this.messages = Collections.synchronizedList(new ArrayList<MqttContent>());
+		this.messages = Collections.synchronizedList(new ArrayList<UiMqttMessage>());
 	}
 	
 	public void clear()
@@ -58,9 +56,9 @@ public class MessageList
 		}
 	}
 
-	public MqttContent add(final MqttContent message)
+	public UiMqttMessage add(final UiMqttMessage message)
 	{
-		MqttContent removed = null;
+		UiMqttMessage removed = null;
 		
 		synchronized (messages)
 		{		
@@ -78,9 +76,9 @@ public class MessageList
 		}
 	}
 	
-	public MqttContent remove(final int index)
+	public UiMqttMessage remove(final int index)
 	{
-		MqttContent removed = null;
+		UiMqttMessage removed = null;
 		
 		synchronized (messages)
 		{
@@ -107,7 +105,7 @@ public class MessageList
 		}
 	}
 
-	public List<MqttContent> getMessages()
+	public List<UiMqttMessage> getMessages()
 	{
 		return messages;
 	}

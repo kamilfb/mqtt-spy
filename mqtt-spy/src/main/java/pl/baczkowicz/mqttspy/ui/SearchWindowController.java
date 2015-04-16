@@ -35,13 +35,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
-import pl.baczkowicz.mqttspy.connectivity.MqttContent;
 import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
 import pl.baczkowicz.mqttspy.events.EventManager;
 import pl.baczkowicz.mqttspy.events.observers.MessageAddedObserver;
 import pl.baczkowicz.mqttspy.events.observers.MessageListChangedObserver;
 import pl.baczkowicz.mqttspy.events.observers.MessageRemovedObserver;
 import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
+import pl.baczkowicz.mqttspy.storage.UiMqttMessage;
 import pl.baczkowicz.mqttspy.ui.utils.FxmlUtils;
 import pl.baczkowicz.mqttspy.ui.utils.StylingUtils;
 
@@ -79,6 +79,8 @@ public class SearchWindowController extends AnchorPane implements Initializable,
 	private EventManager eventManager;
 
 	private MqttAsyncConnection connection;
+
+	private ConnectionController connectionController;
 	
 	public void initialize(URL location, ResourceBundle resources)
 	{
@@ -106,7 +108,7 @@ public class SearchWindowController extends AnchorPane implements Initializable,
 	public Tab createSearchTab(final Object parent)
 	{
 		// Load a new tab and message pane
-		final FXMLLoader loader = FxmlUtils.createFXMLLoader(parent, FxmlUtils.FXML_LOCATION + "SearchPane.fxml");
+		final FXMLLoader loader = FxmlUtils.createFxmlLoaderForProjectFile("SearchPane.fxml");
 
 		final AnchorPane searchPane = FxmlUtils.loadAnchorPane(loader);
 		final SearchPaneController searchPaneController = ((SearchPaneController) loader.getController());
@@ -123,9 +125,6 @@ public class SearchWindowController extends AnchorPane implements Initializable,
 			public void handle(Event event)
 			{
 				searchPaneController.cleanup();				
-				
-				//TODO: should this be removed?
-				//subscriptionPaneEventDispatcher.deleteObserver(searchPaneController);
 			}
 		});
 		
@@ -133,15 +132,20 @@ public class SearchWindowController extends AnchorPane implements Initializable,
 		searchPaneController.setEventManager(eventManager);
 		searchPaneController.setStore(store);
 		searchPaneController.setConnection(connection);
-		
-		//TODO: should this be added?
-		//subscriptionPaneEventDispatcher.addObserver(searchPaneController);
-		
+		searchPaneController.toggleMessagePayloadSize(connectionController.getResizeMessageContentMenu().isSelected());
 		searchPaneController.init();		
 		
 		searchPaneControllers.put(tab, searchPaneController);		
 
 		return tab;
+	}
+	
+	public void toggleMessagePayloadSize(final boolean resize)
+	{
+		for (final SearchPaneController controller : searchPaneControllers.values())
+		{
+			controller.toggleMessagePayloadSize(resize);
+		}
 	}
 
 	public void handleClose()
@@ -180,13 +184,13 @@ public class SearchWindowController extends AnchorPane implements Initializable,
 	}
 	
 	@Override
-	public void onMessageAdded(final MqttContent message)
+	public void onMessageAdded(final UiMqttMessage message)
 	{
 		updateTitle();		
 	}
 	
 	@Override
-	public void onMessageRemoved(final MqttContent message, final int messageIndex)
+	public void onMessageRemoved(final UiMqttMessage message, final int messageIndex)
 	{
 		updateTitle();
 	}
@@ -224,5 +228,10 @@ public class SearchWindowController extends AnchorPane implements Initializable,
 	public void setConnection(MqttAsyncConnection connection)
 	{
 		this.connection = connection;		
+	}
+	
+	public void setConnectionController(final ConnectionController connectionController)
+	{
+		this.connectionController = connectionController;
 	}
 }

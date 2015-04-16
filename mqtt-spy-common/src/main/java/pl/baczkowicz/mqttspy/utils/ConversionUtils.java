@@ -14,11 +14,14 @@
  */
 package pl.baczkowicz.mqttspy.utils;
 
+import java.io.UnsupportedEncodingException;
+
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
 
 import pl.baczkowicz.mqttspy.exceptions.ConversionException;
+import pl.baczkowicz.mqttspy.exceptions.CriticalException;
 
 /** 
  * String conversion utilities.
@@ -34,6 +37,9 @@ public class ConversionUtils
 	/** Line separator for Windows. */
 	public static final String LINE_SEPARATOR_WIN = "\r\n"; 
 	
+	/** The default charset. */	
+	public static final String DEFAULT_CHARSET = "UTF-8";
+	
 	/**
 	 * Converts the given string into a HEX string.
 	 * 
@@ -43,7 +49,7 @@ public class ConversionUtils
 	 */
 	public static String stringToHex(final String data)
 	{
-		return new String(Hex.encodeHex(data.getBytes()));
+		return new String(Hex.encodeHex(ConversionUtils.stringToArray(data)));
 	}
 	
 	/**
@@ -59,11 +65,62 @@ public class ConversionUtils
 	{
 		try
 		{
-			return new String(Hex.decodeHex(data.toCharArray()));
+			return ConversionUtils.arrayToString(Hex.decodeHex(data.toCharArray()));
 		}
 		catch (DecoderException e)
 		{
 			throw new ConversionException("Cannot convert given hex text into plain text", e);
+		}
+	}
+	
+	/**
+	 * Converts the given HEX string into a plain string.
+	 * 
+	 * @param data The HEX string to convert from
+	 * 
+	 * @return The plain string
+	 * 
+	 * @throws ConversionException Thrown if the given string is not a valid HEX string
+	 */
+	public static byte[] hexToArray(final String data) throws ConversionException
+	{
+		try
+		{
+			return Hex.decodeHex(data.toCharArray());
+		}
+		catch (DecoderException e)
+		{
+			throw new ConversionException("Cannot convert given hex text into plain text", e);
+		}
+	}
+	
+
+	public static String arrayToHex(byte[] plainArray)
+	{
+		return Hex.encodeHexString(plainArray);
+	}
+	
+	public static String arrayToString(final byte[] data)
+	{
+		try
+		{
+			return new String(data, ConversionUtils.DEFAULT_CHARSET);
+		}
+		catch (UnsupportedEncodingException e)
+		{
+			throw new CriticalException("Cannot use " + ConversionUtils.DEFAULT_CHARSET, e);
+		}
+	}
+	
+	public static byte[] stringToArray(final String data)
+	{
+		try
+		{
+			return data.getBytes(ConversionUtils.DEFAULT_CHARSET);
+		}
+		catch (UnsupportedEncodingException e)
+		{
+			throw new CriticalException("Cannot use " + ConversionUtils.DEFAULT_CHARSET, e);
 		}
 	}
 	
@@ -78,13 +135,15 @@ public class ConversionUtils
 	{
 		try
 		{
-			return new String(Hex.decodeHex(data.toCharArray()));
+			return ConversionUtils.arrayToString(Hex.decodeHex(data.toCharArray()));
 		}
 		catch (DecoderException e)
 		{
 			return "[invalid hex]";
 		}
 	}
+	
+	// ============= BASE 64 ==========================
 
 	/**
 	 * Converts Base64 string to a plain string.
@@ -95,7 +154,12 @@ public class ConversionUtils
 	 */
 	public static String base64ToString(final String data)
 	{
-		return new String(Base64.decodeBase64(data));
+		return ConversionUtils.arrayToString(Base64.decodeBase64(data));
+	}
+	
+	public static byte[] base64ToArray(String text)
+	{
+		return Base64.decodeBase64(text);
 	}
 	
 	/**
@@ -107,6 +171,11 @@ public class ConversionUtils
 	 */
 	public static String stringToBase64(final String data)
 	{
-		return Base64.encodeBase64String(data.getBytes());
+		return Base64.encodeBase64String(ConversionUtils.stringToArray(data));
+	}
+
+	public static String arrayToBase64(byte[] payload)
+	{
+		return Base64.encodeBase64String(payload);
 	}
 }

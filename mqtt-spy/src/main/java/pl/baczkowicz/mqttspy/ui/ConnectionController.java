@@ -26,6 +26,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.SplitPane;
@@ -139,8 +140,6 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 	private ConnectionManager connectionManager;
 
 	private EventManager eventManager;
-
-	// private Map<TitledPaneController, Boolean> panes = new LinkedHashMap<>();
 	
 	private Map<TitledPane, TitledPaneController> paneToController = new HashMap<>();
 
@@ -149,6 +148,8 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 	private boolean replayMode;
 
 	private TabStatus tabStatus;
+
+	private CheckMenuItem resizeMessageContentMenu = new CheckMenuItem();
 
 	private ChangeListener<Boolean> createChangeListener()
 	{
@@ -185,9 +186,6 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 			
 			scriptedPublicationsTitledPane.setExpanded(false);
 			
-			// panes.put(getNewPublicationPaneController(), true);
-			// panes.put(getPublicationScriptsPaneController(), true);
-			// panes.put(newSubscriptionPaneController, true);
 			newPublicationPaneController.getTitledPaneStatus().setVisibility(PaneVisibilityStatus.ATTACHED);
 			publicationScriptsPaneController.getTitledPaneStatus().setVisibility(PaneVisibilityStatus.ATTACHED);
 			newSubscriptionPaneController.getTitledPaneStatus().setVisibility(PaneVisibilityStatus.ATTACHED);
@@ -382,7 +380,7 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 	
 	public void updateConnectionStats()
 	{
-		for (final SubscriptionController subscriptionController : connectionManager.getSubscriptionManager(connection).getSubscriptionControllers())
+		for (final SubscriptionController subscriptionController : connectionManager.getSubscriptionManager(this).getSubscriptionControllers())
 		{
 			subscriptionController.updateSubscriptionStats();
 		}
@@ -430,7 +428,7 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 		newSubscriptionPaneController.setDetailedViewVisibility(visible);
 		getNewPublicationPaneController().setDetailedViewVisibility(visible);
 		
-		for (final SubscriptionController subscriptionController : connectionManager.getSubscriptionManager(connection).getSubscriptionControllers())
+		for (final SubscriptionController subscriptionController : connectionManager.getSubscriptionManager(this).getSubscriptionControllers())
 		{
 			subscriptionController.setDetailedViewVisibility(visible);
 		}
@@ -438,7 +436,7 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 	
 	public void toggleMessagePayloadSize(final boolean resize)
 	{
-		for (final SubscriptionController subscriptionController : connectionManager.getSubscriptionManager(connection).getSubscriptionControllers())
+		for (final SubscriptionController subscriptionController : connectionManager.getSubscriptionManager(this).getSubscriptionControllers())
 		{
 			subscriptionController.toggleMessagePayloadSize(resize);
 		}
@@ -449,7 +447,7 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 		newSubscriptionPaneController.toggleDetailedViewVisibility();
 		getNewPublicationPaneController().toggleDetailedViewVisibility();
 		
-		for (final SubscriptionController subscriptionController : connectionManager.getSubscriptionManager(connection).getSubscriptionControllers())
+		for (final SubscriptionController subscriptionController : connectionManager.getSubscriptionManager(this).getSubscriptionControllers())
 		{
 			subscriptionController.toggleDetailedViewVisibility();
 		}
@@ -640,5 +638,10 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 	public PublicationScriptsController getPublicationScriptsPaneController()
 	{
 		return publicationScriptsPaneController;
+	}
+
+	public CheckMenuItem getResizeMessageContentMenu()
+	{
+		return resizeMessageContentMenu;
 	}
 }
