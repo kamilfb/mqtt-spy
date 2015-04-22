@@ -25,10 +25,16 @@
 	
   <dependencies>
   		
-  		<dependency>
+		<dependency>
 			<groupId>pl.baczkowicz.mqttspy</groupId>
 			<artifactId>mqtt-spy-common</artifactId>
-			<version>0.0.9</version>
+			<version>0.0.9</version>			 
+			<exclusions>
+				<exclusion>
+					<artifactId>maven-jaxb2-plugin</artifactId>
+					<groupId>org.jvnet.jaxb2.maven2</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<!--=== TEST === -->

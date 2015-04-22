@@ -72,7 +72,7 @@
 			<groupId>org.dna.mqtt</groupId>
 			<artifactId>moquette-broker</artifactId>
 			<scope>compile</scope>
-			<version>0.5</version>
+			<version>0.6</version>
 			<exclusions>
 				<exclusion>
 					<groupId>org.slf4j</groupId>

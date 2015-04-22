@@ -41,7 +41,7 @@ public class TopicMatcher
 	{
 		// Manage subscriptions, uses moquette's SubscriptionsStore
 		subscriptionsStore = new SubscriptionsStore();
-		subscriptionsStore.init(new MapBasedSubscriptionStore());
+		subscriptionsStore.init(new MapBasedSubscriptionStore().listAllSubscriptions());
 	}
 	
 	/**
@@ -61,7 +61,7 @@ public class TopicMatcher
 		// For all found subscriptions
 		for (final Subscription matchingSubscription : matchingSubscriptions)
 		{						
-			matchingSubscriptionTopics.add(matchingSubscription.getTopic());
+			matchingSubscriptionTopics.add(matchingSubscription.getTopicFilter());
 		}		
 
 		return matchingSubscriptionTopics;
