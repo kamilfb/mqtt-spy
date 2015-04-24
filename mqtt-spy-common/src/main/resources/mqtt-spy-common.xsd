@@ -54,9 +54,11 @@
 					<xs:element name="UserCredentials" 		type="mqttspycommon:UserCredentials" 		minOccurs="0" maxOccurs="1" />
 					<xs:element name="LastWillAndTestament" type="mqttspycommon:SimpleMqttMessage"		minOccurs="0" maxOccurs="1" />
 					
-					<xs:element name="CleanSession" 		type="xs:boolean" 				minOccurs="0" maxOccurs="1" />
-					<xs:element name="ConnectionTimeout" 	type="xs:int" 					minOccurs="0" maxOccurs="1" />
-					<xs:element name="KeepAliveInterval" 	type="xs:int" 					minOccurs="0" maxOccurs="1" />
+					<xs:element name="CleanSession" 		type="xs:boolean" 					minOccurs="0" maxOccurs="1" />
+					<xs:element name="ConnectionTimeout" 	type="xs:int" 						minOccurs="0" maxOccurs="1" />
+					<xs:element name="KeepAliveInterval" 	type="xs:int" 						minOccurs="0" maxOccurs="1" />
+					
+					<xs:element name="SSL" 					type="mqttspycommon:SslSettings" 			minOccurs="0" maxOccurs="1" />
 					
 					<xs:element name="ReconnectionSettings" type="mqttspycommon:ReconnectionSettings" 	minOccurs="0" maxOccurs="1" />														
 				</xs:sequence>
@@ -69,7 +71,34 @@
        		<xs:element name="RetryInterval" 		type="xs:int" 	/>
        		<xs:element name="Resubscribe" 			type="xs:boolean" 	/>
    		</xs:sequence>
+	</xs:complexType>
+	
+	<xs:complexType name="SslSettings">
+		<xs:sequence>
+       		<xs:element name="Mode" 					type="mqttspycommon:SslModeEnum" 	/>
+       		<xs:element name="CertificateAuthorityFile" type="xs:string" 	/>
+       		<xs:element name="ClientCertificateFile"	type="xs:string" 	/>
+       		<xs:element name="ClientKeyFile" 			type="xs:string" 	/>
+       		<xs:element name="ClientKeyPassword" 		type="xs:string" 	/>
+       		<xs:element name="Property" 				type="mqttspycommon:SslProperty" 	minOccurs="0" maxOccurs="unbounded"	/>       		
+   		</xs:sequence>
+	</xs:complexType>	
+	
+	<xs:complexType name="SslProperty">
+		<xs:sequence>
+       		<xs:element name="Name" 	type="xs:string" 	/>
+       		<xs:element name="Value"	type="xs:string" 	/>
+   		</xs:sequence>
 	</xs:complexType>		
+	
+	<xs:simpleType name="SslModeEnum">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="DISABLED" />
+			<xs:enumeration value="SERVER_ONLY" />		
+			<xs:enumeration value="SERVER_AND_CLIENT" />
+			<xs:enumeration value="PROPERTIES" />
+		</xs:restriction>
+	</xs:simpleType>
 	
 	<xs:complexType name="UserCredentials">
 		<xs:sequence>
