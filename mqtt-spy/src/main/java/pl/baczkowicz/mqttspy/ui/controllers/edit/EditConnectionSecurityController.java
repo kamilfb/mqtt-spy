@@ -16,12 +16,13 @@ package pl.baczkowicz.mqttspy.ui.controllers.edit;
 
 import java.net.URL;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
-
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSocketFactory;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -38,8 +39,11 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
-import pl.baczkowicz.mqttspy.common.generated.ProtocolEnum;
+
+import javax.net.ssl.SSLContext;
+
 import pl.baczkowicz.mqttspy.common.generated.SslModeEnum;
+import pl.baczkowicz.mqttspy.common.generated.SslSettings;
 import pl.baczkowicz.mqttspy.common.generated.UserCredentials;
 import pl.baczkowicz.mqttspy.configuration.ConfiguredConnectionDetails;
 import pl.baczkowicz.mqttspy.configuration.generated.UserAuthenticationOptions;
@@ -90,6 +94,9 @@ public class EditConnectionSecurityController extends AnchorPane implements Init
 	
 	@FXML
 	private AnchorPane propertiesPane;
+	
+	@FXML
+	private TextField certificateAuthorityFile;
 	
 	@FXML
 	private TextField clientPassword;
@@ -153,12 +160,21 @@ public class EditConnectionSecurityController extends AnchorPane implements Init
 		// SSL Protocol
 		try
 		{
-			final SSLContext context = SSLContext.getDefault();
-			final SSLSocketFactory sf = context.getSocketFactory();			
+			final SSLContext context = SSLContext.getDefault();		
 			final String[] values = context.getSupportedSSLParameters().getProtocols();
+			final List<String> filteredValues = new ArrayList<>();
+			filteredValues.addAll(Arrays.asList(values));
+			final Iterator<String> i = filteredValues.iterator();
+			while (i.hasNext()) 
+			{
+				if (i.next().contains("Hello"))
+				{
+					i.remove();
+				}				
+			}
 			
 			protocolCombo.getSelectionModel().selectedIndexProperty().addListener(basicOnChangeListener);
-			protocolCombo.getItems().addAll(values);			
+			protocolCombo.getItems().addAll(filteredValues);			
 		}
 		catch (NoSuchAlgorithmException e)
 		{
@@ -166,7 +182,16 @@ public class EditConnectionSecurityController extends AnchorPane implements Init
 		}		
 		
 		// SSL Mode
-		modeCombo.getSelectionModel().selectedIndexProperty().addListener(basicOnChangeListener);
+		modeCombo.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener()
+		{
+			@Override
+			public void changed(ObservableValue observable, Object oldValue, Object newValue)
+			{
+				updateSSL();
+				
+				onChange();
+			}		
+		});
 		modeCombo.setCellFactory(new Callback<ListView<SslModeEnum>, ListCell<SslModeEnum>>()
 		{
 			@Override
@@ -228,6 +253,11 @@ public class EditConnectionSecurityController extends AnchorPane implements Init
 	// ===============================
 
 	public void onChange()
+	{	
+		parent.onChange();
+	}
+	
+	public void updateSSL()
 	{
 		final boolean serverAndClient = SslModeEnum.SERVER_AND_CLIENT.equals(modeCombo.getSelectionModel().getSelectedItem());
 		
@@ -243,8 +273,6 @@ public class EditConnectionSecurityController extends AnchorPane implements Init
 		clientKeyPasswordLabel.setVisible(serverAndClient);
 		clientKeyFileLabel.setVisible(serverAndClient);
 		clientAuthorityFileLabel.setVisible(serverAndClient);
-		
-		parent.onChange();
 	}
 
 	@Override
@@ -263,6 +291,29 @@ public class EditConnectionSecurityController extends AnchorPane implements Init
 			
 			connection.setUserAuthentication(userAuthentication);
 			connection.setUserCredentials(userCredentials);
+		}
+		
+		if (SslModeEnum.DISABLED.equals(modeCombo.getSelectionModel().getSelectedItem()))
+		{
+			connection.setSSL(null);
+		}		
+		else
+		{
+			final SslSettings sslSettings = new SslSettings();
+			sslSettings.setMode(modeCombo.getSelectionModel().getSelectedItem());
+			
+			if (SslModeEnum.PROPERTIES.equals(modeCombo.getSelectionModel().getSelectedItem()))
+			{
+				// TODO: populate properties
+			}
+			else
+			{
+				sslSettings.setCertificateAuthorityFile(certificateAuthorityFile.getText());
+				sslSettings.setClientCertificateFile(clientAuthorityFile.getText());
+				sslSettings.setClientKeyFile(clientKeyFile.getText());
+				sslSettings.setClientKeyPassword(clientPassword.getText());
+			}
+			connection.setSSL(sslSettings);
 		}
 		
 		return connection;
@@ -335,19 +386,22 @@ public class EditConnectionSecurityController extends AnchorPane implements Init
 			askForPassword.setSelected(true);
 		}
 		
+		// TODO: populate fields
+		
 		updateUserAuthentication();
+		updateSSL();
 	}		
 	
 	@FXML
 	private void addProperty()
 	{
-		
+		// TODO:
 	}
 	
 	@FXML
 	private void removeProperty()
 	{
-		
+		// TODO:
 	}
 
 	// ===============================
