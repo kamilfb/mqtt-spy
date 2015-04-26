@@ -268,7 +268,7 @@ public abstract class BaseMqttConnection implements IMqttConnection
 		{
 			logger.error("Cannot disconnect", e);
 		}
-	}
+	}		
 	
 	// ===============================
 	// === Setters and getters =======
