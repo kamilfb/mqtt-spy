@@ -26,8 +26,10 @@ import java.util.ResourceBundle;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
@@ -35,7 +37,12 @@ import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.RadioButton;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableColumn.CellEditEvent;
+import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.AnchorPane;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
@@ -43,12 +50,14 @@ import javafx.util.StringConverter;
 import javax.net.ssl.SSLContext;
 
 import pl.baczkowicz.mqttspy.common.generated.SslModeEnum;
+import pl.baczkowicz.mqttspy.common.generated.SslProperty;
 import pl.baczkowicz.mqttspy.common.generated.SslSettings;
 import pl.baczkowicz.mqttspy.common.generated.UserCredentials;
 import pl.baczkowicz.mqttspy.configuration.ConfiguredConnectionDetails;
 import pl.baczkowicz.mqttspy.configuration.generated.UserAuthenticationOptions;
 import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnectionDetails;
 import pl.baczkowicz.mqttspy.ui.EditConnectionController;
+import pl.baczkowicz.mqttspy.ui.properties.KeyValueProperty;
 import pl.baczkowicz.mqttspy.utils.MqttUtils;
 
 /**
@@ -116,6 +125,18 @@ public class EditConnectionSecurityController extends AnchorPane implements Init
 	@FXML
 	private Label clientAuthorityFileLabel;
 	
+	@FXML
+	private TableView<KeyValueProperty> sslPropertiesTable;
+	
+	@FXML
+	private TableColumn<KeyValueProperty, String> propertyNameColumn;	
+	
+	@FXML
+	private TableColumn<KeyValueProperty, String> propertyValueColumn;
+	
+	@FXML
+	private Button removePropertyButton;
+	
 	// Other fields
 
 	private final ChangeListener basicOnChangeListener = new ChangeListener()
@@ -133,6 +154,33 @@ public class EditConnectionSecurityController extends AnchorPane implements Init
 
 	public void initialize(URL location, ResourceBundle resources)
 	{
+		propertyNameColumn.setCellValueFactory(new PropertyValueFactory<KeyValueProperty, String>("key"));
+		propertyNameColumn.setCellFactory(TextFieldTableCell.<KeyValueProperty>forTableColumn());
+		propertyNameColumn.setOnEditCommit(new EventHandler<TableColumn.CellEditEvent<KeyValueProperty, String>>()
+		{
+			@Override
+			public void handle(CellEditEvent<KeyValueProperty, String> event)
+			{
+				KeyValueProperty p = event.getRowValue();
+	            String newValue = event.getNewValue();
+	            p.keyProperty().set(newValue);            
+				onChange();
+			}		
+		});
+		propertyValueColumn.setCellValueFactory(new PropertyValueFactory<KeyValueProperty, String>("value"));
+		propertyValueColumn.setCellFactory(TextFieldTableCell.<KeyValueProperty>forTableColumn());
+		propertyValueColumn.setOnEditCommit(new EventHandler<TableColumn.CellEditEvent<KeyValueProperty, String>>()
+		{
+			@Override
+			public void handle(CellEditEvent<KeyValueProperty, String> event)
+			{
+				KeyValueProperty p = event.getRowValue();
+	            String newValue = event.getNewValue();
+	            p.valueProperty().set(newValue);            
+				onChange();
+			}		
+		});
+		
 		final Map<SslModeEnum, String> modeEnumText = new HashMap<>();
 		modeEnumText.put(SslModeEnum.DISABLED, "Disabled");
 		modeEnumText.put(SslModeEnum.PROPERTIES, "SSL/TLS properties (using default socket factory)");
@@ -304,7 +352,10 @@ public class EditConnectionSecurityController extends AnchorPane implements Init
 			
 			if (SslModeEnum.PROPERTIES.equals(modeCombo.getSelectionModel().getSelectedItem()))
 			{
-				// TODO: populate properties
+				for (final KeyValueProperty property : sslPropertiesTable.getItems())
+				{
+					sslSettings.getProperty().add(new SslProperty(property.keyProperty().getValue(), property.valueProperty().getValue()));
+				}
 			}
 			else
 			{
@@ -386,8 +437,36 @@ public class EditConnectionSecurityController extends AnchorPane implements Init
 			askForPassword.setSelected(true);
 		}
 		
-		// TODO: populate fields
-		
+		if (connection.getSSL() == null)
+		{
+			modeCombo.getSelectionModel().select(SslModeEnum.DISABLED);
+		}
+		else
+		{
+			removePropertyButton.setDisable(true);
+			sslPropertiesTable.getItems().clear();
+			sslPropertiesTable.getSelectionModel().selectedItemProperty().addListener(new ChangeListener()
+			{
+				@Override
+				public void changed(ObservableValue observable, Object oldValue, Object newValue)
+				{
+					removePropertyButton.setDisable(false);
+				}		
+			});
+			
+			modeCombo.getSelectionModel().select(connection.getSSL().getMode());
+			
+			certificateAuthorityFile.setText(connection.getSSL().getCertificateAuthorityFile());
+			clientAuthorityFile.setText(connection.getSSL().getClientCertificateFile());
+			clientKeyFile.setText(connection.getSSL().getClientKeyFile());
+			clientPassword.setText(connection.getSSL().getClientKeyPassword());			
+
+			for (final SslProperty property : connection.getSSL().getProperty())
+			{
+				sslPropertiesTable.getItems().add(new KeyValueProperty(property.getName(), property.getValue()));
+			}
+		}
+				
 		updateUserAuthentication();
 		updateSSL();
 	}		
@@ -395,13 +474,20 @@ public class EditConnectionSecurityController extends AnchorPane implements Init
 	@FXML
 	private void addProperty()
 	{
-		// TODO:
+		final KeyValueProperty item = new KeyValueProperty("sample.property", "sampleValue");		
+		sslPropertiesTable.getItems().add(item);
+		onChange();
 	}
 	
 	@FXML
 	private void removeProperty()
 	{
-		// TODO:
+		final KeyValueProperty item = sslPropertiesTable.getSelectionModel().getSelectedItem(); 
+		if (item != null)
+		{
+			sslPropertiesTable.getItems().remove(item);
+			onChange();
+		}
 	}
 
 	// ===============================
