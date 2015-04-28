@@ -15,19 +15,22 @@
 
 package pl.baczkowicz.mqttspy.connectivity;
 
-import java.io.ByteArrayInputStream;
+import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.security.KeyPair;
+import java.security.KeyFactory;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
 import java.security.Security;
 import java.security.UnrecoverableKeyException;
+import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.PKCS8EncodedKeySpec;
 
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
@@ -35,26 +38,46 @@ import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManagerFactory;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.bouncycastle.openssl.PEMReader;
-import org.bouncycastle.openssl.PasswordFinder;
+import org.bouncycastle.util.io.pem.PemReader;
 
 import pl.baczkowicz.mqttspy.exceptions.MqttSpyException;
 
 public class SslUtils
 {
+    public static byte[] loadPemFile(final String file) throws IOException 
+    {
+        final PemReader pemReader = new PemReader(new FileReader(file));
+        final byte[] content = pemReader.readPemObject().getContent();
+        pemReader.close();
+        return content;        
+    }
+    
+    public static PrivateKey loadPrivateKeyFromPemFile(final String keyPemFile, final String algorithm) throws IOException, InvalidKeySpecException, NoSuchAlgorithmException 
+    {
+        final PKCS8EncodedKeySpec privateKeySpec = new PKCS8EncodedKeySpec(loadPemFile(keyPemFile));
+        final PrivateKey privateKey = KeyFactory.getInstance(algorithm).generatePrivate(privateKeySpec);
+        return privateKey;
+    }
+    
+    public static X509Certificate loadX509CertificatePem(String crtFile) throws CertificateException, IOException 
+    {
+        final CertificateFactory cf = CertificateFactory.getInstance("X.509");
+        final FileInputStream fileStream = new FileInputStream(crtFile);
+        final X509Certificate certificate = (X509Certificate) cf.generateCertificate(fileStream);
+        fileStream.close();
+        return certificate;
+    }
+	
 	public static TrustManagerFactory getTrustManagerFactory(final String caCertificateFile) 
-		throws IOException, KeyStoreException, NoSuchAlgorithmException, CertificateException
+			throws IOException, KeyStoreException, NoSuchAlgorithmException, CertificateException
 	{
 		// Load CA certificate
-		final PEMReader reader = new PEMReader(new InputStreamReader(
-				new ByteArrayInputStream(Files.readAllBytes(Paths.get(caCertificateFile)))));
-		final X509Certificate caCert = (X509Certificate) reader.readObject();
-		reader.close();
+		final X509Certificate caCertificate = (X509Certificate) loadX509CertificatePem(caCertificateFile);
 		
 		// CA certificate is used to authenticate server
 		final KeyStore caKs = KeyStore.getInstance(KeyStore.getDefaultType());
 		caKs.load(null, null);
-		caKs.setCertificateEntry("ca-certificate", caCert);
+		caKs.setCertificateEntry("ca-certificate", caCertificate);
 		
 		final TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
 		tmf.init(caKs);
@@ -62,43 +85,29 @@ public class SslUtils
 		return tmf;
 	}
 	
-	public static KeyManagerFactory getKeyManagerFactory(final String certificateFile, final String keyFile, final String password) 
-		throws NoSuchAlgorithmException, IOException, KeyStoreException, CertificateException, UnrecoverableKeyException
+	public static KeyManagerFactory getKeyManagerFactory(final String clientCertificateFile, final String clientKeyFile, final String clientKeyPassword) 
+			throws NoSuchAlgorithmException, IOException, KeyStoreException, CertificateException, UnrecoverableKeyException, InvalidKeySpecException
 	{
 		// Load client certificate
-		PEMReader reader = new PEMReader(new InputStreamReader(new ByteArrayInputStream(
-				Files.readAllBytes(Paths.get(certificateFile)))));
-		X509Certificate cert = (X509Certificate) reader.readObject();
-		reader.close();
+		final X509Certificate clientCertificate = loadX509CertificatePem(clientCertificateFile);			
 
 		// Load client private key
-		reader = new PEMReader(new InputStreamReader(new ByteArrayInputStream(
-				Files.readAllBytes(Paths.get(keyFile)))), new PasswordFinder()
-		{
-			@Override
-			public char[] getPassword()
-			{
-				return password.toCharArray();
-			}
-		});
-		final KeyPair key = (KeyPair) reader.readObject();
-		reader.close();
+		final PrivateKey privateKey = loadPrivateKeyFromPemFile(clientKeyFile, "RSA");
 
 		// Client key and certificates are sent to server
 		final KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
 		ks.load(null, null);
-		ks.setCertificateEntry("certificate", cert);
-		ks.setKeyEntry("private-key", key.getPrivate(), password.toCharArray(), new java.security.cert.Certificate[] { cert });
+		ks.setCertificateEntry("certificate", clientCertificate);
+		ks.setKeyEntry("private-key", privateKey, clientKeyPassword.toCharArray(), new Certificate[] { clientCertificate });
 		
 		final KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-		kmf.init(ks, password.toCharArray());
+		kmf.init(ks, clientKeyPassword.toCharArray());
 		
 		return kmf;
 	}
 	
 
-	public static SSLSocketFactory getSocketFactory(final String caCrtFile,
-			String protocolVersion) throws MqttSpyException
+	public static SSLSocketFactory getSocketFactory(final String caCrtFile, final String protocolVersion) throws MqttSpyException
 	{
 		try
 		{
@@ -121,7 +130,7 @@ public class SslUtils
 	
 	public static SSLSocketFactory getSocketFactory(final String caCrtFile,
 			final String crtFile, final String keyFile, final String password,
-			String protocolVersion) throws MqttSpyException
+			final String protocolVersion) throws MqttSpyException
 	{
 		try
 		{

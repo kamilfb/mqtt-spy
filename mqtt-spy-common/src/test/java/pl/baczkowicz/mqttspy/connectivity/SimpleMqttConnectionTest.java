@@ -125,12 +125,13 @@ public class SimpleMqttConnectionTest
 		System.out.println("Published...");
 		
 		// Waiting for message to be received now...
-		Thread.sleep(1000);
+		Thread.sleep(2000);
 		
 		connection.disconnect();
 		System.out.println("Disconnected");
 				
 		stopProcess(mosquitto);
+		Thread.sleep(2000);
 	}
 	
 	@Test
@@ -142,9 +143,11 @@ public class SimpleMqttConnectionTest
 		
 		final SimpleMqttConnection connection = new SimpleMqttConnection(reconnectionManager, 0, connectionDetails);
 		connection.createClient(createTestCallback("tcp://localhost:10002"));
-		assertFalse(connection.connect());	
+		assertFalse(connection.connect());
+		Thread.sleep(2000);
 				
 		stopProcess(mosquitto);
+		Thread.sleep(2000);
 	}
 	
 	@Test
@@ -169,12 +172,13 @@ public class SimpleMqttConnectionTest
 		System.out.println("Published...");
 		
 		// Waiting for message to be received now...
-		Thread.sleep(1000);
+		Thread.sleep(2000);
 		
 		connection.disconnect();
 		System.out.println("Disconnected");
 				
 		stopProcess(mosquitto);
+		Thread.sleep(2000);
 	}
 	
 	@Test
@@ -199,12 +203,13 @@ public class SimpleMqttConnectionTest
 		System.out.println("Published...");
 		
 		// Waiting for message to be received now...
-		Thread.sleep(1000);
+		Thread.sleep(2000);
 		
 		connection.disconnect();
 		System.out.println("Disconnected");
 				
 		stopProcess(mosquitto);
+		Thread.sleep(2000);
 	}
 	
 	@Test
@@ -216,9 +221,11 @@ public class SimpleMqttConnectionTest
 		
 		final SimpleMqttConnection connection = new SimpleMqttConnection(reconnectionManager, 0, connectionDetails);
 		connection.createClient(createTestCallback("tcp://localhost:10002"));
-		assertFalse(connection.connect());		
+		assertFalse(connection.connect());	
+		Thread.sleep(2000);
 				
 		stopProcess(mosquitto);
+		Thread.sleep(2000);
 	}
 	
 	@Test
@@ -245,26 +252,27 @@ public class SimpleMqttConnectionTest
 		System.out.println("Published...");
 		
 		// Waiting for message to be received now...
-		Thread.sleep(1000);
+		Thread.sleep(2000);
 		
 		connection.disconnect();
 		System.out.println("Disconnected");
 		
 		stopProcess(mosquitto);
+		Thread.sleep(2000);
 	}
 	
 	@Test
 	public void testServerAndClientAuthenticationWithLocalMosquitto() throws MqttSpyException, InterruptedException, IOException
 	{			
-		//final Process mosquitto = startMosquitto("/home/kamil/Programming/Git/mqtt-spy-common/src/test/resources/mosquitto/mosquitto_ssl_server_and_client.conf");
+		final Process mosquitto = startMosquitto("/home/kamil/Programming/Git/mqtt-spy-common/src/test/resources/mosquitto/mosquitto_ssl_server_and_client.conf");
 				
 		final MqttConnectionDetails connectionDetails = createMqttConnectionDetails(
 				"ssl://localhost:10011", 
 				new UserCredentials("nopassword", ""),
 				new SslSettings(SslModeEnum.SERVER_AND_CLIENT, "TLSv1.1", 
 						"/home/kamil/Programming/Git/mqtt-spy-common/src/test/resources/mosquitto/ssl/ca.crt", 
-						"/home/kamil/Programming/Git/mqtt-spy-common/src/test/resources/mosquitto/ssl/client.crt", 
-						"/home/kamil/Programming/Git/mqtt-spy-common/src/test/resources/mosquitto/ssl/client.key", 
+						"/home/kamil/Programming/Git/mqtt-spy-common/src/test/resources/mosquitto/ssl/bouncy_castle/client.crt", 
+						"/home/kamil/Programming/Git/mqtt-spy-common/src/test/resources/mosquitto/ssl/bouncy_castle/client.key", 
 						"", null));
 		
 		final SimpleMqttConnection connection = new SimpleMqttConnection(reconnectionManager, 0, connectionDetails);
@@ -279,12 +287,13 @@ public class SimpleMqttConnectionTest
 		System.out.println("Published...");
 		
 		// Waiting for message to be received now...
-		Thread.sleep(1000);
+		Thread.sleep(2000);
 		
 		connection.disconnect();
 		System.out.println("Disconnected");
 		
-		//stopProcess(mosquitto);
+		stopProcess(mosquitto);
+		Thread.sleep(2000);
 	}
 	
 	@Test
@@ -307,7 +316,7 @@ public class SimpleMqttConnectionTest
 		System.out.println("Published...");
 		
 		// Waiting for message to be received now...
-		Thread.sleep(1000);
+		Thread.sleep(2000);
 		
 		connection.disconnect();
 		System.out.println("Disconnected");
