@@ -153,7 +153,32 @@ public class EditConnectionSecurityController extends AnchorPane implements Init
 	// ===============================
 
 	public void initialize(URL location, ResourceBundle resources)
-	{
+	{		
+		// Authentication
+		userAuthentication.selectedProperty().addListener(new ChangeListener()
+		{
+			@Override
+			public void changed(ObservableValue observable, Object oldValue, Object newValue)
+			{
+				updateUserAuthentication();
+				
+				onChange();
+			}		
+		});
+		username.textProperty().addListener(basicOnChangeListener);
+		password.textProperty().addListener(basicOnChangeListener);
+		askForUsername.selectedProperty().addListener(basicOnChangeListener);
+		askForPassword.selectedProperty().addListener(basicOnChangeListener);
+		predefinedUsername.selectedProperty().addListener(basicOnChangeListener);
+		predefinedPassword.selectedProperty().addListener(basicOnChangeListener);
+		
+		// SSL
+		certificateAuthorityFile.textProperty().addListener(basicOnChangeListener);
+		clientAuthorityFile.textProperty().addListener(basicOnChangeListener);
+		clientKeyFile.textProperty().addListener(basicOnChangeListener);
+		clientPassword.textProperty().addListener(basicOnChangeListener);
+		protocolCombo.getSelectionModel().selectedIndexProperty().addListener(basicOnChangeListener);
+		
 		propertyNameColumn.setCellValueFactory(new PropertyValueFactory<KeyValueProperty, String>("key"));
 		propertyNameColumn.setCellFactory(TextFieldTableCell.<KeyValueProperty>forTableColumn());
 		propertyNameColumn.setOnEditCommit(new EventHandler<TableColumn.CellEditEvent<KeyValueProperty, String>>()
@@ -185,27 +210,8 @@ public class EditConnectionSecurityController extends AnchorPane implements Init
 		modeEnumText.put(SslModeEnum.DISABLED, "Disabled");
 		modeEnumText.put(SslModeEnum.PROPERTIES, "SSL/TLS properties (using default socket factory)");
 		modeEnumText.put(SslModeEnum.SERVER_ONLY, "Server authentication only (using custom socket factory)");
-		modeEnumText.put(SslModeEnum.SERVER_AND_CLIENT, "Server and client authentication (using custom socket factory)");
-				
-		// Security
-		userAuthentication.selectedProperty().addListener(new ChangeListener()
-		{
-			@Override
-			public void changed(ObservableValue observable, Object oldValue, Object newValue)
-			{
-				updateUserAuthentication();
-				
-				onChange();
-			}		
-		});
-		username.textProperty().addListener(basicOnChangeListener);
-		password.textProperty().addListener(basicOnChangeListener);
-		askForUsername.selectedProperty().addListener(basicOnChangeListener);
-		askForPassword.selectedProperty().addListener(basicOnChangeListener);
-		predefinedUsername.selectedProperty().addListener(basicOnChangeListener);
-		predefinedPassword.selectedProperty().addListener(basicOnChangeListener);
+		modeEnumText.put(SslModeEnum.SERVER_AND_CLIENT, "Server and client authentication (using custom socket factory)");				
 		
-		// SSL Protocol
 		try
 		{
 			final SSLContext context = SSLContext.getDefault();		
@@ -235,7 +241,7 @@ public class EditConnectionSecurityController extends AnchorPane implements Init
 			@Override
 			public void changed(ObservableValue observable, Object oldValue, Object newValue)
 			{
-				updateSSL();
+				updateSSL();											
 				
 				onChange();
 			}		
@@ -341,7 +347,7 @@ public class EditConnectionSecurityController extends AnchorPane implements Init
 			connection.setUserCredentials(userCredentials);
 		}
 		
-		if (SslModeEnum.DISABLED.equals(modeCombo.getSelectionModel().getSelectedItem()))
+		if (modeCombo.getSelectionModel().getSelectedItem() == null || SslModeEnum.DISABLED.equals(modeCombo.getSelectionModel().getSelectedItem()))
 		{
 			connection.setSSL(null);
 		}		
@@ -363,6 +369,7 @@ public class EditConnectionSecurityController extends AnchorPane implements Init
 				sslSettings.setClientCertificateFile(clientAuthorityFile.getText());
 				sslSettings.setClientKeyFile(clientKeyFile.getText());
 				sslSettings.setClientKeyPassword(clientPassword.getText());
+				sslSettings.setProtocol(protocolCombo.getSelectionModel().getSelectedItem());				
 			}
 			connection.setSSL(sslSettings);
 		}
@@ -459,7 +466,15 @@ public class EditConnectionSecurityController extends AnchorPane implements Init
 			certificateAuthorityFile.setText(connection.getSSL().getCertificateAuthorityFile());
 			clientAuthorityFile.setText(connection.getSSL().getClientCertificateFile());
 			clientKeyFile.setText(connection.getSSL().getClientKeyFile());
-			clientPassword.setText(connection.getSSL().getClientKeyPassword());			
+			clientPassword.setText(connection.getSSL().getClientKeyPassword());	
+			for (final String item : protocolCombo.getItems())
+			{
+				if (item.equals(connection.getSSL().getProtocol()))
+				{
+					protocolCombo.getSelectionModel().select(item);
+					break;
+				}
+			}			
 
 			for (final SslProperty property : connection.getSSL().getProperty())
 			{

@@ -76,11 +76,11 @@
 	<xs:complexType name="SslSettings">
 		<xs:sequence>
        		<xs:element name="Mode" 					type="mqttspycommon:SslModeEnum" 	/>
-       		<xs:element name="Protocol" 				type="xs:string" 	/>
-       		<xs:element name="CertificateAuthorityFile" type="xs:string" 	/>
-       		<xs:element name="ClientCertificateFile"	type="xs:string" 	/>
-       		<xs:element name="ClientKeyFile" 			type="xs:string" 	/>
-       		<xs:element name="ClientKeyPassword" 		type="xs:string" 	/>
+       		<xs:element name="Protocol" 				type="xs:string" 	minOccurs="0" />
+       		<xs:element name="CertificateAuthorityFile" type="xs:string" 	minOccurs="0" />
+       		<xs:element name="ClientCertificateFile"	type="xs:string" 	minOccurs="0" />
+       		<xs:element name="ClientKeyFile" 			type="xs:string" 	minOccurs="0" />
+       		<xs:element name="ClientKeyPassword" 		type="xs:string" 	minOccurs="0" />
        		<xs:element name="Property" 				type="mqttspycommon:SslProperty" 	minOccurs="0" maxOccurs="unbounded"	/>       		
    		</xs:sequence>
 	</xs:complexType>	

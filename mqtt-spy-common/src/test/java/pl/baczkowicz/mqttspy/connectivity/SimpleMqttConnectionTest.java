@@ -109,7 +109,7 @@ public class SimpleMqttConnectionTest
 	@Test
 	public void testAnonConnection() throws IOException, MqttSpyException, InterruptedException
 	{
-		final Process mosquitto = startMosquitto("/home/kamil/Programming/Git/mqtt-spy-common/src/test/resources/mosquitto/mosquitto_allow_anon.conf");
+		final Process mosquitto = startMosquitto("src/test/resources/mosquitto/mosquitto_allow_anon.conf");
 		
 		final MqttConnectionDetails connectionDetails = createMqttConnectionDetails("tcp://localhost:10001", null, null);
 		
@@ -125,7 +125,7 @@ public class SimpleMqttConnectionTest
 		System.out.println("Published...");
 		
 		// Waiting for message to be received now...
-		Thread.sleep(2000);
+		Thread.sleep(1000);
 		
 		connection.disconnect();
 		System.out.println("Disconnected");
@@ -137,14 +137,14 @@ public class SimpleMqttConnectionTest
 	@Test
 	public void testRejectingAnonConnection() throws IOException, MqttSpyException, InterruptedException
 	{
-		final Process mosquitto = startMosquitto("/home/kamil/Programming/Git/mqtt-spy-common/src/test/resources/mosquitto/mosquitto_specified_users.conf");
+		final Process mosquitto = startMosquitto("src/test/resources/mosquitto/mosquitto_specified_users.conf");
 		
 		final MqttConnectionDetails connectionDetails = createMqttConnectionDetails("tcp://localhost:10002", null, null);
 		
 		final SimpleMqttConnection connection = new SimpleMqttConnection(reconnectionManager, 0, connectionDetails);
 		connection.createClient(createTestCallback("tcp://localhost:10002"));
 		assertFalse(connection.connect());
-		Thread.sleep(2000);
+		Thread.sleep(1000);
 				
 		stopProcess(mosquitto);
 		Thread.sleep(2000);
@@ -153,7 +153,7 @@ public class SimpleMqttConnectionTest
 	@Test
 	public void testUserConnection() throws IOException, MqttSpyException, InterruptedException
 	{
-		final Process mosquitto = startMosquitto("/home/kamil/Programming/Git/mqtt-spy-common/src/test/resources/mosquitto/mosquitto_specified_users.conf");
+		final Process mosquitto = startMosquitto("src/test/resources/mosquitto/mosquitto_specified_users.conf");
 		
 		final MqttConnectionDetails connectionDetails = createMqttConnectionDetails(
 				"tcp://localhost:10002", 
@@ -172,7 +172,7 @@ public class SimpleMqttConnectionTest
 		System.out.println("Published...");
 		
 		// Waiting for message to be received now...
-		Thread.sleep(2000);
+		Thread.sleep(1000);
 		
 		connection.disconnect();
 		System.out.println("Disconnected");
@@ -184,7 +184,7 @@ public class SimpleMqttConnectionTest
 	@Test
 	public void testUserConnectionWithPassword() throws IOException, MqttSpyException, InterruptedException
 	{
-		final Process mosquitto = startMosquitto("/home/kamil/Programming/Git/mqtt-spy-common/src/test/resources/mosquitto/mosquitto_specified_users.conf");
+		final Process mosquitto = startMosquitto("src/test/resources/mosquitto/mosquitto_specified_users.conf");
 		
 		final MqttConnectionDetails connectionDetails = createMqttConnectionDetails(
 				"tcp://localhost:10002", 
@@ -203,7 +203,7 @@ public class SimpleMqttConnectionTest
 		System.out.println("Published...");
 		
 		// Waiting for message to be received now...
-		Thread.sleep(2000);
+		Thread.sleep(1000);
 		
 		connection.disconnect();
 		System.out.println("Disconnected");
@@ -215,14 +215,14 @@ public class SimpleMqttConnectionTest
 	@Test
 	public void testUserConnectionWithInvalidPassword() throws IOException, MqttSpyException, InterruptedException
 	{
-		final Process mosquitto = startMosquitto("/home/kamil/Programming/Git/mqtt-spy-common/src/test/resources/mosquitto/mosquitto_specified_users.conf");
+		final Process mosquitto = startMosquitto("src/test/resources/mosquitto/mosquitto_specified_users.conf");
 		
 		final MqttConnectionDetails connectionDetails = createMqttConnectionDetails("tcp://localhost:10002", new UserCredentials("test1", "blabla"), null);
 		
 		final SimpleMqttConnection connection = new SimpleMqttConnection(reconnectionManager, 0, connectionDetails);
 		connection.createClient(createTestCallback("tcp://localhost:10002"));
 		assertFalse(connection.connect());	
-		Thread.sleep(2000);
+		Thread.sleep(1000);
 				
 		stopProcess(mosquitto);
 		Thread.sleep(2000);
@@ -231,7 +231,7 @@ public class SimpleMqttConnectionTest
 	@Test
 	public void testServerOnlyAuthenticationWithLocalMosquitto() throws MqttSpyException, InterruptedException, IOException
 	{			
-		final Process mosquitto = startMosquitto("/home/kamil/Programming/Git/mqtt-spy-common/src/test/resources/mosquitto/mosquitto_ssl_server_only.conf");
+		final Process mosquitto = startMosquitto("src/test/resources/mosquitto/mosquitto_ssl_server_only.conf");
 				
 		final MqttConnectionDetails connectionDetails = createMqttConnectionDetails(
 				"ssl://localhost:10010", 
@@ -252,7 +252,7 @@ public class SimpleMqttConnectionTest
 		System.out.println("Published...");
 		
 		// Waiting for message to be received now...
-		Thread.sleep(2000);
+		Thread.sleep(1000);
 		
 		connection.disconnect();
 		System.out.println("Disconnected");
@@ -264,7 +264,7 @@ public class SimpleMqttConnectionTest
 	@Test
 	public void testServerAndClientAuthenticationWithLocalMosquitto() throws MqttSpyException, InterruptedException, IOException
 	{			
-		final Process mosquitto = startMosquitto("/home/kamil/Programming/Git/mqtt-spy-common/src/test/resources/mosquitto/mosquitto_ssl_server_and_client.conf");
+		final Process mosquitto = startMosquitto("src/test/resources/mosquitto/mosquitto_ssl_server_and_client.conf");
 				
 		final MqttConnectionDetails connectionDetails = createMqttConnectionDetails(
 				"ssl://localhost:10011", 
@@ -287,7 +287,7 @@ public class SimpleMqttConnectionTest
 		System.out.println("Published...");
 		
 		// Waiting for message to be received now...
-		Thread.sleep(2000);
+		Thread.sleep(1000);
 		
 		connection.disconnect();
 		System.out.println("Disconnected");
@@ -316,7 +316,7 @@ public class SimpleMqttConnectionTest
 		System.out.println("Published...");
 		
 		// Waiting for message to be received now...
-		Thread.sleep(2000);
+		Thread.sleep(1000);
 		
 		connection.disconnect();
 		System.out.println("Disconnected");

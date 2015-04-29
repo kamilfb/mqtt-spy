@@ -65,8 +65,9 @@ public class MqttConnectionDetailsWithOptions extends MqttConnectionDetails
 		this.setReconnectionSettings(details.getReconnectionSettings());
 		
 		this.setSSL(details.getSSL());
+		final boolean sslEnabled = details.getSSL() != null && details.getSSL().getMode() != null && !details.getSSL().getMode().equals(SslModeEnum.DISABLED);
 		
-		ConfigurationUtils.completeServerURIs(this);
+		ConfigurationUtils.completeServerURIs(this, sslEnabled);
 		ConfigurationUtils.populateConnectionDefaults(this);
 		
 		try

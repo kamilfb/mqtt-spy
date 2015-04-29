@@ -38,12 +38,12 @@ public class ConfigurationUtils
 	 * 
 	 * @param connection Connection details
 	 */
-	public static void completeServerURIs(final MqttConnectionDetails connection)
+	public static void completeServerURIs(final MqttConnectionDetails connection, final boolean sslEnabled)
 	{
 		for (int i = 0; i < connection.getServerURI().size(); i++)
 		{
 			final String serverURI = connection.getServerURI().get(i);			
-			final String completeServerURI = MqttUtils.getCompleteServerURI(serverURI);
+			final String completeServerURI = MqttUtils.getCompleteServerURI(serverURI, sslEnabled);
 			
 			// Replace the existing value if it is not complete
 			if (!completeServerURI.equals(serverURI))
