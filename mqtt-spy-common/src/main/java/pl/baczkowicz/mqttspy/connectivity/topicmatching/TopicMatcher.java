@@ -39,7 +39,7 @@ public class TopicMatcher
 	 */
 	public TopicMatcher()
 	{
-		// Manage subscriptions, based on moquette
+		// Manage subscriptions, uses moquette's SubscriptionsStore
 		subscriptionsStore = new SubscriptionsStore();
 		subscriptionsStore.init(new MapBasedSubscriptionStore());
 	}
@@ -53,7 +53,7 @@ public class TopicMatcher
 	 */
 	public List<String> getMatchingSubscriptions(final String topic)
 	{		
-		// Check matching subscription, based on moquette
+		// Check matching subscription
 		final List<Subscription> matchingSubscriptions = subscriptionsStore.matches(topic);
 		
 		final List<String> matchingSubscriptionTopics = new ArrayList<String>();

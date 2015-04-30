@@ -28,7 +28,7 @@ import javafx.stage.Stage;
 import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
-import pl.baczkowicz.mqttspy.configuration.ConfigurationUtils;
+import pl.baczkowicz.mqttspy.configuration.UiProperties;
 import pl.baczkowicz.mqttspy.events.EventManager;
 import pl.baczkowicz.mqttspy.ui.MainController;
 import pl.baczkowicz.mqttspy.ui.utils.FxmlUtils;
@@ -74,8 +74,8 @@ public class Main extends Application
 			final Rectangle2D primaryScreenBounds = Screen.getPrimary().getVisualBounds();
 			
 			// Set scene width, height and style
-			final double height = Math.min(ConfigurationUtils.getApplicationHeight(configurationManager), primaryScreenBounds.getHeight());			
-			final double width = Math.min(ConfigurationUtils.getApplicationWidth(configurationManager), primaryScreenBounds.getWidth());
+			final double height = Math.min(UiProperties.getApplicationHeight(configurationManager), primaryScreenBounds.getHeight());			
+			final double width = Math.min(UiProperties.getApplicationWidth(configurationManager), primaryScreenBounds.getWidth());
 			
 			final Scene scene = new Scene(pane, width, height);			
 			scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
@@ -84,12 +84,12 @@ public class Main extends Application
 			final MainController mainController = (MainController) loader.getController();
 			mainController.setEventManager(eventManager);
 			mainController.setConfigurationManager(configurationManager);
-			mainController.setSelectedPerspective(ConfigurationUtils.getApplicationPerspective(configurationManager));
-			mainController.getResizeMessagePaneMenu().setSelected(ConfigurationUtils.getResizeMessagePane(configurationManager));
+			mainController.setSelectedPerspective(UiProperties.getApplicationPerspective(configurationManager));
+			mainController.getResizeMessagePaneMenu().setSelected(UiProperties.getResizeMessagePane(configurationManager));
 
 			// Set the stage's properties
 			primaryStage.setScene(scene);	
-			primaryStage.setMaximized(ConfigurationUtils.getApplicationMaximized(configurationManager));
+			primaryStage.setMaximized(UiProperties.getApplicationMaximized(configurationManager));
 			
 			// Initialise resources in the main controller			
 			mainController.setApplication(this);

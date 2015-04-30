@@ -28,23 +28,12 @@ import org.slf4j.LoggerFactory;
 import pl.baczkowicz.mqttspy.Main;
 import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnectionDetails;
 import pl.baczkowicz.mqttspy.storage.MessageList;
-import pl.baczkowicz.mqttspy.ui.utils.MqttSpyPerspective;
 
 public class ConfigurationUtils
 {
 	private final static Logger logger = LoggerFactory.getLogger(ConfigurationUtils.class);
 	
 	public final static int DEFAULT_RECONNECTION_INTERVAL = 5000;
-	
-	public final static String WIDTH_PROPERTY = "application.width";
-	
-	public final static String HEIGHT_PROPERTY = "application.height";
-	
-	public final static String PERSPECTIVE_PROPERTY = "application.perspective";
-	
-	public final static String MESSAGE_PANE_RESIZE_PROPERTY = "application.panes.message.resize";
-
-	public static final String MAXIMIZED_PROPERTY = "application.maximized";
 		
 	public static void populateConnectionDefaults(final UserInterfaceMqttConnectionDetails connection)
 	{
@@ -143,86 +132,68 @@ public class ConfigurationUtils
 		}
 		
 		return false;
-	}
+	} 
 	
-	public static double getApplicationHeight(final ConfigurationManager configurationManager)
-	{
-		final String value = configurationManager.getUiPropertyFile().getProperty(HEIGHT_PROPERTY);
-		
-		try
-		{
-			return Double.valueOf(value);
-		}
-		catch (NumberFormatException e)
-		{
-			logger.error("Invalid number format " + value);
-			return Main.DEFAULT_HEIGHT;
-		}
-	}
 	
-	public static boolean getApplicationMaximized(final ConfigurationManager configurationManager)
+	public static boolean getBooleanProperty(final String propertyName, final boolean defaultValue, final ConfigurationManager configurationManager)
 	{
-		final String value = configurationManager.getUiPropertyFile().getProperty(MAXIMIZED_PROPERTY);
+		final String value = configurationManager.getUiPropertyFile().getProperty(propertyName);
+		Boolean returnValue = defaultValue;
 		
-		try
-		{
-			return Boolean.valueOf(value);
-		}
-		catch (NumberFormatException e)
-		{
-			logger.error("Invalid boolean format " + value);
-			return false;
-		}
-	}
-	
-	public static double getApplicationWidth(final ConfigurationManager configurationManager)
-	{
-		final String value = configurationManager.getUiPropertyFile().getProperty(WIDTH_PROPERTY);
-		
-		try
-		{
-			return Double.valueOf(value);
-		}
-		catch (NumberFormatException e)
-		{
-			logger.error("Invalid number format " + value);
-			return Main.DEFAULT_WIDTH;
-		}
-	}
-
-	public static MqttSpyPerspective getApplicationPerspective(final ConfigurationManager configurationManager)
-	{
-		final String value = configurationManager.getUiPropertyFile().getProperty(PERSPECTIVE_PROPERTY);
-		
-		try
-		{
-			return MqttSpyPerspective.valueOf(value);
-		}
-		catch (IllegalArgumentException e)
-		{
-			logger.error("Invalid format " + value);
-			return MqttSpyPerspective.DEFAULT;
-		}
-	}
-	
-	public static boolean getResizeMessagePane(final ConfigurationManager configurationManager)
-	{
-		final String value = configurationManager.getUiPropertyFile().getProperty(MESSAGE_PANE_RESIZE_PROPERTY);
-		
-		// Default, when non present is true
+		// Default, when non present is X
 		if (value == null || value.isEmpty())
 		{
-			return Boolean.TRUE; 
+			returnValue = defaultValue; 
 		}
+		else
+		{			
+			try
+			{
+				returnValue = Boolean.valueOf(value);
+			}
+			catch (IllegalArgumentException e)
+			{
+				logger.error("Invalid format " + value);
+			}
+		}
+		
+		configurationManager.getUiPropertyFile().setProperty(propertyName, String.valueOf(returnValue));
+		return returnValue;
+	}
+	
+	public static double getDoubleProperty(final String propertyName, final double defaultValue, final ConfigurationManager configurationManager)
+	{
+		final String value = configurationManager.getUiPropertyFile().getProperty(propertyName);		
+		Double returnValue = defaultValue;
 		
 		try
 		{
-			return Boolean.valueOf(value);
+			returnValue = Double.valueOf(value);
 		}
-		catch (IllegalArgumentException e)
+		catch (NumberFormatException e)
 		{
-			logger.error("Invalid format " + value);
-			return Boolean.TRUE;
+			logger.error("Invalid number format " + value);
 		}
-	}
+		
+		configurationManager.getUiPropertyFile().setProperty(propertyName, String.valueOf(returnValue));
+		return returnValue;
+	}	
+	
+	public static int getIntegerProperty(final String propertyName, final int defaultValue, final ConfigurationManager configurationManager)
+	{
+		final String value = configurationManager.getUiPropertyFile().getProperty(propertyName);
+		Integer returnValue = defaultValue;
+		
+		try
+		{
+			returnValue = Integer.valueOf(value);
+		}
+		catch (NumberFormatException e)
+		{
+			logger.error("Invalid number format " + value);
+		}
+		
+		configurationManager.getUiPropertyFile().setProperty(propertyName, String.valueOf(returnValue));
+		return returnValue;
+	}	
 }

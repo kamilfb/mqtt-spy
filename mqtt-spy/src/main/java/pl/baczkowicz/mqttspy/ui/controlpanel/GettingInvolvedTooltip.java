@@ -32,13 +32,13 @@ import org.slf4j.LoggerFactory;
 import pl.baczkowicz.mqttspy.ui.ControlPanelController;
 
 /**
- * This is the UNICEF tooltip, which extends the Tooltip class to add some
+ * This is the getting involved tooltip, which extends the Tooltip class to add some
  * custom behaviour (only hiding the tooltip when mouse moved more than X; not hiding the tooltip after X seconds).
  */
-public class UnicefTooltip extends Tooltip
+public class GettingInvolvedTooltip extends Tooltip
 {		
 	/** Diagnostic logger. */
-	private final static Logger logger = LoggerFactory.getLogger(UnicefTooltip.class);
+	private final static Logger logger = LoggerFactory.getLogger(GettingInvolvedTooltip.class);
 	
 	/** True if the default JavaFX behaviour requested the tooltip to be hidden. */
 	private boolean hideRequested;
@@ -50,20 +50,21 @@ public class UnicefTooltip extends Tooltip
 	private MouseEvent currentMousePosition;
 	
 	/**
-	 * Creates the UnicefTooltip.
+	 * Creates the tooltip.
 	 */
-	public UnicefTooltip()
+	public GettingInvolvedTooltip()
 	{
 		final HBox tooltipContent = new HBox();		
-		final ImageView logo = new ImageView(new Image(ControlPanelController.class.getResource("/images/unicef.png").toString()));
+		final ImageView logo = new ImageView(new Image(ControlPanelController.class.getResource("/images/mqtt-spy-logo.png").toString()));
+		logo.setFitHeight(70);
+		logo.setFitWidth(70);
 		final Label text = new Label(
-				"Please support UNICEF by donating " + System.lineSeparator()
-				+ "at the mqtt-spy fundraising page -" + System.lineSeparator()
-				+ "http://fundraise.unicef.org.uk/MyPage/mqtt-spy. " + System.lineSeparator()
-				+ "Any donations are very much appreciated. " + System.lineSeparator()
-				+ "If you can do it regularly " + System.lineSeparator()
-				+ "(e.g. every couple of weeks or months) " + System.lineSeparator()
-				+ "that would be awesome!");		
+				"mqtt-spy needs you! Please support the project" + System.lineSeparator()
+				+ "by raising bugs, " + "helping out with testing" + System.lineSeparator()
+				+ "or making a charity donation. " + System.lineSeparator()
+				+ "See http://github.com/kamilfb/mqtt-spy/wiki/Getting-involved" + System.lineSeparator()
+				+ "for more information on how to get involved." + System.lineSeparator()
+				);		
 		text.setFont(new Font("System", 11));
 		tooltipContent.getChildren().addAll(logo, text);
 		tooltipContent.setSpacing(20);

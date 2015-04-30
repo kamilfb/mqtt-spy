@@ -26,6 +26,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.common.generated.ScriptDetails;
+import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
+import pl.baczkowicz.mqttspy.configuration.UiProperties;
 import pl.baczkowicz.mqttspy.connectivity.reconnection.ReconnectionManager;
 import pl.baczkowicz.mqttspy.events.EventManager;
 import pl.baczkowicz.mqttspy.events.queuable.ui.MqttSpyUIEvent;
@@ -69,7 +71,7 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection
 
 	public MqttAsyncConnection(final ReconnectionManager reconnectionManager, final RuntimeConnectionProperties properties, 
 			final MqttConnectionStatus status, final EventManager eventManager,
-			final Queue<MqttSpyUIEvent> uiEventQueue)
+			final Queue<MqttSpyUIEvent> uiEventQueue, final ConfigurationManager configurationManager)
 	{ 
 		super(reconnectionManager, properties);
 		
@@ -78,7 +80,7 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection
 				properties.getConfiguredProperties().getMinMessagesStoredPerTopic(), 
 				properties.getMaxMessagesStored(), 
 				properties.getMaxMessagesStored() * 2, 
-				uiEventQueue, eventManager);
+				uiEventQueue, eventManager, UiProperties.getSummaryMaxPayloadLength(configurationManager));
 		
 		this.setPreferredStoreSize(properties.getMaxMessagesStored());
 		this.properties = properties;
@@ -89,27 +91,64 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection
 	public void messageReceived(final UiMqttMessage receivedMessage)
 	{		
 		final List<String> matchingSubscriptionTopics = getTopicMatcher().getMatchingSubscriptions(receivedMessage.getTopic());
-				
-		final List<String> matchingActiveSubscriptionTopics = new ArrayList<String>();
+					
+		final UiMqttMessage message = new UiMqttMessage(receivedMessage);
 		
-		UiMqttMessage message = new UiMqttMessage(receivedMessage);
+		final List<String> matchingSubscriptions = new ArrayList<String>();
+		
+		final MqttSubscription lastMatchingSubscription = matchMessageToSubscriptions(matchingSubscriptionTopics, receivedMessage, matchingSubscriptions);
+		
+		// If logging is enabled
+		if (messageLogger != null && messageLogger.isRunning())
+		{
+			message.setMatchingSubscriptionTopics(matchingSubscriptions);
+			messageLogger.getQueue().add(message);
+		}
+		
+		statisticsManager.messageReceived(getId(), matchingSubscriptions);
+
+		// Pass the message for connection (all subscriptions) handling
+		message.setSubscription(lastMatchingSubscription);
+		store.messageReceived(message);
+	}
+	
+	private MqttSubscription matchMessageToSubscriptions(final List<String> matchingSubscriptionTopics, final UiMqttMessage receivedMessage, 
+			final List<String> matchingSubscriptions)
+	{
+		MqttSubscription lastMatchingSubscription = matchMessageToSubscriptions(
+				matchingSubscriptionTopics, receivedMessage, matchingSubscriptions, false);
+		
+		// If no active subscriptions available, use one first one that matches (as we might be still receiving messages for a non-active subscription)
+		if (matchingSubscriptions.isEmpty())
+		{
+			lastMatchingSubscription = matchMessageToSubscriptions(matchingSubscriptionTopics, receivedMessage, matchingSubscriptions, true);
+		}
+		
+		return lastMatchingSubscription;
+	}
+	
+	private MqttSubscription matchMessageToSubscriptions(final List<String> matchingSubscriptionTopics, final UiMqttMessage receivedMessage, 
+			final List<String> matchingSubscriptions, final boolean anySubscription)
+	{
+		MqttSubscription foundMqttSubscription = null;
 		
 		// For all found subscriptions
-		for (final String matchingSubscription : matchingSubscriptionTopics)
+		for (final String matchingSubscriptionTopic : matchingSubscriptionTopics)
 		{					
-			// Create a copy of the message for each subscription
-			message = new UiMqttMessage(receivedMessage);
-			
 			// Get the mqtt-spy's subscription object
-			final MqttSubscription mqttSubscription = subscriptions.get(matchingSubscription);
+			final MqttSubscription mqttSubscription = subscriptions.get(matchingSubscriptionTopic);
 
-			// If a match has been found, and the subscription is active
-			if (mqttSubscription != null && (mqttSubscription.isSubscribing() || mqttSubscription.isActive()))
+			// If a match has been found, and the subscription is active or we don't care
+			if (mqttSubscription != null && (anySubscription || mqttSubscription.isSubscribing() || mqttSubscription.isActive()))
 			{
-				matchingActiveSubscriptionTopics.add(matchingSubscription);
+				matchingSubscriptions.add(matchingSubscriptionTopic);
+
+				// Create a copy of the message for each subscription
+				final UiMqttMessage message = new UiMqttMessage(receivedMessage);
 				
 				// Set subscription reference on the message
 				message.setSubscription(mqttSubscription);
+				foundMqttSubscription = mqttSubscription;
 				
 				if (mqttSubscription.getDetails() != null 
 						&& mqttSubscription.getDetails().getScriptFile() != null 
@@ -120,20 +159,16 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection
 				
 				// Pass the message for subscription handling
 				mqttSubscription.messageReceived(message);
+				
+				// Find only one matching subscription if checking non-active ones
+				if (anySubscription)
+				{
+					break;
+				}
 			}
-		}		
+		}			
 		
-		// If logging is enabled
-		if (messageLogger != null && messageLogger.isRunning())
-		{
-			message.setMatchingSubscriptionTopics(matchingSubscriptionTopics);
-			messageLogger.getQueue().add(message);
-		}
-		
-		statisticsManager.messageReceived(getId(), matchingActiveSubscriptionTopics);
-
-		// Pass the message for connection (all subscriptions) handling
-		store.messageReceived(message);
+		return foundMqttSubscription;
 	}
 	
 	public boolean publish(final String publicationTopic, final String data, final int qos, final boolean retained)

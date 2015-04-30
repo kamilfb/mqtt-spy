@@ -38,6 +38,7 @@ import pl.baczkowicz.mqttspy.common.generated.MessageLogEnum;
 import pl.baczkowicz.mqttspy.common.generated.UserCredentials;
 import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
 import pl.baczkowicz.mqttspy.configuration.ConfiguredConnectionDetails;
+import pl.baczkowicz.mqttspy.configuration.UiProperties;
 import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnectionDetails;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnectionRunnable;
@@ -298,7 +299,7 @@ public class ConnectionManager
 		final SubscriptionManager subscriptionManager = new SubscriptionManager(eventManager, configurationManager, uiEventQueue);			
 		
         final ManagedMessageStoreWithFiltering store = new ManagedMessageStoreWithFiltering(
-        		name, 0, list.size(), list.size(), uiEventQueue, eventManager);               
+        		name, 0, list.size(), list.size(), uiEventQueue, eventManager, UiProperties.getSummaryMaxPayloadLength(configurationManager));               
         
 		final SubscriptionController subscriptionController = subscriptionManager.createSubscriptionTab(
 				true, store, null, null, connectionController);
@@ -419,7 +420,7 @@ public class ConnectionManager
 	public MqttAsyncConnection createConnection(final RuntimeConnectionProperties connectionProperties, final Queue<MqttSpyUIEvent> uiEventQueue)
 	{
 		final MqttAsyncConnection connection = new MqttAsyncConnection(reconnectionManager,
-				connectionProperties, MqttConnectionStatus.DISCONNECTED, eventManager, uiEventQueue);
+				connectionProperties, MqttConnectionStatus.DISCONNECTED, eventManager, uiEventQueue, configurationManager);
 
 		// Set up message logger		
 		final MessageLog messageLog = connectionProperties.getConfiguredProperties().getMessageLog();		

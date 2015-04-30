@@ -20,6 +20,7 @@ import java.util.ResourceBundle;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.CheckBox;
@@ -27,12 +28,15 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.Tooltip;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 
 import org.fxmisc.richtext.StyleClassedTextArea;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
+import pl.baczkowicz.mqttspy.configuration.UiProperties;
 import pl.baczkowicz.mqttspy.configuration.generated.FormatterDetails;
 import pl.baczkowicz.mqttspy.events.observers.MessageFormatChangeObserver;
 import pl.baczkowicz.mqttspy.events.observers.MessageIndexChangeObserver;
@@ -68,6 +72,9 @@ public class MessageController implements Initializable, MessageIndexChangeObser
 	private TextField qosField;
 
 	@FXML
+	private Label dataLabel;
+	
+	@FXML
 	private Label lengthLabel;
 	
 	@FXML
@@ -90,6 +97,8 @@ public class MessageController implements Initializable, MessageIndexChangeObser
 
 	private boolean detailedView;
 
+	private ConfigurationManager configurationManager;
+
 	@Override
 	public void initialize(URL location, ResourceBundle resources)
 	{		
@@ -102,6 +111,19 @@ public class MessageController implements Initializable, MessageIndexChangeObser
 				updateTooltipText();				
 			}
 		});		
+		
+		dataLabel.setOnMouseClicked(new EventHandler<MouseEvent>()
+		{
+			@Override
+			public void handle(MouseEvent event)
+			{
+				if (event.getClickCount() == 2)
+				{
+					final String textToDisplay = message.getFormattedPayload(store.getFormatter());				
+					displayNewText(textToDisplay);
+				}				
+			}
+		});
 	}
 	
 	public void init()
@@ -284,31 +306,55 @@ public class MessageController implements Initializable, MessageIndexChangeObser
 	{
 		if (message != null)
 		{
-			final String textToDisplay = message.getFormattedPayload(store.getFormatter());
+			String textToDisplay = "";
 
-			// Won't refresh the text if it is the same...
-			if (!textToDisplay.equals(dataField.getText()))
+			// If large message detected
+			if (message.getRawMessage().getPayload().length >= UiProperties.getLargeMessageSize(configurationManager))
 			{
-				dataField.clear();
-				dataField.appendText(textToDisplay);
-				dataField.setStyleClass(0, dataField.getText().length(), "messageText");
-			
-				if (searchOptions != null && searchOptions.getSearchValue().length() > 0)
+				if (UiProperties.getLargeMessageHide(configurationManager))
 				{
-					final String textToSearch = searchOptions.isMatchCase() ? dataField.getText() : dataField.getText().toLowerCase();
-					
-					int pos = textToSearch.indexOf(searchOptions.getSearchValue());
-					while (pos >= 0)
-					{
-						dataField.setStyleClass(pos, pos + searchOptions.getSearchValue().length(), "messageTextHighlighted");
-						pos = textToSearch.indexOf(searchOptions.getSearchValue(), pos + 1);
-					}
+					textToDisplay = "[message is too large and has been hidden - double click on 'Data' to display]";
 				}
-				dataField.positionCaret(0);;
-				
-				updateTooltipText();
-			}						
+				else
+				{
+					final int max = UiProperties.getLargeMessageSubstring(configurationManager); 
+					textToDisplay = message.getFormattedPayload(store.getFormatter()).substring(0, max) 
+							+ "... [message truncated to " + max + " characters - double click on 'Data' to display]";
+				}
+			}
+			else
+			{
+				textToDisplay = message.getFormattedPayload(store.getFormatter());
+			}
+			
+			displayNewText(textToDisplay);
 		}
+	}
+	
+	private void displayNewText(final String textToDisplay)
+	{
+		// Won't refresh the text if it is the same...
+		if (!textToDisplay.equals(dataField.getText()))
+		{
+			dataField.clear();
+			dataField.appendText(textToDisplay);
+			dataField.setStyleClass(0, dataField.getText().length(), "messageText");
+		
+			if (searchOptions != null && searchOptions.getSearchValue().length() > 0)
+			{
+				final String textToSearch = searchOptions.isMatchCase() ? dataField.getText() : dataField.getText().toLowerCase();
+				
+				int pos = textToSearch.indexOf(searchOptions.getSearchValue());
+				while (pos >= 0)
+				{
+					dataField.setStyleClass(pos, pos + searchOptions.getSearchValue().length(), "messageTextHighlighted");
+					pos = textToSearch.indexOf(searchOptions.getSearchValue(), pos + 1);
+				}
+			}
+			dataField.positionCaret(0);;
+			
+			updateTooltipText();
+		}						
 	}
 	
 	private void updateTooltipText()
@@ -335,6 +381,11 @@ public class MessageController implements Initializable, MessageIndexChangeObser
 	public void setSearchOptions(final SearchOptions searchOptions)
 	{
 		this.searchOptions = searchOptions;
+	}
+	
+	public void setConfingurationManager(final ConfigurationManager configurationManager)
+	{
+		this.configurationManager = configurationManager;
 	}
 	
 	public void setStore(final BasicMessageStore store)

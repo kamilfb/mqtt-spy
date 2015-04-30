@@ -39,4 +39,16 @@ public interface IMqttConnection
 	 * @return True if publication was successful
 	 */
 	boolean publish(final String publicationTopic, final String payload, final int qos, final boolean retained);
+	
+	/**
+	 * Publishes a message with the given parameters.
+	 * 
+	 * @param publicationTopic Publication topic
+	 * @param payload Payload
+	 * @param qos Quality of Service
+	 * @param retained Retained flag
+	 * 
+	 * @return True if publication was successful
+	 */
+	boolean publish(final String publicationTopic, final byte[] payload, final int qos, final boolean retained);
 }

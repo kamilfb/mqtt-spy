@@ -528,9 +528,9 @@ public class MainController
 	}
 	
 	@FXML
-	private void openFundraisingPage()
+	private void openGettingInvolved()
 	{
-		application.getHostServices().showDocument("http://fundraise.unicef.org.uk/MyPage/mqtt-spy");
+		application.getHostServices().showDocument("https://github.com/kamilfb/mqtt-spy/wiki/Getting-involved");
 	}
 
 	@FXML

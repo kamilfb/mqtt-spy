@@ -40,9 +40,10 @@ public class BasicMessageStore implements MessageStore
 	// TODO: move to ManagedMessageStore...
 	protected final EventManager eventManager;
 
-	public BasicMessageStore(final String name, final int preferredSize, final int maxSize, final Queue<MqttSpyUIEvent> uiEventQueue, final EventManager eventManager)
+	public BasicMessageStore(final String name, final int preferredSize, final int maxSize, final Queue<MqttSpyUIEvent> uiEventQueue, 
+			final EventManager eventManager, final int maxPayloadLength)
 	{
-		this.messages = new MessageListWithObservableTopicSummary(preferredSize, maxSize, name, messageFormat);
+		this.messages = new MessageListWithObservableTopicSummary(preferredSize, maxSize, name, messageFormat, maxPayloadLength);
 		this.eventManager = eventManager;
 		this.uiEventQueue = uiEventQueue;
 	}

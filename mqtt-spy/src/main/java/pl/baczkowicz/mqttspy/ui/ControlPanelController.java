@@ -50,7 +50,7 @@ import pl.baczkowicz.mqttspy.exceptions.XMLException;
 import pl.baczkowicz.mqttspy.ui.connections.ConnectionManager;
 import pl.baczkowicz.mqttspy.ui.controlpanel.ControlPanelStatsUpdater;
 import pl.baczkowicz.mqttspy.ui.controlpanel.ItemStatus;
-import pl.baczkowicz.mqttspy.ui.controlpanel.UnicefTooltip;
+import pl.baczkowicz.mqttspy.ui.controlpanel.GettingInvolvedTooltip;
 import pl.baczkowicz.mqttspy.ui.utils.ActionUtils;
 import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
 import pl.baczkowicz.mqttspy.ui.utils.StylingUtils;
@@ -112,7 +112,7 @@ public class ControlPanelController extends AnchorPane implements Initializable,
 	
 	private Map<MqttConnectionStatus, String> nextActionTitle = new HashMap<MqttConnectionStatus, String>();
 
-	private UnicefTooltip unicefTooltip;
+	private GettingInvolvedTooltip gettingInvolvedTooltip;
 	
 	// ===============================
 	// === Initialisation ============
@@ -172,18 +172,18 @@ public class ControlPanelController extends AnchorPane implements Initializable,
 		
 		statsUpdater = new ControlPanelStatsUpdater(controlPanelItem4Controller, button, application);
 		statsUpdater.show();
-		unicefTooltip = new UnicefTooltip();				  
-		button.setTooltip(unicefTooltip);
+		gettingInvolvedTooltip = new GettingInvolvedTooltip();				  
+		button.setTooltip(gettingInvolvedTooltip);
 		button.setOnMouseMoved(new EventHandler<MouseEvent>()
 		{
 			@Override
 			public void handle(MouseEvent event)
 			{
-				unicefTooltip.setCurrentMousePosition(event);
+				gettingInvolvedTooltip.setCurrentMousePosition(event);
 				
-				if (unicefTooltip.isShowing())
+				if (gettingInvolvedTooltip.isShowing())
 				{
-					unicefTooltip.checkAndHide();
+					gettingInvolvedTooltip.checkAndHide();
 				}
 			}
 		});

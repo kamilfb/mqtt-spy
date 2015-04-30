@@ -16,7 +16,10 @@ package pl.baczkowicz.mqttspy.utils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -69,7 +72,19 @@ public class FileUtils
 		}
 		catch (FileNotFoundException e)
 		{
-			// Ignore
+			logger.error("Cannot write to file", e);
 		}
+	}
+	
+	public static void writeToFile(final File file, final byte[] value)
+	{
+		try
+		{
+			Files.write(Paths.get(file.toURI()), value);
+		}
+		catch (IOException e)
+		{
+			logger.error("Cannot write to file", e);
+		}		
 	}
 }
