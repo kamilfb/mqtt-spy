@@ -14,12 +14,17 @@
  */
 package pl.baczkowicz.mqttspy.connectivity;
 
+import java.util.Properties;
+
 import org.apache.commons.codec.binary.Base64;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 
 import pl.baczkowicz.mqttspy.common.generated.MqttConnectionDetails;
 import pl.baczkowicz.mqttspy.common.generated.ProtocolEnum;
+import pl.baczkowicz.mqttspy.common.generated.SslModeEnum;
+import pl.baczkowicz.mqttspy.common.generated.SslProperty;
 import pl.baczkowicz.mqttspy.exceptions.ConfigurationException;
+import pl.baczkowicz.mqttspy.exceptions.MqttSpyException;
 import pl.baczkowicz.mqttspy.utils.ConfigurationUtils;
 import pl.baczkowicz.mqttspy.utils.ConversionUtils;
 
@@ -59,14 +64,17 @@ public class MqttConnectionDetailsWithOptions extends MqttConnectionDetails
 		this.setUserCredentials(details.getUserCredentials());
 		this.setReconnectionSettings(details.getReconnectionSettings());
 		
-		ConfigurationUtils.completeServerURIs(this);
+		this.setSSL(details.getSSL());
+		final boolean sslEnabled = details.getSSL() != null && details.getSSL().getMode() != null && !details.getSSL().getMode().equals(SslModeEnum.DISABLED);
+		
+		ConfigurationUtils.completeServerURIs(this, sslEnabled);
 		ConfigurationUtils.populateConnectionDefaults(this);
 		
 		try
 		{
 			populateMqttConnectOptions();
 		}
-		catch (IllegalArgumentException e)
+		catch (IllegalArgumentException | MqttSpyException e)
 		{
 			throw new ConfigurationException("Invalid parameters", e);
 		}
@@ -74,8 +82,9 @@ public class MqttConnectionDetailsWithOptions extends MqttConnectionDetails
 	
 	/**
 	 * Populates the Paho's MqttConnectOptions based on the supplied MqttConnectionDetails.
+	 * @throws MqttSpyException Thrown when SSL configuration is not valid
 	 */
-	private void populateMqttConnectOptions()
+	private void populateMqttConnectOptions() throws MqttSpyException
 	{
 		// Populate MQTT options
 		options = new MqttConnectOptions();
@@ -114,6 +123,41 @@ public class MqttConnectionDetailsWithOptions extends MqttConnectionDetails
 					Base64.decodeBase64(getLastWillAndTestament().getValue()),
 					getLastWillAndTestament().getQos(),
 					getLastWillAndTestament().isRetained());
+		}
+		
+		// SSL and TLS
+		if (getSSL() == null) 
+		{
+			// No SSL/TLS settings available
+		} 
+		else 
+		{
+			if (SslModeEnum.PROPERTIES.equals(getSSL().getMode()))			
+			{
+				Properties props = new Properties();
+				for (final SslProperty prop : getSSL().getProperty())
+				{
+					props.put(prop.getName(), prop.getValue());
+				}
+				options.setSSLProperties(props);
+			}
+			else if (SslModeEnum.SERVER_AND_CLIENT.equals(getSSL().getMode()))
+			{
+				options.setSocketFactory(SslUtils.getSocketFactory(
+						getSSL().getCertificateAuthorityFile(), 
+						getSSL().getClientCertificateFile(),
+						getSSL().getClientKeyFile(),
+						getSSL().getClientKeyPassword(),
+						getSSL().getProtocol()));
+			}
+			else if (SslModeEnum.SERVER_ONLY.equals(getSSL().getMode()))
+			{
+				options.setSocketFactory(SslUtils.getSocketFactory(
+						getSSL().getCertificateAuthorityFile(), 
+						getSSL().getProtocol()));
+			}
+			
+			// TODO: set connection protocol to SSL if not done already
 		}
 	}
 	

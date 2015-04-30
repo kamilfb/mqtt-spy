@@ -9,7 +9,7 @@
 //
 
 
-package pl.baczkowicz.mqttspy.daemon.configuration.generated;
+package pl.baczkowicz.mqttspy.common.generated;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -31,16 +31,17 @@ import org.jvnet.jaxb2_commons.lang.builder.JAXBToStringBuilder;
 
 
 /**
- * <p>Java class for MqttSpyDaemonConfiguration complex type.
+ * <p>Java class for SslProperty complex type.
  * 
  * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
- * &lt;complexType name="MqttSpyDaemonConfiguration">
+ * &lt;complexType name="SslProperty">
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
- *         &lt;element name="Connection" type="{http://baczkowicz.pl/mqtt-spy/daemon/configuration}DaemonMqttConnectionDetails"/>
+ *         &lt;element name="Name" type="{http://www.w3.org/2001/XMLSchema}string"/>
+ *         &lt;element name="Value" type="{http://www.w3.org/2001/XMLSchema}string"/>
  *       &lt;/sequence>
  *     &lt;/restriction>
  *   &lt;/complexContent>
@@ -51,45 +52,93 @@ import org.jvnet.jaxb2_commons.lang.builder.JAXBToStringBuilder;
 */
 @SuppressWarnings("all")
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "MqttSpyDaemonConfiguration", propOrder = {
-    "connection"
+@XmlType(name = "SslProperty", propOrder = {
+    "name",
+    "value"
 })
-public class MqttSpyDaemonConfiguration
-    implements CopyTo, Copyable, Equals, HashCode, ToString
+public class SslProperty implements CopyTo, Copyable, Equals, HashCode, ToString
 {
 
-    @XmlElement(name = "Connection", required = true)
-    protected DaemonMqttConnectionDetails connection;
+    @XmlElement(name = "Name", required = true)
+    protected String name;
+    @XmlElement(name = "Value", required = true)
+    protected String value;
 
     /**
-     * Gets the value of the connection property.
+     * Default no-arg constructor
      * 
-     * @return
-     *     possible object is
-     *     {@link DaemonMqttConnectionDetails }
-     *     
      */
-    public DaemonMqttConnectionDetails getConnection() {
-        return connection;
+    public SslProperty() {
+        super();
     }
 
     /**
-     * Sets the value of the connection property.
+     * Fully-initialising value constructor
+     * 
+     */
+    public SslProperty(final String name, final String value) {
+        this.name = name;
+        this.value = value;
+    }
+
+    /**
+     * Gets the value of the name property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * Sets the value of the name property.
      * 
      * @param value
      *     allowed object is
-     *     {@link DaemonMqttConnectionDetails }
+     *     {@link String }
      *     
      */
-    public void setConnection(DaemonMqttConnectionDetails value) {
-        this.connection = value;
+    public void setName(String value) {
+        this.name = value;
+    }
+
+    /**
+     * Gets the value of the value property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getValue() {
+        return value;
+    }
+
+    /**
+     * Sets the value of the value property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setValue(String value) {
+        this.value = value;
     }
 
     public void toString(ToStringBuilder toStringBuilder) {
         {
-            DaemonMqttConnectionDetails theConnection;
-            theConnection = this.getConnection();
-            toStringBuilder.append("connection", theConnection);
+            String theName;
+            theName = this.getName();
+            toStringBuilder.append("name", theName);
+        }
+        {
+            String theValue;
+            theValue = this.getValue();
+            toStringBuilder.append("value", theValue);
         }
     }
 
@@ -100,19 +149,20 @@ public class MqttSpyDaemonConfiguration
     }
 
     public void equals(Object object, EqualsBuilder equalsBuilder) {
-        if (!(object instanceof MqttSpyDaemonConfiguration)) {
+        if (!(object instanceof SslProperty)) {
             equalsBuilder.appendSuper(false);
             return ;
         }
         if (this == object) {
             return ;
         }
-        final MqttSpyDaemonConfiguration that = ((MqttSpyDaemonConfiguration) object);
-        equalsBuilder.append(this.getConnection(), that.getConnection());
+        final SslProperty that = ((SslProperty) object);
+        equalsBuilder.append(this.getName(), that.getName());
+        equalsBuilder.append(this.getValue(), that.getValue());
     }
 
     public boolean equals(Object object) {
-        if (!(object instanceof MqttSpyDaemonConfiguration)) {
+        if (!(object instanceof SslProperty)) {
             return false;
         }
         if (this == object) {
@@ -124,7 +174,8 @@ public class MqttSpyDaemonConfiguration
     }
 
     public void hashCode(HashCodeBuilder hashCodeBuilder) {
-        hashCodeBuilder.append(this.getConnection());
+        hashCodeBuilder.append(this.getName());
+        hashCodeBuilder.append(this.getValue());
     }
 
     public int hashCode() {
@@ -134,12 +185,18 @@ public class MqttSpyDaemonConfiguration
     }
 
     public Object copyTo(Object target, CopyBuilder copyBuilder) {
-        final MqttSpyDaemonConfiguration copy = ((target == null)?((MqttSpyDaemonConfiguration) createCopy()):((MqttSpyDaemonConfiguration) target));
+        final SslProperty copy = ((target == null)?((SslProperty) createCopy()):((SslProperty) target));
         {
-            DaemonMqttConnectionDetails sourceConnection;
-            sourceConnection = this.getConnection();
-            DaemonMqttConnectionDetails copyConnection = ((DaemonMqttConnectionDetails) copyBuilder.copy(sourceConnection));
-            copy.setConnection(copyConnection);
+            String sourceName;
+            sourceName = this.getName();
+            String copyName = ((String) copyBuilder.copy(sourceName));
+            copy.setName(copyName);
+        }
+        {
+            String sourceValue;
+            sourceValue = this.getValue();
+            String copyValue = ((String) copyBuilder.copy(sourceValue));
+            copy.setValue(copyValue);
         }
         return copy;
     }
@@ -150,7 +207,7 @@ public class MqttSpyDaemonConfiguration
     }
 
     public Object createCopy() {
-        return new MqttSpyDaemonConfiguration();
+        return new SslProperty();
     }
 
 }

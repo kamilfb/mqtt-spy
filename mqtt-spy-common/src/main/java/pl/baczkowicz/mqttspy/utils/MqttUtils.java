@@ -119,17 +119,20 @@ public class MqttUtils
 	 * 
 	 * @return Complete URL
 	 */
-	public static String getCompleteServerURI(final String brokerAddress)
+	public static String getCompleteServerURI(final String brokerAddress, final boolean sslEnabled)
 	{
-		String serverURI = brokerAddress;
-
-		if (serverURI.startsWith(TCP_PREFIX)
-				|| serverURI.startsWith(SSL_PREFIX))
+		String serverURI = brokerAddress.replaceAll(TCP_PREFIX, "").replaceAll(SSL_PREFIX, "");
+		
+		if (sslEnabled)
 		{
-			return serverURI;
+			serverURI = SSL_PREFIX + serverURI;			
 		}
+		else
+		{			
+			serverURI = TCP_PREFIX + serverURI;
+		}		
 
-		return TCP_PREFIX + serverURI;
+		return serverURI;
 	}
 	
 	/**

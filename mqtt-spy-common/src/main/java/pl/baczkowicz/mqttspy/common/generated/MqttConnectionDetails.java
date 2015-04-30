@@ -49,6 +49,7 @@ import org.jvnet.jaxb2_commons.lang.builder.JAXBToStringBuilder;
  *         &lt;element name="CleanSession" type="{http://www.w3.org/2001/XMLSchema}boolean" minOccurs="0"/>
  *         &lt;element name="ConnectionTimeout" type="{http://www.w3.org/2001/XMLSchema}int" minOccurs="0"/>
  *         &lt;element name="KeepAliveInterval" type="{http://www.w3.org/2001/XMLSchema}int" minOccurs="0"/>
+ *         &lt;element name="SSL" type="{http://baczkowicz.pl/mqtt-spy/common}SslSettings" minOccurs="0"/>
  *         &lt;element name="ReconnectionSettings" type="{http://baczkowicz.pl/mqtt-spy/common}ReconnectionSettings" minOccurs="0"/>
  *       &lt;/sequence>
  *     &lt;/extension>
@@ -68,6 +69,7 @@ import org.jvnet.jaxb2_commons.lang.builder.JAXBToStringBuilder;
     "cleanSession",
     "connectionTimeout",
     "keepAliveInterval",
+    "ssl",
     "reconnectionSettings"
 })
 public class MqttConnectionDetails
@@ -89,6 +91,8 @@ public class MqttConnectionDetails
     protected Integer connectionTimeout;
     @XmlElement(name = "KeepAliveInterval")
     protected Integer keepAliveInterval;
+    @XmlElement(name = "SSL")
+    protected SslSettings ssl;
     @XmlElement(name = "ReconnectionSettings")
     protected ReconnectionSettings reconnectionSettings;
 
@@ -104,7 +108,7 @@ public class MqttConnectionDetails
      * Fully-initialising value constructor
      * 
      */
-    public MqttConnectionDetails(final String name, final ProtocolEnum protocol, final List<String> serverURI, final String clientID, final UserCredentials userCredentials, final SimpleMqttMessage lastWillAndTestament, final Boolean cleanSession, final Integer connectionTimeout, final Integer keepAliveInterval, final ReconnectionSettings reconnectionSettings) {
+    public MqttConnectionDetails(final String name, final ProtocolEnum protocol, final List<String> serverURI, final String clientID, final UserCredentials userCredentials, final SimpleMqttMessage lastWillAndTestament, final Boolean cleanSession, final Integer connectionTimeout, final Integer keepAliveInterval, final SslSettings ssl, final ReconnectionSettings reconnectionSettings) {
         super(name, protocol);
         this.serverURI = serverURI;
         this.clientID = clientID;
@@ -113,6 +117,7 @@ public class MqttConnectionDetails
         this.cleanSession = cleanSession;
         this.connectionTimeout = connectionTimeout;
         this.keepAliveInterval = keepAliveInterval;
+        this.ssl = ssl;
         this.reconnectionSettings = reconnectionSettings;
     }
 
@@ -290,6 +295,30 @@ public class MqttConnectionDetails
     }
 
     /**
+     * Gets the value of the ssl property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link SslSettings }
+     *     
+     */
+    public SslSettings getSSL() {
+        return ssl;
+    }
+
+    /**
+     * Sets the value of the ssl property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link SslSettings }
+     *     
+     */
+    public void setSSL(SslSettings value) {
+        this.ssl = value;
+    }
+
+    /**
      * Gets the value of the reconnectionSettings property.
      * 
      * @return
@@ -351,6 +380,11 @@ public class MqttConnectionDetails
             toStringBuilder.append("keepAliveInterval", theKeepAliveInterval);
         }
         {
+            SslSettings theSSL;
+            theSSL = this.getSSL();
+            toStringBuilder.append("ssl", theSSL);
+        }
+        {
             ReconnectionSettings theReconnectionSettings;
             theReconnectionSettings = this.getReconnectionSettings();
             toStringBuilder.append("reconnectionSettings", theReconnectionSettings);
@@ -380,6 +414,7 @@ public class MqttConnectionDetails
         equalsBuilder.append(this.isCleanSession(), that.isCleanSession());
         equalsBuilder.append(this.getConnectionTimeout(), that.getConnectionTimeout());
         equalsBuilder.append(this.getKeepAliveInterval(), that.getKeepAliveInterval());
+        equalsBuilder.append(this.getSSL(), that.getSSL());
         equalsBuilder.append(this.getReconnectionSettings(), that.getReconnectionSettings());
     }
 
@@ -404,6 +439,7 @@ public class MqttConnectionDetails
         hashCodeBuilder.append(this.isCleanSession());
         hashCodeBuilder.append(this.getConnectionTimeout());
         hashCodeBuilder.append(this.getKeepAliveInterval());
+        hashCodeBuilder.append(this.getSSL());
         hashCodeBuilder.append(this.getReconnectionSettings());
     }
 
@@ -459,6 +495,12 @@ public class MqttConnectionDetails
             sourceKeepAliveInterval = this.getKeepAliveInterval();
             Integer copyKeepAliveInterval = ((Integer) copyBuilder.copy(sourceKeepAliveInterval));
             copy.setKeepAliveInterval(copyKeepAliveInterval);
+        }
+        {
+            SslSettings sourceSSL;
+            sourceSSL = this.getSSL();
+            SslSettings copySSL = ((SslSettings) copyBuilder.copy(sourceSSL));
+            copy.setSSL(copySSL);
         }
         {
             ReconnectionSettings sourceReconnectionSettings;

@@ -9,40 +9,44 @@
 //
 
 
-package pl.baczkowicz.mqttspy.daemon.configuration.generated;
+package pl.baczkowicz.mqttspy.common.generated;
 
 import javax.xml.bind.annotation.XmlEnum;
 import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * <p>Java class for RunningMode.
+ * <p>Java class for SslModeEnum.
  * 
  * <p>The following schema fragment specifies the expected content contained within this class.
  * <p>
  * <pre>
- * &lt;simpleType name="RunningMode">
+ * &lt;simpleType name="SslModeEnum">
  *   &lt;restriction base="{http://www.w3.org/2001/XMLSchema}string">
- *     &lt;enumeration value="CONTINUOUS"/>
- *     &lt;enumeration value="SCRIPTS_ONLY"/>
+ *     &lt;enumeration value="DISABLED"/>
+ *     &lt;enumeration value="SERVER_ONLY"/>
+ *     &lt;enumeration value="SERVER_AND_CLIENT"/>
+ *     &lt;enumeration value="PROPERTIES"/>
  *   &lt;/restriction>
  * &lt;/simpleType>
  * </pre>
  * 
 */
 @SuppressWarnings("all")
-@XmlType(name = "RunningMode")
+@XmlType(name = "SslModeEnum")
 @XmlEnum
-public enum RunningMode {
+public enum SslModeEnum {
 
-    CONTINUOUS,
-    SCRIPTS_ONLY;
+    DISABLED,
+    SERVER_ONLY,
+    SERVER_AND_CLIENT,
+    PROPERTIES;
 
     public String value() {
         return name();
     }
 
-    public static RunningMode fromValue(String v) {
+    public static SslModeEnum fromValue(String v) {
         return valueOf(v);
     }
 

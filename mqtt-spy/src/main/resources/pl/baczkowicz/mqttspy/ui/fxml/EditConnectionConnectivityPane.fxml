@@ -34,7 +34,7 @@
       <!--  onKeyReleased="#updateConnectionName" -->
       <TextField fx:id="brokerAddressText" layoutX="279.0" layoutY="15.0" prefHeight="25.0" prefWidth="259.0" promptText="tcp://localhost:1883" text="127.0.0.1" AnchorPane.leftAnchor="278.0" AnchorPane.rightAnchor="14.0" />
       
-      <Label layoutX="48.0" layoutY="34.0" text="[e.g. localhost or tcp://mybroker:1883]" textFill="#5e5e5e">
+      <Label layoutX="48.0" layoutY="34.0" text="[e.g. localhost or mybroker:1883]" textFill="#5e5e5e">
       <!-- SSL: ssl://mybroker:8888 -->
          <font>
             <Font size="10.0" />

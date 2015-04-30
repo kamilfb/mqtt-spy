@@ -40,7 +40,13 @@
 			<artifactId>commons-codec</artifactId>
 			<version>1.9</version>
 		</dependency>
-
+		
+		<dependency>
+			<groupId>org.bouncycastle</groupId>
+			<artifactId>bcprov-jdk15on</artifactId>
+			<version>1.52</version>
+		</dependency>
+		
 		<!-- Old MQTT client dependency, deprecated 
 		<dependency>
 			<groupId>org.eclipse.paho</groupId>
