@@ -108,7 +108,7 @@ public class ScriptManager
 				
 		createFileBasedScript(script, scriptName, scriptFile, connection, scriptDetails);
 		
-		logger.debug("Adding script {}", scriptDetails.getFile());
+		logger.info("Adding script {}", scriptDetails.getFile());
 		scripts.put(scriptFile.getAbsolutePath(), script);
 		
 		return script;

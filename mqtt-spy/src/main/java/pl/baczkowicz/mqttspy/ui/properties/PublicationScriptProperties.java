@@ -51,7 +51,7 @@ public class PublicationScriptProperties implements ScriptChangeObserver
 		this.countProperty = new SimpleLongProperty(0);
 		this.repeatProperty = new SimpleBooleanProperty(false);
 		
-		this.repeatProperty.set(script.getScriptDetails().isRepeat());
+		this.repeatProperty.set(script.getScriptDetails() != null && Boolean.TRUE.equals(script.getScriptDetails().isRepeat()));
 		update();
 	}
 	
