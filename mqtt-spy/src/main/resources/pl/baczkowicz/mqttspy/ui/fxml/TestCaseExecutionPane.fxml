@@ -22,15 +22,18 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane prefHeight="384.0" prefWidth="570.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.baczkowicz.mqttspy.ui.TestCaseExecutionController">
+<AnchorPane prefHeight="384.0" prefWidth="570.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.baczkowicz.mqttspy.ui.TestCaseExecutionController">
    <children>
-      <TableView layoutX="-165.0" layoutY="-77.0" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <TableView fx:id="stepsView" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <columns>
-          <TableColumn maxWidth="78.0" minWidth="50.0" prefWidth="78.0" resizable="false" text="Step no." />
-          <TableColumn minWidth="100.0" prefWidth="200.0" text="Description" />
-            <TableColumn maxWidth="60.0" minWidth="60.0" prefWidth="60.0" resizable="false" text="Status" />
-            <TableColumn minWidth="100.0" prefWidth="200.0" text="Additional information" />
+          	<TableColumn fx:id="stepNumberColumn" maxWidth="85.0" minWidth="85.0" prefWidth="85.0" resizable="false" text="Step no." />
+          	<TableColumn fx:id="descriptionColumn" minWidth="100.0" prefWidth="400.0" text="Description" />
+            <TableColumn fx:id="statusColumn" maxWidth="60.0" minWidth="60.0" prefWidth="60.0" resizable="false" text="Status" />
+            <TableColumn fx:id="infoColumn" minWidth="100.0" prefWidth="400.0" text="Additional information" />
         </columns>
+         <columnResizePolicy>
+            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+         </columnResizePolicy>
       </TableView>
    </children>
 </AnchorPane>

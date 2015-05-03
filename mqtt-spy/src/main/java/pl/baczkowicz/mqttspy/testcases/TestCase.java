@@ -14,11 +14,18 @@
  */
 package pl.baczkowicz.mqttspy.testcases;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import pl.baczkowicz.mqttspy.scripts.Script;
+import pl.baczkowicz.mqttspy.ui.properties.TestCaseStepProperties;
 
 public class TestCase extends Script
 {
 	private TestCaseInfo info;
+	
+	private ObservableList<TestCaseStepProperties> steps = FXCollections.observableArrayList();
+	
+	private TestCaseStatus testCaseStatus;
 
 	/**
 	 * @return the info
@@ -36,5 +43,24 @@ public class TestCase extends Script
 		this.info = info;
 	}
 	
-	
+	public ObservableList<TestCaseStepProperties> getSteps()
+	{
+		return this.steps;
+	}
+
+	/**
+	 * @return the status
+	 */
+	public TestCaseStatus getTestCaseStatus()
+	{
+		return testCaseStatus;
+	}
+
+	/**
+	 * @param status the status to set
+	 */
+	public void setTestCaseStatus(TestCaseStatus status)
+	{
+		this.testCaseStatus = status;
+	}
 }

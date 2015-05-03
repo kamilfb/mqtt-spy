@@ -15,6 +15,7 @@
 package pl.baczkowicz.mqttspy.scripts;
 
 import java.io.File;
+import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -22,9 +23,11 @@ import java.util.Map;
 import java.util.concurrent.Executor;
 
 import javax.script.Bindings;
+import javax.script.Invocable;
 import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
 import javax.script.SimpleBindings;
 
 import org.slf4j.Logger;
@@ -376,6 +379,15 @@ public class ScriptManager
 	{				
 		script.getScriptEngine().put(parameterName, message);
 		runScript(script, asynchronous);		
+	}
+	
+	public Object invokeFunction(final Script script, final String function, final Object... args) throws NoSuchMethodException, ScriptException
+	{
+		// runScript(script, false);
+		
+		final Invocable invocable = (Invocable) script.getScriptEngine();
+		
+		return invocable.invokeFunction(function, args);
 	}
 	
 	/**
