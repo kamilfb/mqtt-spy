@@ -132,30 +132,30 @@ public class SubscriptionSummaryTableController implements Initializable
 
 		contentColumn.setCellValueFactory(new PropertyValueFactory<SubscriptionTopicSummaryProperties, String>("lastReceivedPayloadShort"));
 		contentColumn.setCellFactory(new Callback<TableColumn<SubscriptionTopicSummaryProperties, String>, TableCell<SubscriptionTopicSummaryProperties, String>>()
+		{
+			public TableCell<SubscriptionTopicSummaryProperties, String> call(
+					TableColumn<SubscriptionTopicSummaryProperties, String> param)
+			{
+				final TableCell<SubscriptionTopicSummaryProperties, String> cell = new TableCell<SubscriptionTopicSummaryProperties, String>()
 				{
-					public TableCell<SubscriptionTopicSummaryProperties, String> call(
-							TableColumn<SubscriptionTopicSummaryProperties, String> param)
+					@Override
+					public void updateItem(String item, boolean empty)
 					{
-						final TableCell<SubscriptionTopicSummaryProperties, String> cell = new TableCell<SubscriptionTopicSummaryProperties, String>()
+						super.updateItem(item, empty);
+						if (!isEmpty())
+						{								
+							setText(item);
+						}
+						else
 						{
-							@Override
-							public void updateItem(String item, boolean empty)
-							{
-								super.updateItem(item, empty);
-								if (!isEmpty())
-								{								
-									setText(item);
-								}
-								else
-								{
-									setText(null);
-								}
-							}
-						};
-						
-						return cell;
+							setText(null);
+						}
 					}
-				});
+				};
+				
+				return cell;
+			}
+		});
 
 		messageCountColumn.setCellValueFactory(new PropertyValueFactory<SubscriptionTopicSummaryProperties, Integer>("count"));
 		messageCountColumn.setCellFactory(new Callback<TableColumn<SubscriptionTopicSummaryProperties, Integer>, TableCell<SubscriptionTopicSummaryProperties, Integer>>()

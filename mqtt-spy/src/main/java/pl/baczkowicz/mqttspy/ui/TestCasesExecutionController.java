@@ -21,20 +21,26 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 import javafx.application.Platform;
-import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.ReadOnlyStringWrapper;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
+import javafx.scene.control.TableCell;
+import javafx.scene.control.TableColumn;
 import javafx.scene.control.TreeItem;
+import javafx.scene.control.TreeTableCell;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableView;
 import javafx.scene.layout.AnchorPane;
+import javafx.util.Callback;
 
 import javax.script.ScriptException;
 
@@ -50,6 +56,7 @@ import pl.baczkowicz.mqttspy.testcases.TestCase;
 import pl.baczkowicz.mqttspy.testcases.TestCaseInfo;
 import pl.baczkowicz.mqttspy.testcases.TestCaseStatus;
 import pl.baczkowicz.mqttspy.testcases.TestCaseStepResult;
+import pl.baczkowicz.mqttspy.ui.properties.SubscriptionTopicSummaryProperties;
 import pl.baczkowicz.mqttspy.ui.properties.TestCaseProperties;
 import pl.baczkowicz.mqttspy.ui.properties.TestCaseStepProperties;
 import pl.baczkowicz.mqttspy.utils.FileUtils;
@@ -218,20 +225,56 @@ public class TestCasesExecutionController extends AnchorPane implements Initiali
 		
 		lastRunColumn.setCellValueFactory
 		(
-	            (TreeTableColumn.CellDataFeatures<TestCaseProperties, String> param) -> 
-	            new ReadOnlyStringWrapper(param.getValue().getValue().lastStartedProperty().getValue())
+	            (TreeTableColumn.CellDataFeatures<TestCaseProperties, String> p) -> 
+	            new ReadOnlyStringWrapper(p.getValue().getValue().lastStartedProperty().getValue())
 	    );
 		
-		statusColumn.setCellValueFactory
-		(
-	            (TreeTableColumn.CellDataFeatures<TestCaseProperties, TestCaseStatus> param) -> 
-	            new ReadOnlyObjectWrapper<TestCaseStatus>(param.getValue().getValue().statusProperty().getValue())
-	    );
+//		statusColumn.setCellValueFactory
+//		(
+//	            (TreeTableColumn.CellDataFeatures<TestCaseProperties, TestCaseStatus> param) -> 
+//	            new ReadOnlyObjectWrapper<TestCaseStatus>(param.getValue().getValue().statusProperty().getValue())
+//	    );
+		
+		statusColumn.setCellValueFactory(new Callback<TreeTableColumn.CellDataFeatures<TestCaseProperties, TestCaseStatus>, ObservableValue<TestCaseStatus>>() 
+		{
+            @Override public ObservableValue<TestCaseStatus> call(TreeTableColumn.CellDataFeatures<TestCaseProperties, TestCaseStatus> p) 
+            {
+                return p.getValue().getValue().statusProperty();
+            }
+        });
+		
+		statusColumn.setCellFactory(new Callback<TreeTableColumn<TestCaseProperties,TestCaseStatus>, TreeTableCell<TestCaseProperties,TestCaseStatus>>()
+		{			
+			public TreeTableCell<TestCaseProperties, TestCaseStatus> call(
+					TreeTableColumn<TestCaseProperties, TestCaseStatus> param)
+			{
+				final TreeTableCell<TestCaseProperties, TestCaseStatus> cell = new TreeTableCell<TestCaseProperties, TestCaseStatus>()
+				{
+					@Override
+					public void updateItem(TestCaseStatus item, boolean empty)
+					{
+						super.updateItem(item, empty);
+						if (!isEmpty())
+						{
+							setGraphic(testCaseExecutionPaneController.getIconForStatus(item));
+						}
+						else
+						{
+							setGraphic(null);
+						}
+					}
+				};
+				cell.setAlignment(Pos.TOP_CENTER);
+				cell.setPadding(new Insets(0, 0, 0, 0));
+				
+				return cell;
+			}
+		});
 		
 		scriptManager = new InteractiveScriptManager(eventManager, null);
 		
-		// TODO: for testing only
-		// scriptTree.setTableMenuButtonVisible(true);
+		// Note: important - without that, cell height goes nuts with progress indicator
+		scriptTree.setFixedCellSize(24);		
 	}	
 
 	public void init()
@@ -243,9 +286,7 @@ public class TestCasesExecutionController extends AnchorPane implements Initiali
 	{
 		final TestCaseProperties testCaseProperties = selected.getValue();
 		
-		// testCase.setTestCaseStatus(TestCaseStatus.NOT_RUN);
-		testCaseProperties.statusProperty().setValue(TestCaseStatus.NOT_RUN);
-		// testCaseProperties.update();		
+		testCaseProperties.statusProperty().setValue(TestCaseStatus.IN_PROGRESS);
 		
 		// Clear last run for this test case
 		for (final TestCaseStepProperties properties : testCase.getSteps())
@@ -265,6 +306,25 @@ public class TestCasesExecutionController extends AnchorPane implements Initiali
 				while (step < testCase.getSteps().size())
 				{
 					final TestCaseStepProperties properties = testCase.getSteps().get(step);
+					
+					Platform.runLater(new Runnable()
+					{							
+						@Override
+						public void run()
+						{
+							properties.statusProperty().setValue(TestCaseStatus.IN_PROGRESS);
+						}
+					});
+					
+					try
+					{
+						Thread.sleep(1000);
+					}
+					catch (InterruptedException e)
+					{
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}	
 					
 					try
 					{
@@ -318,13 +378,9 @@ public class TestCasesExecutionController extends AnchorPane implements Initiali
 					public void run()
 					{
 						testCaseProperties.statusProperty().setValue(testCaseStatus.getStatus());
-						// selected.setValue(testCaseProperties);
-						selected.valueProperty().set(testCaseProperties);
 					}
 				});
 				
-				// testCase.setTestCaseStatus(lastResult.getStatus());
-				// testCaseProperties.update();					
 			}
 		}).start();		
 	}

@@ -15,16 +15,23 @@
 package pl.baczkowicz.mqttspy.ui;
 
 import java.net.URL;
-import java.util.List;
 import java.util.ResourceBundle;
 
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.Node;
+import javafx.scene.control.ProgressIndicator;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
+import javafx.util.Callback;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,12 +70,46 @@ public class TestCaseExecutionController extends AnchorPane implements Initializ
 	public void initialize(URL location, ResourceBundle resources)
 	{
 		stepNumberColumn.setCellValueFactory(new PropertyValueFactory<TestCaseStepProperties, String>("stepNumber"));
+		
 		descriptionColumn.setCellValueFactory(new PropertyValueFactory<TestCaseStepProperties, String>("description"));
+		
 		statusColumn.setCellValueFactory(new PropertyValueFactory<TestCaseStepProperties, TestCaseStatus>("status"));
+		statusColumn.setCellFactory(new Callback<TableColumn<TestCaseStepProperties, TestCaseStatus>, TableCell<TestCaseStepProperties, TestCaseStatus>>()
+		{
+			public TableCell<TestCaseStepProperties, TestCaseStatus> call(
+					TableColumn<TestCaseStepProperties, TestCaseStatus> param)
+			{
+				final TableCell<TestCaseStepProperties, TestCaseStatus> cell = new TableCell<TestCaseStepProperties, TestCaseStatus>()
+				{
+					@Override
+					public void updateItem(TestCaseStatus item, boolean empty)
+					{
+						super.updateItem(item, empty);
+						
+						if (!isEmpty())
+						{
+							setGraphic(getIconForStatus(item));
+						}
+						else
+						{
+							setGraphic(null);
+						}
+					}
+				};
+				cell.setAlignment(Pos.TOP_CENTER);
+				cell.setPadding(new Insets(0, 0, 0, 0));
+				
+				return cell;
+			}
+		});
+		
 		infoColumn.setCellValueFactory(new PropertyValueFactory<TestCaseStepProperties, String>("executionInfo"));
 		
+		// Note: important - without that, cell height goes nuts with progress indicator
+		stepsView.setFixedCellSize(24);
+		
 		// TODO: for testing only
-		stepsView.setTableMenuButtonVisible(true);
+		stepsView.setTableMenuButtonVisible(true);		
 	}	
 
 	public void init()
@@ -81,6 +122,49 @@ public class TestCaseExecutionController extends AnchorPane implements Initializ
 		stepsView.getItems().clear();
 		
 		stepsView.setItems(items);
+	}
+	
+	public Node getIconForStatus(final TestCaseStatus status)
+	{
+		String iconName = null;
+		
+		switch (status)
+		{
+			case ACTIONED:
+				iconName = "testcase_actioned.png";
+				break;
+			case ERROR:
+				iconName = "testcase_error.png";
+				break;
+			case FAILED:
+				iconName = "testcase_fail.png";
+				break;
+			case IN_PROGRESS:
+			{
+				final ProgressIndicator progressIndicator = new ProgressIndicator();
+				progressIndicator.setMaxSize(18, 18);
+				progressIndicator.setPadding(new Insets(0, 0, 0, 0));				
+				return progressIndicator;
+			}
+			case NOT_RUN:
+				break;
+			case PASSED:
+				iconName = "testcase_pass.png";
+				break;
+			case SKIPPED:
+				iconName = "testcase_skipped.png";
+				break;
+			default:
+				break;		
+		}
+	
+		if (iconName != null)
+		{
+			final ImageView imageView = new ImageView (new Image(getClass().getResourceAsStream("/images/" + iconName)));
+			return imageView;
+		}
+		
+		return null;
 	}
 	
 	// ===============================
