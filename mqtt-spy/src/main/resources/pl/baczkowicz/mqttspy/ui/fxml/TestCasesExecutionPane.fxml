@@ -22,22 +22,25 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane prefHeight="357.0" prefWidth="846.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.baczkowicz.mqttspy.ui.TestCasesExecutionController">
+<AnchorPane prefHeight="357.0" prefWidth="928.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.baczkowicz.mqttspy.ui.TestCasesExecutionController">
    <children>
-      <SplitPane dividerPositions="0.31689272503082616" prefHeight="160.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <SplitPane dividerPositions="0.3531317494600432" prefHeight="160.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <items>
           <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
                <children>
-                  <TreeTableView fx:id="scriptTree" prefHeight="200.0" prefWidth="200.0" showRoot="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                  <TreeTableView fx:id="scriptTree" prefHeight="200.0" prefWidth="200.0" showRoot="false" AnchorPane.bottomAnchor="45.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                     <columns>
                       <TreeTableColumn fx:id="nameColumn" minWidth="50.0" prefWidth="500.0" text="Name" />
-                        <TreeTableColumn fx:id="lastRunColumn" maxWidth="100.0" minWidth="100.0" prefWidth="100.0" resizable="false" text="Last run" />
-                      <TreeTableColumn fx:id="statusColumn" maxWidth="60.0" minWidth="60.0" prefWidth="60.0" resizable="false" text="Status" />
+                        <TreeTableColumn fx:id="lastRunColumn" maxWidth="150.0" minWidth="120.0" prefWidth="120.0" resizable="false" text="Last updated" />
+                      <TreeTableColumn fx:id="statusColumn" maxWidth="70.0" minWidth="70.0" prefWidth="70.0" resizable="false" text="Status" />
                     </columns>
                      <columnResizePolicy>
                         <TreeTableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
                      </columnResizePolicy>
                   </TreeTableView>
+                  <Label layoutX="14.0" layoutY="326.0" text="Runs: 0/0" />
+                  <Label layoutX="121.0" layoutY="326.0" text="Passes: 0" textFill="#027c33" />
+                  <Label layoutX="223.0" layoutY="326.0" text="Failures: 0" textFill="#cd0101" />
                </children>
             </AnchorPane>
           <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">

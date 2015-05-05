@@ -54,6 +54,7 @@ import pl.baczkowicz.mqttspy.scripts.InteractiveScriptManager;
 import pl.baczkowicz.mqttspy.scripts.ScriptManager;
 import pl.baczkowicz.mqttspy.testcases.TestCase;
 import pl.baczkowicz.mqttspy.testcases.TestCaseInfo;
+import pl.baczkowicz.mqttspy.testcases.TestCaseManager;
 import pl.baczkowicz.mqttspy.testcases.TestCaseStatus;
 import pl.baczkowicz.mqttspy.testcases.TestCaseStepResult;
 import pl.baczkowicz.mqttspy.ui.properties.SubscriptionTopicSummaryProperties;
@@ -102,9 +103,14 @@ public class TestCasesExecutionController extends AnchorPane implements Initiali
 	private ConfigurationManager configurationManager;
 	
 	private InteractiveScriptManager scriptManager;
+
+	private TestCaseManager testCaseManager;
 	
 	public void initialize(URL location, ResourceBundle resources)
 	{
+		scriptManager = new InteractiveScriptManager(eventManager, null);
+		testCaseManager = new TestCaseManager(scriptManager);
+		
 		final ContextMenu contextMenu = new ContextMenu();
 		
 		// Set location
@@ -117,58 +123,11 @@ public class TestCasesExecutionController extends AnchorPane implements Initiali
 				// TODO: select location
 				scriptLocation = "/home/kamil/Programming/Git/mqtt-spy/src/test/resources/test_cases";
 				
-				final List<File> scripts = FileUtils.getDirectoriesWithFile(scriptLocation, "tc.*js");
 				root.getChildren().clear();
-				for (final File scriptFile : scripts)
+				for (final TestCaseProperties properties : testCaseManager.loadTestCases(scriptLocation))
 				{
-					logger.info("Adding " + scriptFile.getName() + " with parent " + scriptFile.getParent());
-					
-					final ScriptDetails scriptDetails = new ScriptDetails();					
-					scriptDetails.setFile(scriptFile.getAbsolutePath());
-					scriptDetails.setRepeat(false);
-										
-					final String scriptName = ScriptManager.getScriptName(scriptFile);
-					
-					final TestCase testCase = new TestCase();
-							
-					scriptManager.createFileBasedScript(testCase, scriptName, scriptFile, null, scriptDetails);
-					
-					try
-					{	
-						scriptManager.runScript(testCase, false);
-						testCase.setInfo((TestCaseInfo) scriptManager.invokeFunction(testCase, "getInfo"));
-//						testCase.getScriptEngine().eval(new FileReader(testCase.getScriptFile()));
-//						final Invocable invocable = (Invocable) testCase.getScriptEngine();
-//						
-//						testCase.setInfo((TestCaseInfo) invocable.invokeFunction("getInfo"));
-						
-						int stepNumber = 1;
-						for (final String step : testCase.getInfo().getSteps())
-						{
-							testCase.getSteps().add(new TestCaseStepProperties(
-									String.valueOf(stepNumber), step, TestCaseStatus.NOT_RUN, ""));
-							stepNumber++;
-						}
-						
-						logger.info(testCase.getInfo().getName() + " " + Arrays.asList(testCase.getInfo().getSteps()));
-					}
-					catch (ScriptException | NoSuchMethodException e)
-					{
-						logger.error("Cannot read test case", e);
-					}
-					
-					// Override name
-					if (testCase.getInfo() != null && testCase.getInfo().getName() != null)
-					{
-						testCase.setName(testCase.getInfo().getName());
-					}
-					else
-					{
-						testCase.setName(scriptFile.getParentFile().getName());
-					}
-					
-					root.getChildren().add(new TreeItem<TestCaseProperties>(new TestCaseProperties(testCase)));
-				}
+					root.getChildren().add(new TreeItem<TestCaseProperties>(properties));
+				}				
 				
 				scriptTree.getSelectionModel().clearSelection();
 				// TODO: get all dirs
@@ -181,7 +140,9 @@ public class TestCasesExecutionController extends AnchorPane implements Initiali
 		contextMenu.getItems().add(new SeparatorMenuItem());
 		
 		// Start
-		final MenuItem runMenu = new MenuItem("Run test case");
+		final MenuItem runMenu = new MenuItem("Run all test cases");
+		// TODO: enable
+		runMenu.setDisable(true);
 		runMenu.setOnAction(new EventHandler<ActionEvent>()
 		{		
 			@Override
@@ -192,7 +153,9 @@ public class TestCasesExecutionController extends AnchorPane implements Initiali
 			
 				if (selected != null && selected.getValue() != null)
 				{
-					runTestCase(selected, selected.getValue().getScript());
+					final TestCaseProperties testCaseProperties = selected.getValue();
+					
+					testCaseManager.runTestCase(testCaseProperties);
 				}
 			}
 		});
@@ -211,7 +174,9 @@ public class TestCasesExecutionController extends AnchorPane implements Initiali
 
 				if (selected != null && selected.getValue() != null)
 				{					
-					testCaseExecutionPaneController.display(((TestCase) selected.getValue().getScript()).getSteps());
+					final TestCaseProperties testCaseProperties = selected.getValue();
+					
+					testCaseExecutionPaneController.display(testCaseProperties, ((TestCase) testCaseProperties.getScript()).getSteps());
 				}
 			}
 			
@@ -264,17 +229,17 @@ public class TestCasesExecutionController extends AnchorPane implements Initiali
 						}
 					}
 				};
-				cell.setAlignment(Pos.TOP_CENTER);
+				cell.setAlignment(Pos.CENTER);
 				cell.setPadding(new Insets(0, 0, 0, 0));
 				
 				return cell;
 			}
 		});
 		
-		scriptManager = new InteractiveScriptManager(eventManager, null);
-		
 		// Note: important - without that, cell height goes nuts with progress indicator
 		scriptTree.setFixedCellSize(24);		
+		
+		testCaseExecutionPaneController.setTestCaseManager(testCaseManager);
 	}	
 
 	public void init()
@@ -282,108 +247,6 @@ public class TestCasesExecutionController extends AnchorPane implements Initiali
 		//
 	}	
 	
-	public void runTestCase(final TreeItem<TestCaseProperties> selected, final TestCase testCase)
-	{
-		final TestCaseProperties testCaseProperties = selected.getValue();
-		
-		testCaseProperties.statusProperty().setValue(TestCaseStatus.IN_PROGRESS);
-		
-		// Clear last run for this test case
-		for (final TestCaseStepProperties properties : testCase.getSteps())
-		{
-			properties.statusProperty().setValue(TestCaseStatus.NOT_RUN);
-			properties.executionInfoProperty().setValue("");
-		}
-		
-		new Thread(new Runnable()
-		{			
-			@Override
-			public void run()
-			{
-				TestCaseStepResult lastResult = null;
-				int step = 0;				
-				
-				while (step < testCase.getSteps().size())
-				{
-					final TestCaseStepProperties properties = testCase.getSteps().get(step);
-					
-					Platform.runLater(new Runnable()
-					{							
-						@Override
-						public void run()
-						{
-							properties.statusProperty().setValue(TestCaseStatus.IN_PROGRESS);
-						}
-					});
-					
-					try
-					{
-						Thread.sleep(1000);
-					}
-					catch (InterruptedException e)
-					{
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}	
-					
-					try
-					{
-						final TestCaseStepResult result = (TestCaseStepResult) scriptManager.invokeFunction(
-								testCase, "step" + properties.stepNumberProperty().getValue());
-						lastResult = result;
-						
-						if (result == null)
-						{
-							// TODO
-							continue;
-						}
-						
-						Platform.runLater(new Runnable()
-						{							
-							@Override
-							public void run()
-							{
-								properties.statusProperty().setValue(result.getStatus());
-								properties.executionInfoProperty().setValue(result.getInfo());
-							}
-						});
-						
-						// If not in progress any more, move to next
-						if (!TestCaseStatus.IN_PROGRESS.equals(result.getStatus()))
-						{
-							step++;
-						}														
-					}
-					catch (NoSuchMethodException | ScriptException e)
-					{
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					
-					try
-					{
-						Thread.sleep(1000);
-					}
-					catch (InterruptedException e)
-					{
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}		
-				}		
-				
-				final TestCaseStepResult testCaseStatus = lastResult;
-				Platform.runLater(new Runnable()
-				{							
-					@Override
-					public void run()
-					{
-						testCaseProperties.statusProperty().setValue(testCaseStatus.getStatus());
-					}
-				});
-				
-			}
-		}).start();		
-	}
 	
 	// ===============================
 	// === Setters and getters =======

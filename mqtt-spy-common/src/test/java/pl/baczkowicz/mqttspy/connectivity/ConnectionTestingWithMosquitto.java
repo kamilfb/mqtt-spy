@@ -42,7 +42,7 @@ import pl.baczkowicz.mqttspy.utils.ConversionUtils;
  * Also, some tests assume availability of the network and 'test.mosquitto.org'.
  * 
  */
-public class SimpleMqttConnectionTest
+public class ConnectionTestingWithMosquitto
 {
 	private final ReconnectionManager reconnectionManager = new ReconnectionManager();
 	

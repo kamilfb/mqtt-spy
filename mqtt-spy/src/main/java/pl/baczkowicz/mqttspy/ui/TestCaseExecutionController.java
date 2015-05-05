@@ -23,6 +23,7 @@ import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
@@ -38,7 +39,10 @@ import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
 import pl.baczkowicz.mqttspy.events.EventManager;
+import pl.baczkowicz.mqttspy.scripts.ScriptRunningState;
+import pl.baczkowicz.mqttspy.testcases.TestCaseManager;
 import pl.baczkowicz.mqttspy.testcases.TestCaseStatus;
+import pl.baczkowicz.mqttspy.ui.properties.TestCaseProperties;
 import pl.baczkowicz.mqttspy.ui.properties.TestCaseStepProperties;
 
 /**
@@ -50,8 +54,14 @@ public class TestCaseExecutionController extends AnchorPane implements Initializ
 
 	private EventManager eventManager;
 
-	private ConfigurationManager configurationManager;
+	private ConfigurationManager configurationManager;	
 	
+	@FXML
+	private Button startButton;
+	
+	@FXML
+	private Button stopButton;
+	 
 	@FXML
 	private TableView<TestCaseStepProperties> stepsView;
 	
@@ -66,6 +76,10 @@ public class TestCaseExecutionController extends AnchorPane implements Initializ
 	
 	@FXML
 	private TableColumn<TestCaseStepProperties, String> infoColumn;
+
+	private TestCaseProperties testCaseProperties;
+
+	private TestCaseManager testCaseManager;
 	
 	public void initialize(URL location, ResourceBundle resources)
 	{
@@ -96,7 +110,7 @@ public class TestCaseExecutionController extends AnchorPane implements Initializ
 						}
 					}
 				};
-				cell.setAlignment(Pos.TOP_CENTER);
+				cell.setAlignment(Pos.CENTER);
 				cell.setPadding(new Insets(0, 0, 0, 0));
 				
 				return cell;
@@ -117,11 +131,42 @@ public class TestCaseExecutionController extends AnchorPane implements Initializ
 		//
 	}	
 	
-	public void display(final ObservableList<TestCaseStepProperties> items)
+	public void display(final TestCaseProperties testCaseProperties, final ObservableList<TestCaseStepProperties> items)
 	{
+		this.testCaseProperties = testCaseProperties;
+		
+		refreshState();
 		stepsView.getItems().clear();
 		
 		stepsView.setItems(items);
+	}
+	
+	public void refreshState()
+	{
+		if (ScriptRunningState.RUNNING.equals(testCaseProperties.getScript().getStatus()))
+		{
+			startButton.setDisable(true);
+			stopButton.setDisable(false);
+		}
+		else
+		{
+			startButton.setDisable(false);
+			stopButton.setDisable(true);
+		}
+	}
+	
+	@FXML
+	private void startTestCase()
+	{
+		testCaseManager.runTestCase(testCaseProperties);
+		refreshState();
+	}
+	
+	@FXML
+	private void stopTestCase()
+	{
+		testCaseManager.stopTestCase(testCaseProperties);
+		refreshState();
 	}
 	
 	public Node getIconForStatus(final TestCaseStatus status)
@@ -174,6 +219,11 @@ public class TestCaseExecutionController extends AnchorPane implements Initializ
 	public void setEventManager(final EventManager eventManager)
 	{
 		this.eventManager = eventManager;
+	}
+	
+	public void setTestCaseManager(final TestCaseManager testCaseManager)
+	{
+		this.testCaseManager = testCaseManager;
 	}
 
 	public void setConfingurationManager(final ConfigurationManager configurationManager)
