@@ -304,8 +304,9 @@ public class ScriptManager
 	 * @param variables The variables to be populated
 	 */
 	public static void putJavaVariablesIntoEngine(final ScriptEngine engine, final Map<String, Object> variables)
-	{
+	{		
 		final Bindings bindings = new SimpleBindings();
+		// final Bindings bindings = engine.createBindings();
 
 		for (String key : variables.keySet())
 		{

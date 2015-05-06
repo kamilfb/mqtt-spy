@@ -1,6 +1,9 @@
 var TestCaseStepResult = Java.type("pl.baczkowicz.mqttspy.testcases.TestCaseStepResult");
 var TestCaseStatus = Java.type("pl.baczkowicz.mqttspy.testcases.TestCaseStatus");
 
+// This is to demonstrate updating a global variable
+var count = 0;
+
 var getInfo = function () 
 {
     var TestCaseInfo = Java.type("pl.baczkowicz.mqttspy.testcases.TestCaseInfo");
@@ -16,21 +19,30 @@ var getInfo = function ()
 
 var step1 = function ()
 {
-	return new TestCaseStepResult(TestCaseStatus.PASSED, "All fine in step 1");
+	// Make sure any variables are reset if the test case is re-run
+	count = 1;
+	return new TestCaseStepResult(TestCaseStatus.PASSED, "All fine in step 1 " + "[" + count + "]");
 };
 
 var step2 = function ()
 {
-	return new TestCaseStepResult(TestCaseStatus.ACTIONED, "All fine in step 2");
+	count = count + 1;	
+	if (count < 5)
+	{
+		return new TestCaseStepResult(TestCaseStatus.IN_PROGRESS, "Still waiting... " + "[" + count + "]");
+	}
+	return new TestCaseStepResult(TestCaseStatus.ACTIONED, "All fine in step 2 " + "[" + count + "]");
 };
 
 var step3 = function ()
 {
-	return new TestCaseStepResult(TestCaseStatus.SKIPPED, "Step 3 skipped");
+	count = count + 1;
+	return new TestCaseStepResult(TestCaseStatus.SKIPPED, "Step 3 skipped " + "[" + count + "]");
 };
 
 var step4 = function ()
 {
-	return new TestCaseStepResult(TestCaseStatus.FAILED, "Step 4 failed");
+	count = count + 1;
+	return new TestCaseStepResult(TestCaseStatus.FAILED, "Step 4 failed " + "[" + count + "]");
 };
 
