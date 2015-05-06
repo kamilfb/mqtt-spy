@@ -137,8 +137,8 @@ public class TestCaseExecutionController extends AnchorPane implements Initializ
 		
 		refreshState();
 		stepsView.getItems().clear();
-		
-		stepsView.setItems(items);
+		logger.info("Item to display = " + items.size());
+		stepsView.getItems().addAll(items);
 	}
 	
 	public void refreshState()

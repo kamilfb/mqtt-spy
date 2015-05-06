@@ -16,6 +16,7 @@ import pl.baczkowicz.mqttspy.common.generated.ScriptDetails;
 import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
 import pl.baczkowicz.mqttspy.scripts.ScriptManager;
 import pl.baczkowicz.mqttspy.scripts.ScriptRunningState;
+import pl.baczkowicz.mqttspy.ui.TestCaseExecutionController;
 import pl.baczkowicz.mqttspy.ui.properties.TestCaseProperties;
 import pl.baczkowicz.mqttspy.ui.properties.TestCaseStepProperties;
 import pl.baczkowicz.mqttspy.utils.FileUtils;
@@ -28,9 +29,12 @@ public class TestCaseManager
 
 	private final ScriptManager scriptManager;
 
-	public TestCaseManager(final ScriptManager scriptManager)	
+	private TestCaseExecutionController testCaseExecutionController;
+
+	public TestCaseManager(final ScriptManager scriptManager, final TestCaseExecutionController testCaseExecutionController)	
 	{
 		this.scriptManager = scriptManager;
+		this.testCaseExecutionController = testCaseExecutionController;
 	}
 	
 	public List<TestCaseProperties> loadTestCases(final String testCaseLocation)
@@ -117,14 +121,14 @@ public class TestCaseManager
 				
 				while (step < testCase.getSteps().size() && testCase.getStatus().equals(ScriptRunningState.RUNNING))
 				{
-					final TestCaseStepProperties properties = testCase.getSteps().get(step);
+					final TestCaseStepProperties stepProperties = testCase.getSteps().get(step);
 					
 					Platform.runLater(new Runnable()
 					{							
 						@Override
 						public void run()
 						{
-							properties.statusProperty().setValue(TestCaseStatus.IN_PROGRESS);
+							stepProperties.statusProperty().setValue(TestCaseStatus.IN_PROGRESS);
 						}
 					});
 					
@@ -141,7 +145,7 @@ public class TestCaseManager
 					try
 					{
 						final TestCaseStepResult result = (TestCaseStepResult) scriptManager.invokeFunction(
-								testCase, "step" + properties.stepNumberProperty().getValue());
+								testCase, "step" + stepProperties.stepNumberProperty().getValue());
 						lastResult = result;
 						
 						if (result == null)
@@ -155,8 +159,8 @@ public class TestCaseManager
 							@Override
 							public void run()
 							{
-								properties.statusProperty().setValue(result.getStatus());
-								properties.executionInfoProperty().setValue(result.getInfo());
+								stepProperties.statusProperty().setValue(result.getStatus());
+								stepProperties.executionInfoProperty().setValue(result.getInfo());
 							}
 						});
 						
@@ -198,6 +202,7 @@ public class TestCaseManager
 							selected.statusProperty().setValue(testCaseStatus.getStatus());
 							testCase.setStatus(ScriptRunningState.FINISHED);
 						}
+						testCaseExecutionController.refreshState();
 					}
 				});
 				

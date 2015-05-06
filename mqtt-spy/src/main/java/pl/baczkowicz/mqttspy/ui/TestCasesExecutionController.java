@@ -39,6 +39,7 @@ import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableCell;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.util.Callback;
 
@@ -109,7 +110,7 @@ public class TestCasesExecutionController extends AnchorPane implements Initiali
 	public void initialize(URL location, ResourceBundle resources)
 	{
 		scriptManager = new InteractiveScriptManager(eventManager, null);
-		testCaseManager = new TestCaseManager(scriptManager);
+		testCaseManager = new TestCaseManager(scriptManager, testCaseExecutionPaneController);
 		
 		final ContextMenu contextMenu = new ContextMenu();
 		
@@ -165,19 +166,21 @@ public class TestCasesExecutionController extends AnchorPane implements Initiali
 		scriptTree.setRoot(root);
 		scriptTree.setShowRoot(false);
 		
+		scriptTree.setOnMouseClicked(new EventHandler<MouseEvent>()
+		{
+			@Override
+			public void handle(MouseEvent event)
+			{
+				showSelected();				
+			}
+		});
+		
 		scriptTree.getSelectionModel().getSelectedItems().addListener(new ListChangeListener<TreeItem<TestCaseProperties>>(){
 
 			@Override
 			public void onChanged(Change<? extends TreeItem<TestCaseProperties>> c)
 			{
-				final TreeItem<TestCaseProperties> selected = scriptTree.getSelectionModel().getSelectedItem();
-
-				if (selected != null && selected.getValue() != null)
-				{					
-					final TestCaseProperties testCaseProperties = selected.getValue();
-					
-					testCaseExecutionPaneController.display(testCaseProperties, ((TestCase) testCaseProperties.getScript()).getSteps());
-				}
+				//showSelected();
 			}
 			
 		});
@@ -246,6 +249,23 @@ public class TestCasesExecutionController extends AnchorPane implements Initiali
 	{
 		//
 	}	
+	
+	public void showSelected()
+	{
+		final TreeItem<TestCaseProperties> selected = scriptTree.getSelectionModel().getSelectedItem();
+
+		logger.info("About to display selected test case");
+		if (selected != null && selected.getValue() != null)
+		{					
+			final TestCaseProperties testCaseProperties = selected.getValue();
+			logger.info("About to display selected test case - " + testCaseProperties.getName());
+			testCaseExecutionPaneController.display(testCaseProperties, ((TestCase) testCaseProperties.getScript()).getSteps());
+		}
+		else
+		{
+			logger.warn("No test case selected");
+		}
+	}
 	
 	
 	// ===============================
