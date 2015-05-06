@@ -116,10 +116,10 @@ public class SimpleMqttConnection extends MqttConnectionWithReconnection
 		{
 			try
 			{
-				logger.info("Publishing message on topic \"" + publicationTopic + "\". Payload = \"" + payload + "\"");
+				logger.info("Publishing message on topic \"" + publicationTopic + "\". Payload size = " + payload.length);
 				client.publish(publicationTopic, payload, qos, retained);
 				
-				logger.trace("Published message on topic \"" + publicationTopic + "\". Payload = \"" + payload + "\"");
+				logger.trace("Published message on topic \"" + publicationTopic + "\". Payload size = " + payload.length);
 				
 				return true;
 			}

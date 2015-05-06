@@ -144,12 +144,16 @@ public class ScriptManager
 	 * 
 	 * @param scriptDetails The script details
 	 */
-	public void addScripts(final List<ScriptDetails> scriptDetails)
+	public List<Script> addScripts(final List<ScriptDetails> scriptDetails)
 	{
+		final List<Script> addedScripts = new ArrayList<>();
+		
 		for (final ScriptDetails script : scriptDetails)
 		{
-			addScript(script);
+			addedScripts.add(addScript(script));			
 		}
+		
+		return addedScripts;
 	}
 	
 	/**

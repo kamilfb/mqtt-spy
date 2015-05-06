@@ -41,15 +41,15 @@
 	<Subscription topic="/test/#" qos="0" />
 	<!-- Use the script file for things like auto-reply or additional logging -->
 	<!-- scriptFile="/home/kamil/Programming/Git/mqtt-spy-logger/src/test/resources/reply.js" -->
-	<Subscription topic="/home/#" qos="0" />
+	<Subscription topic="/home/#" qos="0" scriptFile="/home/kamil/Programming/Git/mqtt-spy-daemon/src/test/resources/reply.js" />
 			 
 	<!-- Use these for publishing messages -->
 	<BackgroundScript>
-		<File>/home/kamil/Programming/Git/mqtt-spy-logger/src/test/resources/bedroom.js</File>
+		<File>/home/kamil/Programming/Git/mqtt-spy-daemon/src/test/resources/bedroom.js</File>
 	</BackgroundScript>
 	<!-- 
 	<BackgroundScript repeat="false">
-		<File>/home/kamil/Programming/Git/mqtt-spy-logger/src/test/resources/replay.js</File>
+		<File>/home/kamil/Programming/Git/mqtt-spy-daemon/src/test/resources/replay.js</File>
 	</BackgroundScript>
 	 -->
 	<!-- Use CONTINUOUS or SCRIPTS_ONLY -->
