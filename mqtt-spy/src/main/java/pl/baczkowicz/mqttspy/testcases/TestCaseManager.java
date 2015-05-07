@@ -215,4 +215,39 @@ public class TestCaseManager
 		final TestCase testCase = testCaseProperties.getScript();
 		testCase.setStatus(ScriptRunningState.STOPPED);		
 	}
+
+	public void enqueueAllTestCases()
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void enqueueTestCase(TestCaseProperties testCaseProperties)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void enqueueAllNotRun()
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void enqueueAllFailed()
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void clearEnqueued()
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	public int getEnqueuedCount()
+	{
+		return 0;
+	}
 }

@@ -36,7 +36,7 @@
             <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
          </columnResizePolicy>
       </TableView>
-      <Button fx:id="startButton" disable="true" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="115.0" text="Run" onAction="#startTestCase">
+      <Button fx:id="startButton" disable="true" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" onAction="#startTestCase" prefHeight="25.0" prefWidth="115.0" text="Run">
       	<graphic>
       		<ImageView fitHeight="16" fitWidth="16" pickOnBounds="true" preserveRatio="true">
 		         <image>
@@ -45,7 +45,7 @@
 		      </ImageView>
       	</graphic>
       </Button>
-      <Button fx:id="stopButton" disable="true" layoutX="135.0" layoutY="10.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="115.0" text="Stop" onAction="#stopTestCase">
+      <Button fx:id="stopButton" disable="true" layoutX="135.0" layoutY="10.0" mnemonicParsing="false" onAction="#stopTestCase" prefHeight="25.0" prefWidth="115.0" text="Stop">
       	      	<graphic>
       		<ImageView fitHeight="16" fitWidth="16" pickOnBounds="true" preserveRatio="true">
 		         <image>
@@ -55,9 +55,42 @@
       	</graphic>
       </Button>
       <MenuButton layoutX="440.0" layoutY="10.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="115.0" text="Tools" AnchorPane.rightAnchor="10.0">
+	    <graphic>
+      		<ImageView fitHeight="18.0" fitWidth="18.0" pickOnBounds="true">
+		         <image>
+		            <Image url="/images/tools.png" />
+		         </image>
+		      </ImageView>
+      	</graphic>
         <items>
-          <MenuItem mnemonicParsing="false" text="Action 1" />
-          <MenuItem mnemonicParsing="false" text="Action 2" />
+        	<CheckMenuItem mnemonicParsing="false" text="Repeat test steps when finished">
+   		      	<graphic>
+		      		<ImageView fitHeight="18.0" fitWidth="18.0" pickOnBounds="true">
+				         <image>
+				            <Image url="/images/testcase_repeat.png" />
+				         </image>
+				      </ImageView>
+		      	</graphic>
+        	</CheckMenuItem>
+        	<SeparatorMenuItem />
+            <CheckMenuItem mnemonicParsing="false" selected="true" text="Automatically export each test case run">
+            	<graphic>
+		      		<ImageView fitHeight="18.0" fitWidth="18.0" pickOnBounds="true">
+				         <image>
+				            <Image url="/images/save.png" />
+				         </image>
+				      </ImageView>
+		      	</graphic>
+            </CheckMenuItem>
+          	<MenuItem mnemonicParsing="false" text="Export this test case run">
+          		<graphic>
+		      		<ImageView fitHeight="18.0" fitWidth="18.0" pickOnBounds="true">
+				         <image>
+				            <Image url="/images/save.png" />
+				         </image>
+				      </ImageView>
+		      	</graphic>
+          	</MenuItem>
         </items>
       </MenuButton>
    </children>

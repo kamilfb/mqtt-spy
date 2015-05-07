@@ -31,6 +31,7 @@ import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.ContextMenu;
+import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.TableCell;
@@ -74,7 +75,7 @@ public class TestCasesExecutionController extends AnchorPane implements Initiali
 	/** Initial and minimal scene/stage height. */
 	public final static int HEIGHT = 550;
 		
-	final static Logger logger = LoggerFactory.getLogger(TestCaseExecutionController.class);	
+	final static Logger logger = LoggerFactory.getLogger(TestCasesExecutionController.class);	
 
 	@FXML
 	private TreeTableView<TestCaseProperties> scriptTree;
@@ -97,6 +98,30 @@ public class TestCasesExecutionController extends AnchorPane implements Initiali
 	@FXML
 	private TreeTableColumn<TestCaseProperties, TestCaseStatus> statusColumn;
 	
+	@FXML
+	private ContextMenu scriptTreeContextMenu;	
+
+	@FXML
+	private MenuItem setLocationMenu;
+
+	@FXML
+	private MenuItem enqueueAllMenu;
+
+	@FXML
+	private MenuItem enqueueSelectedMenu;
+
+	@FXML
+	private MenuItem enqueueNotRunMenu;
+
+	@FXML
+	private MenuItem enqueueFailedMenu;
+	
+	@FXML
+	private MenuItem clearEnqueuedMenu;
+	
+	@FXML
+	private Label enqueuedLabel;
+	
 	private String scriptLocation;
 	
 	private EventManager eventManager;
@@ -112,10 +137,7 @@ public class TestCasesExecutionController extends AnchorPane implements Initiali
 		scriptManager = new InteractiveScriptManager(eventManager, null);
 		testCaseManager = new TestCaseManager(scriptManager, testCaseExecutionPaneController);
 		
-		final ContextMenu contextMenu = new ContextMenu();
-		
 		// Set location
-		final MenuItem setLocationMenu = new MenuItem("Load test cases from folder");	
 		setLocationMenu.setOnAction(new EventHandler<ActionEvent>()
 		{		
 			@Override
@@ -131,24 +153,18 @@ public class TestCasesExecutionController extends AnchorPane implements Initiali
 				}				
 				
 				scriptTree.getSelectionModel().clearSelection();
+				updateContextMenu();
 				// TODO: get all dirs
 				// TODO: load
 			}
 		});
-		contextMenu.getItems().add(setLocationMenu);
 		
-		// Separator
-		contextMenu.getItems().add(new SeparatorMenuItem());
-		
-		// Start
-		final MenuItem runMenu = new MenuItem("Run all test cases");
-		// TODO: enable
-		runMenu.setDisable(true);
-		runMenu.setOnAction(new EventHandler<ActionEvent>()
+		enqueueAllMenu.setOnAction(new EventHandler<ActionEvent>()
 		{		
 			@Override
 			public void handle(ActionEvent event)
 			{
+				testCaseManager.enqueueAllTestCases();
 				// TODO: start
 				final TreeItem<TestCaseProperties> selected = scriptTree.getSelectionModel().getSelectedItem();
 			
@@ -159,10 +175,51 @@ public class TestCasesExecutionController extends AnchorPane implements Initiali
 					testCaseManager.runTestCase(testCaseProperties);
 				}
 			}
-		});
-		contextMenu.getItems().add(runMenu);
+		});		
 		
-		scriptTree.setContextMenu(contextMenu);				
+		enqueueSelectedMenu.setOnAction(new EventHandler<ActionEvent>()
+		{		
+			@Override
+			public void handle(ActionEvent event)
+			{
+				final TreeItem<TestCaseProperties> selected = scriptTree.getSelectionModel().getSelectedItem();
+			
+				if (selected != null && selected.getValue() != null)
+				{
+					final TestCaseProperties testCaseProperties = selected.getValue();
+					
+					testCaseManager.enqueueTestCase(testCaseProperties);
+				}
+			}
+		});
+		
+		enqueueNotRunMenu.setOnAction(new EventHandler<ActionEvent>()
+		{		
+			@Override
+			public void handle(ActionEvent event)
+			{
+				testCaseManager.enqueueAllNotRun();
+			}
+		});
+		
+		enqueueFailedMenu.setOnAction(new EventHandler<ActionEvent>()
+		{		
+			@Override
+			public void handle(ActionEvent event)
+			{
+				testCaseManager.enqueueAllFailed();
+			}
+		});
+		
+		clearEnqueuedMenu.setOnAction(new EventHandler<ActionEvent>()
+		{			
+			@Override
+			public void handle(ActionEvent event)
+			{
+				testCaseManager.clearEnqueued();				
+			}
+		});
+						
 		scriptTree.setRoot(root);
 		scriptTree.setShowRoot(false);
 		
@@ -171,18 +228,9 @@ public class TestCasesExecutionController extends AnchorPane implements Initiali
 			@Override
 			public void handle(MouseEvent event)
 			{
-				showSelected();				
+				showSelected();			
+				updateContextMenu();
 			}
-		});
-		
-		scriptTree.getSelectionModel().getSelectedItems().addListener(new ListChangeListener<TreeItem<TestCaseProperties>>(){
-
-			@Override
-			public void onChanged(Change<? extends TreeItem<TestCaseProperties>> c)
-			{
-				//showSelected();
-			}
-			
 		});
 		
 		nameColumn.setCellValueFactory
@@ -250,11 +298,42 @@ public class TestCasesExecutionController extends AnchorPane implements Initiali
 		//
 	}	
 	
+	public void updateContextMenu()
+	{
+		enqueueAllMenu.setDisable(true);
+		enqueueSelectedMenu.setDisable(true);
+		enqueueNotRunMenu.setDisable(true);
+		enqueueFailedMenu.setDisable(true);
+		clearEnqueuedMenu.setDisable(testCaseManager.getEnqueuedCount() == 0 ? true : false);
+		
+		if (root.getChildren().size() > 0)
+		{		
+			enqueueAllMenu.setDisable(false);
+			
+			final TreeItem<TestCaseProperties> selected = scriptTree.getSelectionModel().getSelectedItem();
+
+			if (selected != null && selected.getValue() != null)
+			{
+				enqueueSelectedMenu.setDisable(false);
+			}
+			
+			// TODO: check if any are failed/not run
+			enqueueNotRunMenu.setDisable(false);
+			enqueueFailedMenu.setDisable(false);									
+		}
+	}
+	
+	public void updateLabels()
+	{
+		// TODO: update other labels
+		enqueuedLabel.setText("Enqueued: " + testCaseManager.getEnqueuedCount());
+	}
+	
 	public void showSelected()
 	{
 		final TreeItem<TestCaseProperties> selected = scriptTree.getSelectionModel().getSelectedItem();
 
-		logger.info("About to display selected test case");
+		//logger.info("About to display selected test case");
 		if (selected != null && selected.getValue() != null)
 		{					
 			final TestCaseProperties testCaseProperties = selected.getValue();

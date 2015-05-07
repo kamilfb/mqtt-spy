@@ -21,6 +21,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.control.ContextMenu?>
 
 <AnchorPane prefHeight="357.0" prefWidth="928.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.baczkowicz.mqttspy.ui.TestCasesExecutionController">
    <children>
@@ -28,19 +29,35 @@
         <items>
           <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
                <children>
-                  <TreeTableView fx:id="scriptTree" prefHeight="200.0" prefWidth="200.0" showRoot="false" AnchorPane.bottomAnchor="45.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                  <TreeTableView fx:id="scriptTree" prefHeight="296.0" prefWidth="323.0" showRoot="false" AnchorPane.bottomAnchor="59.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                  	<contextMenu>
+                  		<ContextMenu fx:id="scriptTreeContextMenu">
+                  			<items>	
+                  				<MenuItem fx:id="setLocationMenu" text="Load test cases from folder" />
+                  				<SeparatorMenuItem />
+                  				<MenuItem fx:id="enqueueAllMenu" text="Enqueue all test cases for execution" />
+                  				<MenuItem fx:id="enqueueSelectedMenu" text="Enqueue selected test case for execution" />
+                  				<MenuItem fx:id="enqueueNotRunMenu" text="Enqueue all test cases not run yet" />
+                  				<MenuItem fx:id="enqueueFailedMenu" text="Enqueue all failed test cases" />
+                  				<MenuItem fx:id="clearEnqueuedMenu" text="Clear enqueued test cases" />
+                  			</items>
+                  		</ContextMenu>
+                  	</contextMenu>
                     <columns>
                       <TreeTableColumn fx:id="nameColumn" minWidth="50.0" prefWidth="500.0" text="Name" />
-                        <TreeTableColumn fx:id="lastRunColumn" maxWidth="150.0" minWidth="120.0" prefWidth="120.0" resizable="false" text="Last updated" />
+                      <TreeTableColumn fx:id="lastRunColumn" maxWidth="150.0" minWidth="120.0" prefWidth="120.0" resizable="false" text="Last updated" />
                       <TreeTableColumn fx:id="statusColumn" maxWidth="70.0" minWidth="70.0" prefWidth="70.0" resizable="false" text="Status" />
                     </columns>
                      <columnResizePolicy>
                         <TreeTableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
                      </columnResizePolicy>
                   </TreeTableView>
-                  <Label layoutX="14.0" layoutY="326.0" text="Runs: 0/0" />
-                  <Label layoutX="121.0" layoutY="326.0" text="Passes: 0" textFill="#027c33" />
-                  <Label layoutX="223.0" layoutY="326.0" text="Failures: 0" textFill="#cd0101" />
+                  <Label fx:id="enqueuedLabel" layoutX="14.0" layoutY="303.0" text="Enqueued: 0" />
+                  <Label layoutX="14.0" layoutY="326.0" text="Passes: 0" textFill="#027c33" />
+                  <Label layoutX="113.0" layoutY="326.0" text="Failures: 0" textFill="#cd0101" />
+                  <Label layoutX="113.0" layoutY="303.0" text="Run: 0" />
+                  <Label layoutX="214.0" layoutY="303.0" text="Total: 0" />
+                  <Label layoutX="214.0" layoutY="326.0" text="Skipped: 0" textFill="#797777" />
                </children>
             </AnchorPane>
           <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
