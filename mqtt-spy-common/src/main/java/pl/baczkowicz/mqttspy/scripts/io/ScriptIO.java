@@ -233,4 +233,16 @@ public class ScriptIO implements IScriptIO
 	{
 		messageLog.stop();
 	}
+
+	@Override
+	public boolean subscribe(final String topic, final int qos)
+	{
+		return connection.subscribe(topic, qos);
+	}
+
+	@Override
+	public boolean unsubscribe(final String topic)
+	{
+		return connection.unsubscribe(topic);
+	}
 }

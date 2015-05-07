@@ -21,6 +21,21 @@ package pl.baczkowicz.mqttspy.connectivity;
  */
 public interface IMqttConnection
 {
+	/**
+	 * Attempts a subscription to the given topic and quality of service.
+	 * 
+	 * @param topic Subscription topic
+	 * @param qos Subscription QoS
+	 */
+	boolean subscribe(final String topic, final int qos);
+	
+	/**
+	 * Attempts to unsubscribe from the given topic.
+	 * 
+	 * @param topic Subscription topic
+	 */
+	boolean unsubscribe(final String topic);
+	
 	/** 
 	 * Checks if a message can be published (e.g. client is connected).
 	 * 

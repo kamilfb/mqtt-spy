@@ -71,25 +71,6 @@ public class SimpleMqttConnection extends MqttConnectionWithReconnection
 	}
 	
 	/**
-	 * Attempts a subscription to the given topic and quality of service.
-	 */
-	public boolean subscribe(final String topic, final int qos)
-	{
-		try
-		{
-			super.subscribeToTopic(topic, qos);
-			logger.info("Successfully subscribed to " + topic);
-			return true;
-		}
-		catch (MqttSpyException e)
-		{
-			logger.error("Subscription attempt failed for topic {}", topic, e);
-		}
-		
-		return false;
-	}
-	
-	/**
 	 * Tries to publish a message to the given topic, with the provided payload, quality of service and retained flag.
 	 * 
 	 * @param publicationTopic Topic to which to publish the message
@@ -139,6 +120,6 @@ public class SimpleMqttConnection extends MqttConnectionWithReconnection
 	@Override
 	public boolean unsubscribeAll(boolean manualOverride)
 	{
-		throw new UnsupportedOperationException("This operation is now available");
+		throw new UnsupportedOperationException("This operation is not available");
 	}
 }

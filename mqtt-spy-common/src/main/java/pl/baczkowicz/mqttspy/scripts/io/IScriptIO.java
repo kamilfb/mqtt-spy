@@ -17,10 +17,14 @@ package pl.baczkowicz.mqttspy.scripts.io;
 import java.io.IOException;
 
 /**
- * Interface between a script and the mqttspy object, which can be used primarily for publishing messages.
+ * Interface between a script and the mqttspy object, primarily used for publishing messages.
  */
 public interface IScriptIO
 {
+	boolean subscribe(final String topic, final int qos);
+	
+	boolean unsubscribe(final String topic);
+	
 	/**
 	 * Publishes a message with the given payload to the given topic (qos = 0; retained = false).
 	 * 
@@ -70,6 +74,7 @@ public interface IScriptIO
 	 * 
 	 * @return True if successfully initialised
 	 */
+	@Deprecated
 	boolean instantiate(String className);
 
 	/**

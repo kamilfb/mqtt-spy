@@ -347,29 +347,12 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection
 		}
 
 		logger.debug("Unsubscribing from " + subscription.getTopic());
-		try
-		{
-			if (client.isConnected())
-			{
-				client.unsubscribe(subscription.getTopic());
-			}
-			logger.info("Unsubscribed from " + subscription.getTopic());
-			return true;
-		}
-		catch (MqttException e)
-		{
-			logger.error("Cannot unsubscribe from " + subscription.getTopic(), e);
+		final boolean unsubscribed = unsubscribe(subscription.getTopic());
+		
+		subscription.setActive(false);
+		logger.trace("Subscription " + subscription.getTopic() + " is active = " + subscription.isActive());
 
-			return false;
-		}
-		finally
-		{
-			// As this is in 'finally', will be executed before the returns
-			subscription.setActive(false);
-			logger.trace("Subscription " + subscription.getTopic() + " is active = "
-					+ subscription.isActive());
-
-		}
+		return unsubscribed;
 	}
 
 	public boolean unsubscribeAndRemove(final MqttSubscription subscription)

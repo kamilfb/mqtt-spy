@@ -219,6 +219,79 @@ public abstract class BaseMqttConnection implements IMqttConnection
 		}
 	}	
 	
+	public void unsubscribeFromTopic(final String topic) throws MqttSpyException
+	{
+		if (client == null || !client.isConnected())
+		{
+			// TODO: consider throwing an exception here
+			logger.warn("Client not connected");
+			return;
+		}
+				
+		try
+		{
+			client.unsubscribe(topic);
+			
+			topicMatcher.removeSubscriptionFromStore(topic);
+		}
+		catch (MqttException e)
+		{
+			throw new MqttSpyException("Unsubscription attempt failed", e);
+		}
+	}
+	
+	/**
+	 * Attempts a subscription to the given topic and quality of service.
+	 * 
+	 * @param topic Subscription topic
+	 * @param qos Subscription QoS
+	 */
+	public boolean subscribe(final String topic, final int qos)
+	{
+		try
+		{
+			subscribeToTopic(topic, qos);
+			logger.info("Successfully subscribed to " + topic);
+			return true;
+		}
+		catch (MqttSpyException e)
+		{
+			logger.error("Subscription attempt failed for topic {}", topic, e);
+		}
+		
+		return false;
+	}
+	
+	
+	/**
+	 * Attempts to unsubscribe from the given topic.
+	 * 
+	 * @param topic Subscription topic
+	 */
+	@Override
+	public boolean unsubscribe(final String topic)
+	{
+		try
+		{
+			unsubscribeFromTopic(topic);
+			logger.info("Successfully unsubscribed from " + topic);
+			return true;
+		}
+		catch (MqttSpyException e)
+		{
+			logger.error("Unsubscribe attempt failed for topic {}", topic, e);
+		}
+		
+		return false;
+	}
+	
+	/**
+	 * Unsubscribes from all topics.
+	 * 
+	 * @param manualOverride True if it was requested by user
+	 * 
+	 * @return True if successful
+	 */
 	public abstract boolean unsubscribeAll(final boolean manualOverride);
 
 	/**
@@ -226,6 +299,7 @@ public abstract class BaseMqttConnection implements IMqttConnection
 	 * 
 	 * @return True if the client is connected	
 	 */
+	@Override
 	public boolean canPublish()
 	{
 		return client != null && client.isConnected();
