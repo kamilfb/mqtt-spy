@@ -32,6 +32,8 @@ public class TitledPaneStatus extends PaneStatus
 	private SplitPane parentWhenAttached;
 	
 	private Stage parentWhenDetached;
+
+	private TitledPaneController controller;
 	
 	public TitledPaneStatus(final int displayIndex)
 	{
@@ -149,5 +151,21 @@ public class TitledPaneStatus extends PaneStatus
 	public void setLastExpanded(boolean lastExpanded)
 	{
 		this.lastExpanded = lastExpanded;
+	}
+
+	/**
+	 * @return the controller
+	 */
+	public TitledPaneController getController()
+	{
+		return controller;
+	}
+
+	/**
+	 * @param controller the controller to set
+	 */
+	public void setController(TitledPaneController controller)
+	{
+		this.controller = controller;
 	}
 }

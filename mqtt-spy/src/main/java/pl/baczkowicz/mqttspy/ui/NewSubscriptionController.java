@@ -43,7 +43,6 @@ import pl.baczkowicz.mqttspy.exceptions.MqttSpyException;
 import pl.baczkowicz.mqttspy.ui.connections.ConnectionManager;
 import pl.baczkowicz.mqttspy.ui.keyboard.TimeBasedKeyEventFilter;
 import pl.baczkowicz.mqttspy.ui.panes.TitledPaneController;
-import pl.baczkowicz.mqttspy.ui.panes.TitledPaneStatus;
 import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
 import pl.baczkowicz.mqttspy.utils.MqttUtils;
 
@@ -84,9 +83,6 @@ public class NewSubscriptionController implements Initializable, TitledPaneContr
 	private boolean detailedView;
 
 	private TimeBasedKeyEventFilter timeBasedFilter;
-	
-	/** Created pane status with index 2 (second the last pane). */
-	private final TitledPaneStatus paneStatus = new TitledPaneStatus(2);
 
 	private TitledPane pane;
 
@@ -256,11 +252,5 @@ public class NewSubscriptionController implements Initializable, TitledPaneContr
 	public void setTitledPane(TitledPane pane)
 	{
 		this.pane = pane;
-	}
-
-	@Override
-	public TitledPaneStatus getTitledPaneStatus()
-	{
-		return paneStatus;
 	}
 }

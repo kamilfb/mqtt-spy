@@ -14,16 +14,11 @@
  */
 package pl.baczkowicz.mqttspy.ui;
 
-import java.io.File;
 import java.net.URL;
-import java.util.Arrays;
-import java.util.List;
 import java.util.ResourceBundle;
 
-import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.value.ObservableValue;
-import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -33,9 +28,7 @@ import javafx.geometry.Pos;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
-import javafx.scene.control.SeparatorMenuItem;
-import javafx.scene.control.TableCell;
-import javafx.scene.control.TableColumn;
+import javafx.scene.control.TitledPane;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableCell;
 import javafx.scene.control.TreeTableColumn;
@@ -44,30 +37,23 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.util.Callback;
 
-import javax.script.ScriptException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import pl.baczkowicz.mqttspy.common.generated.ScriptDetails;
 import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
+import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.events.EventManager;
 import pl.baczkowicz.mqttspy.scripts.InteractiveScriptManager;
-import pl.baczkowicz.mqttspy.scripts.ScriptManager;
 import pl.baczkowicz.mqttspy.testcases.TestCase;
-import pl.baczkowicz.mqttspy.testcases.TestCaseInfo;
 import pl.baczkowicz.mqttspy.testcases.TestCaseManager;
 import pl.baczkowicz.mqttspy.testcases.TestCaseStatus;
-import pl.baczkowicz.mqttspy.testcases.TestCaseStepResult;
-import pl.baczkowicz.mqttspy.ui.properties.SubscriptionTopicSummaryProperties;
+import pl.baczkowicz.mqttspy.ui.panes.TitledPaneController;
 import pl.baczkowicz.mqttspy.ui.properties.TestCaseProperties;
-import pl.baczkowicz.mqttspy.ui.properties.TestCaseStepProperties;
-import pl.baczkowicz.mqttspy.utils.FileUtils;
 
 /**
  * Controller for the test cases execution window.
  */
-public class TestCasesExecutionController extends AnchorPane implements Initializable
+public class TestCasesExecutionController extends AnchorPane implements Initializable, TitledPaneController
 {
 	/** Initial and minimal scene/stage width. */	
 	public final static int WIDTH = 780;
@@ -77,6 +63,8 @@ public class TestCasesExecutionController extends AnchorPane implements Initiali
 		
 	final static Logger logger = LoggerFactory.getLogger(TestCasesExecutionController.class);	
 
+	private TitledPane pane;
+	
 	@FXML
 	private TreeTableView<TestCaseProperties> scriptTree;
 	
@@ -131,6 +119,8 @@ public class TestCasesExecutionController extends AnchorPane implements Initiali
 	private InteractiveScriptManager scriptManager;
 
 	private TestCaseManager testCaseManager;
+
+	private MqttAsyncConnection connection;
 	
 	public void initialize(URL location, ResourceBundle resources)
 	{
@@ -359,5 +349,22 @@ public class TestCasesExecutionController extends AnchorPane implements Initiali
 	public void setConfingurationManager(final ConfigurationManager configurationManager)
 	{
 		this.configurationManager = configurationManager;
+	}
+	
+	@Override
+	public TitledPane getTitledPane()
+	{
+		return pane;
+	}
+
+	@Override
+	public void setTitledPane(TitledPane pane)
+	{
+		this.pane = pane;
+	}
+
+	public void setConnection(MqttAsyncConnection connection)
+	{
+		this.connection = connection;		
 	}
 }

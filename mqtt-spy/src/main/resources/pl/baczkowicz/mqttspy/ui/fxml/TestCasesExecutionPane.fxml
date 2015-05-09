@@ -35,11 +35,17 @@
                   			<items>	
                   				<MenuItem fx:id="setLocationMenu" text="Load test cases from folder" />
                   				<SeparatorMenuItem />
-                  				<MenuItem fx:id="enqueueAllMenu" text="Enqueue all test cases for execution" />
-                  				<MenuItem fx:id="enqueueSelectedMenu" text="Enqueue selected test case for execution" />
-                  				<MenuItem fx:id="enqueueNotRunMenu" text="Enqueue all test cases not run yet" />
-                  				<MenuItem fx:id="enqueueFailedMenu" text="Enqueue all failed test cases" />
-                  				<MenuItem fx:id="clearEnqueuedMenu" text="Clear enqueued test cases" />
+                  				
+                  				<Menu text="Enqueue" >
+                  					<items>
+		                  				<MenuItem fx:id="enqueueAllMenu" text="Enqueue all test cases for execution" />
+		                  				<MenuItem fx:id="enqueueSelectedMenu" text="Enqueue selected test case for execution" />
+		                  				<MenuItem fx:id="enqueueNotRunMenu" text="Enqueue all test cases not run yet" />
+		                  				<MenuItem fx:id="enqueueFailedMenu" text="Enqueue all failed test cases" />
+		                  				<MenuItem fx:id="clearEnqueuedMenu" text="Clear enqueued test cases" />
+                  					</items>
+                  				</Menu>
+                  				
                   			</items>
                   		</ContextMenu>
                   	</contextMenu>

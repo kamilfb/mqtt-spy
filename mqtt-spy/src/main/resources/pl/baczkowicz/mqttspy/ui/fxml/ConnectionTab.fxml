@@ -23,6 +23,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.collections.*?>
 <?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.ContextMenu?>
 
 <AnchorPane fx:id="connectionPane" prefHeight="640.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.baczkowicz.mqttspy.ui.ConnectionController">
 	<children>
@@ -40,6 +41,14 @@
             <TitledPane fx:id="scriptedPublicationsTitledPane" alignment="TOP_LEFT" animated="false" text="Scripted publications" SplitPane.resizableWithParent="false">
                <content>
                     <fx:include fx:id="publicationScriptsPane" source="PublicationScriptsPane.fxml" />		
+               </content>
+            </TitledPane>
+            
+            <TitledPane fx:id="testCasesTitledPane" alignment="TOP_LEFT" animated="false" text="Test cases" SplitPane.resizableWithParent="false">
+               <content>
+               		<!-- 
+                    <fx:include fx:id="testCasesPane" source="TestCasesExecutionPane.fxml" />
+                     -->		
                </content>
             </TitledPane>
             
