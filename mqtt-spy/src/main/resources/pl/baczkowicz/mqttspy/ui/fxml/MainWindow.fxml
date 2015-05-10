@@ -67,7 +67,7 @@
 						</Menu>
 						<CheckMenuItem fx:id="resizeMessagePaneMenu" text="Resize message pane" onAction="#resizeMessagePane" />
 						<MenuItem mnemonicParsing="false" text="Converter" onAction="#showConverter" />
-						<MenuItem mnemonicParsing="false" text="Test cases" onAction="#showTestCases" />
+						<MenuItem mnemonicParsing="false" text="Test cases (no connection)" onAction="#showTestCases" />
 					</items>
 				</Menu>
 				

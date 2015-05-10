@@ -369,6 +369,7 @@ public class ContextMenuUtils
 		status.setContentMenu(menu);
 		
 		final CheckMenuItem hidden = new CheckMenuItem("Hidden");
+		hidden.setSelected(true);
 		final CheckMenuItem visible = new CheckMenuItem("Visible (attached to connection tab)");
 		final CheckMenuItem detached = new CheckMenuItem("Visible (detached from connection tab)");
 		

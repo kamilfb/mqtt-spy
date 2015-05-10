@@ -66,16 +66,12 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 	private static final int MIN_COLLAPSED_PANE_HEIGHT = 26;
 	
 	private static final int SUBSCRIPTION_PANE_MIN_EXPANDED_HEIGHT = 64;
-
-	private static final int SUBSCRIPTION_PANE_MIN_COLLAPSED_HEIGHT = MIN_COLLAPSED_PANE_HEIGHT;
+	
+	private static final int TEST_CASES_PANE_MIN_EXPANDED_HEIGHT = 190;
 	
 	private static final int PUBLICATION_PANE_MIN_EXPANDED_HEIGHT = 96;	
 	
-	private static final int PUBLICATION_PANE_MIN_COLLAPSED_HEIGHT = MIN_COLLAPSED_PANE_HEIGHT;
-	
 	private static final int SCRIPTED_PUBLICATION_PANE_MIN_EXPANDED_HEIGHT = 136;	
-	
-	private static final int SCRIPTED_PUBLICATION_PANE_MIN_COLLAPSED_HEIGHT = MIN_COLLAPSED_PANE_HEIGHT;
 
 	final static Logger logger = LoggerFactory.getLogger(ConnectionController.class);
 
@@ -210,10 +206,8 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 			publishMessageTitledPane.expandedProperty().addListener(createChangeListener());		
 			scriptedPublicationsTitledPane.expandedProperty().addListener(createChangeListener());		
 			newSubscriptionTitledPane.expandedProperty().addListener(createChangeListener());
-			testCasesTitledPane.expandedProperty().addListener(createChangeListener());
-			
-			scriptedPublicationsTitledPane.setExpanded(false);
-			testCasesTitledPane.setExpanded(false);
+						
+			scriptedPublicationsTitledPane.setExpanded(false);			
 			
 			publishMessageTitledStatus.setVisibility(PaneVisibilityStatus.ATTACHED);
 			scriptedPublicationsTitledStatus.setVisibility(PaneVisibilityStatus.ATTACHED);
@@ -222,8 +216,7 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 			
 			paneToController.put(publishMessageTitledPane, publishMessageTitledStatus);
 			paneToController.put(scriptedPublicationsTitledPane, scriptedPublicationsTitledStatus);
-			paneToController.put(newSubscriptionTitledPane, newSubscriptionTitledStatus);
-			paneToController.put(testCasesTitledPane, testCasesTitledStatus);
+			paneToController.put(newSubscriptionTitledPane, newSubscriptionTitledStatus);			
 			
 			newPublicationPaneController.setConnection(connection);
 			newPublicationPaneController.setScriptManager(connection.getScriptManager());
@@ -268,13 +261,20 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 			final FXMLLoader loader = FxmlUtils.createFxmlLoaderForProjectFile("TestCasesExecutionPane.fxml");
 			final AnchorPane testCasesPane = FxmlUtils.loadAnchorPane(loader);
 			
+			testCasesTitledPane = new TitledPane();
+			testCasesTitledPane.setText("Test cases");
+			testCasesTitledPane.setContent(testCasesPane);
+			testCasesTitledPane.expandedProperty().addListener(createChangeListener());
+			testCasesTitledPane.setExpanded(false);
+			
 			testCasesPaneController = loader.getController();
 			testCasesPaneController.setConnection(connection);
 			testCasesPaneController.init();
 			
 			testCasesTitledStatus.setController(testCasesPaneController);
 			testCasesTitledStatus.getController().setTitledPane(testCasesTitledPane);
-			testCasesTitledPane.setContent(testCasesPane);
+						
+			paneToController.put(testCasesTitledPane, testCasesTitledStatus);
 			
 			logger.info("Test cases pane initialised!");
 		}
@@ -293,7 +293,7 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 		}
 		else
 		{
-			publishMessageTitledPane.setMinHeight(PUBLICATION_PANE_MIN_COLLAPSED_HEIGHT);
+			publishMessageTitledPane.setMinHeight(MIN_COLLAPSED_PANE_HEIGHT);
 		}
 		
 		if (scriptedPublicationsTitledPane.isExpanded())
@@ -302,7 +302,7 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 		}
 		else
 		{
-			scriptedPublicationsTitledPane.setMinHeight(SCRIPTED_PUBLICATION_PANE_MIN_COLLAPSED_HEIGHT);
+			scriptedPublicationsTitledPane.setMinHeight(MIN_COLLAPSED_PANE_HEIGHT);
 		}
 		
 		if (newSubscriptionTitledPane.isExpanded())
@@ -312,8 +312,20 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 		}
 		else
 		{
-			newSubscriptionTitledPane.setMinHeight(SUBSCRIPTION_PANE_MIN_COLLAPSED_HEIGHT);
-			newSubscriptionTitledPane.setMaxHeight(SUBSCRIPTION_PANE_MIN_COLLAPSED_HEIGHT);
+			newSubscriptionTitledPane.setMinHeight(MIN_COLLAPSED_PANE_HEIGHT);
+			newSubscriptionTitledPane.setMaxHeight(MIN_COLLAPSED_PANE_HEIGHT);
+		}
+		
+		if (testCasesTitledPane != null)
+		{
+			if (testCasesTitledPane.isExpanded())
+			{
+				testCasesTitledPane.setMinHeight(TEST_CASES_PANE_MIN_EXPANDED_HEIGHT);
+			}
+			else
+			{
+				testCasesTitledPane.setMinHeight(MIN_COLLAPSED_PANE_HEIGHT);
+			}
 		}
 	}
 

@@ -44,13 +44,13 @@
                </content>
             </TitledPane>
             
+            <!--  
             <TitledPane fx:id="testCasesTitledPane" alignment="TOP_LEFT" animated="false" text="Test cases" SplitPane.resizableWithParent="false">
-               <content>
-               		<!-- 
-                    <fx:include fx:id="testCasesPane" source="TestCasesExecutionPane.fxml" />
-                     -->		
+               <content>               
+                    <fx:include fx:id="testCasesPane" source="TestCasesExecutionPane.fxml" />               		
                </content>
             </TitledPane>
+            -->
             
             <TitledPane fx:id="newSubscriptionTitledPane" alignment="TOP_LEFT" animated="false" text="Define new subscription" SplitPane.resizableWithParent="false">
               <content>
