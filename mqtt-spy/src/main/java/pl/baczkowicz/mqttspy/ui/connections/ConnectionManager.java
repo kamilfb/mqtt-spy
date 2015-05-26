@@ -62,7 +62,7 @@ import pl.baczkowicz.mqttspy.scripts.InteractiveScriptManager;
 import pl.baczkowicz.mqttspy.scripts.Script;
 import pl.baczkowicz.mqttspy.stats.StatisticsManager;
 import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
-import pl.baczkowicz.mqttspy.storage.UiMqttMessage;
+import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.ui.ConnectionController;
 import pl.baczkowicz.mqttspy.ui.MainController;
 import pl.baczkowicz.mqttspy.ui.SubscriptionController;
@@ -336,7 +336,7 @@ public class ConnectionManager
 				// Process the messages
 		        for (final BaseMqttMessage mqttMessage : list)
 		        {		        	
-		        	store.messageReceived(new UiMqttMessage(mqttMessage, null));
+		        	store.messageReceived(new FormattedMqttMessage(mqttMessage, null));
 		        }
 			}
 		});		

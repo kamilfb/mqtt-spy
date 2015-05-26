@@ -35,15 +35,15 @@ import org.fxmisc.richtext.StyleClassedTextArea;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import pl.baczkowicz.mqttspy.common.generated.FormatterDetails;
 import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
 import pl.baczkowicz.mqttspy.configuration.UiProperties;
-import pl.baczkowicz.mqttspy.configuration.generated.FormatterDetails;
 import pl.baczkowicz.mqttspy.events.observers.MessageFormatChangeObserver;
 import pl.baczkowicz.mqttspy.events.observers.MessageIndexChangeObserver;
-import pl.baczkowicz.mqttspy.storage.BasicMessageStore;
-import pl.baczkowicz.mqttspy.storage.UiMqttMessage;
+import pl.baczkowicz.mqttspy.storage.BasicMessageStoreWithSummary;
+import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.ui.search.SearchOptions;
-import pl.baczkowicz.mqttspy.ui.utils.FormattingUtils;
+import pl.baczkowicz.mqttspy.utils.FormattingUtils;
 import pl.baczkowicz.mqttspy.utils.TimeUtils;
 
 /**
@@ -83,9 +83,9 @@ public class MessageController implements Initializable, MessageIndexChangeObser
 	@FXML
 	private Label qosFieldLabel;
 
-	private BasicMessageStore store;
+	private BasicMessageStoreWithSummary store;
 	
-	private UiMqttMessage message;
+	private FormattedMqttMessage message;
 
 	private FormatterDetails selectionFormat = null;
 
@@ -187,7 +187,7 @@ public class MessageController implements Initializable, MessageIndexChangeObser
 	{
 		if (messageIndex > 0)
 		{
-			UiMqttMessage message = null; 
+			FormattedMqttMessage message = null; 
 		
 			// Optimised for showing the latest message
 			if (messageIndex == 1)
@@ -202,7 +202,7 @@ public class MessageController implements Initializable, MessageIndexChangeObser
 			{
 				synchronized (store)
 				{
-					final List<UiMqttMessage> messages = store.getMessages();
+					final List<FormattedMqttMessage> messages = store.getMessages();
 					
 					// Make sure we don't try to re-display a message that is not in the store anymore
 					if (messageIndex <= messages.size())
@@ -219,7 +219,7 @@ public class MessageController implements Initializable, MessageIndexChangeObser
 		}
 	}
 
-	public void populate(final UiMqttMessage message)
+	public void populate(final FormattedMqttMessage message)
 	{
 		// Don't populate with the same message object
 		if (message != null && !message.equals(this.message))
@@ -388,7 +388,7 @@ public class MessageController implements Initializable, MessageIndexChangeObser
 		this.configurationManager = configurationManager;
 	}
 	
-	public void setStore(final BasicMessageStore store)
+	public void setStore(final BasicMessageStoreWithSummary store)
 	{
 		this.store = store;
 	}

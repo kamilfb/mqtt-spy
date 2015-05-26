@@ -26,10 +26,10 @@ import javax.xml.namespace.QName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import pl.baczkowicz.mqttspy.common.generated.FormatterDetails;
+import pl.baczkowicz.mqttspy.common.generated.Formatting;
 import pl.baczkowicz.mqttspy.common.generated.SimpleMqttMessage;
 import pl.baczkowicz.mqttspy.configuration.generated.Connectivity;
-import pl.baczkowicz.mqttspy.configuration.generated.FormatterDetails;
-import pl.baczkowicz.mqttspy.configuration.generated.Formatting;
 import pl.baczkowicz.mqttspy.configuration.generated.MqttSpyConfiguration;
 import pl.baczkowicz.mqttspy.configuration.generated.TabbedSubscriptionDetails;
 import pl.baczkowicz.mqttspy.configuration.generated.UserAuthenticationOptions;

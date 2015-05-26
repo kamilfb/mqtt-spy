@@ -18,24 +18,23 @@ import java.util.Date;
 
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
-import pl.baczkowicz.mqttspy.configuration.generated.FormatterDetails;
+import pl.baczkowicz.mqttspy.common.generated.FormatterDetails;
 import pl.baczkowicz.mqttspy.connectivity.BaseMqttConnection;
-import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
 import pl.baczkowicz.mqttspy.messages.BaseMqttMessage;
 import pl.baczkowicz.mqttspy.messages.BaseMqttMessageWithSubscriptions;
-import pl.baczkowicz.mqttspy.ui.utils.FormattingUtils;
 import pl.baczkowicz.mqttspy.utils.ConversionUtils;
+import pl.baczkowicz.mqttspy.utils.FormattingUtils;
 
-public class UiMqttMessage extends BaseMqttMessageWithSubscriptions
+public class FormattedMqttMessage extends BaseMqttMessageWithSubscriptions
 {
-	/** The UI subscription object - first matching. */ 
-	private MqttSubscription subscription;
+	/** The first matching subscription. */ 
+	private String subscription;
 	
 	private FormatterDetails lastUsedFormatter;
 	
 	private String formattedPayload;
 	
-	public UiMqttMessage(final UiMqttMessage message)
+	public FormattedMqttMessage(final FormattedMqttMessage message)
 	{
 		super(message.getId(), message.getTopic(), copyMqttMessage(message.getRawMessage()), message.getConnection());
 		this.formattedPayload = message.getFormattedPayload();
@@ -43,19 +42,19 @@ public class UiMqttMessage extends BaseMqttMessageWithSubscriptions
 		this.subscription = message.getSubscription();
 	}
 
-	public UiMqttMessage(final long id, final String topic, final MqttMessage message, final BaseMqttConnection connection)
+	public FormattedMqttMessage(final long id, final String topic, final MqttMessage message, final BaseMqttConnection connection)
 	{
 		super(id, topic, message, connection);
 		this.formattedPayload = ConversionUtils.arrayToString(message.getPayload());
 	}
 	
-	public UiMqttMessage(final long id, final String topic, final MqttMessage message, final Date date, final BaseMqttConnection connection)
+	public FormattedMqttMessage(final long id, final String topic, final MqttMessage message, final Date date, final BaseMqttConnection connection)
 	{
 		super(id, topic, message, date, connection);
 		this.formattedPayload = ConversionUtils.arrayToString(message.getPayload());
 	}
 	
-	public UiMqttMessage(final BaseMqttMessage message, final BaseMqttConnection connection)
+	public FormattedMqttMessage(final BaseMqttMessage message, final BaseMqttConnection connection)
 	{
 		super(message.getId(), message.getTopic(), message.getRawMessage(), message.getDate(), connection);
 		this.formattedPayload = message.getPayload();
@@ -66,12 +65,12 @@ public class UiMqttMessage extends BaseMqttMessageWithSubscriptions
 		return lastUsedFormatter;
 	}
 
-	public MqttSubscription getSubscription()
+	public String getSubscription()
 	{
 		return subscription;
 	}
 
-	public void setSubscription(MqttSubscription subscription)
+	public void setSubscription(final String subscription)
 	{
 		this.subscription = subscription;
 	}

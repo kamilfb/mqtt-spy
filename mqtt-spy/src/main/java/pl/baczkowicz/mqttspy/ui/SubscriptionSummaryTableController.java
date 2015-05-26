@@ -91,6 +91,7 @@ public class SubscriptionSummaryTableController implements Initializable
 	private FilteredList<SubscriptionTopicSummaryProperties> filteredData;
 	
 	private ConnectionController connectionController;
+	
 	private EventManager eventManager;
 
 	private Menu filteredTopicsMenu;
@@ -227,8 +228,9 @@ public class SubscriptionSummaryTableController implements Initializable
 						super.updateItem(item, empty);
 						if (!isEmpty() && item.getSubscription() != null)
 						{
-							this.setStyle(StylingUtils.createBgRGBString(item.getSubscription()
-									.getColor(), getIndex() % 2 == 0 ? 0.8 : 0.6)
+							this.setStyle(StylingUtils.createBgRGBString(
+									connectionController.getConnection().getMqttSubscriptionForTopic(item.getSubscription()).getColor(), 
+									getIndex() % 2 == 0 ? 0.8 : 0.6)
 									+ " -fx-background-radius: 6; ");
 						}
 						else

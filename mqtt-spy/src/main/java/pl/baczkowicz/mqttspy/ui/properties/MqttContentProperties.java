@@ -16,9 +16,8 @@ package pl.baczkowicz.mqttspy.ui.properties;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import pl.baczkowicz.mqttspy.configuration.generated.FormatterDetails;
-import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
-import pl.baczkowicz.mqttspy.storage.UiMqttMessage;
+import pl.baczkowicz.mqttspy.common.generated.FormatterDetails;
+import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.utils.TimeUtils;
 
 /**
@@ -36,7 +35,7 @@ public class MqttContentProperties extends BaseTopicProperty
 	private StringProperty lastReceivedPayloadShort;
 
 	/** Last message. */
-	private UiMqttMessage mqttContent;
+	private FormattedMqttMessage mqttContent;
 
 	private int maxPayloadLength;
 
@@ -47,7 +46,7 @@ public class MqttContentProperties extends BaseTopicProperty
 	 * @param format The formatting settings to be used for the payload
 	 * @param maxPayloadLength Maximum payload length - to make sure UI remains responsive for large messages
 	 */
-	public MqttContentProperties(final UiMqttMessage message, final FormatterDetails format, final int maxPayloadLength)
+	public MqttContentProperties(final FormattedMqttMessage message, final FormatterDetails format, final int maxPayloadLength)
 	{
 		super(message.getTopic());
 		this.lastReceivedTimestamp = new SimpleStringProperty();
@@ -72,7 +71,7 @@ public class MqttContentProperties extends BaseTopicProperty
 	 * 
 	 * @return The subscription object as MqttSubscription
 	 */
-	public MqttSubscription getSubscription()
+	public String getSubscription()
 	{
 		return mqttContent.getSubscription();
 	}
@@ -83,7 +82,7 @@ public class MqttContentProperties extends BaseTopicProperty
 	 * @param message The last received message
 	 * @param format The format to use
 	 */
-	public void setMessage(final UiMqttMessage message, final FormatterDetails format)
+	public void setMessage(final FormattedMqttMessage message, final FormatterDetails format)
 	{
 		this.mqttContent = message;
 

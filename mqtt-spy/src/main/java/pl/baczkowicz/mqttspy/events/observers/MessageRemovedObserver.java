@@ -14,9 +14,9 @@
  */
 package pl.baczkowicz.mqttspy.events.observers;
 
-import pl.baczkowicz.mqttspy.storage.UiMqttMessage;
+import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
 
 public interface MessageRemovedObserver
 {
-	void onMessageRemoved(final UiMqttMessage message, final int messageIndex);
+	void onMessageRemoved(final FormattedMqttMessage message, final int messageIndex);
 }

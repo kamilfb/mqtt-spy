@@ -60,7 +60,7 @@ public class MessageStoreGarbageCollector implements Runnable
 		// logger.trace("[{}] Checking if can delete messages...", messages.getName());
 		for (int i = messages.getMessages().size() - 1; i >=0; i--)				
 		{
-			final UiMqttMessage element = messages.getMessages().get(i);
+			final FormattedMqttMessage element = messages.getMessages().get(i);
 								
 			final int count = messages.getTopicSummary().getCountForTopic(element.getTopic());
 			if (count > minMessagesPerTopic)

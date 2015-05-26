@@ -23,13 +23,13 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import pl.baczkowicz.mqttspy.configuration.generated.FormatterDetails;
+import pl.baczkowicz.mqttspy.common.generated.FormatterDetails;
 import pl.baczkowicz.mqttspy.ui.search.MessageFilter;
 
 /**
  * Message store with filtering. 
  */
-public class FilteredMessageStore extends BasicMessageStore
+public class FilteredMessageStore extends BasicMessageStoreWithSummary
 {
 	final static Logger logger = LoggerFactory.getLogger(FilteredMessageStore.class);
 	
@@ -45,7 +45,7 @@ public class FilteredMessageStore extends BasicMessageStore
 	public FilteredMessageStore(final MessageListWithObservableTopicSummary allMessages, 
 			final int preferredSize, final int maxSize, final String name, final FormatterDetails messageFormat, final int maxPayloadLength)
 	{
-		super("filtered-" + name, preferredSize, maxSize, null, null, maxPayloadLength);
+		super("filtered-" + name, preferredSize, maxSize, maxPayloadLength);
 		setFormatter(messageFormat);
 		//this.filteredMessages = new MessageListWithObservableTopicSummary(preferredSize, maxSize, "filtered-" + name, messageFormat);
 		this.allMessages = allMessages;
@@ -90,7 +90,7 @@ public class FilteredMessageStore extends BasicMessageStore
 			final int size = allMessages.getMessages().size();
 			for (int i = size - 1; i >= 0; i--)
 			{
-				final UiMqttMessage message = allMessages.getMessages().get(i);
+				final FormattedMqttMessage message = allMessages.getMessages().get(i);
 				
 				if (browsedTopics.contains(message.getTopic()) && !filterMessage(message, false))
 				{
@@ -100,7 +100,7 @@ public class FilteredMessageStore extends BasicMessageStore
 		}
 	}	
 	
-	public boolean filterMessage(final UiMqttMessage message, final boolean updateUi)
+	public boolean filterMessage(final FormattedMqttMessage message, final boolean updateUi)
 	{
 		for (final MessageFilter filter : messageFilters)
 		{
@@ -134,7 +134,7 @@ public class FilteredMessageStore extends BasicMessageStore
 		
 		synchronized (allMessages.getMessages())
 		{
-			for (UiMqttMessage message : allMessages.getMessages())
+			for (FormattedMqttMessage message : allMessages.getMessages())
 			{
 				browsedTopics.add(message.getTopic());
 				

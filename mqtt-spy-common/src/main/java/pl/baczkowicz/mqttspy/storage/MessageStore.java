@@ -28,7 +28,7 @@ public interface MessageStore
 	 * 
 	 * @return List of MqttContent instances
 	 */
-	List<UiMqttMessage> getMessages();
+	List<FormattedMqttMessage> getMessages();
 	
 	/**
 	 * Checks if browsing filters are enabled.

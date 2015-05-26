@@ -138,12 +138,12 @@ public class TestCaseManager
 					}
 					catch (InterruptedException e)
 					{
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}	
 					
 					try
 					{
+						// TODO: what to pass: all messages received; messages per topic
 						final TestCaseStepResult result = (TestCaseStepResult) scriptManager.invokeFunction(
 								testCase, "step" + stepProperties.stepNumberProperty().getValue());
 						lastResult = result;

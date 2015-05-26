@@ -36,7 +36,7 @@ import pl.baczkowicz.mqttspy.scripts.InteractiveScriptManager;
 import pl.baczkowicz.mqttspy.scripts.Script;
 import pl.baczkowicz.mqttspy.stats.StatisticsManager;
 import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
-import pl.baczkowicz.mqttspy.storage.UiMqttMessage;
+import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.utils.ConversionUtils;
 
 /**
@@ -88,11 +88,11 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection
 		setConnectionStatus(status);
 	}
 	
-	public void messageReceived(final UiMqttMessage receivedMessage)
+	public void messageReceived(final FormattedMqttMessage receivedMessage)
 	{		
 		final List<String> matchingSubscriptionTopics = getTopicMatcher().getMatchingSubscriptions(receivedMessage.getTopic());
 					
-		final UiMqttMessage message = new UiMqttMessage(receivedMessage);
+		final FormattedMqttMessage message = new FormattedMqttMessage(receivedMessage);
 		
 		final List<String> matchingSubscriptions = new ArrayList<String>();
 		
@@ -108,11 +108,11 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection
 		statisticsManager.messageReceived(getId(), matchingSubscriptions);
 
 		// Pass the message for connection (all subscriptions) handling
-		message.setSubscription(lastMatchingSubscription);
+		message.setSubscription(lastMatchingSubscription.getTopic());
 		store.messageReceived(message);
 	}
 	
-	private MqttSubscription matchMessageToSubscriptions(final List<String> matchingSubscriptionTopics, final UiMqttMessage receivedMessage, 
+	private MqttSubscription matchMessageToSubscriptions(final List<String> matchingSubscriptionTopics, final FormattedMqttMessage receivedMessage, 
 			final List<String> matchingSubscriptions)
 	{
 		MqttSubscription lastMatchingSubscription = matchMessageToSubscriptions(
@@ -127,7 +127,7 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection
 		return lastMatchingSubscription;
 	}
 	
-	private MqttSubscription matchMessageToSubscriptions(final List<String> matchingSubscriptionTopics, final UiMqttMessage receivedMessage, 
+	private MqttSubscription matchMessageToSubscriptions(final List<String> matchingSubscriptionTopics, final FormattedMqttMessage receivedMessage, 
 			final List<String> matchingSubscriptions, final boolean anySubscription)
 	{
 		MqttSubscription foundMqttSubscription = null;
@@ -144,10 +144,10 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection
 				matchingSubscriptions.add(matchingSubscriptionTopic);
 
 				// Create a copy of the message for each subscription
-				final UiMqttMessage message = new UiMqttMessage(receivedMessage);
+				final FormattedMqttMessage message = new FormattedMqttMessage(receivedMessage);
 				
 				// Set subscription reference on the message
-				message.setSubscription(mqttSubscription);
+				message.setSubscription(mqttSubscription.getTopic());
 				foundMqttSubscription = mqttSubscription;
 				
 				if (mqttSubscription.getDetails() != null 
@@ -383,6 +383,12 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection
 	public Map<String, MqttSubscription> getSubscriptions()
 	{
 		return subscriptions;
+	}
+	
+	// TODO: is that needed?
+	public MqttSubscription getMqttSubscriptionForTopic(final String topic)
+	{
+		return subscriptions.get(topic);
 	}
 
 	public int getPreferredStoreSize()

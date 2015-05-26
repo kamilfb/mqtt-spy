@@ -12,23 +12,22 @@
  *    Kamil Baczkowicz - initial API and implementation and/or initial documentation
  *    
  */
-package pl.baczkowicz.mqttspy.ui.utils;
+package pl.baczkowicz.mqttspy.utils;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import pl.baczkowicz.mqttspy.configuration.generated.ConversionFormatterDetails;
-import pl.baczkowicz.mqttspy.configuration.generated.ConversionMethod;
-import pl.baczkowicz.mqttspy.configuration.generated.FormatterDetails;
-import pl.baczkowicz.mqttspy.configuration.generated.FormatterFunction;
-import pl.baczkowicz.mqttspy.configuration.generated.SubstringConversionFormatterDetails;
-import pl.baczkowicz.mqttspy.configuration.generated.SubstringExtractFormatterDetails;
-import pl.baczkowicz.mqttspy.configuration.generated.SubstringFormatterDetails;
-import pl.baczkowicz.mqttspy.configuration.generated.SubstringReplaceFormatterDetails;
+import pl.baczkowicz.mqttspy.common.generated.ConversionFormatterDetails;
+import pl.baczkowicz.mqttspy.common.generated.ConversionMethod;
+import pl.baczkowicz.mqttspy.common.generated.FormatterDetails;
+import pl.baczkowicz.mqttspy.common.generated.FormatterFunction;
+import pl.baczkowicz.mqttspy.common.generated.SubstringConversionFormatterDetails;
+import pl.baczkowicz.mqttspy.common.generated.SubstringExtractFormatterDetails;
+import pl.baczkowicz.mqttspy.common.generated.SubstringFormatterDetails;
+import pl.baczkowicz.mqttspy.common.generated.SubstringReplaceFormatterDetails;
 import pl.baczkowicz.mqttspy.exceptions.ConversionException;
-import pl.baczkowicz.mqttspy.utils.ConversionUtils;
 
 /**
  * Formatting-related utils.
