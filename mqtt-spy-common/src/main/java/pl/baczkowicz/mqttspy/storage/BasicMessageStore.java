@@ -36,6 +36,11 @@ public class BasicMessageStore implements MessageStore
 		this.messages = new MessageList(preferredSize, maxSize, name);
 	}
 	
+	public void messageReceived(final FormattedMqttMessage message)	
+	{
+		storeMessage(message);
+	}
+	
 	public FormattedMqttMessage storeMessage(final FormattedMqttMessage message)
 	{
 		if (message != null)

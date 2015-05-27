@@ -17,7 +17,9 @@ package pl.baczkowicz.mqttspy.scripts.io;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.Executor;
 
 import javax.script.Bindings;
@@ -26,11 +28,13 @@ import javax.script.ScriptContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import pl.baczkowicz.mqttspy.connectivity.BaseMqttSubscription;
 import pl.baczkowicz.mqttspy.connectivity.IMqttConnection;
 import pl.baczkowicz.mqttspy.scripts.IScriptEventManager;
 import pl.baczkowicz.mqttspy.scripts.Script;
 import pl.baczkowicz.mqttspy.scripts.ScriptRunner;
 import pl.baczkowicz.mqttspy.scripts.ScriptRunningState;
+import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.utils.TimeUtils;
 
 /**
@@ -237,12 +241,41 @@ public class ScriptIO implements IScriptIO
 	@Override
 	public boolean subscribe(final String topic, final int qos)
 	{
-		return connection.subscribe(topic, qos);
+		BaseMqttSubscription subscription = connection.getMqttSubscriptionForTopic(topic);
+		
+		if (subscription == null)
+		{
+			subscription = new BaseMqttSubscription(topic, qos, 1, 1000);
+		}
+		
+		return connection.subscribe(subscription);
 	}
 
 	@Override
 	public boolean unsubscribe(final String topic)
 	{
-		return connection.unsubscribe(topic);
+		BaseMqttSubscription subscription = connection.getMqttSubscriptionForTopic(topic);
+		
+		if (subscription != null)
+		{
+			connection.removeSubscription(subscription);
+			return connection.unsubscribe(topic);
+		}
+		
+		return false;		
+	}
+	
+	@Override
+	public List<FormattedMqttMessage> getMessages(final String subscriptionTopic)
+	{
+		BaseMqttSubscription subscription = connection.getMqttSubscriptionForTopic(subscriptionTopic);
+		
+		if (subscription != null)
+		{
+			return subscription.getStore().getMessages();
+		}
+		
+		// No messages, return empty list
+		return new ArrayList<>();
 	}
 }

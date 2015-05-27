@@ -23,6 +23,8 @@ public class TestCase extends Script
 {
 	private TestCaseInfo info;
 	
+	private int currentStep;
+	
 	private ObservableList<TestCaseStepProperties> steps = FXCollections.observableArrayList();
 	
 	private TestCaseStatus testCaseStatus;
@@ -62,5 +64,21 @@ public class TestCase extends Script
 	public void setTestCaseStatus(TestCaseStatus status)
 	{
 		this.testCaseStatus = status;
+	}
+
+	/**
+	 * @return the currentStep
+	 */
+	public int getCurrentStep()
+	{
+		return currentStep;
+	}
+
+	/**
+	 * @param currentStep the currentStep to set
+	 */
+	public void setCurrentStep(int currentStep)
+	{
+		this.currentStep = currentStep;
 	}
 }

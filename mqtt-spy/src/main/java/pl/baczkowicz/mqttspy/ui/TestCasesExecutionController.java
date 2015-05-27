@@ -123,10 +123,7 @@ public class TestCasesExecutionController extends AnchorPane implements Initiali
 	private MqttAsyncConnection connection;
 	
 	public void initialize(URL location, ResourceBundle resources)
-	{
-		scriptManager = new InteractiveScriptManager(eventManager, null);
-		testCaseManager = new TestCaseManager(scriptManager, testCaseExecutionPaneController);
-		
+	{			
 		// Set location
 		setLocationMenu.setOnAction(new EventHandler<ActionEvent>()
 		{		
@@ -278,14 +275,15 @@ public class TestCasesExecutionController extends AnchorPane implements Initiali
 		});
 		
 		// Note: important - without that, cell height goes nuts with progress indicator
-		scriptTree.setFixedCellSize(24);		
-		
-		testCaseExecutionPaneController.setTestCaseManager(testCaseManager);
+		scriptTree.setFixedCellSize(24);					
 	}	
 
 	public void init()
 	{
-		//
+		scriptManager = new InteractiveScriptManager(eventManager, connection);
+		testCaseManager = new TestCaseManager(scriptManager, testCaseExecutionPaneController);
+		
+		testCaseExecutionPaneController.setTestCaseManager(testCaseManager);
 	}	
 	
 	public void updateContextMenu()

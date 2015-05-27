@@ -16,7 +16,6 @@ package pl.baczkowicz.mqttspy.connectivity;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
@@ -35,8 +34,8 @@ import pl.baczkowicz.mqttspy.logger.MqttMessageLogger;
 import pl.baczkowicz.mqttspy.scripts.InteractiveScriptManager;
 import pl.baczkowicz.mqttspy.scripts.Script;
 import pl.baczkowicz.mqttspy.stats.StatisticsManager;
-import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
 import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
+import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
 import pl.baczkowicz.mqttspy.utils.ConversionUtils;
 
 /**
@@ -45,10 +44,6 @@ import pl.baczkowicz.mqttspy.utils.ConversionUtils;
 public class MqttAsyncConnection extends MqttConnectionWithReconnection
 {
 	private final static Logger logger = LoggerFactory.getLogger(MqttAsyncConnection.class);
-
-	private final Map<String, MqttSubscription> subscriptions = new HashMap<String, MqttSubscription>();
-	
-	private int lastUsedSubscriptionId = 0;
 
 	private final RuntimeConnectionProperties properties;
 	
@@ -96,7 +91,7 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection
 		
 		final List<String> matchingSubscriptions = new ArrayList<String>();
 		
-		final MqttSubscription lastMatchingSubscription = matchMessageToSubscriptions(matchingSubscriptionTopics, receivedMessage, matchingSubscriptions);
+		final BaseMqttSubscription lastMatchingSubscription = matchMessageToSubscriptions(matchingSubscriptionTopics, receivedMessage, matchingSubscriptions);
 		
 		// If logging is enabled
 		if (messageLogger != null && messageLogger.isRunning())
@@ -112,10 +107,10 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection
 		store.messageReceived(message);
 	}
 	
-	private MqttSubscription matchMessageToSubscriptions(final List<String> matchingSubscriptionTopics, final FormattedMqttMessage receivedMessage, 
+	private BaseMqttSubscription matchMessageToSubscriptions(final List<String> matchingSubscriptionTopics, final FormattedMqttMessage receivedMessage, 
 			final List<String> matchingSubscriptions)
 	{
-		MqttSubscription lastMatchingSubscription = matchMessageToSubscriptions(
+		BaseMqttSubscription lastMatchingSubscription = matchMessageToSubscriptions(
 				matchingSubscriptionTopics, receivedMessage, matchingSubscriptions, false);
 		
 		// If no active subscriptions available, use one first one that matches (as we might be still receiving messages for a non-active subscription)
@@ -127,16 +122,16 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection
 		return lastMatchingSubscription;
 	}
 	
-	private MqttSubscription matchMessageToSubscriptions(final List<String> matchingSubscriptionTopics, final FormattedMqttMessage receivedMessage, 
+	private BaseMqttSubscription matchMessageToSubscriptions(final List<String> matchingSubscriptionTopics, final FormattedMqttMessage receivedMessage, 
 			final List<String> matchingSubscriptions, final boolean anySubscription)
 	{
-		MqttSubscription foundMqttSubscription = null;
+		BaseMqttSubscription foundMqttSubscription = null;
 		
 		// For all found subscriptions
 		for (final String matchingSubscriptionTopic : matchingSubscriptionTopics)
 		{					
 			// Get the mqtt-spy's subscription object
-			final MqttSubscription mqttSubscription = subscriptions.get(matchingSubscriptionTopic);
+			final BaseMqttSubscription mqttSubscription = subscriptions.get(matchingSubscriptionTopic);
 
 			// If a match has been found, and the subscription is active or we don't care
 			if (mqttSubscription != null && (anySubscription || mqttSubscription.isSubscribing() || mqttSubscription.isActive()))
@@ -158,7 +153,7 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection
 				}
 				
 				// Pass the message for subscription handling
-				mqttSubscription.messageReceived(message);
+				mqttSubscription.getStore().messageReceived(message);
 				
 				// Find only one matching subscription if checking non-active ones
 				if (anySubscription)
@@ -209,16 +204,6 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection
 		unsubscribeAll(false);
 	}
 
-	public void addSubscription(final MqttSubscription subscription)
-	{
-		// Add it to the store if it hasn't been created before
-		if (subscriptions.put(subscription.getTopic(), subscription) == null)
-		{
-			subscription.setId(lastUsedSubscriptionId++);	
-			getTopicMatcher().addSubscriptionToStore(subscription.getTopic());
-		}
-	}
-	
 	public void startBackgroundScripts()	
 	{
 		final boolean firstConnection = getConnectionAttempts() == 1;
@@ -256,7 +241,7 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection
 		final boolean tryAutoSubscribe = firstConnection || resubscribeEnabled;
 			
 		// Attempt re-subscription
-		for (final MqttSubscription subscription : subscriptions.values())
+		for (final BaseMqttSubscription subscription : subscriptions.values())
 		{
 			logger.info("Subscription {} status [requestedOnly = {}, firstConnection = {}, resubscribeEnabled = {}, subscriptionRequested = {}", 
 					subscription.getTopic(), requestedOnly, firstConnection, resubscribeEnabled, subscription.getSubscriptionRequested());
@@ -270,61 +255,15 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection
 		return true;
 	}
 
-	public boolean resubscribe(final MqttSubscription subscription)
+	public boolean resubscribe(final BaseMqttSubscription subscription)
 	{
 		return subscribe(subscription);
 	}
 
-	public boolean subscribe(final MqttSubscription subscription)
-	{
-		// Subscription are either triggered by configuration or user actions, so default to auto-subscribe
-		subscription.setSubscriptionRequested(true);
-		
-		// Record the subscription, regardless of whether further stuff succeeds
-		addSubscription(subscription);
-		
-		// If already active, simply ignore
-		if (subscription.isActive())
-		{
-			return false;
-		}
-
-		if (client == null || !client.isConnected())
-		{
-			logger.warn("Client not connected");
-			return false;
-		}
-
-		try
-		{			
-			// Retained messages can be received very quickly, even so quickly we still haven't set the subscription's state to active
-			subscription.setSubscribing(true);
-			
-			logger.debug("Subscribing to " + subscription.getTopic());			
-			client.subscribe(subscription.getTopic(), subscription.getQos());			
-			logger.info("Subscribed to " + subscription.getTopic());
-			
-			StatisticsManager.newSubscription();
-			subscription.setActive(true);
-			subscription.setSubscribing(false);
-			
-			logger.trace("Subscription " + subscription.getTopic() + " is active = "
-					+ subscription.isActive());
-
-			return true;
-		}
-		catch (MqttException e)
-		{
-			subscription.setSubscribing(false);
-			logger.error("Cannot subscribe to " + subscription.getTopic(), e);
-			removeSubscription(subscription);
-			return false;
-		}
-	}
 
 	public boolean unsubscribeAll(final boolean manualOverride)
 	{
-		for (final MqttSubscription subscription : subscriptions.values())
+		for (final BaseMqttSubscription subscription : subscriptions.values())
 		{
 			unsubscribe(subscription, manualOverride);
 		}
@@ -332,7 +271,7 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection
 		return true;
 	}
 
-	public boolean unsubscribe(final MqttSubscription subscription, final boolean manualOverride)
+	public boolean unsubscribe(final BaseMqttSubscription subscription, final boolean manualOverride)
 	{
 		// If this is a user action, set it not to auto-subscribe
 		if (manualOverride && subscription.getSubscriptionRequested())
@@ -355,18 +294,25 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection
 		return unsubscribed;
 	}
 
-	public boolean unsubscribeAndRemove(final MqttSubscription subscription)
+	public boolean unsubscribeAndRemove(final BaseMqttSubscription subscription)
 	{
 		final boolean unsubscribed = unsubscribe(subscription, true);
 		removeSubscription(subscription);
 		logger.info("Subscription " + subscription.getTopic() + " removed");
 		return unsubscribed;
 	}
-
-	public void removeSubscription(final MqttSubscription subscription)
+	
+	@Override
+	public boolean subscribe(final BaseMqttSubscription subscription)
 	{
-		subscriptions.remove(subscription.getTopic());
-		getTopicMatcher().removeSubscriptionFromStore(subscription.getTopic());
+		final boolean subscribed = super.subscribe(subscription);
+		
+		if (subscribed)
+		{
+			StatisticsManager.newSubscription();
+		}
+		
+		return subscribed;
 	}
 
 	public void setConnectionStatus(MqttConnectionStatus connectionStatus)
@@ -380,15 +326,9 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection
 		return properties;
 	}
 
-	public Map<String, MqttSubscription> getSubscriptions()
+	public Map<String, BaseMqttSubscription> getSubscriptions()
 	{
 		return subscriptions;
-	}
-	
-	// TODO: is that needed?
-	public MqttSubscription getMqttSubscriptionForTopic(final String topic)
-	{
-		return subscriptions.get(topic);
 	}
 
 	public int getPreferredStoreSize()
@@ -421,11 +361,6 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection
 		this.isOpened = isOpened;
 		
 		eventManager.notifyConnectionStatusChanged(this);
-	}
-	
-	public int getLastUsedSubscriptionId()
-	{
-		return lastUsedSubscriptionId;
 	}
 
 	public boolean isOpening()

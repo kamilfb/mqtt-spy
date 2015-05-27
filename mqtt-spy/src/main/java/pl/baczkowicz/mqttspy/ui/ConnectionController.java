@@ -43,6 +43,7 @@ import javafx.stage.WindowEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import pl.baczkowicz.mqttspy.connectivity.BaseMqttSubscription;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.connectivity.MqttConnectionStatus;
 import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
@@ -381,9 +382,9 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 		newSubscriptionPaneController.setConnected(false);
 		getNewPublicationPaneController().setConnected(false);
 		
-		for (final MqttSubscription sub : connection.getSubscriptions().values())
+		for (final BaseMqttSubscription sub : connection.getSubscriptions().values())
 		{
-			sub.getSubscriptionController().updateContextMenu();
+			((MqttSubscription) sub).getSubscriptionController().updateContextMenu();
 		}
 		
 		// If the context menu is available and has items in it

@@ -49,7 +49,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.configuration.generated.TabbedSubscriptionDetails;
+import pl.baczkowicz.mqttspy.connectivity.BaseMqttSubscription;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
+import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
 import pl.baczkowicz.mqttspy.events.EventManager;
 import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
 import pl.baczkowicz.mqttspy.ui.charts.ChartMode;
@@ -225,13 +227,23 @@ public class SubscriptionSummaryTableController implements Initializable
 					@Override
 					protected void updateItem(SubscriptionTopicSummaryProperties item, boolean empty)
 					{
-						super.updateItem(item, empty);
+						super.updateItem(item, empty);											
+						
 						if (!isEmpty() && item.getSubscription() != null)
 						{
-							this.setStyle(StylingUtils.createBgRGBString(
-									connectionController.getConnection().getMqttSubscriptionForTopic(item.getSubscription()).getColor(), 
+							final BaseMqttSubscription subscription = connectionController.getConnection().getMqttSubscriptionForTopic(item.getSubscription());
+						
+							if (subscription instanceof MqttSubscription)
+							{
+								this.setStyle(StylingUtils.createBgRGBString(
+									((MqttSubscription) subscription).getColor(), 
 									getIndex() % 2 == 0 ? 0.8 : 0.6)
 									+ " -fx-background-radius: 6; ");
+							}
+							else
+							{
+								this.setStyle(null);
+							}
 						}
 						else
 						{

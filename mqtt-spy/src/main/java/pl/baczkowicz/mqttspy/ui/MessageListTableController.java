@@ -38,7 +38,9 @@ import javafx.util.Callback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import pl.baczkowicz.mqttspy.connectivity.BaseMqttSubscription;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
+import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
 import pl.baczkowicz.mqttspy.events.EventManager;
 import pl.baczkowicz.mqttspy.events.observers.MessageIndexChangeObserver;
 import pl.baczkowicz.mqttspy.storage.BasicMessageStoreWithSummary;
@@ -132,13 +134,23 @@ public class MessageListTableController implements Initializable, MessageIndexCh
 							@Override
 							protected void updateItem(MqttContentProperties item, boolean empty)
 							{
-								super.updateItem(item, empty);
+								super.updateItem(item, empty);															
+								
 								if (!isEmpty() && item.getSubscription() != null)
-								{									
-									this.setStyle(StylingUtils.createBgRGBString(
-											connection.getMqttSubscriptionForTopic(item.getSubscription()).getColor(), 
+								{								
+									final BaseMqttSubscription subscription = connection.getMqttSubscriptionForTopic(item.getSubscription());
+									
+									if (subscription instanceof MqttSubscription)
+									{
+										this.setStyle(StylingUtils.createBgRGBString(
+											((MqttSubscription) subscription).getColor(), 
 											getIndex() % 2 == 0 ? 0.8 : 0.6)
 											+ " -fx-background-radius: 6; ");
+									}
+									else
+									{
+										this.setStyle(null);
+									}
 								}
 								else
 								{

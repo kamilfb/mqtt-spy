@@ -218,7 +218,7 @@ public class ContextMenuUtils
 			{			
 				DialogUtils.showMessageBasedPieCharts("Message count statistics for " + subscription.getTopic(), 
 						subscriptionController.getScene(),
-						subscriptionController.getSubscription().getNonFilteredMessageList().getTopicSummary().getObservableMessagesPerTopic());
+						subscriptionController.getSubscription().getStore().getNonFilteredMessageList().getTopicSummary().getObservableMessagesPerTopic());
 			}
 		});			
 		contextMenu.getItems().add(messageCountChartItem);
@@ -233,9 +233,9 @@ public class ContextMenuUtils
 		{
 			public void handle(ActionEvent e)
 			{				
-				eventManager.notifyClearHistory(subscription);
+				eventManager.notifyClearHistory(subscription.getStore());
 				StatisticsManager.resetMessagesReceived(connection.getId(), subscription.getTopic());
-				subscription.clear();
+				subscription.getStore().clear();
 			}
 		});
 		contextMenu.getItems().add(clearItem);		

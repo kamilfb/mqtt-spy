@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.common.generated.ScriptDetails;
 import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
+import pl.baczkowicz.mqttspy.connectivity.IMqttConnection;
 import pl.baczkowicz.mqttspy.scripts.ScriptManager;
 import pl.baczkowicz.mqttspy.scripts.ScriptRunningState;
 import pl.baczkowicz.mqttspy.ui.TestCaseExecutionController;
@@ -55,7 +56,7 @@ public class TestCaseManager
 			
 			final TestCase testCase = new TestCase();
 					
-			scriptManager.createFileBasedScript(testCase, scriptName, scriptFile, null, scriptDetails);
+			scriptManager.createFileBasedScript(testCase, scriptName, scriptFile, scriptManager.getConnection(), scriptDetails);
 			
 			try
 			{	
@@ -117,11 +118,27 @@ public class TestCaseManager
 			public void run()
 			{
 				TestCaseStepResult lastResult = null;
-				int step = 0;				
+				testCase.setCurrentStep(0);		
 				
-				while (step < testCase.getSteps().size() && testCase.getStatus().equals(ScriptRunningState.RUNNING))
+				// Run before / setup
+				try
 				{
-					final TestCaseStepProperties stepProperties = testCase.getSteps().get(step);
+					scriptManager.invokeFunction(testCase, "before");
+				}
+				catch (NoSuchMethodException e)
+				{
+					logger.info("No setup method present");
+				}
+				catch (ScriptException e)
+				{
+					//selected.statusProperty().setValue(TestCaseStatus.FAILED);
+					testCase.setStatus(ScriptRunningState.FAILED);					
+					logger.error("Step execution failure", e);
+				}
+				
+				while (testCase.getCurrentStep() < testCase.getSteps().size() && testCase.getStatus().equals(ScriptRunningState.RUNNING))
+				{
+					final TestCaseStepProperties stepProperties = testCase.getSteps().get(testCase.getCurrentStep());
 					
 					Platform.runLater(new Runnable()
 					{							
@@ -130,20 +147,13 @@ public class TestCaseManager
 						{
 							stepProperties.statusProperty().setValue(TestCaseStatus.IN_PROGRESS);
 						}
-					});
-					
-					try
-					{
-						Thread.sleep(500);
-					}
-					catch (InterruptedException e)
-					{
-						e.printStackTrace();
-					}	
+					});										
 					
 					try
 					{
 						// TODO: what to pass: all messages received; messages per topic
+						//final IMqttConnection connection = scriptManager.getConnection();
+						
 						final TestCaseStepResult result = (TestCaseStepResult) scriptManager.invokeFunction(
 								testCase, "step" + stepProperties.stepNumberProperty().getValue());
 						lastResult = result;
@@ -167,18 +177,23 @@ public class TestCaseManager
 						// If not in progress any more, move to next
 						if (!TestCaseStatus.IN_PROGRESS.equals(result.getStatus()))
 						{
-							step++;
+							testCase.setCurrentStep(testCase.getCurrentStep() + 1);
 						}														
 					}
-					catch (NoSuchMethodException | ScriptException e)
+					catch (NoSuchMethodException e)
 					{
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						stepProperties.statusProperty().setValue(TestCaseStatus.ERROR);
+						logger.error("Step execution error", e);
+					}
+					catch (ScriptException e)
+					{
+						stepProperties.statusProperty().setValue(TestCaseStatus.FAILED);
+						logger.error("Step execution failure", e);
 					}
 					
 					try
 					{
-						Thread.sleep(500);
+						Thread.sleep(1000);
 					}
 					catch (InterruptedException e)
 					{
@@ -186,6 +201,22 @@ public class TestCaseManager
 						e.printStackTrace();
 					}		
 				}		
+				
+				// Run after / clean-up
+				try
+				{
+					scriptManager.invokeFunction(testCase, "after");
+				}
+				catch (NoSuchMethodException e)
+				{
+					logger.info("No after method present");
+				}
+				catch (ScriptException e)
+				{
+					//selected.statusProperty().setValue(TestCaseStatus.FAILED);
+					testCase.setStatus(ScriptRunningState.FAILED);					
+					logger.error("Step execution failure", e);
+				}
 				
 				final TestCaseStepResult testCaseStatus = lastResult;
 				Platform.runLater(new Runnable()
@@ -214,6 +245,17 @@ public class TestCaseManager
 	{
 		final TestCase testCase = testCaseProperties.getScript();
 		testCase.setStatus(ScriptRunningState.STOPPED);		
+		
+		final TestCaseStepProperties stepProperties = testCase.getSteps().get(testCase.getCurrentStep());
+		
+		Platform.runLater(new Runnable()
+		{							
+			@Override
+			public void run()
+			{
+				stepProperties.statusProperty().setValue(TestCaseStatus.SKIPPED);
+			}
+		});
 	}
 
 	public void enqueueAllTestCases()

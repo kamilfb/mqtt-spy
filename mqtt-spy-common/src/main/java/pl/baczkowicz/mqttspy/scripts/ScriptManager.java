@@ -65,7 +65,7 @@ public class ScriptManager
 	private Executor executor;
 
 	/** Connection for which the script will be run. */
-	protected IMqttConnection connection;
+	private IMqttConnection connection;
 	
 	/**
 	 * Creates the script manager.
@@ -78,7 +78,7 @@ public class ScriptManager
 	{
 		this.eventManager = eventManager;
 		this.executor = executor;
-		this.connection = connection;
+		this.setConnection(connection);
 	}
 	
 	/**
@@ -108,7 +108,7 @@ public class ScriptManager
 		
 		final Script script = new Script();
 				
-		createFileBasedScript(script, scriptName, scriptFile, connection, scriptDetails);
+		createFileBasedScript(script, scriptName, scriptFile, getConnection(), scriptDetails);
 		
 		logger.info("Adding script {}", scriptDetails.getFile());
 		scripts.put(scriptFile.getAbsolutePath(), script);
@@ -130,7 +130,7 @@ public class ScriptManager
 		script.setScriptContent(content);
 		script.setScriptDetails(new ScriptDetails(true, false, null));
 				
-		createScript(script, scriptName, connection);
+		createScript(script, scriptName, getConnection());
 		
 		logger.debug("Adding in-line script {}", scriptName);
 
@@ -197,7 +197,7 @@ public class ScriptManager
 				final String scriptName = getScriptName(scriptFile);				
 				script = new Script();
 				
-				createFileBasedScript(script, scriptName, scriptFile, connection, new ScriptDetails(true, false, scriptFile.getName())); 			
+				createFileBasedScript(script, scriptName, scriptFile, getConnection(), new ScriptDetails(true, false, scriptFile.getName())); 			
 				
 				addedScripts.add(script);
 				addScript(script);
@@ -237,7 +237,7 @@ public class ScriptManager
 					final String scriptName = getScriptName(scriptFile);
 					script = new Script();
 					
-					createFileBasedScript(script, scriptName, scriptFile, connection, details); 			
+					createFileBasedScript(script, scriptName, scriptFile, getConnection(), details); 			
 					
 					addedScripts.add(script);
 					addScript(script);
@@ -442,5 +442,21 @@ public class ScriptManager
 	public boolean containsScript(final Script script)
 	{
 		return scripts.containsKey(script.getScriptId());
+	}
+
+	/**
+	 * @return the connection
+	 */
+	public IMqttConnection getConnection()
+	{
+		return connection;
+	}
+
+	/**
+	 * @param connection the connection to set
+	 */
+	public void setConnection(IMqttConnection connection)
+	{
+		this.connection = connection;
 	}
 }

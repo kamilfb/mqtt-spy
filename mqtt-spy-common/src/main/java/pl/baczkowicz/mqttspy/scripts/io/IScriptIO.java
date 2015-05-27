@@ -15,6 +15,9 @@
 package pl.baczkowicz.mqttspy.scripts.io;
 
 import java.io.IOException;
+import java.util.List;
+
+import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
 
 /**
  * Interface between a script and the mqttspy object, primarily used for publishing messages.
@@ -87,5 +90,7 @@ public interface IScriptIO
 	 * @throws IOException Thrown when a problem is encountered
 	 * @throws InterruptedException Thrown when a the thread is interrupted
 	 */
-	String execute(String command) throws IOException, InterruptedException;	
+	String execute(String command) throws IOException, InterruptedException;
+
+	List<FormattedMqttMessage> getMessages(String subscriptionTopic);	
 }
