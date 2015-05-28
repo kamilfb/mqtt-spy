@@ -63,6 +63,7 @@
 		      </ImageView>
       	</graphic>
         <items>
+        	<!-- 
         	<CheckMenuItem mnemonicParsing="false" text="Repeat test steps when finished">
    		      	<graphic>
 		      		<ImageView fitHeight="18.0" fitWidth="18.0" pickOnBounds="true">
@@ -73,7 +74,8 @@
 		      	</graphic>
         	</CheckMenuItem>
         	<SeparatorMenuItem />
-            <CheckMenuItem mnemonicParsing="false" selected="true" text="Automatically export each test case run">
+        	 -->
+            <CheckMenuItem fx:id="autoExport" mnemonicParsing="false" selected="true" text="Automatically export result of each test case run">
             	<graphic>
 		      		<ImageView fitHeight="18.0" fitWidth="18.0" pickOnBounds="true">
 				         <image>
@@ -82,7 +84,7 @@
 				      </ImageView>
 		      	</graphic>
             </CheckMenuItem>
-          	<MenuItem mnemonicParsing="false" text="Export this test case run">
+          	<MenuItem mnemonicParsing="false" text="Export result of this test case run" onAction="#exportResult">
           		<graphic>
 		      		<ImageView fitHeight="18.0" fitWidth="18.0" pickOnBounds="true">
 				         <image>

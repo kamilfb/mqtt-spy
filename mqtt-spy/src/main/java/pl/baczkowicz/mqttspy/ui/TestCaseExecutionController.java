@@ -14,6 +14,7 @@
  */
 package pl.baczkowicz.mqttspy.ui;
 
+import java.io.File;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -24,6 +25,8 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckMenuItem;
+import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
@@ -32,6 +35,8 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
+import javafx.stage.DirectoryChooser;
+import javafx.stage.FileChooser;
 import javafx.util.Callback;
 
 import org.slf4j.Logger;
@@ -55,6 +60,9 @@ public class TestCaseExecutionController extends AnchorPane implements Initializ
 	private EventManager eventManager;
 
 	private ConfigurationManager configurationManager;	
+	
+	@FXML
+	private CheckMenuItem autoExport;
 	
 	@FXML
 	private Button startButton;
@@ -123,13 +131,33 @@ public class TestCaseExecutionController extends AnchorPane implements Initializ
 		stepsView.setFixedCellSize(24);
 		
 		// TODO: for testing only
-		stepsView.setTableMenuButtonVisible(true);		
+		stepsView.setTableMenuButtonVisible(true);	
+		
+		stepsView.setPlaceholder(new Label("No test steps available - select a test case..."));
 	}	
 
 	public void init()
 	{
 		//
 	}	
+	
+	public boolean isAutoExportEnabled()
+	{
+		return autoExport.isSelected();
+	}
+	
+	@FXML
+	private void exportResult()	
+	{
+		final FileChooser fileChooser = new FileChooser();
+		fileChooser.setTitle("Select location for the result file");				
+		final File selectedFile = fileChooser.showSaveDialog(stepsView.getScene().getWindow());
+
+		if (selectedFile != null)
+		{			
+			testCaseManager.exportTestCaseResult(testCaseProperties, selectedFile);
+		}
+	}
 	
 	public void display(final TestCaseProperties testCaseProperties, final ObservableList<TestCaseStepProperties> items)
 	{

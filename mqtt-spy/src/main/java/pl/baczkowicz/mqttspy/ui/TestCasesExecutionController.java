@@ -14,7 +14,9 @@
  */
 package pl.baczkowicz.mqttspy.ui;
 
+import java.io.File;
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 
 import javafx.beans.property.ReadOnlyStringWrapper;
@@ -35,6 +37,9 @@ import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.stage.DirectoryChooser;
+import javafx.stage.FileChooser;
+import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.util.Callback;
 
 import org.slf4j.Logger;
@@ -43,12 +48,16 @@ import org.slf4j.LoggerFactory;
 import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.events.EventManager;
+import pl.baczkowicz.mqttspy.messages.BaseMqttMessage;
 import pl.baczkowicz.mqttspy.scripts.InteractiveScriptManager;
 import pl.baczkowicz.mqttspy.testcases.TestCase;
 import pl.baczkowicz.mqttspy.testcases.TestCaseManager;
 import pl.baczkowicz.mqttspy.testcases.TestCaseStatus;
+import pl.baczkowicz.mqttspy.ui.messagelog.LogReaderTask;
+import pl.baczkowicz.mqttspy.ui.messagelog.TaskWithProgressUpdater;
 import pl.baczkowicz.mqttspy.ui.panes.TitledPaneController;
 import pl.baczkowicz.mqttspy.ui.properties.TestCaseProperties;
+import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
 
 /**
  * Controller for the test cases execution window.
@@ -110,6 +119,21 @@ public class TestCasesExecutionController extends AnchorPane implements Initiali
 	@FXML
 	private Label enqueuedLabel;
 	
+	@FXML
+	private Label passesLabel;
+	
+	@FXML
+	private Label failuresLabel;
+	
+	@FXML
+	private Label runLabel;
+	
+	@FXML
+	private Label totalLabel;
+	
+	@FXML
+	private Label skippedLabel;
+		
 	private String scriptLocation;
 	
 	private EventManager eventManager;
@@ -130,19 +154,26 @@ public class TestCasesExecutionController extends AnchorPane implements Initiali
 			@Override
 			public void handle(ActionEvent event)
 			{
-				// TODO: select location
-				scriptLocation = "/home/kamil/Programming/Git/mqtt-spy/src/test/resources/test_cases";
-				
-				root.getChildren().clear();
-				for (final TestCaseProperties properties : testCaseManager.loadTestCases(scriptLocation))
-				{
-					root.getChildren().add(new TreeItem<TestCaseProperties>(properties));
-				}				
-				
-				scriptTree.getSelectionModel().clearSelection();
-				updateContextMenu();
-				// TODO: get all dirs
-				// TODO: load
+				final DirectoryChooser fileChooser = new DirectoryChooser();
+				fileChooser.setTitle("Select test cases location");				
+				final File selectedFile = fileChooser.showDialog(scriptTree.getScene().getWindow());
+
+				if (selectedFile != null)
+				{								
+					scriptLocation = selectedFile.getAbsolutePath();
+					
+					testCaseManager.loadTestCases(scriptLocation);
+					root.getChildren().clear();
+					
+					for (final TestCaseProperties properties : testCaseManager.getTestCases())
+					{
+						root.getChildren().add(new TreeItem<TestCaseProperties>(properties));
+					}				
+					
+					scriptTree.getSelectionModel().clearSelection();
+					updateContextMenu();
+					// TODO: get all dirs and subdirs?
+				}
 			}
 		});
 		
@@ -160,6 +191,7 @@ public class TestCasesExecutionController extends AnchorPane implements Initiali
 					final TestCaseProperties testCaseProperties = selected.getValue();
 					
 					testCaseManager.runTestCase(testCaseProperties);
+					updateContextMenu();
 				}
 			}
 		});		
@@ -176,6 +208,7 @@ public class TestCasesExecutionController extends AnchorPane implements Initiali
 					final TestCaseProperties testCaseProperties = selected.getValue();
 					
 					testCaseManager.enqueueTestCase(testCaseProperties);
+					updateContextMenu();
 				}
 			}
 		});
@@ -186,6 +219,7 @@ public class TestCasesExecutionController extends AnchorPane implements Initiali
 			public void handle(ActionEvent event)
 			{
 				testCaseManager.enqueueAllNotRun();
+				updateContextMenu();
 			}
 		});
 		
@@ -195,6 +229,7 @@ public class TestCasesExecutionController extends AnchorPane implements Initiali
 			public void handle(ActionEvent event)
 			{
 				testCaseManager.enqueueAllFailed();
+				updateContextMenu();
 			}
 		});
 		
@@ -203,7 +238,8 @@ public class TestCasesExecutionController extends AnchorPane implements Initiali
 			@Override
 			public void handle(ActionEvent event)
 			{
-				testCaseManager.clearEnqueued();				
+				testCaseManager.clearEnqueued();	
+				updateContextMenu();
 			}
 		});
 						
@@ -275,26 +311,35 @@ public class TestCasesExecutionController extends AnchorPane implements Initiali
 		});
 		
 		// Note: important - without that, cell height goes nuts with progress indicator
-		scriptTree.setFixedCellSize(24);					
+		scriptTree.setFixedCellSize(24);				
+		
+		scriptTree.setPlaceholder(new Label("Right click to load test cases..."));
 	}	
 
 	public void init()
 	{
 		scriptManager = new InteractiveScriptManager(eventManager, connection);
-		testCaseManager = new TestCaseManager(scriptManager, testCaseExecutionPaneController);
+		testCaseManager = new TestCaseManager(scriptManager, this, testCaseExecutionPaneController);
 		
 		testCaseExecutionPaneController.setTestCaseManager(testCaseManager);
 	}	
 	
 	public void updateContextMenu()
 	{
+		totalLabel.setText(totalLabel.getText().substring(0, totalLabel.getText().indexOf(" ") + 1) + testCaseManager.getTotalCount());		
+		enqueuedLabel.setText(enqueuedLabel.getText().substring(0, enqueuedLabel.getText().indexOf(" ") + 1) + testCaseManager.getEnqueuedCount());
+		int passes = 0;
+		int failures = 0;
+		int skipped = 0;
+		int run = 0;
+		
 		enqueueAllMenu.setDisable(true);
 		enqueueSelectedMenu.setDisable(true);
 		enqueueNotRunMenu.setDisable(true);
 		enqueueFailedMenu.setDisable(true);
 		clearEnqueuedMenu.setDisable(testCaseManager.getEnqueuedCount() == 0 ? true : false);
 		
-		if (root.getChildren().size() > 0)
+		if (root.getChildren().size() > 0 && testCaseManager.getTotalCount() > 0)
 		{		
 			enqueueAllMenu.setDisable(false);
 			
@@ -307,15 +352,37 @@ public class TestCasesExecutionController extends AnchorPane implements Initiali
 			
 			// TODO: check if any are failed/not run
 			enqueueNotRunMenu.setDisable(false);
-			enqueueFailedMenu.setDisable(false);									
+			enqueueFailedMenu.setDisable(false);		
+			
+			for (final TestCaseProperties testCase : testCaseManager.getTestCases())
+			{
+				if (testCase.statusProperty().getValue().equals(TestCaseStatus.PASSED))
+				{
+					passes++;
+				}
+				else if (testCase.statusProperty().getValue().equals(TestCaseStatus.FAILED))
+				{
+					failures++;
+				} 
+				else if (testCase.statusProperty().getValue().equals(TestCaseStatus.SKIPPED))
+				{
+					skipped++;
+				}
+				run = passes + failures + skipped;
+			}
 		}
+		
+		passesLabel.setText(passesLabel.getText().substring(0, passesLabel.getText().indexOf(" ") + 1) + passes);
+		failuresLabel.setText(failuresLabel.getText().substring(0, failuresLabel.getText().indexOf(" ") + 1) + failures);		
+		skippedLabel.setText(skippedLabel.getText().substring(0, skippedLabel.getText().indexOf(" ") + 1) + skipped);
+		runLabel.setText(runLabel.getText().substring(0, runLabel.getText().indexOf(" ") + 1) + run);
 	}
 	
-	public void updateLabels()
-	{
-		// TODO: update other labels
-		enqueuedLabel.setText("Enqueued: " + testCaseManager.getEnqueuedCount());
-	}
+//	public void updateLabels()
+//	{
+//		// TODO: update other labels
+//		enqueuedLabel.setText("Enqueued: " + testCaseManager.getEnqueuedCount());
+//	}
 	
 	public void showSelected()
 	{

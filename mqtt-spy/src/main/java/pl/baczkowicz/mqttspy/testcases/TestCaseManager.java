@@ -1,8 +1,13 @@
 package pl.baczkowicz.mqttspy.testcases;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 import javafx.application.Platform;
@@ -14,10 +19,10 @@ import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.common.generated.ScriptDetails;
 import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
-import pl.baczkowicz.mqttspy.connectivity.IMqttConnection;
 import pl.baczkowicz.mqttspy.scripts.ScriptManager;
 import pl.baczkowicz.mqttspy.scripts.ScriptRunningState;
 import pl.baczkowicz.mqttspy.ui.TestCaseExecutionController;
+import pl.baczkowicz.mqttspy.ui.TestCasesExecutionController;
 import pl.baczkowicz.mqttspy.ui.properties.TestCaseProperties;
 import pl.baczkowicz.mqttspy.ui.properties.TestCaseStepProperties;
 import pl.baczkowicz.mqttspy.utils.FileUtils;
@@ -32,13 +37,24 @@ public class TestCaseManager
 
 	private TestCaseExecutionController testCaseExecutionController;
 
-	public TestCaseManager(final ScriptManager scriptManager, final TestCaseExecutionController testCaseExecutionController)	
+	private List<TestCaseProperties> testCases = new ArrayList<>();
+	
+	private List<TestCaseProperties> enqueuedtestCases = new ArrayList<>();
+
+	private TestCasesExecutionController testCasesExecutionController;
+	
+	private SimpleDateFormat resultFileSdf = new SimpleDateFormat("yyyyMMdd_HHmmss");
+	
+	private int running = 0;
+
+	public TestCaseManager(final ScriptManager scriptManager, final TestCasesExecutionController testCasesExecutionController, final TestCaseExecutionController testCaseExecutionController)	
 	{
 		this.scriptManager = scriptManager;
 		this.testCaseExecutionController = testCaseExecutionController;
+		this.testCasesExecutionController = testCasesExecutionController;
 	}
 	
-	public List<TestCaseProperties> loadTestCases(final String testCaseLocation)
+	public void loadTestCases(final String testCaseLocation)
 	{
 		final List<TestCaseProperties> properties = new ArrayList<>();
 		
@@ -95,7 +111,32 @@ public class TestCaseManager
 			properties.add(new TestCaseProperties(testCase));
 		}
 		
-		return properties;
+		testCases = properties;
+		//return properties;
+		
+		new Thread(new Runnable()
+		{			
+			@Override
+			public void run()
+			{
+				while (true)
+				{
+					try
+					{
+						Thread.sleep(1000);
+					}
+					catch (InterruptedException e)
+					{
+						break;
+					}
+					
+					if (enqueuedtestCases.size() > 0 && running == 0)
+					{
+						runTestCase(enqueuedtestCases.remove(0));
+					}
+				}
+			}
+		}).start();
 	}
 	
 	public void runTestCase(final TestCaseProperties selected)
@@ -117,6 +158,7 @@ public class TestCaseManager
 			@Override
 			public void run()
 			{
+				running++;
 				TestCaseStepResult lastResult = null;
 				testCase.setCurrentStep(0);		
 				
@@ -234,9 +276,16 @@ public class TestCaseManager
 							testCase.setStatus(ScriptRunningState.FINISHED);
 						}
 						testCaseExecutionController.refreshState();
+						testCasesExecutionController.updateContextMenu();
 					}
 				});
+				running--;
 				
+				if (testCaseExecutionController.isAutoExportEnabled())
+				{
+					final String parentDir = selected.getScript().getScriptFile().getParent() + System.getProperty("file.separator");
+					exportTestCaseResult(selected, new File(parentDir + "result_" + resultFileSdf.format(new Date()) + "_" + testCaseStatus.getStatus()));
+				}
 			}
 		}).start();		
 	}
@@ -260,36 +309,88 @@ public class TestCaseManager
 
 	public void enqueueAllTestCases()
 	{
-		// TODO Auto-generated method stub
-		
+		enqueuedtestCases.addAll(testCases);
 	}
 
 	public void enqueueTestCase(TestCaseProperties testCaseProperties)
 	{
-		// TODO Auto-generated method stub
-		
+		enqueuedtestCases.add(testCaseProperties);
 	}
 
 	public void enqueueAllNotRun()
 	{
-		// TODO Auto-generated method stub
-		
+		for (final TestCaseProperties testCase : getTestCases())
+		{
+			if (testCase.statusProperty().getValue().equals(TestCaseStatus.NOT_RUN))
+			{
+				enqueuedtestCases.add(testCase);
+			}			
+		}
 	}
 
 	public void enqueueAllFailed()
 	{
-		// TODO Auto-generated method stub
-		
+		for (final TestCaseProperties testCase : getTestCases())
+		{
+			if (testCase.statusProperty().getValue().equals(TestCaseStatus.FAILED))
+			{
+				enqueuedtestCases.add(testCase);
+			}			
+		}
 	}
 
 	public void clearEnqueued()
 	{
-		// TODO Auto-generated method stub
-		
+		enqueuedtestCases.clear();		
 	}
 
 	public int getEnqueuedCount()
 	{
-		return 0;
+		return enqueuedtestCases.size();
+	}
+
+	public int getTotalCount()
+	{
+		return testCases.size();
+	}
+
+	public List<TestCaseProperties> getTestCases()
+	{
+		return testCases;
+	}
+
+	public void exportTestCaseResult(final TestCaseProperties testCaseProperties, final File selectedFile)
+	{
+		logger.info("Saving test case results to " + selectedFile.getAbsolutePath());
+		
+		try
+		{
+			BufferedWriter out = new BufferedWriter(new FileWriter(selectedFile));
+			
+			out.write(
+					//"Time, " + 
+					"Step" + ", " + "\"" + 
+					"Description" + "\"" + ", " + 
+					"Status" + ", " + "\"" + 
+					"Info" + "\"");
+			out.newLine();
+			
+			for (TestCaseStepProperties step : testCaseProperties.getScript().getSteps())
+			{
+				out.write(
+						//step.
+						step.stepNumberProperty().getValue() + ", " + "\"" + 
+						step.descriptionProperty().getValue() + "\"" + ", " + 
+						step.statusProperty().getValue() + ", " + "\"" + 
+						step.executionInfoProperty().getValue() + "\"");
+				out.newLine();
+			}
+						
+			out.close();
+		}
+		catch (IOException e)
+		{
+			logger.error("Cannot write to file", e);
+		}
 	}
 }

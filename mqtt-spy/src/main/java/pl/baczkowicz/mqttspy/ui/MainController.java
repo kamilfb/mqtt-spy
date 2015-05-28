@@ -294,6 +294,7 @@ public class MainController
 		testCasesStage.setTitle("Test cases");		
 		testCasesStage.initOwner(getParentWindow());
 		testCasesStage.setScene(scene);
+		((TestCasesExecutionController) loader.getController()).init();
 	}
 	
 	private void showEditConnectionsWindow(final boolean createNew)
