@@ -35,15 +35,12 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
-import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.util.Callback;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
-import pl.baczkowicz.mqttspy.events.EventManager;
 import pl.baczkowicz.mqttspy.scripts.ScriptRunningState;
 import pl.baczkowicz.mqttspy.testcases.TestCaseManager;
 import pl.baczkowicz.mqttspy.testcases.TestCaseStatus;
@@ -56,10 +53,6 @@ import pl.baczkowicz.mqttspy.ui.properties.TestCaseStepProperties;
 public class TestCaseExecutionController extends AnchorPane implements Initializable
 {
 	final static Logger logger = LoggerFactory.getLogger(TestCaseExecutionController.class);	
-
-	private EventManager eventManager;
-
-	private ConfigurationManager configurationManager;	
 	
 	@FXML
 	private CheckMenuItem autoExport;
@@ -244,18 +237,8 @@ public class TestCaseExecutionController extends AnchorPane implements Initializ
 	// === Setters and getters =======
 	// ===============================
 	
-	public void setEventManager(final EventManager eventManager)
-	{
-		this.eventManager = eventManager;
-	}
-	
 	public void setTestCaseManager(final TestCaseManager testCaseManager)
 	{
 		this.testCaseManager = testCaseManager;
-	}
-
-	public void setConfingurationManager(final ConfigurationManager configurationManager)
-	{
-		this.configurationManager = configurationManager;
 	}
 }

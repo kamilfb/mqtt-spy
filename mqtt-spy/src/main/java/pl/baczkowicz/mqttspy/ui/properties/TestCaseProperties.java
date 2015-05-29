@@ -31,7 +31,7 @@ public class TestCaseProperties implements ScriptChangeObserver
 	
 	private SimpleObjectProperty<ScriptTypeEnum> typeProperty;
 
-	private SimpleStringProperty lastStartedProperty;
+	private SimpleStringProperty lastUpdatedProperty;
 
 	private SimpleLongProperty countProperty;
 		
@@ -43,7 +43,7 @@ public class TestCaseProperties implements ScriptChangeObserver
 		
 		this.statusProperty = new SimpleObjectProperty<TestCaseStatus>(TestCaseStatus.NOT_RUN);		
 		this.typeProperty = new SimpleObjectProperty<ScriptTypeEnum>(ScriptTypeEnum.PUBLICATION);
-		this.lastStartedProperty = new SimpleStringProperty("");
+		this.lastUpdatedProperty = new SimpleStringProperty("");
 		this.countProperty = new SimpleLongProperty(0);
 
 		update();
@@ -64,9 +64,9 @@ public class TestCaseProperties implements ScriptChangeObserver
 		return this.typeProperty;
 	}
 	
-	public SimpleStringProperty lastStartedProperty()
+	public SimpleStringProperty lastUpdatedProperty()
 	{
-		return this.lastStartedProperty;
+		return this.lastUpdatedProperty;
 	}
 	
 	public SimpleLongProperty countProperty()

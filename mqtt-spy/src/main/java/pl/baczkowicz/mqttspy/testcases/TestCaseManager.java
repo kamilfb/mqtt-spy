@@ -1,3 +1,17 @@
+/***********************************************************************************
+ * 
+ * Copyright (c) 2015 Kamil Baczkowicz
+ * 
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ * 
+ *    Kamil Baczkowicz - initial API and implementation and/or initial documentation
+ *    
+ */
 package pl.baczkowicz.mqttspy.testcases;
 
 import java.io.BufferedWriter;
@@ -18,7 +32,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.common.generated.ScriptDetails;
-import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
 import pl.baczkowicz.mqttspy.scripts.ScriptManager;
 import pl.baczkowicz.mqttspy.scripts.ScriptRunningState;
 import pl.baczkowicz.mqttspy.ui.TestCaseExecutionController;
@@ -26,13 +39,16 @@ import pl.baczkowicz.mqttspy.ui.TestCasesExecutionController;
 import pl.baczkowicz.mqttspy.ui.properties.TestCaseProperties;
 import pl.baczkowicz.mqttspy.ui.properties.TestCaseStepProperties;
 import pl.baczkowicz.mqttspy.utils.FileUtils;
+import pl.baczkowicz.mqttspy.utils.TimeUtils;
 
 public class TestCaseManager
 {	
-	final static Logger logger = LoggerFactory.getLogger(TestCaseManager.class);
+	public static SimpleDateFormat testCaseFileSdf = new SimpleDateFormat("yyyyMMdd_HHmmss");
 	
-	private final String defaultTestCaseLocation = ConfigurationManager.getDefaultHomeDirectory() + "test_cases";
+	public static SimpleDateFormat testCasesFileSdf = new SimpleDateFormat("yyyyMMdd");
 
+	private final static Logger logger = LoggerFactory.getLogger(TestCaseManager.class);
+	
 	private final ScriptManager scriptManager;
 
 	private TestCaseExecutionController testCaseExecutionController;
@@ -42,9 +58,7 @@ public class TestCaseManager
 	private List<TestCaseProperties> enqueuedtestCases = new ArrayList<>();
 
 	private TestCasesExecutionController testCasesExecutionController;
-	
-	private SimpleDateFormat resultFileSdf = new SimpleDateFormat("yyyyMMdd_HHmmss");
-	
+		
 	private int running = 0;
 
 	public TestCaseManager(final ScriptManager scriptManager, final TestCasesExecutionController testCasesExecutionController, final TestCaseExecutionController testCaseExecutionController)	
@@ -78,10 +92,6 @@ public class TestCaseManager
 			{	
 				scriptManager.runScript(testCase, false);
 				testCase.setInfo((TestCaseInfo) scriptManager.invokeFunction(testCase, "getInfo"));
-//				testCase.getScriptEngine().eval(new FileReader(testCase.getScriptFile()));
-//				final Invocable invocable = (Invocable) testCase.getScriptEngine();
-//				
-//				testCase.setInfo((TestCaseInfo) invocable.invokeFunction("getInfo"));
 				
 				int stepNumber = 1;
 				for (final String step : testCase.getInfo().getSteps())
@@ -139,12 +149,12 @@ public class TestCaseManager
 		}).start();
 	}
 	
-	public void runTestCase(final TestCaseProperties selected)
+	public void runTestCase(final TestCaseProperties selectedTestCase)
 	{			
-		final TestCase testCase = selected.getScript();
+		final TestCase testCase = selectedTestCase.getScript();
 		
 		testCase.setStatus(ScriptRunningState.RUNNING);
-		selected.statusProperty().setValue(TestCaseStatus.IN_PROGRESS);
+		selectedTestCase.statusProperty().setValue(TestCaseStatus.IN_PROGRESS);
 		
 		// Clear last run for this test case
 		for (final TestCaseStepProperties properties : testCase.getSteps())
@@ -187,22 +197,19 @@ public class TestCaseManager
 						@Override
 						public void run()
 						{
+							selectedTestCase.lastUpdatedProperty().setValue(TimeUtils.DATE_WITH_SECONDS_SDF.format(new Date()));
 							stepProperties.statusProperty().setValue(TestCaseStatus.IN_PROGRESS);
 						}
 					});										
 					
 					try
 					{
-						// TODO: what to pass: all messages received; messages per topic
-						//final IMqttConnection connection = scriptManager.getConnection();
-						
 						final TestCaseStepResult result = (TestCaseStepResult) scriptManager.invokeFunction(
 								testCase, "step" + stepProperties.stepNumberProperty().getValue());
 						lastResult = result;
 						
 						if (result == null)
 						{
-							// TODO
 							continue;
 						}
 						
@@ -239,8 +246,7 @@ public class TestCaseManager
 					}
 					catch (InterruptedException e)
 					{
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						break;
 					}		
 				}		
 				
@@ -268,23 +274,24 @@ public class TestCaseManager
 					{
 						if (testCase.getStatus().equals(ScriptRunningState.STOPPED))
 						{
-							selected.statusProperty().setValue(TestCaseStatus.SKIPPED);
+							selectedTestCase.statusProperty().setValue(TestCaseStatus.SKIPPED);
 						}
 						else
 						{
-							selected.statusProperty().setValue(testCaseStatus.getStatus());
+							selectedTestCase.statusProperty().setValue(testCaseStatus.getStatus());
 							testCase.setStatus(ScriptRunningState.FINISHED);
 						}
+						selectedTestCase.lastUpdatedProperty().setValue(TimeUtils.DATE_WITH_SECONDS_SDF.format(new Date()));
 						testCaseExecutionController.refreshState();
-						testCasesExecutionController.updateContextMenu();
+						testCasesExecutionController.refreshInfo();
 					}
 				});
 				running--;
 				
 				if (testCaseExecutionController.isAutoExportEnabled())
 				{
-					final String parentDir = selected.getScript().getScriptFile().getParent() + System.getProperty("file.separator");
-					exportTestCaseResult(selected, new File(parentDir + "result_" + resultFileSdf.format(new Date()) + "_" + testCaseStatus.getStatus()));
+					final String parentDir = selectedTestCase.getScript().getScriptFile().getParent() + System.getProperty("file.separator");
+					exportTestCaseResult(selectedTestCase, new File(parentDir + "result_" + testCaseFileSdf.format(new Date()) + "_" + testCaseStatus.getStatus() + ".csv"));
 				}
 			}
 		}).start();		
@@ -383,6 +390,37 @@ public class TestCaseManager
 						step.descriptionProperty().getValue() + "\"" + ", " + 
 						step.statusProperty().getValue() + ", " + "\"" + 
 						step.executionInfoProperty().getValue() + "\"");
+				out.newLine();
+			}
+						
+			out.close();
+		}
+		catch (IOException e)
+		{
+			logger.error("Cannot write to file", e);
+		}
+	}
+	
+	public void exportTestCasesResults(final File selectedFile)
+	{
+		logger.info("Saving test cases results to " + selectedFile.getAbsolutePath());
+		
+		try
+		{
+			BufferedWriter out = new BufferedWriter(new FileWriter(selectedFile));
+			
+			out.write(
+					"\"" + "Test case" + "\"" + ", " +
+					"\"" + "Last updated" + "\"" + ", " + "\"" +
+					"Status");
+			out.newLine();
+			
+			for (TestCaseProperties testCase : getTestCases())
+			{
+				out.write(
+						"\"" + testCase.getName() + "\"" + ", " + 
+						"\"" + testCase.lastUpdatedProperty().getValue() + "\"" + ", " +
+						"\"" + testCase.statusProperty().getValue() + "\"" );
 				out.newLine();
 			}
 						
