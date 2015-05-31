@@ -106,7 +106,7 @@ public class EditConnectionConnectivityController extends AnchorPane implements 
 		{
 			@Override
 			public void changed(ObservableValue observable, Object oldValue, Object newValue)
-			{
+			{				
 				parent.updateConnectionName();
 				
 				onChange();
@@ -216,7 +216,8 @@ public class EditConnectionConnectivityController extends AnchorPane implements 
 		for (final String serverURI : serverURIs)
 		{
 			logger.trace("Adding " + serverURI);
-			connection.getServerURI().add(serverURI.trim());
+			// Trim and remove any prefixes - these are done dynamically based on SSL mode
+			connection.getServerURI().add(serverURI.trim().replaceAll(MqttUtils.TCP_PREFIX, "").replaceAll(MqttUtils.SSL_PREFIX, ""));
 		}
 		if (brokerAddressText.getText().endsWith(ConnectionUtils.SERVER_DELIMITER))
 		{

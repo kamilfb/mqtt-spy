@@ -12,4 +12,4 @@ The branching model (not fully in place yet) is as follows*:
 
 \* - this has been heavily influenced by http://nvie.com/posts/a-successful-git-branching-model/.
 
-The eclipse_paho_contribution branch is what was submitted to the Eclipse Paho project in https://bugs.eclipse.org/bugs/show_bug.cgi?id=458899.
+The eclipse_paho tags is what was submitted to the Eclipse Paho project in https://bugs.eclipse.org/bugs/show_bug.cgi?id=458899.

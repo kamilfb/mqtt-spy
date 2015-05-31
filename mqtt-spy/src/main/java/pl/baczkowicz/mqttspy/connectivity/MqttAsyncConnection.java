@@ -182,10 +182,10 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection
 		{
 			try
 			{
-				logger.info("Publishing message on topic \"" + publicationTopic + "\". Payload = \"" + data + "\"");
+				logger.info("Publishing message on topic \"" + publicationTopic + "\". Payload size = \"" + data.length + "\"");
 				client.publish(publicationTopic, data, qos, retained);
 				
-				logger.trace("Published message on topic \"" + publicationTopic + "\". Payload = \"" + data + "\"");
+				logger.trace("Published message on topic \"" + publicationTopic + "\". Payload size = \"" + data.length + "\"");
 				statisticsManager.messagePublished(getId(), publicationTopic);
 				
 				return true;

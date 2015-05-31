@@ -85,6 +85,14 @@ public class ObjectFactory {
     }
 
     /**
+     * Create an instance of {@link SslProperty }
+     * 
+     */
+    public SslProperty createSslProperty() {
+        return new SslProperty();
+    }
+
+    /**
      * Create an instance of {@link MqttConnectionDetails }
      * 
      */
@@ -98,6 +106,14 @@ public class ObjectFactory {
      */
     public SubscriptionDetails createSubscriptionDetails() {
         return new SubscriptionDetails();
+    }
+
+    /**
+     * Create an instance of {@link SslSettings }
+     * 
+     */
+    public SslSettings createSslSettings() {
+        return new SslSettings();
     }
 
     /**
