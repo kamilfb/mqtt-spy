@@ -15,40 +15,33 @@
 package pl.baczkowicz.mqttspy.storage;
 
 import java.util.List;
-import java.util.Queue;
 
-import pl.baczkowicz.mqttspy.configuration.generated.ConversionMethod;
-import pl.baczkowicz.mqttspy.configuration.generated.FormatterDetails;
-import pl.baczkowicz.mqttspy.events.EventManager;
-import pl.baczkowicz.mqttspy.events.queuable.ui.MqttSpyUIEvent;
-import pl.baczkowicz.mqttspy.ui.utils.FormattingUtils;
+import pl.baczkowicz.mqttspy.common.generated.ConversionMethod;
+import pl.baczkowicz.mqttspy.common.generated.FormatterDetails;
+import pl.baczkowicz.mqttspy.utils.FormattingUtils;
 
 /**
  * Basic message store, keeping all messages in a list.
  */
 public class BasicMessageStore implements MessageStore
 {
-	protected final MessageListWithObservableTopicSummary messages;
+	protected final MessageList messages;
 		
 	/** The message format used for this message store. */
 	protected FormatterDetails messageFormat = FormattingUtils.createBasicFormatter("default", "Plain", ConversionMethod.PLAIN);
 
-	// TODO: move to ManagedMessageStore...
-	/** Stores events for the UI to be updated. */
-	protected final Queue<MqttSpyUIEvent> uiEventQueue;
-
-	// TODO: move to ManagedMessageStore...
-	protected final EventManager eventManager;
-
-	public BasicMessageStore(final String name, final int preferredSize, final int maxSize, final Queue<MqttSpyUIEvent> uiEventQueue, 
-			final EventManager eventManager, final int maxPayloadLength)
+	public BasicMessageStore(final String name, final int preferredSize, final int maxSize, final int maxPayloadLength)
 	{
-		this.messages = new MessageListWithObservableTopicSummary(preferredSize, maxSize, name, messageFormat, maxPayloadLength);
-		this.eventManager = eventManager;
-		this.uiEventQueue = uiEventQueue;
+		// this.messages = new MessageListWithObservableTopicSummary(preferredSize, maxSize, name, messageFormat, maxPayloadLength);
+		this.messages = new MessageList(preferredSize, maxSize, name);
 	}
 	
-	public UiMqttMessage storeMessage(final UiMqttMessage message)
+	public void messageReceived(final FormattedMqttMessage message)	
+	{
+		storeMessage(message);
+	}
+	
+	public FormattedMqttMessage storeMessage(final FormattedMqttMessage message)
 	{
 		if (message != null)
 		{
@@ -58,12 +51,12 @@ public class BasicMessageStore implements MessageStore
 		return null;
 	}
 
-	public List<UiMqttMessage> getMessages()
+	public List<FormattedMqttMessage> getMessages()
 	{
 		return messages.getMessages();
 	}
 	
-	public MessageListWithObservableTopicSummary getMessageList()
+	public MessageList getMessageList()
 	{
 		return messages;
 	}
@@ -71,14 +64,11 @@ public class BasicMessageStore implements MessageStore
 	public void clear()
 	{
 		messages.clear();
-		messages.getTopicSummary().clear();
 	}	
 	
-
 	public void setFormatter(final FormatterDetails messageFormat)
 	{
 		this.messageFormat = messageFormat;		
-		messages.getTopicSummary().setFormatter(messageFormat);
 	}
 	
 	public FormatterDetails getFormatter()
@@ -100,9 +90,4 @@ public class BasicMessageStore implements MessageStore
 	{
 		return messages.getName();
 	}	
-	
-	public Queue<MqttSpyUIEvent> getUiEventQueue()
-	{
-		return this.uiEventQueue;
-	}
 }

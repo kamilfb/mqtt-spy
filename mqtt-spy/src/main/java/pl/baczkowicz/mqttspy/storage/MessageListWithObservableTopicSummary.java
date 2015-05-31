@@ -14,7 +14,7 @@
  */
 package pl.baczkowicz.mqttspy.storage;
 
-import pl.baczkowicz.mqttspy.configuration.generated.FormatterDetails;
+import pl.baczkowicz.mqttspy.common.generated.FormatterDetails;
 import pl.baczkowicz.mqttspy.storage.summary.ObservableTopicSummary;
 
 /**
@@ -38,9 +38,9 @@ public class MessageListWithObservableTopicSummary extends MessageList
 		return topicSummary;
 	}
 	
-	public UiMqttMessage add(final UiMqttMessage message)
+	public FormattedMqttMessage add(final FormattedMqttMessage message)
 	{
-		final UiMqttMessage removed = super.add(message);
+		final FormattedMqttMessage removed = super.add(message);
 		
 		if (removed != null)
 		{
@@ -51,9 +51,9 @@ public class MessageListWithObservableTopicSummary extends MessageList
 		return removed;
 	}
 	
-	public UiMqttMessage remove(final int index)
+	public FormattedMqttMessage remove(final int index)
 	{
-		final UiMqttMessage removed = super.remove(index);
+		final FormattedMqttMessage removed = super.remove(index);
 		
 		topicSummary.decreaseCount(removed);
 		

@@ -38,10 +38,13 @@ import javafx.util.Callback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import pl.baczkowicz.mqttspy.connectivity.BaseMqttSubscription;
+import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
+import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
 import pl.baczkowicz.mqttspy.events.EventManager;
 import pl.baczkowicz.mqttspy.events.observers.MessageIndexChangeObserver;
-import pl.baczkowicz.mqttspy.storage.BasicMessageStore;
-import pl.baczkowicz.mqttspy.storage.UiMqttMessage;
+import pl.baczkowicz.mqttspy.storage.BasicMessageStoreWithSummary;
+import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.ui.properties.MqttContentProperties;
 import pl.baczkowicz.mqttspy.ui.utils.StylingUtils;
 import pl.baczkowicz.mqttspy.ui.utils.UiUtils;
@@ -67,7 +70,9 @@ public class MessageListTableController implements Initializable, MessageIndexCh
 	@FXML
 	private TableColumn<MqttContentProperties, String> messageReceivedAtColumn;
 
-	private BasicMessageStore store;
+	private BasicMessageStoreWithSummary store;
+	
+	private MqttAsyncConnection connection;
 
 	private EventManager eventManager;
 
@@ -129,13 +134,23 @@ public class MessageListTableController implements Initializable, MessageIndexCh
 							@Override
 							protected void updateItem(MqttContentProperties item, boolean empty)
 							{
-								super.updateItem(item, empty);
+								super.updateItem(item, empty);															
+								
 								if (!isEmpty() && item.getSubscription() != null)
-								{
+								{								
+									final BaseMqttSubscription subscription = connection.getMqttSubscriptionForTopic(item.getSubscription());
 									
-									this.setStyle(StylingUtils.createBgRGBString(item.getSubscription()
-											.getColor(), getIndex() % 2 == 0 ? 0.8 : 0.6)
+									if (subscription instanceof MqttSubscription)
+									{
+										this.setStyle(StylingUtils.createBgRGBString(
+											((MqttSubscription) subscription).getColor(), 
+											getIndex() % 2 == 0 ? 0.8 : 0.6)
 											+ " -fx-background-radius: 6; ");
+									}
+									else
+									{
+										this.setStyle(null);
+									}
 								}
 								else
 								{
@@ -154,7 +169,7 @@ public class MessageListTableController implements Initializable, MessageIndexCh
 		final MqttContentProperties item = messageTable.getSelectionModel().getSelectedItem();
 		if (item != null)
 		{
-			final List<UiMqttMessage> list = store.getMessages();
+			final List<FormattedMqttMessage> list = store.getMessages();
 			for (int i = 0; i < store.getMessages().size(); i++)
 			{
 				if (list.get(i).getId() == item.getId())
@@ -203,9 +218,14 @@ public class MessageListTableController implements Initializable, MessageIndexCh
 		this.items = items;
 	}
 	
-	public void setStore(final BasicMessageStore store)
+	public void setStore(final BasicMessageStoreWithSummary store)
 	{
 		this.store = store;
+	}
+	
+	public void setConnection(final MqttAsyncConnection connection)
+	{
+		this.connection = connection;
 	}
 	
 	public static ContextMenu createMessageListTableContextMenu(final TableView<MqttContentProperties> messageTable)

@@ -23,6 +23,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -42,6 +43,7 @@ import javafx.stage.WindowEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import pl.baczkowicz.mqttspy.connectivity.BaseMqttSubscription;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.connectivity.MqttConnectionStatus;
 import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
@@ -52,9 +54,9 @@ import pl.baczkowicz.mqttspy.ui.connections.ConnectionManager;
 import pl.baczkowicz.mqttspy.ui.panes.PaneVisibilityStatus;
 import pl.baczkowicz.mqttspy.ui.panes.TabController;
 import pl.baczkowicz.mqttspy.ui.panes.TabStatus;
-import pl.baczkowicz.mqttspy.ui.panes.TitledPaneController;
 import pl.baczkowicz.mqttspy.ui.panes.TitledPaneStatus;
 import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
+import pl.baczkowicz.mqttspy.ui.utils.FxmlUtils;
 import pl.baczkowicz.mqttspy.ui.utils.StylingUtils;
 
 /**
@@ -65,16 +67,12 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 	private static final int MIN_COLLAPSED_PANE_HEIGHT = 26;
 	
 	private static final int SUBSCRIPTION_PANE_MIN_EXPANDED_HEIGHT = 64;
-
-	private static final int SUBSCRIPTION_PANE_MIN_COLLAPSED_HEIGHT = MIN_COLLAPSED_PANE_HEIGHT;
+	
+	private static final int TEST_CASES_PANE_MIN_EXPANDED_HEIGHT = 190;
 	
 	private static final int PUBLICATION_PANE_MIN_EXPANDED_HEIGHT = 96;	
 	
-	private static final int PUBLICATION_PANE_MIN_COLLAPSED_HEIGHT = MIN_COLLAPSED_PANE_HEIGHT;
-	
 	private static final int SCRIPTED_PUBLICATION_PANE_MIN_EXPANDED_HEIGHT = 136;	
-	
-	private static final int SCRIPTED_PUBLICATION_PANE_MIN_COLLAPSED_HEIGHT = MIN_COLLAPSED_PANE_HEIGHT;
 
 	final static Logger logger = LoggerFactory.getLogger(ConnectionController.class);
 
@@ -111,6 +109,13 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 	@FXML
 	private NewSubscriptionController newSubscriptionPaneController;
 	
+	/**
+	 * The name of this field needs to be set to the name of the pane +
+	 * Controller (i.e. <fx:id>Controller).
+	 */
+	@FXML
+	private TestCasesExecutionController testCasesPaneController;
+	
 	/** For convenience, this represents a controller for the subscriptions titled pane. */
 	private SubscriptionsController subscriptionsController = new SubscriptionsController();
 
@@ -127,6 +132,19 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 	private TitledPane subscriptionsTitledPane;
 	
 	@FXML
+	private TitledPane testCasesTitledPane;
+	
+	private TitledPaneStatus publishMessageTitledStatus = new TitledPaneStatus(0);
+	
+	private TitledPaneStatus newSubscriptionTitledStatus = new TitledPaneStatus(3);
+
+	private TitledPaneStatus scriptedPublicationsTitledStatus = new TitledPaneStatus(1);
+	
+	private TitledPaneStatus subscriptionsTitledStatus = new TitledPaneStatus(4);
+	
+	private TitledPaneStatus testCasesTitledStatus = new TitledPaneStatus(2);
+	
+	@FXML
 	private TabPane subscriptionTabs;
 
 	private MqttAsyncConnection connection;
@@ -141,7 +159,7 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 
 	private EventManager eventManager;
 	
-	private Map<TitledPane, TitledPaneController> paneToController = new HashMap<>();
+	private Map<TitledPane, TitledPaneStatus> paneToController = new HashMap<>();
 
 	private boolean detailedView;
 
@@ -170,11 +188,17 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 	
 	public void init()
 	{
+		publishMessageTitledStatus.setController(newPublicationPaneController);
+		newSubscriptionTitledStatus.setController(newSubscriptionPaneController);
+		scriptedPublicationsTitledStatus.setController(publicationScriptsPaneController);
+		subscriptionsTitledStatus.setController(subscriptionsController);
+		testCasesTitledStatus.setController(testCasesPaneController);
+		
 		subscriptionsTitledPane.expandedProperty().addListener(createChangeListener());
 		
 		// panes.put(subscriptionsController, true);
-		subscriptionsController.getTitledPaneStatus().setVisibility(PaneVisibilityStatus.ATTACHED);
-		paneToController.put(subscriptionsTitledPane, subscriptionsController);
+		subscriptionsTitledStatus.setVisibility(PaneVisibilityStatus.ATTACHED);
+		paneToController.put(subscriptionsTitledPane, subscriptionsTitledStatus);
 		
 		subscriptionsController.setTitledPane(subscriptionsTitledPane);
 		
@@ -183,15 +207,17 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 			publishMessageTitledPane.expandedProperty().addListener(createChangeListener());		
 			scriptedPublicationsTitledPane.expandedProperty().addListener(createChangeListener());		
 			newSubscriptionTitledPane.expandedProperty().addListener(createChangeListener());
+						
+			scriptedPublicationsTitledPane.setExpanded(false);			
 			
-			scriptedPublicationsTitledPane.setExpanded(false);
+			publishMessageTitledStatus.setVisibility(PaneVisibilityStatus.ATTACHED);
+			scriptedPublicationsTitledStatus.setVisibility(PaneVisibilityStatus.ATTACHED);
+			newSubscriptionTitledStatus.setVisibility(PaneVisibilityStatus.ATTACHED);
+			testCasesTitledStatus.setVisibility(PaneVisibilityStatus.NOT_VISIBLE);
 			
-			newPublicationPaneController.getTitledPaneStatus().setVisibility(PaneVisibilityStatus.ATTACHED);
-			publicationScriptsPaneController.getTitledPaneStatus().setVisibility(PaneVisibilityStatus.ATTACHED);
-			newSubscriptionPaneController.getTitledPaneStatus().setVisibility(PaneVisibilityStatus.ATTACHED);
-			paneToController.put(publishMessageTitledPane, newPublicationPaneController);
-			paneToController.put(scriptedPublicationsTitledPane, publicationScriptsPaneController);
-			paneToController.put(newSubscriptionTitledPane, newSubscriptionPaneController);
+			paneToController.put(publishMessageTitledPane, publishMessageTitledStatus);
+			paneToController.put(scriptedPublicationsTitledPane, scriptedPublicationsTitledStatus);
+			paneToController.put(newSubscriptionTitledPane, newSubscriptionTitledStatus);			
 			
 			newPublicationPaneController.setConnection(connection);
 			newPublicationPaneController.setScriptManager(connection.getScriptManager());
@@ -207,7 +233,7 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 			publicationScriptsPaneController.setConnection(connection);
 			publicationScriptsPaneController.setEventManager(eventManager);
 			publicationScriptsPaneController.setTitledPane(scriptedPublicationsTitledPane);
-			publicationScriptsPaneController.init();
+			publicationScriptsPaneController.init();	
 			
 			tooltip = new Tooltip();
 			connectionTab.setTooltip(tooltip);
@@ -215,9 +241,11 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 		else
 		{
 			// If in replay more, remote the panes from the split pane altogether
+			// TODO: don't add them in the first place?
 			splitPane.getItems().remove(publishMessageTitledPane);
 			splitPane.getItems().remove(scriptedPublicationsTitledPane);
 			splitPane.getItems().remove(newSubscriptionTitledPane);
+			splitPane.getItems().remove(testCasesTitledPane);
 		}
 		
 		updateMinHeights();
@@ -225,6 +253,32 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 		// subscriptionsTitledPane.setMaxWidth(500);
 		// subscriptionTabs.setMaxWidth(500);
 		// TODO: how not to resize the tab pane on too many tabs? All max sizes seems to be ignored...
+	}
+	
+	private void initialiseTestCasesPane()
+	{
+		if (testCasesPaneController == null)
+		{
+			final FXMLLoader loader = FxmlUtils.createFxmlLoaderForProjectFile("TestCasesExecutionPane.fxml");
+			final AnchorPane testCasesPane = FxmlUtils.loadAnchorPane(loader);
+			
+			testCasesTitledPane = new TitledPane();
+			testCasesTitledPane.setText("Test cases");
+			testCasesTitledPane.setContent(testCasesPane);
+			testCasesTitledPane.expandedProperty().addListener(createChangeListener());
+			testCasesTitledPane.setExpanded(false);
+			
+			testCasesPaneController = loader.getController();
+			testCasesPaneController.setConnection(connection);
+			testCasesPaneController.init();
+			
+			testCasesTitledStatus.setController(testCasesPaneController);
+			testCasesTitledStatus.getController().setTitledPane(testCasesTitledPane);
+						
+			paneToController.put(testCasesTitledPane, testCasesTitledStatus);
+			
+			logger.info("Test cases pane initialised!");
+		}
 	}
 	
 	public void setConnectionManager(final ConnectionManager connectionManager)
@@ -240,7 +294,7 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 		}
 		else
 		{
-			publishMessageTitledPane.setMinHeight(PUBLICATION_PANE_MIN_COLLAPSED_HEIGHT);
+			publishMessageTitledPane.setMinHeight(MIN_COLLAPSED_PANE_HEIGHT);
 		}
 		
 		if (scriptedPublicationsTitledPane.isExpanded())
@@ -249,7 +303,7 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 		}
 		else
 		{
-			scriptedPublicationsTitledPane.setMinHeight(SCRIPTED_PUBLICATION_PANE_MIN_COLLAPSED_HEIGHT);
+			scriptedPublicationsTitledPane.setMinHeight(MIN_COLLAPSED_PANE_HEIGHT);
 		}
 		
 		if (newSubscriptionTitledPane.isExpanded())
@@ -259,8 +313,20 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 		}
 		else
 		{
-			newSubscriptionTitledPane.setMinHeight(SUBSCRIPTION_PANE_MIN_COLLAPSED_HEIGHT);
-			newSubscriptionTitledPane.setMaxHeight(SUBSCRIPTION_PANE_MIN_COLLAPSED_HEIGHT);
+			newSubscriptionTitledPane.setMinHeight(MIN_COLLAPSED_PANE_HEIGHT);
+			newSubscriptionTitledPane.setMaxHeight(MIN_COLLAPSED_PANE_HEIGHT);
+		}
+		
+		if (testCasesTitledPane != null)
+		{
+			if (testCasesTitledPane.isExpanded())
+			{
+				testCasesTitledPane.setMinHeight(TEST_CASES_PANE_MIN_EXPANDED_HEIGHT);
+			}
+			else
+			{
+				testCasesTitledPane.setMinHeight(MIN_COLLAPSED_PANE_HEIGHT);
+			}
 		}
 	}
 
@@ -316,9 +382,9 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 		newSubscriptionPaneController.setConnected(false);
 		getNewPublicationPaneController().setConnected(false);
 		
-		for (final MqttSubscription sub : connection.getSubscriptions().values())
+		for (final BaseMqttSubscription sub : connection.getSubscriptions().values())
 		{
-			sub.getSubscriptionController().updateContextMenu();
+			((MqttSubscription) sub).getSubscriptionController().updateContextMenu();
 		}
 		
 		// If the context menu is available and has items in it
@@ -406,12 +472,18 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 		this.eventManager = eventManager;
 	}
 	
-	public void setPaneVisiblity(final TitledPaneController pane, final PaneVisibilityStatus visibility)
+	public void setPaneVisiblity(final TitledPaneStatus paneStatus, final PaneVisibilityStatus visibility)
 	{
+		if (paneStatus == testCasesTitledStatus && testCasesPaneController == null 
+				&& (PaneVisibilityStatus.ATTACHED.equals(visibility) || PaneVisibilityStatus.DETACHED.equals(visibility)))
+		{
+			initialiseTestCasesPane();
+		}
+		
 		// Ignore any layout requests when in replay mode
 		if (!replayMode)
 		{
-			pane.getTitledPaneStatus().setRequestedVisibility(visibility);			
+			paneStatus.setRequestedVisibility(visibility);			
 			updateVisiblePanes();
 			updateMenus();
 		}		
@@ -459,10 +531,18 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 		// Ignore any layout requests when in replay mode
 		if (!replayMode)
 		{
-			subscriptionsController.getTitledPaneStatus().setRequestedVisibility(showReceivedMessagesSummary);
-			newPublicationPaneController.getTitledPaneStatus().setRequestedVisibility(showManualPublications);
-			publicationScriptsPaneController.getTitledPaneStatus().setRequestedVisibility(showScriptedPublications);
-			newSubscriptionPaneController.getTitledPaneStatus().setRequestedVisibility(showNewSubscription);							
+//			subscriptionsController.getTitledPaneStatus().setRequestedVisibility(showReceivedMessagesSummary);
+//			newPublicationPaneController.getTitledPaneStatus().setRequestedVisibility(showManualPublications);
+//			publicationScriptsPaneController.getTitledPaneStatus().setRequestedVisibility(showScriptedPublications);
+//			newSubscriptionPaneController.getTitledPaneStatus().setRequestedVisibility(showNewSubscription);
+			// testCasesPaneController.getTitledPaneStatus().setRequestedVisibility(showNewSubscription);
+			
+			subscriptionsTitledStatus.setRequestedVisibility(showReceivedMessagesSummary);
+			publishMessageTitledStatus.setRequestedVisibility(showManualPublications);
+			scriptedPublicationsTitledStatus.setRequestedVisibility(showScriptedPublications);
+			newSubscriptionTitledStatus.setRequestedVisibility(showNewSubscription);						
+			// testCasesTitledStatus.setRequestedVisibility(testCasesPaneController);
+			
 			updateVisiblePanes();
 			updateMenus();
 		}
@@ -477,10 +557,18 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 	{	
 		connectionTab.getStyleClass().add("connection-replay");
 				
-		subscriptionsController.getTitledPaneStatus().setRequestedVisibility(PaneVisibilityStatus.ATTACHED);
-		newPublicationPaneController.getTitledPaneStatus().setRequestedVisibility(PaneVisibilityStatus.NOT_VISIBLE);
-		publicationScriptsPaneController.getTitledPaneStatus().setRequestedVisibility(PaneVisibilityStatus.NOT_VISIBLE);
-		newSubscriptionPaneController.getTitledPaneStatus().setRequestedVisibility(PaneVisibilityStatus.NOT_VISIBLE);						
+//		subscriptionsController.getTitledPaneStatus().setRequestedVisibility(PaneVisibilityStatus.ATTACHED);
+//		newPublicationPaneController.getTitledPaneStatus().setRequestedVisibility(PaneVisibilityStatus.NOT_VISIBLE);
+//		publicationScriptsPaneController.getTitledPaneStatus().setRequestedVisibility(PaneVisibilityStatus.NOT_VISIBLE);
+//		newSubscriptionPaneController.getTitledPaneStatus().setRequestedVisibility(PaneVisibilityStatus.NOT_VISIBLE);
+//		testCasesPaneController.getTitledPaneStatus().setRequestedVisibility(PaneVisibilityStatus.NOT_VISIBLE);
+		
+		subscriptionsTitledStatus.setRequestedVisibility(PaneVisibilityStatus.ATTACHED);
+		publishMessageTitledStatus.setRequestedVisibility(PaneVisibilityStatus.NOT_VISIBLE);
+		scriptedPublicationsTitledStatus.setRequestedVisibility(PaneVisibilityStatus.NOT_VISIBLE);
+		newSubscriptionTitledStatus.setRequestedVisibility(PaneVisibilityStatus.NOT_VISIBLE);						
+		testCasesTitledStatus.setRequestedVisibility(PaneVisibilityStatus.NOT_VISIBLE);
+		
 		updateVisiblePanes();
 		
 		subscriptionsTitledPane.setText("Logged messages");
@@ -488,13 +576,13 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 	
 	private void updateMenus()
 	{
-		for (final TitledPaneController controller : paneToController.values())
+		for (final TitledPaneStatus status : paneToController.values())
 		{
-			controller.getTitledPaneStatus().updateMenu();
+			status.updateMenu();
 		}		
 	}
-	
-	private void insertPane(final TitledPaneController controller)
+		
+	private void insertPane(final TitledPaneStatus status)
 	{
 		int insertIndex = splitPane.getItems().size();
 		
@@ -502,8 +590,7 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 		{
 			final Node pane = splitPane.getItems().get(i);
 			
-			if (paneToController.get(pane).getTitledPaneStatus().getDisplayIndex() 
-					> controller.getTitledPaneStatus().getDisplayIndex())
+			if (paneToController.get(pane).getDisplayIndex() > status.getDisplayIndex())
 			{
 				insertIndex = i;
 				break;
@@ -511,15 +598,13 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 		}
 		
 		// logger.info("Inserting at " + insertIndex + "; " + controller);
-		splitPane.getItems().add(insertIndex, controller.getTitledPane());
+		splitPane.getItems().add(insertIndex, status.getController().getTitledPane());
 	}
 	
 	private void updateVisiblePanes()
 	{	
-		for (final TitledPaneController controller : paneToController.values())
+		for (final TitledPaneStatus status : paneToController.values())
 		{	
-			final TitledPaneStatus status = controller.getTitledPaneStatus();
-			
 			// If no changes, go to next controller...
 			if (status.getVisibility().equals(status.getRequestedVisibility()))
 			{
@@ -531,8 +616,8 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 			// If previous value was detached, close the detached window
 			if (status.getPreviousVisibility().equals(PaneVisibilityStatus.DETACHED))
 			{
-				controller.getTitledPane().setCollapsible(true);
-				controller.getTitledPane().setExpanded(status.isLastExpanded());
+				status.getController().getTitledPane().setCollapsible(true);
+				status.getController().getTitledPane().setExpanded(status.isLastExpanded());
 				if (status.getParentWhenDetached().isShowing())
 				{
 					status.getParentWhenDetached().close();
@@ -542,9 +627,9 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 			else if (status.getPreviousVisibility().equals(PaneVisibilityStatus.ATTACHED))
 			{
 				// Remove from main window
-				if (splitPane.getItems().contains(controller.getTitledPane()))
+				if (splitPane.getItems().contains(status.getController().getTitledPane()))
 				{
-					splitPane.getItems().remove(controller.getTitledPane());
+					splitPane.getItems().remove(status.getController().getTitledPane());
 				}
 			}
 			
@@ -552,10 +637,10 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 			if (status.getVisibility().equals(PaneVisibilityStatus.DETACHED))
 			{				
 				// Add to separate window
-				final Stage stage = DialogUtils.createWindowWithPane(controller.getTitledPane(), splitPane.getScene(), 
+				final Stage stage = DialogUtils.createWindowWithPane(status.getController().getTitledPane(), splitPane.getScene(), 
 						connection.getName(), 0);
 				status.setParentWhenDetached(stage);
-				status.setLastExpanded(controller.getTitledPane().isExpanded());
+				status.setLastExpanded(status.getController().getTitledPane().isExpanded());
 				stage.setOnCloseRequest(new EventHandler<WindowEvent>()
 				{					
 					@Override
@@ -568,8 +653,8 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 					}
 				});
 				
-				controller.getTitledPane().setExpanded(true);
-				controller.getTitledPane().setCollapsible(false);
+				status.getController().getTitledPane().setExpanded(true);
+				status.getController().getTitledPane().setCollapsible(false);
 				stage.show();
 			}
 			// If set to be shown
@@ -578,9 +663,9 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 				// logger.info("Show; contains = " + splitPane.getItems().contains(controller.getTitledPane()));
 				
 				// Show
-				if (!splitPane.getItems().contains(controller.getTitledPane()))
+				if (!splitPane.getItems().contains(status.getController().getTitledPane()))
 				{
-					insertPane(controller);
+					insertPane(status);
 				}
 			}
 		}
@@ -643,5 +728,35 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 	public CheckMenuItem getResizeMessageContentMenu()
 	{
 		return resizeMessageContentMenu;
+	}
+
+	public TestCasesExecutionController getTestCasesPaneController()
+	{
+		return testCasesPaneController;
+	}
+
+	public TitledPaneStatus getNewPublicationPaneStatus()
+	{
+		return publishMessageTitledStatus;
+	}
+
+	public TitledPaneStatus getPublicationScriptsPaneStatus()
+	{
+		return scriptedPublicationsTitledStatus;
+	}
+
+	public TitledPaneStatus getNewSubscriptionPaneStatus()
+	{
+		return newSubscriptionTitledStatus;
+	}
+
+	public TitledPaneStatus getSubscriptionsStatus()
+	{
+		return subscriptionsTitledStatus;
+	}
+
+	public TitledPaneStatus getTestCasesPaneStatus()
+	{
+		return testCasesTitledStatus;
 	}
 }

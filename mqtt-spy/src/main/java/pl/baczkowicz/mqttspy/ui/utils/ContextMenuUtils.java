@@ -39,7 +39,7 @@ import pl.baczkowicz.mqttspy.ui.charts.ChartMode;
 import pl.baczkowicz.mqttspy.ui.connections.ConnectionManager;
 import pl.baczkowicz.mqttspy.ui.connections.SubscriptionManager;
 import pl.baczkowicz.mqttspy.ui.panes.PaneVisibilityStatus;
-import pl.baczkowicz.mqttspy.ui.panes.TitledPaneController;
+import pl.baczkowicz.mqttspy.ui.panes.TitledPaneStatus;
 
 /**
  * Context menu utils - mainly for creating various context menus.
@@ -218,7 +218,7 @@ public class ContextMenuUtils
 			{			
 				DialogUtils.showMessageBasedPieCharts("Message count statistics for " + subscription.getTopic(), 
 						subscriptionController.getScene(),
-						subscriptionController.getSubscription().getNonFilteredMessageList().getTopicSummary().getObservableMessagesPerTopic());
+						subscriptionController.getSubscription().getStore().getNonFilteredMessageList().getTopicSummary().getObservableMessagesPerTopic());
 			}
 		});			
 		contextMenu.getItems().add(messageCountChartItem);
@@ -233,9 +233,9 @@ public class ContextMenuUtils
 		{
 			public void handle(ActionEvent e)
 			{				
-				eventManager.notifyClearHistory(subscription);
+				eventManager.notifyClearHistory(subscription.getStore());
 				StatisticsManager.resetMessagesReceived(connection.getId(), subscription.getTopic());
-				subscription.clear();
+				subscription.getStore().clear();
 			}
 		});
 		contextMenu.getItems().add(clearItem);		
@@ -362,13 +362,14 @@ public class ContextMenuUtils
 	
 	private static Menu createConnectionPaneMenu(final String name, 
 			final ConnectionController connectionController, 
-			final TitledPaneController titledPaneController)
+			final TitledPaneStatus status)
 	{
 		final Menu menu = new Menu(name);
 		
-		titledPaneController.getTitledPaneStatus().setContentMenu(menu);
+		status.setContentMenu(menu);
 		
 		final CheckMenuItem hidden = new CheckMenuItem("Hidden");
+		hidden.setSelected(true);
 		final CheckMenuItem visible = new CheckMenuItem("Visible (attached to connection tab)");
 		final CheckMenuItem detached = new CheckMenuItem("Visible (detached from connection tab)");
 		
@@ -380,7 +381,7 @@ public class ContextMenuUtils
 		{
 			public void handle(ActionEvent e)
 			{				
-				connectionController.setPaneVisiblity(titledPaneController, PaneVisibilityStatus.NOT_VISIBLE);
+				connectionController.setPaneVisiblity(status, PaneVisibilityStatus.NOT_VISIBLE);
 			}
 		});
 		
@@ -388,7 +389,7 @@ public class ContextMenuUtils
 		{
 			public void handle(ActionEvent e)
 			{				
-				connectionController.setPaneVisiblity(titledPaneController, PaneVisibilityStatus.ATTACHED);
+				connectionController.setPaneVisiblity(status, PaneVisibilityStatus.ATTACHED);
 			}
 		});
 		
@@ -396,7 +397,7 @@ public class ContextMenuUtils
 		{
 			public void handle(ActionEvent e)
 			{				
-				connectionController.setPaneVisiblity(titledPaneController, PaneVisibilityStatus.DETACHED);
+				connectionController.setPaneVisiblity(status, PaneVisibilityStatus.DETACHED);
 			}
 		});
 		
@@ -464,16 +465,19 @@ public class ContextMenuUtils
 		contextMenu.getItems().add(detachMenu);
 		
 		final Menu view = new Menu("[View] Pane visibility");
-		final Menu manualPublications = createConnectionPaneMenu("'Publish message' pane", connectionController, connectionController.getNewPublicationPaneController());
-		final Menu scriptedPublications = createConnectionPaneMenu("'Scripted publications' pane", connectionController, connectionController.getPublicationScriptsPaneController());
-		final Menu newSubscription = createConnectionPaneMenu("'Define new subscription' pane", connectionController, connectionController.getNewSubscriptionPaneController());
-		final Menu messageSummary = createConnectionPaneMenu("'Subscriptions and received messages' pane", connectionController, connectionController.getSubscriptionsController());
+		final Menu manualPublications = createConnectionPaneMenu("'Publish message' pane", connectionController, connectionController.getNewPublicationPaneStatus());
+		final Menu scriptedPublications = createConnectionPaneMenu("'Scripted publications' pane", connectionController, connectionController.getPublicationScriptsPaneStatus());
+		final Menu newSubscription = createConnectionPaneMenu("'Define new subscription' pane", connectionController, connectionController.getNewSubscriptionPaneStatus());
+		final Menu messageSummary = createConnectionPaneMenu("'Subscriptions and received messages' pane", connectionController, connectionController.getSubscriptionsStatus());
+		final Menu testCases = createConnectionPaneMenu("'Test cases' pane", connectionController, connectionController.getTestCasesPaneStatus());
+		
 		final MenuItem detailedView = new MenuItem("Toggle between simplified and detailed views (QoS, Retained)");
 		
 		view.getItems().add(manualPublications);
 		view.getItems().add(scriptedPublications);
 		view.getItems().add(newSubscription);
 		view.getItems().add(messageSummary);
+		view.getItems().add(testCases);
 		view.getItems().add(new SeparatorMenuItem());
 		view.getItems().add(detailedView);
 		

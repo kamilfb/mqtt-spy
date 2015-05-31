@@ -17,7 +17,7 @@ package pl.baczkowicz.mqttspy.storage.summary;
 import java.util.HashMap;
 import java.util.Map;
 
-import pl.baczkowicz.mqttspy.storage.UiMqttMessage;
+import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
 
 /**
  * This class contains message count for each topic. These values are not directly displayed on the UI.
@@ -54,7 +54,7 @@ public class TopicMessageCount
 		return 0;
 	}
 	
-	public void increaseCount(final UiMqttMessage message)
+	public void increaseCount(final FormattedMqttMessage message)
 	{
 		synchronized (messageCountPerTopic)
 		{
@@ -71,7 +71,7 @@ public class TopicMessageCount
 		}
 	}
 	
-	public void decreaseCount(final UiMqttMessage message)
+	public void decreaseCount(final FormattedMqttMessage message)
 	{
 		Integer value = messageCountPerTopic.get(message.getTopic());
 		

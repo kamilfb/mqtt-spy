@@ -16,13 +16,9 @@ package pl.baczkowicz.mqttspy.ui;
 
 import javafx.scene.control.TitledPane;
 import pl.baczkowicz.mqttspy.ui.panes.TitledPaneController;
-import pl.baczkowicz.mqttspy.ui.panes.TitledPaneStatus;
 
 public class SubscriptionsController implements TitledPaneController
 {
-	/** Created pane status with index 3 (the last pane). */
-	private final TitledPaneStatus paneStatus = new TitledPaneStatus(3);
-	
 	private TitledPane pane;
 	
 	@Override
@@ -36,11 +32,4 @@ public class SubscriptionsController implements TitledPaneController
 	{
 		this.pane = pane;
 	}
-
-	@Override
-	public TitledPaneStatus getTitledPaneStatus()
-	{
-		return paneStatus;
-	}
-
 }

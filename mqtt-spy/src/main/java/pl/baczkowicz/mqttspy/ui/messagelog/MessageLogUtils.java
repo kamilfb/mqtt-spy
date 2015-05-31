@@ -19,23 +19,23 @@ import java.util.Collection;
 import pl.baczkowicz.mqttspy.common.generated.MessageLog;
 import pl.baczkowicz.mqttspy.common.generated.MessageLogEnum;
 import pl.baczkowicz.mqttspy.logger.SimpleMessageLogComposer;
-import pl.baczkowicz.mqttspy.storage.BasicMessageStore;
-import pl.baczkowicz.mqttspy.storage.UiMqttMessage;
+import pl.baczkowicz.mqttspy.storage.BasicMessageStoreWithSummary;
+import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
 
 public class MessageLogUtils
 {
-	public static String getCurrentMessageAsMessageLog(final BasicMessageStore store, final int messageIndex)
+	public static String getCurrentMessageAsMessageLog(final BasicMessageStoreWithSummary store, final int messageIndex)
 	{
-		final UiMqttMessage message = store.getMessages().get(messageIndex);
+		final FormattedMqttMessage message = store.getMessages().get(messageIndex);
 		return SimpleMessageLogComposer.createReceivedMessageLog(message, 
 				new MessageLog(MessageLogEnum.XML_WITH_PLAIN_PAYLOAD, "", true, true, false, false, false));
 	}
 	
-	public static String getAllMessagesAsMessageLog(final BasicMessageStore store)
+	public static String getAllMessagesAsMessageLog(final BasicMessageStoreWithSummary store)
 	{
 		final StringBuffer messages = new StringBuffer();
 		
-		for (final UiMqttMessage message : store.getMessages())
+		for (final FormattedMqttMessage message : store.getMessages())
 		{
 			messages.append(SimpleMessageLogComposer.createReceivedMessageLog(message, 
 					new MessageLog(MessageLogEnum.XML_WITH_PLAIN_PAYLOAD, "", true, true, false, false, false)));

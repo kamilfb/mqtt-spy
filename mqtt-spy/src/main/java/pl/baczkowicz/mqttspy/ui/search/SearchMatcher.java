@@ -14,11 +14,11 @@
  */
 package pl.baczkowicz.mqttspy.ui.search;
 
-import pl.baczkowicz.mqttspy.storage.UiMqttMessage;
+import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
 
 public interface SearchMatcher
 {
-	boolean matches(final UiMqttMessage message);
+	boolean matches(final FormattedMqttMessage message);
 
 	boolean isValid();
 }

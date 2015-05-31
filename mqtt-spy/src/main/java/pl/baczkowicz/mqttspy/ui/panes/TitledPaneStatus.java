@@ -32,6 +32,8 @@ public class TitledPaneStatus extends PaneStatus
 	private SplitPane parentWhenAttached;
 	
 	private Stage parentWhenDetached;
+
+	private TitledPaneController controller;
 	
 	public TitledPaneStatus(final int displayIndex)
 	{
@@ -86,9 +88,24 @@ public class TitledPaneStatus extends PaneStatus
 	
 	public void updateMenu()
 	{
-		((CheckMenuItem) menu.getItems().get(0)).setSelected(getVisibility().equals(PaneVisibilityStatus.NOT_VISIBLE));
-		((CheckMenuItem) menu.getItems().get(1)).setSelected(getVisibility().equals(PaneVisibilityStatus.ATTACHED));
-		((CheckMenuItem) menu.getItems().get(2)).setSelected(getVisibility().equals(PaneVisibilityStatus.DETACHED));
+		if (getVisibility().equals(PaneVisibilityStatus.DETACHED))
+		{
+			((CheckMenuItem) menu.getItems().get(0)).setSelected(false);
+			((CheckMenuItem) menu.getItems().get(1)).setSelected(false);
+			((CheckMenuItem) menu.getItems().get(2)).setSelected(true);
+		}
+		else if (getVisibility().equals(PaneVisibilityStatus.ATTACHED))
+		{
+			((CheckMenuItem) menu.getItems().get(0)).setSelected(false);
+			((CheckMenuItem) menu.getItems().get(1)).setSelected(true);
+			((CheckMenuItem) menu.getItems().get(2)).setSelected(false);
+		}
+		else
+		{
+			((CheckMenuItem) menu.getItems().get(0)).setSelected(true);
+			((CheckMenuItem) menu.getItems().get(1)).setSelected(false);
+			((CheckMenuItem) menu.getItems().get(2)).setSelected(false);
+		}			
 	}
 	
 	/**
@@ -149,5 +166,21 @@ public class TitledPaneStatus extends PaneStatus
 	public void setLastExpanded(boolean lastExpanded)
 	{
 		this.lastExpanded = lastExpanded;
+	}
+
+	/**
+	 * @return the controller
+	 */
+	public TitledPaneController getController()
+	{
+		return controller;
+	}
+
+	/**
+	 * @param controller the controller to set
+	 */
+	public void setController(TitledPaneController controller)
+	{
+		this.controller = controller;
 	}
 }

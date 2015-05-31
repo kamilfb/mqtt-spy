@@ -56,7 +56,7 @@ import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.connectivity.MqttConnectionStatus;
 import pl.baczkowicz.mqttspy.events.EventManager;
 import pl.baczkowicz.mqttspy.stats.StatisticsManager;
-import pl.baczkowicz.mqttspy.storage.BasicMessageStore;
+import pl.baczkowicz.mqttspy.storage.BasicMessageStoreWithSummary;
 import pl.baczkowicz.mqttspy.ui.LineChartPaneController;
 import pl.baczkowicz.mqttspy.ui.PieChartPaneController;
 import pl.baczkowicz.mqttspy.ui.charts.ChartMode;
@@ -485,7 +485,7 @@ public class DialogUtils
 	}
 
 	public static void showMessageBasedLineCharts(Collection<String> topics, 
-			final BasicMessageStore store,
+			final BasicMessageStoreWithSummary store,
 			final ChartMode mode, 
 			final String seriesType, final String seriesValueName, 
 			final String seriesUnit, final String title, 

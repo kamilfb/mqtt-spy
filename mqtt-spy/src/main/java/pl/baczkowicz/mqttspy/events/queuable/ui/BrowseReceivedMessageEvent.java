@@ -15,21 +15,21 @@
 package pl.baczkowicz.mqttspy.events.queuable.ui;
 
 import pl.baczkowicz.mqttspy.storage.MessageListWithObservableTopicSummary;
-import pl.baczkowicz.mqttspy.storage.UiMqttMessage;
+import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
 
 public class BrowseReceivedMessageEvent implements MqttSpyUIEvent
 {
-	private final UiMqttMessage message;
+	private final FormattedMqttMessage message;
 	
 	private final MessageListWithObservableTopicSummary messageList;
 
-	public BrowseReceivedMessageEvent(final MessageListWithObservableTopicSummary messageList, final UiMqttMessage message)
+	public BrowseReceivedMessageEvent(final MessageListWithObservableTopicSummary messageList, final FormattedMqttMessage message)
 	{
 		this.messageList = messageList;
 		this.message = message;
 	}
 
-	public UiMqttMessage getMessage()
+	public FormattedMqttMessage getMessage()
 	{
 		return message;
 	}

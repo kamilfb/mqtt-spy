@@ -42,7 +42,7 @@ import pl.baczkowicz.mqttspy.events.observers.MessageAddedObserver;
 import pl.baczkowicz.mqttspy.events.observers.MessageListChangedObserver;
 import pl.baczkowicz.mqttspy.events.observers.MessageRemovedObserver;
 import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
-import pl.baczkowicz.mqttspy.storage.UiMqttMessage;
+import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.ui.utils.FxmlUtils;
 import pl.baczkowicz.mqttspy.ui.utils.StylingUtils;
 
@@ -188,13 +188,13 @@ public class SearchWindowController extends AnchorPane implements Initializable,
 	}
 	
 	@Override
-	public void onMessageAdded(final UiMqttMessage message)
+	public void onMessageAdded(final FormattedMqttMessage message)
 	{
 		updateTitle();		
 	}
 	
 	@Override
-	public void onMessageRemoved(final UiMqttMessage message, final int messageIndex)
+	public void onMessageRemoved(final FormattedMqttMessage message, final int messageIndex)
 	{
 		updateTitle();
 	}

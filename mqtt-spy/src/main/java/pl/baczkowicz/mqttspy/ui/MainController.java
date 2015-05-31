@@ -118,6 +118,8 @@ public class MainController
 	private ConnectionManager connectionManager;
 
 	private Stage converterStage;
+	
+	private Stage testCasesStage;
 
 	private MqttSpyPerspective selectedPerspective = MqttSpyPerspective.DEFAULT;
 	
@@ -209,6 +211,17 @@ public class MainController
 	}
 	
 	@FXML
+	public void showTestCases()
+	{
+		if (testCasesStage == null)
+		{
+			initialiseTestCasesWindow();
+		}
+		
+		testCasesStage.show();
+	}
+	
+	@FXML
 	public void openMessageLog()
 	{
 		final FileChooser fileChooser = new FileChooser();
@@ -267,6 +280,21 @@ public class MainController
 		converterStage.setTitle("Converter");		
 		converterStage.initOwner(getParentWindow());
 		converterStage.setScene(scene);
+	}
+	
+	private void initialiseTestCasesWindow()
+	{
+		final FXMLLoader loader = FxmlUtils.createFxmlLoaderForProjectFile("TestCasesExecutionPane.fxml");
+		final AnchorPane testCasesWindow = FxmlUtils.loadAnchorPane(loader);
+		
+		Scene scene = new Scene(testCasesWindow);
+		scene.getStylesheets().addAll(mainPane.getScene().getStylesheets());		
+
+		testCasesStage = new Stage();
+		testCasesStage.setTitle("Test cases");		
+		testCasesStage.initOwner(getParentWindow());
+		testCasesStage.setScene(scene);
+		((TestCasesExecutionController) loader.getController()).init();
 	}
 	
 	private void showEditConnectionsWindow(final boolean createNew)

@@ -20,8 +20,8 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import pl.baczkowicz.mqttspy.configuration.generated.FormatterDetails;
-import pl.baczkowicz.mqttspy.storage.UiMqttMessage;
+import pl.baczkowicz.mqttspy.common.generated.FormatterDetails;
+import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.ui.properties.SubscriptionTopicSummaryProperties;
 
 /**
@@ -55,7 +55,7 @@ public class TopicSummary extends TopicMessageCount
 		}
 	}
 	
-	public void removeMessage(final UiMqttMessage message)
+	public void removeMessage(final FormattedMqttMessage message)
 	{
 		synchronized (topicToSummaryMapping)
 		{
@@ -73,7 +73,7 @@ public class TopicSummary extends TopicMessageCount
 		}
 	}
 	
-	public SubscriptionTopicSummaryProperties addMessage(final UiMqttMessage message)
+	public SubscriptionTopicSummaryProperties addMessage(final FormattedMqttMessage message)
 	{
 		SubscriptionTopicSummaryProperties newElement = null;
 		

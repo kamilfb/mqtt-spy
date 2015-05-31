@@ -32,7 +32,7 @@ public class MessageList
 	
 	public static final int DEFAULT_MIN_MESSAGES_PER_TOPIC = 10;
 
-	private final List<UiMqttMessage> messages;
+	private final List<FormattedMqttMessage> messages;
 
 	private final int maxSize;
 
@@ -45,7 +45,7 @@ public class MessageList
 		this.name = name;
 		this.preferredSize = preferredSize;
 		this.maxSize = maxSize;
-		this.messages = Collections.synchronizedList(new ArrayList<UiMqttMessage>());
+		this.messages = Collections.synchronizedList(new ArrayList<FormattedMqttMessage>());
 	}
 	
 	public void clear()
@@ -56,9 +56,9 @@ public class MessageList
 		}
 	}
 
-	public UiMqttMessage add(final UiMqttMessage message)
+	public FormattedMqttMessage add(final FormattedMqttMessage message)
 	{
-		UiMqttMessage removed = null;
+		FormattedMqttMessage removed = null;
 		
 		synchronized (messages)
 		{		
@@ -76,9 +76,9 @@ public class MessageList
 		}
 	}
 	
-	public UiMqttMessage remove(final int index)
+	public FormattedMqttMessage remove(final int index)
 	{
-		UiMqttMessage removed = null;
+		FormattedMqttMessage removed = null;
 		
 		synchronized (messages)
 		{
@@ -105,7 +105,7 @@ public class MessageList
 		}
 	}
 
-	public List<UiMqttMessage> getMessages()
+	public List<FormattedMqttMessage> getMessages()
 	{
 		return messages;
 	}

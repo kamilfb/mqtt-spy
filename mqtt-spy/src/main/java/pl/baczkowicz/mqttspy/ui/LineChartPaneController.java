@@ -59,8 +59,8 @@ import org.gillius.jfxutils.chart.StableTicksAxis;
 import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
 import pl.baczkowicz.mqttspy.events.EventManager;
 import pl.baczkowicz.mqttspy.events.observers.MessageAddedObserver;
-import pl.baczkowicz.mqttspy.storage.BasicMessageStore;
-import pl.baczkowicz.mqttspy.storage.UiMqttMessage;
+import pl.baczkowicz.mqttspy.storage.BasicMessageStoreWithSummary;
+import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.ui.charts.ChartMode;
 import pl.baczkowicz.mqttspy.ui.properties.MessageLimitProperties;
 import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
@@ -100,7 +100,7 @@ public class LineChartPaneController implements Initializable, MessageAddedObser
 	@FXML
 	private MenuButton optionsButton;
 	
-	private BasicMessageStore store;
+	private BasicMessageStoreWithSummary store;
 
 	private EventManager eventManager;
 	
@@ -108,7 +108,7 @@ public class LineChartPaneController implements Initializable, MessageAddedObser
 
 	private Collection<String> topics;
 	
-	private Map<String, List<UiMqttMessage>> chartData = new HashMap<>();
+	private Map<String, List<FormattedMqttMessage>> chartData = new HashMap<>();
 	
 	private Map<String, Series<Number, Number>> topicToSeries = new LinkedHashMap<>();
 	
@@ -349,7 +349,7 @@ public class LineChartPaneController implements Initializable, MessageAddedObser
 	private void divideMessagesByTopic(final Collection<String> topics)
 	{
 		chartData.clear();
-		for (final UiMqttMessage message : store.getMessages())
+		for (final FormattedMqttMessage message : store.getMessages())
 		{
 			final String topic = message.getTopic();
 			// logger.info("Topics = " + topics);
@@ -365,7 +365,7 @@ public class LineChartPaneController implements Initializable, MessageAddedObser
 	{
 		if (chartData.get(topic) == null)
 		{
-			chartData.put(topic, new ArrayList<UiMqttMessage>());
+			chartData.put(topic, new ArrayList<FormattedMqttMessage>());
 		}
 	}
 	
@@ -387,7 +387,7 @@ public class LineChartPaneController implements Initializable, MessageAddedObser
 		lineChart.setAnimated(true);
 	}
 	
-	private XYChart.Data<Number, Number> createDataObject(final UiMqttMessage message)
+	private XYChart.Data<Number, Number> createDataObject(final FormattedMqttMessage message)
 	{
 		if (ChartMode.USER_DRIVEN_MSG_PAYLOAD.equals(chartMode))
 		{
@@ -407,7 +407,7 @@ public class LineChartPaneController implements Initializable, MessageAddedObser
 		return null;
 	}
 	
-	private void addMessageToSeries(final Series<Number, Number> series, final UiMqttMessage message)
+	private void addMessageToSeries(final Series<Number, Number> series, final FormattedMqttMessage message)
 	{
 		try
     	{
@@ -440,7 +440,7 @@ public class LineChartPaneController implements Initializable, MessageAddedObser
 			
 			for (final String topic : topics)
 			{
-				final List<UiMqttMessage> extractedMessages = new ArrayList<>();
+				final List<FormattedMqttMessage> extractedMessages = new ArrayList<>();
 				final Series<Number, Number> series = new XYChart.Series<>();
 				topicToSeries.put(topic, series);
 		        series.setName(topic);
@@ -460,7 +460,7 @@ public class LineChartPaneController implements Initializable, MessageAddedObser
 		        
 		        for (int i = startIndex; i < itemsAvailable; i++)
 		        {
-		        	final UiMqttMessage message = chartData.get(topic).get(chartData.get(topic).size() - i - 1);
+		        	final FormattedMqttMessage message = chartData.get(topic).get(chartData.get(topic).size() - i - 1);
 		        	
 		        	if (limit.getTimeLimit() > 0 && (message.getDate().getTime() + limit.getTimeLimit() < now.getTime()))
 		        	{
@@ -514,7 +514,7 @@ public class LineChartPaneController implements Initializable, MessageAddedObser
 	}
 
 	@Override
-	public void onMessageAdded(final UiMqttMessage message)
+	public void onMessageAdded(final FormattedMqttMessage message)
 	{
 		// TODO: is that ever deregistered?
 		synchronized (chartData)
@@ -540,7 +540,7 @@ public class LineChartPaneController implements Initializable, MessageAddedObser
 				final Date now = new Date();
 				if (limit.getTimeLimit() > 0)
 				{
-					UiMqttMessage oldestMessage = chartData.get(topic).get(0);
+					FormattedMqttMessage oldestMessage = chartData.get(topic).get(0);
 					while (oldestMessage.getDate().getTime() + limit.getTimeLimit() < now.getTime())
 					{
 						chartData.get(topic).remove(0);
@@ -592,7 +592,7 @@ public class LineChartPaneController implements Initializable, MessageAddedObser
 		this.eventManager = eventManager;
 	}
 	
-	public void setStore(final BasicMessageStore store)
+	public void setStore(final BasicMessageStoreWithSummary store)
 	{
 		this.store = store;		
 	}	

@@ -53,7 +53,7 @@ import pl.baczkowicz.mqttspy.scripts.Script;
 import pl.baczkowicz.mqttspy.scripts.ScriptManager;
 import pl.baczkowicz.mqttspy.storage.FilteredMessageStore;
 import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
-import pl.baczkowicz.mqttspy.storage.UiMqttMessage;
+import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.ui.properties.MqttContentProperties;
 import pl.baczkowicz.mqttspy.ui.search.InlineScriptMatcher;
 import pl.baczkowicz.mqttspy.ui.search.ScriptMatcher;
@@ -186,6 +186,7 @@ public class SearchPaneController implements Initializable, MessageFormatChangeO
 		
 		messageListTablePaneController.setItems(foundMessages);
 		messageListTablePaneController.setStore(foundMessageStore);
+		messageListTablePaneController.setConnection(connection);
 		messageListTablePaneController.setEventManager(eventManager);
 		messageListTablePaneController.init();
 		eventManager.registerChangeMessageIndexObserver(messageListTablePaneController, foundMessageStore);
@@ -311,7 +312,7 @@ public class SearchPaneController implements Initializable, MessageFormatChangeO
 		searchField.requestFocus();
 	}
 	
-	private void processMessages(final List<UiMqttMessage> messages)
+	private void processMessages(final List<FormattedMqttMessage> messages)
 	{
 		final SearchMatcher matcher = getSearchMatcher();
 		
@@ -345,7 +346,7 @@ public class SearchPaneController implements Initializable, MessageFormatChangeO
 		}
 	}
 	
-	private boolean processMessage(final UiMqttMessage message, final SearchMatcher matcher)
+	private boolean processMessage(final FormattedMqttMessage message, final SearchMatcher matcher)
 	{
 		seachedCount++;
 		
@@ -360,7 +361,7 @@ public class SearchPaneController implements Initializable, MessageFormatChangeO
 		return false;
 	}
 	
-	private void messageFound(final UiMqttMessage message)
+	private void messageFound(final FormattedMqttMessage message)
 	{	
 		foundMessages.add(0, new MqttContentProperties(message, store.getFormatter(), UiProperties.getSummaryMaxPayloadLength(configurationManager)));
 		
@@ -427,7 +428,7 @@ public class SearchPaneController implements Initializable, MessageFormatChangeO
 	}
 
 	@Override
-	public void onMessageAdded(final UiMqttMessage message)
+	public void onMessageAdded(final FormattedMqttMessage message)
 	{
 		// TODO: is that ever deregistered?
 		if (autoRefreshCheckBox.isSelected())

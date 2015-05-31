@@ -18,8 +18,8 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
-import pl.baczkowicz.mqttspy.configuration.generated.FormatterDetails;
-import pl.baczkowicz.mqttspy.storage.UiMqttMessage;
+import pl.baczkowicz.mqttspy.common.generated.FormatterDetails;
+import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
 
 /**
  * Properties displayed in the subscription topic summary table.
@@ -41,7 +41,7 @@ public class SubscriptionTopicSummaryProperties extends MqttContentProperties
 	 * @param format The formatter details
 	 * @param maxPayloadLength Maximum payload length to be displayed - to make sure UI remains responsive for large messages
 	 */
-	public SubscriptionTopicSummaryProperties(final Boolean show, final Integer count, final UiMqttMessage message, 
+	public SubscriptionTopicSummaryProperties(final Boolean show, final Integer count, final FormattedMqttMessage message, 
 			final FormatterDetails format, final int maxPayloadLength)
 	{
 		super(message, format, maxPayloadLength);

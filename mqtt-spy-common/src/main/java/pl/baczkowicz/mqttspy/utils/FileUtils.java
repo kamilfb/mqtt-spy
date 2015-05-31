@@ -34,6 +34,32 @@ public class FileUtils
 	/** Diagnostic logger. */
 	private final static Logger logger = LoggerFactory.getLogger(FileUtils.class);
 	
+
+	public static List<File> getDirectoriesWithFile(final String directory, final String fileToFind)
+	{
+		final List<File> files = new ArrayList<File>();
+		
+		final File folder = new File(directory);
+		File[] listOfFiles = folder.listFiles();
+
+		if (listOfFiles != null)
+		{
+			for (int i = 0; i < listOfFiles.length; i++)
+			{
+				if (listOfFiles[i].isDirectory())
+				{
+					files.addAll(getDirectoriesWithFile(listOfFiles[i].getAbsolutePath(), fileToFind));																			
+				}				
+				else if (listOfFiles[i].getName().matches(fileToFind))
+				{
+					files.add(listOfFiles[i]);
+				}
+			}
+		}		
+		
+		return files;
+	}
+	
 	public static List<File> getFileNamesForDirectory(final String directory, final String extension)
 	{
 		final List<File> files = new ArrayList<File>();

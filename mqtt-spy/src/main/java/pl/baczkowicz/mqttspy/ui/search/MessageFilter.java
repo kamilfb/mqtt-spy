@@ -15,7 +15,7 @@
 package pl.baczkowicz.mqttspy.ui.search;
 
 import pl.baczkowicz.mqttspy.storage.MessageList;
-import pl.baczkowicz.mqttspy.storage.UiMqttMessage;
+import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
 
 public interface MessageFilter
 {
@@ -28,7 +28,7 @@ public interface MessageFilter
 	 * 
 	 * @return True if to filter the message out.
 	 */
-	boolean filter(final UiMqttMessage message, final MessageList messageList, final boolean updateUi);
+	boolean filter(final FormattedMqttMessage message, final MessageList messageList, final boolean updateUi);
 	
 	void reset();
 	

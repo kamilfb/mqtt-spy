@@ -30,7 +30,7 @@ import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import pl.baczkowicz.mqttspy.stats.StatisticsManager;
 import pl.baczkowicz.mqttspy.ui.ControlPanelItemController;
-import pl.baczkowicz.mqttspy.ui.utils.FormattingUtils;
+import pl.baczkowicz.mqttspy.utils.FormattingUtils;
 import pl.baczkowicz.mqttspy.utils.ThreadingUtils;
 import pl.baczkowicz.mqttspy.utils.TimeUtils;
 

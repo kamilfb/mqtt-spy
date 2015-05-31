@@ -16,6 +16,7 @@ package pl.baczkowicz.mqttspy.ui.utils;
 
 import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnectionDetails;
 
+
 /**
  * Connectivity related utils for the UI.
  */

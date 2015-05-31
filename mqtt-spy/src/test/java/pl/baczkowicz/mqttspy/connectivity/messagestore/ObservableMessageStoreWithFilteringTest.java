@@ -26,7 +26,7 @@ import org.junit.Test;
 
 import pl.baczkowicz.mqttspy.events.queuable.ui.MqttSpyUIEvent;
 import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
-import pl.baczkowicz.mqttspy.storage.UiMqttMessage;
+import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
 
 public class ObservableMessageStoreWithFilteringTest
 {
@@ -42,7 +42,7 @@ public class ObservableMessageStoreWithFilteringTest
 	@Test
 	public final void testStoreMaxSize()
 	{
-		final UiMqttMessage message = new UiMqttMessage(1, "t1", new MqttMessage("test1".getBytes()), null);
+		final FormattedMqttMessage message = new FormattedMqttMessage(1, "t1", new MqttMessage("test1".getBytes()), null);
 		
 		store.messageReceived(message);
 				
@@ -66,7 +66,7 @@ public class ObservableMessageStoreWithFilteringTest
 		testStoreMaxSize();
 		assertTrue(store.getFilteredMessageStore().getBrowsedTopics().contains("t1"));
 		
-		final UiMqttMessage message = new UiMqttMessage(2, "t2", new MqttMessage("test2".getBytes()), null);
+		final FormattedMqttMessage message = new FormattedMqttMessage(2, "t2", new MqttMessage("test2".getBytes()), null);
 		store.messageReceived(message);
 		assertTrue(store.getFilteredMessageStore().getBrowsedTopics().contains("t2"));
 	}
@@ -77,7 +77,7 @@ public class ObservableMessageStoreWithFilteringTest
 		testDefaultActiveFilters();
 		store.getFilteredMessageStore().updateTopicFilter("t2", false);
 		
-		final UiMqttMessage message = new UiMqttMessage(3, "t3", new MqttMessage("test3".getBytes()), null);
+		final FormattedMqttMessage message = new FormattedMqttMessage(3, "t3", new MqttMessage("test3".getBytes()), null);
 		store.messageReceived(message);
 		assertFalse(store.getFilteredMessageStore().getBrowsedTopics().contains("t3"));
 	}

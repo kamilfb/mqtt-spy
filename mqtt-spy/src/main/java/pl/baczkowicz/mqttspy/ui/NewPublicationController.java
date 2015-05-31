@@ -54,8 +54,8 @@ import org.fxmisc.richtext.StyleClassedTextArea;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import pl.baczkowicz.mqttspy.common.generated.ConversionMethod;
 import pl.baczkowicz.mqttspy.common.generated.SimpleMqttMessage;
-import pl.baczkowicz.mqttspy.configuration.generated.ConversionMethod;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.events.EventManager;
 import pl.baczkowicz.mqttspy.events.observers.ScriptListChangeObserver;
@@ -67,7 +67,6 @@ import pl.baczkowicz.mqttspy.scripts.ScriptManager;
 import pl.baczkowicz.mqttspy.scripts.ScriptTypeEnum;
 import pl.baczkowicz.mqttspy.ui.keyboard.TimeBasedKeyEventFilter;
 import pl.baczkowicz.mqttspy.ui.panes.TitledPaneController;
-import pl.baczkowicz.mqttspy.ui.panes.TitledPaneStatus;
 import pl.baczkowicz.mqttspy.ui.properties.PublicationScriptProperties;
 import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
 import pl.baczkowicz.mqttspy.utils.ConversionUtils;
@@ -149,9 +148,6 @@ public class NewPublicationController implements Initializable, ScriptListChange
 	private List<BaseMqttMessage> recentMessages = new ArrayList<>();
 
 	private TimeBasedKeyEventFilter timeBasedFilter;
-	
-	/** Created pane status with index 0 (the first pane). */
-	private final TitledPaneStatus paneStatus = new TitledPaneStatus(0);
 
 	private TitledPane pane;
 
@@ -830,11 +826,5 @@ public class NewPublicationController implements Initializable, ScriptListChange
 	public void setTitledPane(TitledPane pane)
 	{
 		this.pane = pane;
-	}
-
-	@Override
-	public TitledPaneStatus getTitledPaneStatus()
-	{
-		return paneStatus;
 	}
 }

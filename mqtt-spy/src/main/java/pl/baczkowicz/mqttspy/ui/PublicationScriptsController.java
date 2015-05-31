@@ -48,7 +48,6 @@ import pl.baczkowicz.mqttspy.scripts.InteractiveScriptManager;
 import pl.baczkowicz.mqttspy.scripts.ScriptRunningState;
 import pl.baczkowicz.mqttspy.scripts.ScriptTypeEnum;
 import pl.baczkowicz.mqttspy.ui.panes.TitledPaneController;
-import pl.baczkowicz.mqttspy.ui.panes.TitledPaneStatus;
 import pl.baczkowicz.mqttspy.ui.properties.PublicationScriptProperties;
 import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
 import pl.baczkowicz.mqttspy.ui.utils.UiUtils;
@@ -89,9 +88,6 @@ public class PublicationScriptsController implements Initializable, ScriptStateC
 	private EventManager eventManager;
 
 	private Map<ScriptTypeEnum, ContextMenu> contextMenus = new HashMap<>();
-	
-	/** Created pane status with index 1 (the second pane). */
-	private final TitledPaneStatus paneStatus = new TitledPaneStatus(1);
 
 	private TitledPane pane;
 
@@ -478,11 +474,5 @@ public class PublicationScriptsController implements Initializable, ScriptStateC
 	public void setTitledPane(TitledPane pane)
 	{
 		this.pane = pane;
-	}
-
-	@Override
-	public TitledPaneStatus getTitledPaneStatus()
-	{
-		return paneStatus;
 	}
 }

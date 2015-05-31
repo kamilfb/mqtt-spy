@@ -51,10 +51,10 @@ import javafx.stage.WindowEvent;
 
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
+import pl.baczkowicz.mqttspy.common.generated.ConversionMethod;
+import pl.baczkowicz.mqttspy.common.generated.FormatterDetails;
+import pl.baczkowicz.mqttspy.common.generated.Formatting;
 import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
-import pl.baczkowicz.mqttspy.configuration.generated.ConversionMethod;
-import pl.baczkowicz.mqttspy.configuration.generated.FormatterDetails;
-import pl.baczkowicz.mqttspy.configuration.generated.Formatting;
 import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
 import pl.baczkowicz.mqttspy.connectivity.RuntimeConnectionProperties;
 import pl.baczkowicz.mqttspy.events.EventManager;
@@ -62,19 +62,19 @@ import pl.baczkowicz.mqttspy.events.observers.ClearTabObserver;
 import pl.baczkowicz.mqttspy.events.observers.SubscriptionStatusChangeObserver;
 import pl.baczkowicz.mqttspy.events.queuable.ui.BrowseReceivedMessageEvent;
 import pl.baczkowicz.mqttspy.stats.StatisticsManager;
-import pl.baczkowicz.mqttspy.storage.BasicMessageStore;
+import pl.baczkowicz.mqttspy.storage.BasicMessageStoreWithSummary;
 import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
-import pl.baczkowicz.mqttspy.storage.UiMqttMessage;
+import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.ui.connections.SubscriptionManager;
 import pl.baczkowicz.mqttspy.ui.messagelog.MessageLogUtils;
 import pl.baczkowicz.mqttspy.ui.panes.TabController;
 import pl.baczkowicz.mqttspy.ui.panes.TabStatus;
 import pl.baczkowicz.mqttspy.ui.search.UniqueContentOnlyFilter;
 import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
-import pl.baczkowicz.mqttspy.ui.utils.FormattingUtils;
 import pl.baczkowicz.mqttspy.ui.utils.FxmlUtils;
 import pl.baczkowicz.mqttspy.ui.utils.UiUtils;
 import pl.baczkowicz.mqttspy.utils.ConversionUtils;
+import pl.baczkowicz.mqttspy.utils.FormattingUtils;
 
 /**
  * Controller for the subscription tab.
@@ -146,7 +146,7 @@ public class SubscriptionController implements Initializable, ClearTabObserver, 
 
 	private ManagedMessageStoreWithFiltering store; 
 	
-	private BasicMessageStore statsHistory;
+	private BasicMessageStoreWithSummary statsHistory;
 
 	private Tab tab;
 
@@ -265,10 +265,10 @@ public class SubscriptionController implements Initializable, ClearTabObserver, 
 		final Tooltip summaryTitledPaneTooltip = new Tooltip(
 				"Load, the average number of messages per second, is calculated over the following intervals: " +  DialogUtils.getPeriodList() + ".");
 				
-		statsHistory = new BasicMessageStore(
+		statsHistory = new BasicMessageStoreWithSummary(
 				"stats" + store.getName(), 
 				store.getMessageList().getPreferredSize(), store.getMessageList().getMaxSize(), 
-				store.getUiEventQueue(), eventManager, 0);
+				/*store.getUiEventQueue(), eventManager, */0);
 		
 		eventManager.registerClearTabObserver(this, store);
 		
@@ -615,11 +615,11 @@ public class SubscriptionController implements Initializable, ClearTabObserver, 
 					avg300sec == null ? 0 : avg300sec));
 		}
 		
-		final UiMqttMessage avg5message = new UiMqttMessage(0, AVG5_TOPIC, 
+		final FormattedMqttMessage avg5message = new FormattedMqttMessage(0, AVG5_TOPIC, 
 				new MqttMessage(ConversionUtils.stringToArray(String.valueOf(avg5sec))), null);
-		final UiMqttMessage avg30message = new UiMqttMessage(0, AVG30_TOPIC, 
+		final FormattedMqttMessage avg30message = new FormattedMqttMessage(0, AVG30_TOPIC, 
 				new MqttMessage(ConversionUtils.stringToArray(String.valueOf(avg30sec))), null);
-		final UiMqttMessage avg300message = new UiMqttMessage(0, AVG300_TOPIC, 
+		final FormattedMqttMessage avg300message = new FormattedMqttMessage(0, AVG300_TOPIC, 
 				new MqttMessage(ConversionUtils.stringToArray(String.valueOf(avg300sec))), null);
 		
 		statsHistory.storeMessage(avg5message);
@@ -633,7 +633,7 @@ public class SubscriptionController implements Initializable, ClearTabObserver, 
 	/**
 	 * @return the statsHistory
 	 */
-	public BasicMessageStore getStatsHistory()
+	public BasicMessageStoreWithSummary getStatsHistory()
 	{
 		return statsHistory;
 	}

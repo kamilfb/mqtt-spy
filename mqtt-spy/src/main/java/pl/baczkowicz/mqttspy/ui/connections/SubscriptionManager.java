@@ -109,7 +109,7 @@ public class SubscriptionManager
 		
 		// Add a new tab
 		final SubscriptionController subscriptionController = createSubscriptionTab(
-				false, subscription, subscription, connection, connectionController);
+				false, subscription.getStore(), subscription, connection, connectionController);
 		subscriptionController.getTab().setContextMenu(ContextMenuUtils.createSubscriptionTabContextMenu(
 				connection, subscription, eventManager, this, configurationManager, subscriptionController));
 		subscriptionController.setConnectionController(connectionController);
