@@ -1,4 +1,4 @@
-The following documents the origin of all graphics (images) used in mqtt-spy. All can be found in src/main/resources/images.
+The following documents the origin of all graphics (images/icons) used in mqtt-spy. All can be found in src/main/resources/images.
 
 Oxygen Icons (GNU Lesser General Public License):
 
