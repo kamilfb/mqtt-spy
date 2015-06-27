@@ -23,33 +23,34 @@ import pl.baczkowicz.mqttspy.utils.FormattingUtils;
  */
 public class BasicMessageStoreWithSummary extends BasicMessageStore
 {
-	protected final MessageListWithObservableTopicSummary messages;
+	protected final MessageListWithObservableTopicSummary messagesWithSummary;
 		
 	/** The message format used for this message store. */
 	protected FormatterDetails messageFormat = FormattingUtils.createBasicFormatter("default", "Plain", ConversionMethod.PLAIN);
 
 	public BasicMessageStoreWithSummary(final String name, final int preferredSize, final int maxSize, final int maxPayloadLength)
 	{
-		super(name, preferredSize, maxSize, maxPayloadLength);
-		this.messages = new MessageListWithObservableTopicSummary(preferredSize, maxSize, name, messageFormat, maxPayloadLength);
+		super(null/*, name, preferredSize, maxSize, maxPayloadLength*/);
+		this.messagesWithSummary = new MessageListWithObservableTopicSummary(preferredSize, maxSize, name, messageFormat, maxPayloadLength);
+		this.messages = messagesWithSummary;
 	}
 	
 	public MessageListWithObservableTopicSummary getMessageList()
 	{
-		return messages;
+		return messagesWithSummary;
 	}
 
 	@Override
 	public void clear()
 	{
-		messages.clear();
-		messages.getTopicSummary().clear();
+		messagesWithSummary.clear();
+		messagesWithSummary.getTopicSummary().clear();
 	}	
 	
 	@Override
 	public void setFormatter(final FormatterDetails messageFormat)
 	{
 		this.messageFormat = messageFormat;		
-		messages.getTopicSummary().setFormatter(messageFormat);
+		messagesWithSummary.getTopicSummary().setFormatter(messageFormat);
 	}	
 }

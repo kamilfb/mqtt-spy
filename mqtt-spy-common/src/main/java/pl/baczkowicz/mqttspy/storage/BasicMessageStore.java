@@ -25,15 +25,16 @@ import pl.baczkowicz.mqttspy.utils.FormattingUtils;
  */
 public class BasicMessageStore implements MessageStore
 {
-	protected final MessageList messages;
+	protected MessageList messages;
 		
 	/** The message format used for this message store. */
 	protected FormatterDetails messageFormat = FormattingUtils.createBasicFormatter("default", "Plain", ConversionMethod.PLAIN);
 
-	public BasicMessageStore(final String name, final int preferredSize, final int maxSize, final int maxPayloadLength)
+	public BasicMessageStore(final MessageList messages/*, final String name, final int preferredSize, final int maxSize, final int maxPayloadLength*/)
 	{
 		// this.messages = new MessageListWithObservableTopicSummary(preferredSize, maxSize, name, messageFormat, maxPayloadLength);
-		this.messages = new MessageList(preferredSize, maxSize, name);
+		// this.messages = new MessageList(preferredSize, maxSize, name);
+		this.messages = messages;
 	}
 	
 	public void messageReceived(final FormattedMqttMessage message)	

@@ -84,7 +84,8 @@ public class FilteredMessageStore extends BasicMessageStoreWithSummary
 	private void reinitialiseFilteredStore()
 	{
 		messages.clear();
-		
+			
+		logger.trace("[{}] Store reinitialise = {}/{}", allMessages.getName(), allMessages.getMessages().size(), allMessages);
 		synchronized (allMessages.getMessages())
 		{			
 			final int size = allMessages.getMessages().size();
@@ -219,7 +220,7 @@ public class FilteredMessageStore extends BasicMessageStoreWithSummary
 	
 	public MessageListWithObservableTopicSummary getFilteredMessages()
 	{
-		return messages;
+		return (MessageListWithObservableTopicSummary) messages;
 	}
 
 	public Set<String> getBrowsedTopics()

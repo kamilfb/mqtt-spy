@@ -71,7 +71,10 @@ public class MessageList
 	
 			// Store the message
 			messages.add(0, message);
-			// logger.trace("[{}] Store update = {}/{}/{}", name, messages.size(), preferredSize, maxSize);
+			if (logger.isTraceEnabled() && !name.contains("stats"))
+			{
+				logger.trace("[{}] Store update = {}/{}/{}/{}", name, messages.size(), preferredSize, maxSize, this);
+			}
 			return removed;
 		}
 	}

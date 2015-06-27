@@ -16,6 +16,7 @@ package pl.baczkowicz.mqttspy.connectivity;
 
 import pl.baczkowicz.mqttspy.common.generated.SubscriptionDetails;
 import pl.baczkowicz.mqttspy.storage.BasicMessageStore;
+import pl.baczkowicz.mqttspy.storage.MessageList;
 
 public class BaseMqttSubscription
 {
@@ -41,7 +42,8 @@ public class BaseMqttSubscription
 			final int minMessagesPerTopic, final int preferredStoreSize)
 	{
 		// Max size is double the preferred size
-		this.store = new BasicMessageStore(topic, minMessagesPerTopic, preferredStoreSize, preferredStoreSize * 2);
+		//this.store = new BasicMessageStore(topic, minMessagesPerTopic, preferredStoreSize, preferredStoreSize * 2);
+		this.store = new BasicMessageStore(new MessageList(minMessagesPerTopic, preferredStoreSize, topic));
 		
 		this.topic = topic;
 		this.qos = qos;

@@ -260,7 +260,8 @@ public class SubscriptionSummaryTableController implements Initializable
 	private void changeShowProperty(final SubscriptionTopicSummaryProperties item, final boolean checked)
 	{
 		logger.trace("[{}] Show property changed; topic = {}, show value = {}", store.getName(), item.topicProperty().getValue(), checked);
-									
+		logger.trace("[{}] Store = {}, filtered store = {}", store.getName(), store.getNonFilteredMessageList(), store.getFilteredMessageStore().getMessageList());
+		
 		if (store.getFilteredMessageStore().updateTopicFilter(item.topicProperty().getValue(), checked))
 		{
 			// Wouldn't get updated properly if this is in the same thread 

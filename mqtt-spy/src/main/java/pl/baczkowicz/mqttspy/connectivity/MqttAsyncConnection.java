@@ -91,7 +91,8 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection
 		
 		final List<String> matchingSubscriptions = new ArrayList<String>();
 		
-		final BaseMqttSubscription lastMatchingSubscription = matchMessageToSubscriptions(matchingSubscriptionTopics, receivedMessage, matchingSubscriptions);
+		final BaseMqttSubscription lastMatchingSubscription = 
+				matchMessageToSubscriptions(matchingSubscriptionTopics, receivedMessage, matchingSubscriptions);
 		
 		// If logging is enabled
 		if (messageLogger != null && messageLogger.isRunning())
