@@ -58,9 +58,9 @@ public class ManagedMessageStoreWithFiltering extends BasicMessageStoreWithSumma
 		
 		this.uiEventQueue = uiEventQueue;
 		this.eventManager = eventManager;
-		this.filteredStore = new FilteredMessageStore(messagesWithSummary, preferredSize, maxSize, name, messageFormat, maxPayloadLength);		
+		this.filteredStore = new FilteredMessageStore(super.getMessageList(), preferredSize, maxSize, name, messageFormat, maxPayloadLength);		
 		
-		new Thread(new MessageStoreGarbageCollector(this, messagesWithSummary, uiEventQueue, minMessagesPerTopic, true, false)).start();
+		new Thread(new MessageStoreGarbageCollector(this, super.getMessageList(), uiEventQueue, minMessagesPerTopic, true, false)).start();
 		new Thread(new MessageStoreGarbageCollector(this, filteredStore.getFilteredMessages(), uiEventQueue, minMessagesPerTopic, false, true)).start();
 	}
 	
@@ -109,9 +109,9 @@ public class ManagedMessageStoreWithFiltering extends BasicMessageStoreWithSumma
 		// 6. Summary table update - required are: removed message, new message, and whether to show the topic
 		if (removed != null)
 		{
-			uiEventQueue.add(new TopicSummaryRemovedMessageEvent(messagesWithSummary, removed));
+			uiEventQueue.add(new TopicSummaryRemovedMessageEvent(super.getMessageList(), removed));
 		}
-		uiEventQueue.add(new TopicSummaryNewMessageEvent(messagesWithSummary, message, allTopicsShown && !topicAlreadyExists));
+		uiEventQueue.add(new TopicSummaryNewMessageEvent(super.getMessageList(), message, allTopicsShown && !topicAlreadyExists));
 	}	
 	
 	@Override
@@ -128,7 +128,7 @@ public class ManagedMessageStoreWithFiltering extends BasicMessageStoreWithSumma
 	
 	public MessageListWithObservableTopicSummary getNonFilteredMessageList()
 	{
-		return messagesWithSummary;
+		return super.getMessageList();
 	}
 	
 	public FilteredMessageStore getFilteredMessageStore()
@@ -172,7 +172,7 @@ public class ManagedMessageStoreWithFiltering extends BasicMessageStoreWithSumma
 			filteredStore.removeAllTopicFilters();
 		}
 		
-		messagesWithSummary.getTopicSummary().setAllShowValues(show);
+		super.getMessageList().getTopicSummary().setAllShowValues(show);
 	}
 	
 	public void setShowValues(final boolean show, final Collection<String> topics)
@@ -188,7 +188,7 @@ public class ManagedMessageStoreWithFiltering extends BasicMessageStoreWithSumma
 				filteredStore.removeTopicFilters(topics);
 			}
 			
-			messagesWithSummary.getTopicSummary().setShowValues(topics, show);
+			super.getMessageList().getTopicSummary().setShowValues(topics, show);
 		}
 	}
 	
@@ -219,14 +219,14 @@ public class ManagedMessageStoreWithFiltering extends BasicMessageStoreWithSumma
 			filteredStore.removeTopicFilters(topicsToRemove);
 			filteredStore.applyTopicFilters(topicsToAdd, true);
 			
-			messagesWithSummary.getTopicSummary().toggleShowValues(topics);
+			super.getMessageList().getTopicSummary().toggleShowValues(topics);
 		}
 	}
 
 	public void setShowValue(final String topic, final boolean show)
 	{
 		filteredStore.updateTopicFilter(topic, show);
-		messagesWithSummary.getTopicSummary().setShowValue(topic, show);
+		super.getMessageList().getTopicSummary().setShowValue(topic, show);
 	}
 		
 	public Queue<MqttSpyUIEvent> getUiEventQueue()

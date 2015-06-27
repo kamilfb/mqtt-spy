@@ -83,7 +83,7 @@ public class FilteredMessageStore extends BasicMessageStoreWithSummary
 	
 	private void reinitialiseFilteredStore()
 	{
-		messages.clear();
+		getMessageList().clear();
 			
 		logger.trace("[{}] Store reinitialise = {}/{}", allMessages.getName(), allMessages.getMessages().size(), allMessages);
 		synchronized (allMessages.getMessages())
@@ -95,7 +95,7 @@ public class FilteredMessageStore extends BasicMessageStoreWithSummary
 				
 				if (browsedTopics.contains(message.getTopic()) && !filterMessage(message, false))
 				{
-					messages.add(message);								
+					getMessageList().add(message);								
 				}
 			}
 		}
@@ -105,7 +105,7 @@ public class FilteredMessageStore extends BasicMessageStoreWithSummary
 	{
 		for (final MessageFilter filter : messageFilters)
 		{
-			if (filter.filter(message, messages, updateUi))
+			if (filter.filter(message, getMessageList(), updateUi))
 			{
 				return true;
 			}
@@ -141,7 +141,7 @@ public class FilteredMessageStore extends BasicMessageStoreWithSummary
 				
 				if (!filterMessage(message, false))
 				{
-					messages.add(message);
+					getMessageList().add(message);
 				}
 			}
 		}
@@ -152,7 +152,7 @@ public class FilteredMessageStore extends BasicMessageStoreWithSummary
 		synchronized (browsedTopics)
 		{
 			browsedTopics.clear();
-			messages.clear();
+			getMessageList().clear();
 		}
 	}
 	
@@ -220,7 +220,7 @@ public class FilteredMessageStore extends BasicMessageStoreWithSummary
 	
 	public MessageListWithObservableTopicSummary getFilteredMessages()
 	{
-		return (MessageListWithObservableTopicSummary) messages;
+		return getMessageList();
 	}
 
 	public Set<String> getBrowsedTopics()

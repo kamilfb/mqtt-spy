@@ -25,16 +25,19 @@ import pl.baczkowicz.mqttspy.utils.FormattingUtils;
  */
 public class BasicMessageStore implements MessageStore
 {
-	protected MessageList messages;
+	private MessageList messageList;
 		
 	/** The message format used for this message store. */
 	protected FormatterDetails messageFormat = FormattingUtils.createBasicFormatter("default", "Plain", ConversionMethod.PLAIN);
 
-	public BasicMessageStore(final MessageList messages/*, final String name, final int preferredSize, final int maxSize, final int maxPayloadLength*/)
+	public BasicMessageStore(final MessageList messageList)
 	{
-		// this.messages = new MessageListWithObservableTopicSummary(preferredSize, maxSize, name, messageFormat, maxPayloadLength);
-		// this.messages = new MessageList(preferredSize, maxSize, name);
-		this.messages = messages;
+		setMessageList(messageList);
+	}	
+	
+	public void setMessageList(final MessageList messageList)
+	{
+		this.messageList = messageList;
 	}
 	
 	public void messageReceived(final FormattedMqttMessage message)	
@@ -46,7 +49,7 @@ public class BasicMessageStore implements MessageStore
 	{
 		if (message != null)
 		{
-			return messages.add(message);
+			return messageList.add(message);
 		}	
 		
 		return null;
@@ -54,17 +57,17 @@ public class BasicMessageStore implements MessageStore
 
 	public List<FormattedMqttMessage> getMessages()
 	{
-		return messages.getMessages();
+		return messageList.getMessages();
 	}
 	
 	public MessageList getMessageList()
 	{
-		return messages;
+		return messageList;
 	}
 
 	public void clear()
 	{
-		messages.clear();
+		messageList.clear();
 	}	
 	
 	public void setFormatter(final FormatterDetails messageFormat)
@@ -89,6 +92,6 @@ public class BasicMessageStore implements MessageStore
 
 	public String getName()
 	{
-		return messages.getName();
+		return messageList.getName();
 	}	
 }
