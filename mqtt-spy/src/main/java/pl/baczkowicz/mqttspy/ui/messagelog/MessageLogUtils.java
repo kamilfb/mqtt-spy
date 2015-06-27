@@ -15,6 +15,7 @@
 package pl.baczkowicz.mqttspy.ui.messagelog;
 
 import java.util.Collection;
+import java.util.List;
 
 import pl.baczkowicz.mqttspy.common.generated.MessageLog;
 import pl.baczkowicz.mqttspy.common.generated.MessageLogEnum;
@@ -33,16 +34,19 @@ public class MessageLogUtils
 	
 	public static String getAllMessagesAsMessageLog(final BasicMessageStoreWithSummary store)
 	{
-		final StringBuffer messages = new StringBuffer();
+		final StringBuffer messagesAsString = new StringBuffer();
 		
-		for (final FormattedMqttMessage message : store.getMessages())
+		final List<FormattedMqttMessage> messages = store.getMessages(); 
+		for (int i = messages.size() - 1; i >= 0; i--)
 		{
-			messages.append(SimpleMessageLogComposer.createReceivedMessageLog(message, 
+			final FormattedMqttMessage message = messages.get(i);
+			
+			messagesAsString.append(SimpleMessageLogComposer.createReceivedMessageLog(message, 
 					new MessageLog(MessageLogEnum.XML_WITH_PLAIN_PAYLOAD, "", true, true, false, false, false)));
-			messages.append(System.lineSeparator());
+			messagesAsString.append(System.lineSeparator());
 		}
 		
-		return messages.toString();
+		return messagesAsString.toString();
 	}
 	
 	public static String getAllTopicsAsString(final Collection<String> topics)
