@@ -223,6 +223,7 @@
 			<xs:element name="SubstringReplace" 	type="mqttspycommon:SubstringReplaceFormatterDetails" />
 			<xs:element name="SubstringExtract" 	type="mqttspycommon:SubstringExtractFormatterDetails" />
 			<xs:element name="CharacterReplace" 	type="mqttspycommon:CharacterReplaceFormatterDetails" />
+			<!-- TODO: ScriptExecution -->
 		</xs:choice>
 	</xs:complexType>
 			

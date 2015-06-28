@@ -119,6 +119,8 @@ public class MainController
 
 	private Stage converterStage;
 	
+	private Stage formattersStage;
+	
 	private Stage testCasesStage;
 
 	private MqttSpyPerspective selectedPerspective = MqttSpyPerspective.DEFAULT;
@@ -211,6 +213,17 @@ public class MainController
 	}
 	
 	@FXML
+	public void showFormatters()
+	{
+		if (formattersStage == null)
+		{
+			initialiseFormattersWindow();
+		}
+		
+		formattersStage.show();
+	}
+	
+	@FXML
 	public void showTestCases()
 	{
 		if (testCasesStage == null)
@@ -280,6 +293,20 @@ public class MainController
 		converterStage.setTitle("Converter");		
 		converterStage.initOwner(getParentWindow());
 		converterStage.setScene(scene);
+	}
+	
+	private void initialiseFormattersWindow()
+	{
+		final FXMLLoader loader = FxmlUtils.createFxmlLoaderForProjectFile("FormattersWindow.fxml");
+		final AnchorPane formattersWindow = FxmlUtils.loadAnchorPane(loader);
+		
+		Scene scene = new Scene(formattersWindow);
+		scene.getStylesheets().addAll(mainPane.getScene().getStylesheets());		
+
+		formattersStage = new Stage();
+		formattersStage.setTitle("Formatters");		
+		formattersStage.initOwner(getParentWindow());
+		formattersStage.setScene(scene);
 	}
 	
 	private void initialiseTestCasesWindow()
