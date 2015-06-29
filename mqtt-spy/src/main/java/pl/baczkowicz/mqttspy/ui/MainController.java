@@ -300,6 +300,10 @@ public class MainController
 		final FXMLLoader loader = FxmlUtils.createFxmlLoaderForProjectFile("FormattersWindow.fxml");
 		final AnchorPane formattersWindow = FxmlUtils.loadAnchorPane(loader);
 		
+		final FormattersController formattersController = ((FormattersController) loader.getController());
+		formattersController.setConfigurationManager(configurationManager);	
+		formattersController.init();
+		
 		Scene scene = new Scene(formattersWindow);
 		scene.getStylesheets().addAll(mainPane.getScene().getStylesheets());		
 

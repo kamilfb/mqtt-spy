@@ -21,9 +21,6 @@ import pl.baczkowicz.mqttspy.common.generated.FormatterDetails;
  */
 public class BasicMessageStoreWithSummary extends BasicMessageStore
 {
-	/** The message format used for this message store. */
-	// protected FormatterDetails messageFormat = FormattingUtils.createBasicFormatter("default", "Plain", ConversionMethod.PLAIN);
-
 	public BasicMessageStoreWithSummary(final String name, final int preferredSize, final int maxSize, final int maxPayloadLength)
 	{
 		super(null);

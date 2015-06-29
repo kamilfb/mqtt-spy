@@ -84,8 +84,16 @@ public class FormattedMqttMessage extends BaseMqttMessageWithSubscriptions
 		else if (!formatter.equals(lastUsedFormatter))
 		{
 			lastUsedFormatter = formatter;
-			// Use the raw payload to make sure any formatting/encoding that is applied is correct
-			formattedPayload = FormattingUtils.checkAndFormatText(formatter, getRawMessage().getPayload());
+			
+			if (FormattingUtils.isScriptBased(formatter))
+			{
+				// TODO: script formatting
+			}
+			else
+			{
+				// Use the raw payload to make sure any formatting/encoding that is applied is correct
+				formattedPayload = FormattingUtils.checkAndFormatText(formatter, getRawMessage().getPayload());
+			}
 		}
 	}
 	

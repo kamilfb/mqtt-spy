@@ -14,6 +14,9 @@
  */
 package pl.baczkowicz.mqttspy.utils;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
 import org.slf4j.Logger;
@@ -34,6 +37,10 @@ import pl.baczkowicz.mqttspy.exceptions.ConversionException;
  */
 public class FormattingUtils
 {
+	public static final String DEFAULT_PREFIX = "default";
+	
+	public static final String SCRIPT_PREFIX = "script";
+	
 	/** Diagnostic logger. */
 	private final static Logger logger = LoggerFactory.getLogger(FormattingUtils.class);
 
@@ -107,7 +114,6 @@ public class FormattingUtils
 							function.getCharacterReplace().getCharacterRangeFrom(), function.getCharacterReplace().getCharacterRangeTo(), 
 							function.getCharacterReplace().getWrapCharacter());				
 			}
-				
 			
 			logger.trace("After function transformation = '" + formattedText + "'");
 		}
@@ -428,5 +434,23 @@ public class FormattingUtils
 		formatter.getFunction().add(createBasicFormatterFunction(conversionMethod));
 		
 		return formatter;
+	}
+	
+	public static boolean isScriptBased(final FormatterDetails formatter)
+	{
+		return formatter.getID().startsWith(SCRIPT_PREFIX);
+	}
+	
+	public static List<FormatterDetails> createBaseFormatters()
+	{
+		final List<FormatterDetails> baseFormatters = new ArrayList<>();
+		
+		baseFormatters.add(FormattingUtils.createBasicFormatter(DEFAULT_PREFIX, 					"Plain", ConversionMethod.PLAIN));
+		baseFormatters.add(FormattingUtils.createBasicFormatter(DEFAULT_PREFIX + "-hexDecoder", 	"HEX decoder", ConversionMethod.HEX_DECODE));
+		baseFormatters.add(FormattingUtils.createBasicFormatter(DEFAULT_PREFIX + "-hexEncoder", 	"HEX encoder", ConversionMethod.HEX_ENCODE));
+		baseFormatters.add(FormattingUtils.createBasicFormatter(DEFAULT_PREFIX + "-base64Decoder",	"Base64 decoder", ConversionMethod.BASE_64_DECODE));
+		baseFormatters.add(FormattingUtils.createBasicFormatter(DEFAULT_PREFIX + "-base64Encoder",	"Base64 encoder", ConversionMethod.BASE_64_ENCODE));
+		
+		return baseFormatters;
 	}
 }

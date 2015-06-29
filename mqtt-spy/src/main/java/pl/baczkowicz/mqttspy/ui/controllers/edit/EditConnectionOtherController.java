@@ -30,12 +30,12 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
-import pl.baczkowicz.mqttspy.common.generated.ConversionMethod;
 import pl.baczkowicz.mqttspy.common.generated.FormatterDetails;
 import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
 import pl.baczkowicz.mqttspy.configuration.ConfiguredConnectionDetails;
 import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnectionDetails;
 import pl.baczkowicz.mqttspy.ui.EditConnectionController;
+import pl.baczkowicz.mqttspy.ui.FormattersController;
 import pl.baczkowicz.mqttspy.ui.utils.KeyboardUtils;
 import pl.baczkowicz.mqttspy.utils.FormattingUtils;
 
@@ -146,33 +146,19 @@ public class EditConnectionOtherController extends AnchorPane implements Initial
 	public void init()
 	{
 		formatter.getItems().clear();		
-		formatter.getItems().add(FormattingUtils.createBasicFormatter("default", 				"Plain", ConversionMethod.PLAIN));
-		formatter.getItems().add(FormattingUtils.createBasicFormatter("default-hexDecoder", 	"HEX decoder", ConversionMethod.HEX_DECODE));
-		formatter.getItems().add(FormattingUtils.createBasicFormatter("default-hexEncoder", 	"HEX encoder", ConversionMethod.HEX_ENCODE));
-		formatter.getItems().add(FormattingUtils.createBasicFormatter("default-base64Decoder", 	"Base64 decoder", ConversionMethod.BASE_64_DECODE));
-		formatter.getItems().add(FormattingUtils.createBasicFormatter("default-base64Encoder", 	"Base64 encoder", ConversionMethod.BASE_64_ENCODE));	
+		formatter.getItems().addAll(FormattingUtils.createBaseFormatters());
+//		formatter.getItems().add(FormattingUtils.createBasicFormatter("default", 				"Plain", ConversionMethod.PLAIN));
+//		formatter.getItems().add(FormattingUtils.createBasicFormatter("default-hexDecoder", 	"HEX decoder", ConversionMethod.HEX_DECODE));
+//		formatter.getItems().add(FormattingUtils.createBasicFormatter("default-hexEncoder", 	"HEX encoder", ConversionMethod.HEX_ENCODE));
+//		formatter.getItems().add(FormattingUtils.createBasicFormatter("default-base64Decoder", 	"Base64 decoder", ConversionMethod.BASE_64_DECODE));
+//		formatter.getItems().add(FormattingUtils.createBasicFormatter("default-base64Encoder", 	"Base64 encoder", ConversionMethod.BASE_64_ENCODE));	
 		
 		// Populate those from the configuration file
-		for (final FormatterDetails formatterDetails : configurationManager.getConfiguration().getFormatting().getFormatter())
-		{			
-			// Make sure the element we're trying to add is not on the list already
-			boolean found = false;
-			
-			for (final FormatterDetails existingFormatterDetails : formatter.getItems())
-			{
-				if (existingFormatterDetails.getID().equals(formatterDetails.getID()))
-				{
-					found = true;
-					break;
-				}
-			}
-			
-			if (!found)
-			{
-				formatter.getItems().add(formatterDetails);
-			}
-		}	
+		FormattersController.addFormattersToList(
+				configurationManager.getConfiguration().getFormatting().getFormatter(), formatter.getItems());
+		
 	}
+	
 
 	// ===============================
 	// === Logic =====================
