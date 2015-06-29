@@ -225,27 +225,6 @@ public abstract class BaseMqttConnection implements IMqttConnection
 		}
 	}	
 	
-	public void unsubscribeFromTopic(final String topic) throws MqttSpyException
-	{
-		if (client == null || !client.isConnected())
-		{
-			// TODO: consider throwing an exception here
-			logger.warn("Client not connected");
-			return;
-		}
-				
-		try
-		{
-			client.unsubscribe(topic);
-			
-			topicMatcher.removeSubscriptionFromStore(topic);
-		}
-		catch (MqttException e)
-		{
-			throw new MqttSpyException("Unsubscription attempt failed", e);
-		}
-	}
-	
 	/**
 	 * Attempts a subscription to the given topic and quality of service.
 	 * 
@@ -266,8 +245,96 @@ public abstract class BaseMqttConnection implements IMqttConnection
 		}
 		
 		return false;
+	}	
+
+	public boolean subscribe(final BaseMqttSubscription subscription)
+	{
+		// Subscription are either triggered by configuration or user actions, so default to auto-subscribe
+		subscription.setSubscriptionRequested(true);
+		
+		// Record the subscription, regardless of whether further stuff succeeds
+		addSubscription(subscription);
+		
+		// If already active, simply ignore
+		if (subscription.isActive())
+		{
+			return false;
+		}
+
+		if (client == null || !client.isConnected())
+		{
+			logger.warn("Client not connected");
+			return false;
+		}
+
+		try
+		{			
+			// Retained messages can be received very quickly, even so quickly we still haven't set the subscription's state to active
+			subscription.setSubscribing(true);
+			
+			logger.debug("Subscribing to " + subscription.getTopic());			
+			client.subscribe(subscription.getTopic(), subscription.getQos());			
+			logger.info("Subscribed to " + subscription.getTopic());
+						
+			subscription.setActive(true);
+			subscription.setSubscribing(false);
+			
+			logger.trace("Subscription " + subscription.getTopic() + " is active = "
+					+ subscription.isActive());
+
+			return true;
+		}
+		catch (MqttException e)
+		{
+			subscription.setSubscribing(false);
+			logger.error("Cannot subscribe to " + subscription.getTopic(), e);
+			removeSubscription(subscription);
+			return false;
+		}
 	}
 	
+	public void addSubscription(final BaseMqttSubscription subscription)
+	{
+		// Add it to the store if it hasn't been created before
+		if (subscriptions.put(subscription.getTopic(), subscription) == null)
+		{
+			subscription.setId(lastUsedSubscriptionId++);				
+		}
+		
+		getTopicMatcher().addSubscriptionToStore(subscription.getTopic());
+	}	
+
+	public void removeSubscription(final BaseMqttSubscription subscription)
+	{
+		subscriptions.remove(subscription.getTopic());
+		getTopicMatcher().removeSubscriptionFromStore(subscription.getTopic());
+	}
+	
+	public int getLastUsedSubscriptionId()
+	{
+		return lastUsedSubscriptionId;
+	}
+	
+	public void unsubscribeFromTopic(final String topic) throws MqttSpyException
+	{
+		if (client == null || !client.isConnected())
+		{
+			// TODO: consider throwing an exception here
+			logger.warn("Client not connected");
+			return;
+		}
+				
+		try
+		{
+			client.unsubscribe(topic);
+			
+			topicMatcher.removeSubscriptionFromStore(topic);
+		}
+		catch (MqttException e)
+		{
+			throw new MqttSpyException("Unsubscription attempt failed", e);
+		}
+	}
 	
 	/**
 	 * Attempts to unsubscribe from the given topic.
@@ -448,73 +515,5 @@ public abstract class BaseMqttConnection implements IMqttConnection
 	public BaseMqttSubscription getMqttSubscriptionForTopic(final String topic)
 	{
 		return subscriptions.get(topic);
-	}
-	
-	public void addSubscription(final BaseMqttSubscription subscription)
-	{
-		// Add it to the store if it hasn't been created before
-		if (subscriptions.put(subscription.getTopic(), subscription) == null)
-		{
-			subscription.setId(lastUsedSubscriptionId++);	
-			getTopicMatcher().addSubscriptionToStore(subscription.getTopic());
-		}
-	}	
-
-	public void removeSubscription(final BaseMqttSubscription subscription)
-	{
-		subscriptions.remove(subscription.getTopic());
-		getTopicMatcher().removeSubscriptionFromStore(subscription.getTopic());
-	}
-	
-
-	public boolean subscribe(final BaseMqttSubscription subscription)
-	{
-		// Subscription are either triggered by configuration or user actions, so default to auto-subscribe
-		subscription.setSubscriptionRequested(true);
-		
-		// Record the subscription, regardless of whether further stuff succeeds
-		addSubscription(subscription);
-		
-		// If already active, simply ignore
-		if (subscription.isActive())
-		{
-			return false;
-		}
-
-		if (client == null || !client.isConnected())
-		{
-			logger.warn("Client not connected");
-			return false;
-		}
-
-		try
-		{			
-			// Retained messages can be received very quickly, even so quickly we still haven't set the subscription's state to active
-			subscription.setSubscribing(true);
-			
-			logger.debug("Subscribing to " + subscription.getTopic());			
-			client.subscribe(subscription.getTopic(), subscription.getQos());			
-			logger.info("Subscribed to " + subscription.getTopic());
-						
-			subscription.setActive(true);
-			subscription.setSubscribing(false);
-			
-			logger.trace("Subscription " + subscription.getTopic() + " is active = "
-					+ subscription.isActive());
-
-			return true;
-		}
-		catch (MqttException e)
-		{
-			subscription.setSubscribing(false);
-			logger.error("Cannot subscribe to " + subscription.getTopic(), e);
-			removeSubscription(subscription);
-			return false;
-		}
-	}
-	
-	public int getLastUsedSubscriptionId()
-	{
-		return lastUsedSubscriptionId;
 	}
 }

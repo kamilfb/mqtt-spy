@@ -14,9 +14,7 @@
  */
 package pl.baczkowicz.mqttspy.storage;
 
-import pl.baczkowicz.mqttspy.common.generated.ConversionMethod;
 import pl.baczkowicz.mqttspy.common.generated.FormatterDetails;
-import pl.baczkowicz.mqttspy.utils.FormattingUtils;
 
 /**
  * Basic message store, keeping all messages in a list.
@@ -24,7 +22,7 @@ import pl.baczkowicz.mqttspy.utils.FormattingUtils;
 public class BasicMessageStoreWithSummary extends BasicMessageStore
 {
 	/** The message format used for this message store. */
-	protected FormatterDetails messageFormat = FormattingUtils.createBasicFormatter("default", "Plain", ConversionMethod.PLAIN);
+	// protected FormatterDetails messageFormat = FormattingUtils.createBasicFormatter("default", "Plain", ConversionMethod.PLAIN);
 
 	public BasicMessageStoreWithSummary(final String name, final int preferredSize, final int maxSize, final int maxPayloadLength)
 	{

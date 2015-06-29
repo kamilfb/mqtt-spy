@@ -223,10 +223,16 @@
 			<xs:element name="SubstringReplace" 	type="mqttspycommon:SubstringReplaceFormatterDetails" />
 			<xs:element name="SubstringExtract" 	type="mqttspycommon:SubstringExtractFormatterDetails" />
 			<xs:element name="CharacterReplace" 	type="mqttspycommon:CharacterReplaceFormatterDetails" />
-			<!-- TODO: ScriptExecution -->
+			<xs:element name="ScriptExecution" 		type="mqttspycommon:ScriptExecutionDetails" />
 		</xs:choice>
 	</xs:complexType>
 			
+	<xs:complexType name="ScriptExecutionDetails">
+		<xs:sequence>
+			<xs:element name="ScriptLocation" type="xs:string" />
+		</xs:sequence>
+	</xs:complexType>
+	
 	<xs:complexType name="SubstringFormatterDetails" abstract="true" >
 		<xs:sequence>
 			<xs:element name="StartTag" type="xs:string" />

@@ -89,19 +89,19 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection
 					
 		final FormattedMqttMessage message = new FormattedMqttMessage(receivedMessage);
 		
-		final List<String> matchingSubscriptions = new ArrayList<String>();
+		final List<String> matchingActiveSubscriptions = new ArrayList<String>();
 		
 		final BaseMqttSubscription lastMatchingSubscription = 
-				matchMessageToSubscriptions(matchingSubscriptionTopics, receivedMessage, matchingSubscriptions);
+				matchMessageToSubscriptions(matchingSubscriptionTopics, receivedMessage, matchingActiveSubscriptions);
 		
 		// If logging is enabled
 		if (messageLogger != null && messageLogger.isRunning())
 		{
-			message.setMatchingSubscriptionTopics(matchingSubscriptions);
+			message.setMatchingSubscriptionTopics(matchingActiveSubscriptions);
 			messageLogger.getQueue().add(message);
 		}
 		
-		statisticsManager.messageReceived(getId(), matchingSubscriptions);
+		statisticsManager.messageReceived(getId(), matchingActiveSubscriptions);
 
 		// Pass the message for connection (all subscriptions) handling
 		message.setSubscription(lastMatchingSubscription.getTopic());
@@ -109,15 +109,17 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection
 	}
 	
 	private BaseMqttSubscription matchMessageToSubscriptions(final List<String> matchingSubscriptionTopics, final FormattedMqttMessage receivedMessage, 
-			final List<String> matchingSubscriptions)
+			final List<String> matchingActiveSubscriptions)
 	{
 		BaseMqttSubscription lastMatchingSubscription = matchMessageToSubscriptions(
-				matchingSubscriptionTopics, receivedMessage, matchingSubscriptions, false);
+				matchingSubscriptionTopics, receivedMessage, matchingActiveSubscriptions, false);
 		
-		// If no active subscriptions available, use one first one that matches (as we might be still receiving messages for a non-active subscription)
-		if (matchingSubscriptions.isEmpty())
+		// If no active subscriptions available, use the first one that matches (as we might be still receiving messages for a non-active subscription)
+		if (matchingActiveSubscriptions.isEmpty())
 		{
-			lastMatchingSubscription = matchMessageToSubscriptions(matchingSubscriptionTopics, receivedMessage, matchingSubscriptions, true);
+			logger.debug("No active subscription available for {}, trying to find first matching...", receivedMessage.getTopic());
+			lastMatchingSubscription = matchMessageToSubscriptions(matchingSubscriptionTopics, receivedMessage, matchingActiveSubscriptions, true);
+			logger.debug("First matching = {} {}", lastMatchingSubscription, matchingSubscriptionTopics);
 		}
 		
 		return lastMatchingSubscription;

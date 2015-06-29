@@ -74,8 +74,13 @@ public class TopicMatcher
 	 */
 	public void addSubscriptionToStore(final String topic)
 	{
-		// Store the subscription topic for further matching
-		subscriptionsStore.add(new Subscription(DUMMY_CLIENT_ID, topic, QOSType.MOST_ONE, true));
+		final Subscription subscription = new Subscription(DUMMY_CLIENT_ID, topic, QOSType.MOST_ONE, true);
+		
+		if (!subscriptionsStore.contains(subscription))
+		{
+			// Store the subscription topic for further matching
+			subscriptionsStore.add(subscription);
+		}
 	}
 	
 	/**
