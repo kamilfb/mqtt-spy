@@ -22,6 +22,7 @@ import pl.baczkowicz.mqttspy.common.generated.FormatterDetails;
 import pl.baczkowicz.mqttspy.connectivity.BaseMqttConnection;
 import pl.baczkowicz.mqttspy.messages.BaseMqttMessage;
 import pl.baczkowicz.mqttspy.messages.BaseMqttMessageWithSubscriptions;
+import pl.baczkowicz.mqttspy.scripts.ScriptBasedFormatter;
 import pl.baczkowicz.mqttspy.utils.ConversionUtils;
 import pl.baczkowicz.mqttspy.utils.FormattingUtils;
 
@@ -33,6 +34,8 @@ public class FormattedMqttMessage extends BaseMqttMessageWithSubscriptions
 	private FormatterDetails lastUsedFormatter;
 	
 	private String formattedPayload;
+	
+	private ScriptBasedFormatter scriptBasedFormatter;
 	
 	public FormattedMqttMessage(final FormattedMqttMessage message)
 	{
@@ -74,6 +77,11 @@ public class FormattedMqttMessage extends BaseMqttMessageWithSubscriptions
 	{
 		this.subscription = subscription;
 	}
+	
+	public void setScriptBasedFormatter(final ScriptBasedFormatter scriptBasedFormatter)
+	{
+		this.scriptBasedFormatter = scriptBasedFormatter;
+	}
 
 	public void format(final FormatterDetails formatter)
 	{
@@ -87,7 +95,7 @@ public class FormattedMqttMessage extends BaseMqttMessageWithSubscriptions
 			
 			if (FormattingUtils.isScriptBased(formatter))
 			{
-				// TODO: script formatting
+				scriptBasedFormatter.formatMessage(formatter, this);
 			}
 			else
 			{

@@ -453,4 +453,9 @@ public class FormattingUtils
 		
 		return baseFormatters;
 	}
+
+	public static boolean isDefault(final FormatterDetails formatter)
+	{
+		return formatter.getID().startsWith(DEFAULT_PREFIX);
+	}
 }

@@ -16,6 +16,10 @@ package pl.baczkowicz.mqttspy.ui.properties;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import pl.baczkowicz.mqttspy.common.generated.FormatterDetails;
 import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.utils.TimeUtils;
@@ -25,6 +29,8 @@ import pl.baczkowicz.mqttspy.utils.TimeUtils;
  */
 public class MqttContentProperties extends BaseTopicProperty
 {
+	final static Logger logger = LoggerFactory.getLogger(MqttContentProperties.class);
+	
 	/** The timestamp of when it was received. */
 	private StringProperty lastReceivedTimestamp;
 	
@@ -63,7 +69,22 @@ public class MqttContentProperties extends BaseTopicProperty
 	 */
 	public void changeFormat(final FormatterDetails format)
 	{
-		this.lastReceivedPayload.set(mqttContent.getFormattedPayload(format));
+		updateReceivedPayload(mqttContent.getFormattedPayload(format));
+	}
+	
+	private void updateReceivedPayload(final String formattedText)
+	{
+		if (maxPayloadLength > 0)
+		{			
+			final int lengthToSet = Math.min(formattedText.length(), maxPayloadLength); 
+			this.lastReceivedPayloadShort.set(formattedText.substring(0, lengthToSet));			
+		}
+		else
+		{		
+			this.lastReceivedPayloadShort.set(formattedText);
+		}
+		
+		this.lastReceivedPayload.set(formattedText);
 	}
 
 	/**
@@ -87,20 +108,8 @@ public class MqttContentProperties extends BaseTopicProperty
 		this.mqttContent = message;
 
 		this.lastReceivedTimestamp.set(TimeUtils.DATE_WITH_MILLISECONDS_SDF.format(mqttContent.getDate()));
-		
-		final String formattedText = mqttContent.getFormattedPayload(format);
-		
-		if (maxPayloadLength > 0)
-		{			
-			final int lengthToSet = Math.min(formattedText.length(), maxPayloadLength); 
-			this.lastReceivedPayloadShort.set(formattedText.substring(0, lengthToSet));			
-		}
-		else
-		{		
-			this.lastReceivedPayloadShort.set(formattedText);
-		}
-		
-		this.lastReceivedPayload.set(formattedText);
+				
+		updateReceivedPayload(mqttContent.getFormattedPayload(format));
 	}
 
 	/**

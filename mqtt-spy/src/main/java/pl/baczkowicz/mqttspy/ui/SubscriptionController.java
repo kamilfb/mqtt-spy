@@ -193,12 +193,7 @@ public class SubscriptionController implements Initializable, ClearTabObserver, 
 		{
 			wholeMessageFormat.getToggles().get(i).setUserData(baseFormatters.get(i));
 		}
-//		wholeMessageFormat.getToggles().get(0).setUserData(FormattingUtils.createBasicFormatter("default", 				"Plain", ConversionMethod.PLAIN));
-//		wholeMessageFormat.getToggles().get(1).setUserData(FormattingUtils.createBasicFormatter("default-hexDecoder", 	"HEX decoder", ConversionMethod.HEX_DECODE));
-//		wholeMessageFormat.getToggles().get(2).setUserData(FormattingUtils.createBasicFormatter("default-hexEncoder", 	"HEX encoder", ConversionMethod.HEX_ENCODE));
-//		wholeMessageFormat.getToggles().get(3).setUserData(FormattingUtils.createBasicFormatter("default-base64Decoder","Base64 decoder", ConversionMethod.BASE_64_DECODE));
-//		wholeMessageFormat.getToggles().get(4).setUserData(FormattingUtils.createBasicFormatter("default-base64Encoder","Base64 encoder", ConversionMethod.BASE_64_ENCODE));		
-		
+
 		wholeMessageFormat.selectedToggleProperty().addListener(new ChangeListener<Toggle>()
 		{
 			@Override
@@ -217,11 +212,6 @@ public class SubscriptionController implements Initializable, ClearTabObserver, 
 		{
 			selectionFormat.getToggles().get(i+1).setUserData(baseFormatters.get(i));
 		}		
-//		selectionFormat.getToggles().get(1).setUserData(FormattingUtils.createBasicFormatter("default", 				"Plain", ConversionMethod.PLAIN));
-//		selectionFormat.getToggles().get(2).setUserData(FormattingUtils.createBasicFormatter("default-hexDecoder", 		"HEX decoder", ConversionMethod.HEX_DECODE));
-//		selectionFormat.getToggles().get(3).setUserData(FormattingUtils.createBasicFormatter("default-hexEncoder", 		"HEX encoder", ConversionMethod.HEX_ENCODE));
-//		selectionFormat.getToggles().get(4).setUserData(FormattingUtils.createBasicFormatter("default-base64Decoder",	"Base64 decoder", ConversionMethod.BASE_64_DECODE));
-//		selectionFormat.getToggles().get(5).setUserData(FormattingUtils.createBasicFormatter("default-base64Encoder",	"Base64 encoder", ConversionMethod.BASE_64_ENCODE));				
 		
 		selectionFormat.selectedToggleProperty().addListener(new ChangeListener<Toggle>()
 		{
@@ -309,12 +299,17 @@ public class SubscriptionController implements Initializable, ClearTabObserver, 
 		{
 			customFormatterMenu.setDisable(false);
 		}
-		
+					
 		for (final FormatterDetails formatter : formatting.getFormatter())
 		{
+			// Check if this is really a custom one
+			if (FormattingUtils.isDefault(formatter))
+			{
+				continue;
+			}
+			
 			final RadioMenuItem customFormatterMenuItem = new RadioMenuItem(formatter.getName());
-			customFormatterMenuItem.setToggleGroup(wholeMessageFormat);			
-			// TODO: check if this is really a custom one
+			customFormatterMenuItem.setToggleGroup(wholeMessageFormat);						
 			customFormatterMenuItem.setUserData(formatter);			
 			customFormatterMenu.getItems().add(customFormatterMenuItem);
 			

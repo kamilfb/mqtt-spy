@@ -1,6 +1,6 @@
 function format()
 {
-	receivedMessage.setPayload("<tag>" + receivedMessage.getPayload() + "- modified :)</tag>");
+	// receivedMessage.setPayload("<tag2>" + receivedMessage.getPayload() + "- modified :)</tag2>");
 	
-	return true;
+	return "<tag2>" + receivedMessage.getPayload() + "- modified :)</tag2>";
 }
