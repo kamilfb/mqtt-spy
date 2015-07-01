@@ -229,7 +229,7 @@
 			
 	<xs:complexType name="ScriptExecutionDetails">
 		<xs:sequence>
-			<xs:element name="ScriptLocation" type="xs:string" />
+			<xs:element name="InlineScript" type="xs:string" />
 		</xs:sequence>
 	</xs:complexType>
 	

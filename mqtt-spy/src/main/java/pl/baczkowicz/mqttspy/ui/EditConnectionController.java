@@ -325,7 +325,7 @@ public class EditConnectionController extends AnchorPane implements Initializabl
 				{
 					try
 					{						
-						connectionManager.openConnection(editedConnectionDetails, mainController);
+						connectionManager.openConnection(editedConnectionDetails, getMainController());
 					}
 					catch (ConfigurationException e)
 					{
@@ -545,5 +545,13 @@ public class EditConnectionController extends AnchorPane implements Initializabl
 	public ConfiguredConnectionDetails getEditedConnectionDetails()
 	{
 		return editedConnectionDetails;
+	}
+
+	/**
+	 * @return the mainController
+	 */
+	public MainController getMainController()
+	{
+		return mainController;
 	}
 }

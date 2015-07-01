@@ -182,14 +182,24 @@ public class DialogUtils
 	}
 	
 	/**
+	 * Asks the user for input.
+	 * 
+	 * @return The user's response
+	 */
+	public static Optional<String> askForInput(final String title, final String label)
+	{
+		return Dialogs.create().owner(null).title(title).masthead(null)
+		.message(label).showTextInput();		
+	}
+	
+	/**
 	 * Asks the user for a script name.
 	 * 
 	 * @return The user's response
 	 */
 	public static Optional<String> askForScriptName()
 	{
-		return Dialogs.create().owner(null).title("Enter a name for your message-based script").masthead(null)
-		.message("Script name (without .js)").showTextInput();		
+		return askForInput("Enter a name for your message-based script", "Script name (without .js)");
 	}
 	
 	/**

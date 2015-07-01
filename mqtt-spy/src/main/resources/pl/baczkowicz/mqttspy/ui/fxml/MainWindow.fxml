@@ -68,7 +68,8 @@
 						
 						<Menu text="Open View">
 								<items>
-									<MenuItem mnemonicParsing="false" text="Converter" onAction="#showConverter" />
+									<!-- Converter has been replaced by Formatters -->
+									<!-- <MenuItem mnemonicParsing="false" text="Converter" onAction="#showConverter" /> -->
 									<MenuItem mnemonicParsing="false" text="Formatters" onAction="#showFormatters" />
 									<MenuItem mnemonicParsing="false" text="Test cases (no connection)" onAction="#showTestCases" />
 								</items>

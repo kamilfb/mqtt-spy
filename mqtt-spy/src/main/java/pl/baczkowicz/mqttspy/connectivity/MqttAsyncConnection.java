@@ -33,6 +33,7 @@ import pl.baczkowicz.mqttspy.events.queuable.ui.MqttSpyUIEvent;
 import pl.baczkowicz.mqttspy.logger.MqttMessageLogger;
 import pl.baczkowicz.mqttspy.scripts.InteractiveScriptManager;
 import pl.baczkowicz.mqttspy.scripts.Script;
+import pl.baczkowicz.mqttspy.scripts.ScriptBasedFormatter;
 import pl.baczkowicz.mqttspy.stats.StatisticsManager;
 import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
@@ -64,6 +65,8 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection
 
 	private MqttMessageLogger messageLogger;
 
+	private ScriptBasedFormatter scriptBasedFormatter;
+
 	public MqttAsyncConnection(final ReconnectionManager reconnectionManager, final RuntimeConnectionProperties properties, 
 			final MqttConnectionStatus status, final EventManager eventManager,
 			final Queue<MqttSpyUIEvent> uiEventQueue, final ConfigurationManager configurationManager)
@@ -87,7 +90,8 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection
 	{		
 		final List<String> matchingSubscriptionTopics = getTopicMatcher().getMatchingSubscriptions(receivedMessage.getTopic());
 					
-		final FormattedMqttMessage message = new FormattedMqttMessage(receivedMessage);
+		final FormattedMqttMessage message = new FormattedMqttMessage(receivedMessage);		
+		message.setScriptBasedFormatter(scriptBasedFormatter);
 		
 		final List<String> matchingActiveSubscriptions = new ArrayList<String>();
 		
@@ -104,7 +108,7 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection
 		statisticsManager.messageReceived(getId(), matchingActiveSubscriptions);
 
 		// Pass the message for connection (all subscriptions) handling
-		message.setSubscription(lastMatchingSubscription.getTopic());
+		message.setSubscription(lastMatchingSubscription.getTopic());		
 		store.messageReceived(message);
 	}
 	
@@ -395,6 +399,8 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection
 	public void setScriptManager(final InteractiveScriptManager scriptManager)
 	{
 		this.scriptManager = scriptManager;
+		this.scriptBasedFormatter = new ScriptBasedFormatter();
+		this.scriptBasedFormatter.setScriptManager(scriptManager);
 	}
 	
 	public InteractiveScriptManager getScriptManager()

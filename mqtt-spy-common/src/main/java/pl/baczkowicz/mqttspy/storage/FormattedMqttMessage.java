@@ -95,7 +95,7 @@ public class FormattedMqttMessage extends BaseMqttMessageWithSubscriptions
 			
 			if (FormattingUtils.isScriptBased(formatter))
 			{
-				scriptBasedFormatter.formatMessage(formatter, this);
+				formattedPayload = scriptBasedFormatter.formatMessage(formatter, this);
 			}
 			else
 			{

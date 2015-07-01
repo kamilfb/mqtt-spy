@@ -24,8 +24,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.common.generated.FormatterDetails;
-import pl.baczkowicz.mqttspy.common.generated.ScriptDetails;
 import pl.baczkowicz.mqttspy.messages.BaseMqttMessageWithSubscriptions;
+import pl.baczkowicz.mqttspy.utils.ConversionUtils;
 
 public class ScriptBasedFormatter
 {
@@ -35,14 +35,21 @@ public class ScriptBasedFormatter
 	
 	private Map<FormatterDetails, Script> formattingScripts = new HashMap<>();
 		
-	public void addFormatter(final FormatterDetails formatter) throws ScriptException
+	public Script getScript(final FormatterDetails formatter) throws ScriptException
 	{
-		final Script script = scriptManager.addScript(
-				new ScriptDetails(false, false, formatter.getFunction().get(0).getScriptExecution().getScriptLocation()));
+		Script script = formattingScripts.get(formatter);
 		
-		// Store it for future
-		formattingScripts.put(formatter, script);
+		if (script == null)
+		{
+			addFormatter(formatter);
+			script = formattingScripts.get(formatter);
+		}
 		
+		return script;
+	}
+	
+	public void evaluate(final Script script)
+	{
 		// Evaluate it
 		scriptManager.runScript(script, false);
 		
@@ -51,10 +58,21 @@ public class ScriptBasedFormatter
 		{
 			scriptManager.invokeFunction(script, "before");
 		}
-		catch (NoSuchMethodException e)
+		catch (NoSuchMethodException | ScriptException e)
 		{
 			logger.info("No setup method present");
 		}
+	}
+	
+	public void addFormatter(final FormatterDetails formatter) throws ScriptException
+	{
+		final Script script = scriptManager.addInlineScript(formatter.getID(), 
+				ConversionUtils.base64ToString(formatter.getFunction().get(0).getScriptExecution().getInlineScript()));
+		
+		// Store it for future
+		formattingScripts.put(formatter, script);
+		
+		evaluate(script);
 	}
 	
 	public String formatMessage(final FormatterDetails formatter, final BaseMqttMessageWithSubscriptions message)

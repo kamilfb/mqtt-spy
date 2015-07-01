@@ -26,7 +26,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.baczkowicz.mqttspy.ui.controllers.edit.EditConnectionOtherController" >
+<AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="583.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.baczkowicz.mqttspy.ui.controllers.edit.EditConnectionOtherController">
    	<children>
    		<Label layoutX="23.0" layoutY="20.0" text="Auto-open at start-up" />         
          <CheckBox fx:id="autoConnect" layoutX="238.0" layoutY="57.0" mnemonicParsing="false" selected="true" />
@@ -42,7 +42,7 @@
          <TextField fx:id="maxMessagesStored" layoutX="484.0" layoutY="15.0" prefHeight="25.0" prefWidth="88.0" />
          
          <Label layoutX="23.0" layoutY="150.0" text="Message content formatter" />
-         <ComboBox fx:id="formatter" layoutX="279.0" layoutY="145.0" prefHeight="25.0" prefWidth="296.0" AnchorPane.rightAnchor="14.0" />
+         <ComboBox fx:id="formatter" layoutX="279.0" layoutY="145.0" prefHeight="25.0" prefWidth="256.0" AnchorPane.rightAnchor="54.0" />
          
          <Label layoutX="280.0" layoutY="60.0" text="Min messages per topic" />
          <Label layoutX="285.0" layoutY="77.0" text="[min messages to keep per topic]" textFill="#5e5e5e">
@@ -60,5 +60,6 @@
             </font>
          </Label>                        
          <CheckBox fx:id="autoSubscribe" layoutX="238.0" layoutY="97.0" mnemonicParsing="false" selected="true" />
+      <Button fx:id="editFormatters" focusTraversable="false" layoutX="507.0" layoutY="145.0" onAction="#editFormatters" mnemonicParsing="false" text="..." AnchorPane.rightAnchor="14.0" />
    	</children>
 </AnchorPane>

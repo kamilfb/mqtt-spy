@@ -128,7 +128,7 @@ public class ScriptRunner implements Runnable
 		else if (script.getScriptContent() != null)
 		{
 			lastReturnValue = script.getScriptEngine().eval(script.getScriptContent());
-			logger.debug("Script {} returned with value {}", script.getName(), lastReturnValue);
+			logger.debug("Inline script {} returned with value {}", script.getName(), lastReturnValue);
 		}
 		else
 		{

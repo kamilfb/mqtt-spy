@@ -21,6 +21,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
@@ -51,6 +52,9 @@ public class EditConnectionOtherController extends AnchorPane implements Initial
 	// UI & Formatting
 		
 	@FXML
+	private Button editFormatters;
+	
+	@FXML
 	private CheckBox autoOpen;
 	
 	@FXML
@@ -78,6 +82,8 @@ public class EditConnectionOtherController extends AnchorPane implements Initial
 			onChange();			
 		}		
 	};
+
+	private ConfiguredConnectionDetails currentConnection;
 	
 	// ===============================
 	// === Initialisation ============
@@ -147,16 +153,10 @@ public class EditConnectionOtherController extends AnchorPane implements Initial
 	{
 		formatter.getItems().clear();		
 		formatter.getItems().addAll(FormattingUtils.createBaseFormatters());
-//		formatter.getItems().add(FormattingUtils.createBasicFormatter("default", 				"Plain", ConversionMethod.PLAIN));
-//		formatter.getItems().add(FormattingUtils.createBasicFormatter("default-hexDecoder", 	"HEX decoder", ConversionMethod.HEX_DECODE));
-//		formatter.getItems().add(FormattingUtils.createBasicFormatter("default-hexEncoder", 	"HEX encoder", ConversionMethod.HEX_ENCODE));
-//		formatter.getItems().add(FormattingUtils.createBasicFormatter("default-base64Decoder", 	"Base64 decoder", ConversionMethod.BASE_64_DECODE));
-//		formatter.getItems().add(FormattingUtils.createBasicFormatter("default-base64Encoder", 	"Base64 encoder", ConversionMethod.BASE_64_ENCODE));	
-		
+
 		// Populate those from the configuration file
 		FormattersController.addFormattersToList(
-				configurationManager.getConfiguration().getFormatting().getFormatter(), formatter.getItems());
-		
+				configurationManager.getConfiguration().getFormatting().getFormatter(), formatter.getItems());		
 	}
 	
 
@@ -164,6 +164,16 @@ public class EditConnectionOtherController extends AnchorPane implements Initial
 	// === Logic =====================
 	// ===============================
 
+	@FXML
+	private void editFormatters()
+	{
+		parent.getMainController().showFormatters();
+		
+		// In case there was a change
+		init();
+		displayConnectionDetails(currentConnection);
+	}
+	
 	public void onChange()
 	{
 		parent.onChange();				
@@ -185,6 +195,8 @@ public class EditConnectionOtherController extends AnchorPane implements Initial
 	@Override
 	public void displayConnectionDetails(final ConfiguredConnectionDetails connection)
 	{
+		this.currentConnection = connection;
+		
 		// UI
 		autoConnect.setSelected(connection.isAutoConnect() == null ? false : connection.isAutoConnect());
 		autoOpen.setSelected(connection.isAutoOpen() == null ? false : connection.isAutoOpen());

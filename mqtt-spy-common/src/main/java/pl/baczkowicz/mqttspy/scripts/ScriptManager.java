@@ -387,8 +387,6 @@ public class ScriptManager
 	
 	public Object invokeFunction(final Script script, final String function, final Object... args) throws NoSuchMethodException, ScriptException
 	{
-		// runScript(script, false);
-		
 		final Invocable invocable = (Invocable) script.getScriptEngine();
 		
 		return invocable.invokeFunction(function, args);
