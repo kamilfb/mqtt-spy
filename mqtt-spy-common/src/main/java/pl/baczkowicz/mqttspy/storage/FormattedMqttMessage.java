@@ -22,9 +22,7 @@ import pl.baczkowicz.mqttspy.common.generated.FormatterDetails;
 import pl.baczkowicz.mqttspy.connectivity.BaseMqttConnection;
 import pl.baczkowicz.mqttspy.messages.BaseMqttMessage;
 import pl.baczkowicz.mqttspy.messages.BaseMqttMessageWithSubscriptions;
-import pl.baczkowicz.mqttspy.scripts.ScriptBasedFormatter;
 import pl.baczkowicz.mqttspy.utils.ConversionUtils;
-import pl.baczkowicz.mqttspy.utils.FormattingUtils;
 
 public class FormattedMqttMessage extends BaseMqttMessageWithSubscriptions
 {
@@ -34,8 +32,6 @@ public class FormattedMqttMessage extends BaseMqttMessageWithSubscriptions
 	private FormatterDetails lastUsedFormatter;
 	
 	private String formattedPayload;
-	
-	private ScriptBasedFormatter scriptBasedFormatter;
 	
 	public FormattedMqttMessage(final FormattedMqttMessage message)
 	{
@@ -78,42 +74,18 @@ public class FormattedMqttMessage extends BaseMqttMessageWithSubscriptions
 		this.subscription = subscription;
 	}
 	
-	public void setScriptBasedFormatter(final ScriptBasedFormatter scriptBasedFormatter)
-	{
-		this.scriptBasedFormatter = scriptBasedFormatter;
-	}
-
-	public void format(final FormatterDetails formatter)
-	{
-		if (formatter == null)
-		{
-			formattedPayload = getPayload();
-		}		
-		else if (!formatter.equals(lastUsedFormatter))
-		{
-			lastUsedFormatter = formatter;
-			
-			if (FormattingUtils.isScriptBased(formatter))
-			{
-				formattedPayload = scriptBasedFormatter.formatMessage(formatter, this);
-			}
-			else
-			{
-				// Use the raw payload to make sure any formatting/encoding that is applied is correct
-				formattedPayload = FormattingUtils.checkAndFormatText(formatter, getRawMessage().getPayload());
-			}
-		}
-	}
-	
-	public String getFormattedPayload(final FormatterDetails formatter)
-	{
-		format(formatter);
-		
-		return formattedPayload;
-	}
-	
 	public String getFormattedPayload()
 	{
 		return formattedPayload;
+	}
+
+	public void setFormattedPayload(final String formattedPayload)
+	{
+		this.formattedPayload = formattedPayload;
+	}
+
+	public void setLastUsedFormatter(final FormatterDetails formatter)
+	{
+		this.lastUsedFormatter = formatter;		
 	}
 }

@@ -45,6 +45,8 @@ public class MqttMessageHandler implements Runnable
 	
 	public void run()
 	{
+		Thread.currentThread().setName(connection.getName());
+		
 		logger.debug("Starting processing thread for connection " + connection.getProperties().getName());
 		while (true)
 		{

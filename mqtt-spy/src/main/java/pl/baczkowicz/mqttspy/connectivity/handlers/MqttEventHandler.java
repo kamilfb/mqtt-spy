@@ -19,11 +19,11 @@ import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.connectivity.MqttConnectionStatus;
-import pl.baczkowicz.mqttspy.events.queuable.MqttSpyEvent;
-import pl.baczkowicz.mqttspy.events.queuable.connectivity.MqttConnectionAttemptSuccessEvent;
-import pl.baczkowicz.mqttspy.events.queuable.connectivity.MqttConnectionFailureEvent;
-import pl.baczkowicz.mqttspy.events.queuable.connectivity.MqttConnectionLostEvent;
-import pl.baczkowicz.mqttspy.events.queuable.connectivity.MqttDisconnectionAttemptSuccessEvent;
+import pl.baczkowicz.mqttspy.events.MqttSpyEvent;
+import pl.baczkowicz.mqttspy.ui.events.queuable.connectivity.MqttConnectionAttemptSuccessEvent;
+import pl.baczkowicz.mqttspy.ui.events.queuable.connectivity.MqttConnectionFailureEvent;
+import pl.baczkowicz.mqttspy.ui.events.queuable.connectivity.MqttConnectionLostEvent;
+import pl.baczkowicz.mqttspy.ui.events.queuable.connectivity.MqttDisconnectionAttemptSuccessEvent;
 
 public class MqttEventHandler implements Runnable
 {

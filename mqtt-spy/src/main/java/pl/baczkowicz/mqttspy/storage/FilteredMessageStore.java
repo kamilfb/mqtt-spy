@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.common.generated.FormatterDetails;
+import pl.baczkowicz.mqttspy.scripts.FormattingManager;
 import pl.baczkowicz.mqttspy.ui.search.MessageFilter;
 
 /**
@@ -43,9 +44,10 @@ public class FilteredMessageStore extends BasicMessageStoreWithSummary
 	private final Set<MessageFilter> messageFilters = new HashSet<>();
 	
 	public FilteredMessageStore(final MessageListWithObservableTopicSummary allMessages, 
-			final int preferredSize, final int maxSize, final String name, final FormatterDetails messageFormat, final int maxPayloadLength)
+			final int preferredSize, final int maxSize, final String name, final FormatterDetails messageFormat, 
+			final FormattingManager formattingManager, final int maxPayloadLength)
 	{
-		super("filtered-" + name, preferredSize, maxSize, maxPayloadLength);
+		super("filtered-" + name, preferredSize, maxSize, maxPayloadLength, formattingManager);
 		setFormatter(messageFormat);
 		//this.filteredMessages = new MessageListWithObservableTopicSummary(preferredSize, maxSize, "filtered-" + name, messageFormat);
 		this.allMessages = allMessages;

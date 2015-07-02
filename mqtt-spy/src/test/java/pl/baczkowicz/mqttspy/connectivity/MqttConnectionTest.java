@@ -30,12 +30,12 @@ import org.junit.Test;
 
 import pl.baczkowicz.mqttspy.configuration.ConfiguredConnectionDetails;
 import pl.baczkowicz.mqttspy.connectivity.reconnection.ReconnectionManager;
-import pl.baczkowicz.mqttspy.events.EventManager;
-import pl.baczkowicz.mqttspy.events.queuable.ui.MqttSpyUIEvent;
 import pl.baczkowicz.mqttspy.exceptions.ConfigurationException;
 import pl.baczkowicz.mqttspy.exceptions.XMLException;
 import pl.baczkowicz.mqttspy.stats.StatisticsManager;
 import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
+import pl.baczkowicz.mqttspy.ui.events.EventManager;
+import pl.baczkowicz.mqttspy.ui.events.queuable.ui.MqttSpyUIEvent;
 
 public class MqttConnectionTest extends TestCase
 {
@@ -90,14 +90,15 @@ public class MqttConnectionTest extends TestCase
 		
 		final MqttAsyncConnection connection = new MqttAsyncConnection(
 				mockedReconnectionManager, connectionProperties, MqttConnectionStatus.CONNECTING, 
-				mockEventManager, new LinkedBlockingQueue<MqttSpyUIEvent>(), null);
+				mockEventManager, null, null, new LinkedBlockingQueue<MqttSpyUIEvent>(), null);
 		connection.setStatisticsManager(statisticsManager);
 		context.assertIsSatisfied();
 		
 		connection.setClient(mockClient);
 
 		// This should add a subscription
-		final MqttSubscription subscription = new MqttSubscription(subscription_TOPIC, 0, Color.WHITE, 10, 100, new LinkedBlockingQueue<MqttSpyUIEvent>(), mockEventManager, null);
+		final MqttSubscription subscription = new MqttSubscription(subscription_TOPIC, 0, Color.WHITE, 10, 100, 
+				new LinkedBlockingQueue<MqttSpyUIEvent>(), mockEventManager, null, null);
 
 		context.checking(new Expectations()
 		{
@@ -153,14 +154,15 @@ public class MqttConnectionTest extends TestCase
 		
 		final MqttAsyncConnection connection = new MqttAsyncConnection(
 				mockedReconnectionManager, connectionProperties, MqttConnectionStatus.CONNECTING, 
-				mockEventManager, new LinkedBlockingQueue<MqttSpyUIEvent>(), null);
+				mockEventManager, null, null, new LinkedBlockingQueue<MqttSpyUIEvent>(), null);
 		connection.setStatisticsManager(statisticsManager);
 		context.assertIsSatisfied();
 		
 		connection.setClient(mockClient);
 
 		// This should add a subscription
-		final MqttSubscription subscription = new MqttSubscription(subscription_TOPIC, 0, Color.WHITE, 10, 100, new LinkedBlockingQueue<MqttSpyUIEvent>(), mockEventManager, null);
+		final MqttSubscription subscription = new MqttSubscription(subscription_TOPIC, 0, Color.WHITE, 10, 100, 
+				new LinkedBlockingQueue<MqttSpyUIEvent>(), mockEventManager, null, null);
 		//subscription.addObserver(mockObserver);
 		
 		context.checking(new Expectations()

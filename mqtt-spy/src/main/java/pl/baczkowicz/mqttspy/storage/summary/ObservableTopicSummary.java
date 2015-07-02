@@ -19,6 +19,7 @@ import java.util.Collection;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import pl.baczkowicz.mqttspy.common.generated.FormatterDetails;
+import pl.baczkowicz.mqttspy.scripts.FormattingManager;
 import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.ui.properties.SubscriptionTopicSummaryProperties;
 
@@ -123,13 +124,15 @@ public class ObservableTopicSummary extends TopicSummary
 		return observableTopicSummaryList;
 	}
 	
-	public void setFormatter(final FormatterDetails messageFormat)
+	public void setFormatter(final FormatterDetails messageFormat, final FormattingManager formattingManager)
 	{
 		super.setFormatter(messageFormat);
 		
 		for (final SubscriptionTopicSummaryProperties item : observableTopicSummaryList)
 		{
-			item.changeFormat(messageFormat);
+			formattingManager.formatMessage(item.getMqttContent(), messageFormat);
+			item.updateReceivedPayload(item.getMqttContent().getFormattedPayload());
+			// item.changeFormat(messageFormat);
 		}
 	}
 }

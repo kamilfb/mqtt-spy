@@ -19,9 +19,9 @@ import java.util.Queue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import pl.baczkowicz.mqttspy.events.queuable.ui.BrowseRemovedMessageEvent;
-import pl.baczkowicz.mqttspy.events.queuable.ui.MqttSpyUIEvent;
-import pl.baczkowicz.mqttspy.events.queuable.ui.TopicSummaryRemovedMessageEvent;
+import pl.baczkowicz.mqttspy.ui.events.queuable.ui.BrowseRemovedMessageEvent;
+import pl.baczkowicz.mqttspy.ui.events.queuable.ui.MqttSpyUIEvent;
+import pl.baczkowicz.mqttspy.ui.events.queuable.ui.TopicSummaryRemovedMessageEvent;
 import pl.baczkowicz.mqttspy.utils.ThreadingUtils;
 
 /**

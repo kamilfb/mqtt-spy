@@ -24,9 +24,9 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.junit.Before;
 import org.junit.Test;
 
-import pl.baczkowicz.mqttspy.events.queuable.ui.MqttSpyUIEvent;
 import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
 import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
+import pl.baczkowicz.mqttspy.ui.events.queuable.ui.MqttSpyUIEvent;
 
 public class ObservableMessageStoreWithFilteringTest
 {
@@ -36,7 +36,7 @@ public class ObservableMessageStoreWithFilteringTest
 	@Before
 	public void setUp() throws Exception
 	{
-		store = new ManagedMessageStoreWithFiltering("test", 5, 5, 5, new LinkedBlockingQueue<MqttSpyUIEvent>(), null, 0);
+		store = new ManagedMessageStoreWithFiltering("test", 5, 5, 5, new LinkedBlockingQueue<MqttSpyUIEvent>(), null, null, 0);
 	}
 
 	@Test

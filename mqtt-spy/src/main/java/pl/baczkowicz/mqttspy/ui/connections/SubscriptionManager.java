@@ -36,11 +36,11 @@ import pl.baczkowicz.mqttspy.configuration.generated.TabbedSubscriptionDetails;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.connectivity.MqttConnectionStatus;
 import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
-import pl.baczkowicz.mqttspy.events.EventManager;
-import pl.baczkowicz.mqttspy.events.queuable.ui.MqttSpyUIEvent;
 import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
 import pl.baczkowicz.mqttspy.ui.ConnectionController;
 import pl.baczkowicz.mqttspy.ui.SubscriptionController;
+import pl.baczkowicz.mqttspy.ui.events.EventManager;
+import pl.baczkowicz.mqttspy.ui.events.queuable.ui.MqttSpyUIEvent;
 import pl.baczkowicz.mqttspy.ui.panes.PaneVisibilityStatus;
 import pl.baczkowicz.mqttspy.ui.panes.TabStatus;
 import pl.baczkowicz.mqttspy.ui.utils.ContextMenuUtils;
@@ -94,6 +94,7 @@ public class SubscriptionManager
 	 * @param connection The connection for which to create this subscription
 	 * @param connectionController The connection controller
 	 * @param parent The parent UI node
+	 * @param formattingManager 
 	 * @param scene 
 	 */
 	public void createSubscription(final Color color, final boolean subscribe, final TabbedSubscriptionDetails subscriptionDetails, 
@@ -103,7 +104,8 @@ public class SubscriptionManager
 		final MqttSubscription subscription = new MqttSubscription(subscriptionDetails.getTopic(),
 				subscriptionDetails.getQos(), color,
 				connection.getProperties().getConfiguredProperties().getMinMessagesStoredPerTopic(),
-				connection.getPreferredStoreSize(), uiEventQueue, eventManager, configurationManager);
+				connection.getPreferredStoreSize(), uiEventQueue, eventManager, configurationManager, 
+				connection.getStore().getFormattingManager());
 		subscription.setConnection(connection);
 		subscription.setDetails(subscriptionDetails);
 		
@@ -168,6 +170,7 @@ public class SubscriptionManager
 		subscriptionController.setStore(observableMessageStore);
 		subscriptionController.setEventManager(eventManager);
 		subscriptionController.setConfingurationManager(configurationManager);
+		subscriptionController.setFormattingManager(connection.getStore().getFormattingManager());
 		subscriptionController.setTab(tab);
 		subscriptionController.toggleMessagePayloadSize(connectionController.getResizeMessageContentMenu().isSelected());
 		

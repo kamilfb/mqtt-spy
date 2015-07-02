@@ -29,8 +29,8 @@ import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
 import pl.baczkowicz.mqttspy.configuration.UiProperties;
-import pl.baczkowicz.mqttspy.events.EventManager;
 import pl.baczkowicz.mqttspy.ui.MainController;
+import pl.baczkowicz.mqttspy.ui.events.EventManager;
 import pl.baczkowicz.mqttspy.ui.utils.FxmlUtils;
 import pl.baczkowicz.mqttspy.utils.IdGenerator;
 

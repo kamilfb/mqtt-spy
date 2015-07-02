@@ -19,10 +19,11 @@ import java.util.Queue;
 import javafx.scene.paint.Color;
 import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
 import pl.baczkowicz.mqttspy.configuration.UiProperties;
-import pl.baczkowicz.mqttspy.events.EventManager;
-import pl.baczkowicz.mqttspy.events.queuable.ui.MqttSpyUIEvent;
+import pl.baczkowicz.mqttspy.scripts.FormattingManager;
 import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
 import pl.baczkowicz.mqttspy.ui.SubscriptionController;
+import pl.baczkowicz.mqttspy.ui.events.EventManager;
+import pl.baczkowicz.mqttspy.ui.events.queuable.ui.MqttSpyUIEvent;
 
 // TODO: split the logic from UI
 public class MqttSubscription extends BaseMqttSubscription
@@ -53,12 +54,14 @@ public class MqttSubscription extends BaseMqttSubscription
 
 	public MqttSubscription(final String topic, final Integer qos, final Color color, 
 			final int minMessagesPerTopic, final int preferredStoreSize, final Queue<MqttSpyUIEvent> uiEventQueue, final EventManager eventManager, 
-			final ConfigurationManager configurationManager)
+			final ConfigurationManager configurationManager, final FormattingManager formattingManager)
 	{
 		super(topic, qos, minMessagesPerTopic, preferredStoreSize);
 		
 		// Max size is double the preferred size
-		store = new ManagedMessageStoreWithFiltering(topic, minMessagesPerTopic, preferredStoreSize, preferredStoreSize * 2, uiEventQueue, eventManager, 
+		store = new ManagedMessageStoreWithFiltering(topic, minMessagesPerTopic, 
+				preferredStoreSize, preferredStoreSize * 2, 
+				uiEventQueue, eventManager, formattingManager,
 				UiProperties.getSummaryMaxPayloadLength(configurationManager));
 		
 		this.color = color;

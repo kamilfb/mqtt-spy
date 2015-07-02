@@ -62,8 +62,11 @@ public class FormattingPerformanceTest
 		startTime = System.nanoTime();
 		for (int i = 0; i < repeat; i++)
 		{
-			message.format(functionBased);
-			message.format(defaultFormatter);
+			// Use the raw payload to make sure any formatting/encoding that is applied is correct
+			message.setFormattedPayload(FormattingUtils.checkAndFormatText(functionBased, message.getRawMessage().getPayload()));
+			
+			// Use the raw payload to make sure any formatting/encoding that is applied is correct
+			message.setFormattedPayload(FormattingUtils.checkAndFormatText(defaultFormatter, message.getRawMessage().getPayload()));
 		}
 		totalTime = System.nanoTime() - startTime;
 		System.out.println("Function-based took " + totalTime + " ns; avg = " + (totalTime / repeat) + " ns");
@@ -93,9 +96,7 @@ public class FormattingPerformanceTest
 		ScriptExecutionDetails scriptExecution = new ScriptExecutionDetails(scriptFile2);
 		scriptFunctionBased.getFunction().add(new FormatterFunction(null, null, null, null, null, scriptExecution));
 		
-		final ScriptBasedFormatter scriptFormatter = new ScriptBasedFormatter();
-		scriptFormatter.setScriptManager(scriptManager);
-		//scriptFormatter.addFormatter(scriptFunctionBased);
+		final ScriptBasedFormatter scriptFormatter = new ScriptBasedFormatter(scriptManager);
 		startTime = System.nanoTime();
 		String result = "";
 		for (int i = 0; i < repeat; i++)

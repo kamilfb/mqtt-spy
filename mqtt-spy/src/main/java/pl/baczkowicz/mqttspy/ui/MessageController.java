@@ -38,10 +38,11 @@ import org.slf4j.LoggerFactory;
 import pl.baczkowicz.mqttspy.common.generated.FormatterDetails;
 import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
 import pl.baczkowicz.mqttspy.configuration.UiProperties;
-import pl.baczkowicz.mqttspy.events.observers.MessageFormatChangeObserver;
-import pl.baczkowicz.mqttspy.events.observers.MessageIndexChangeObserver;
+import pl.baczkowicz.mqttspy.scripts.FormattingManager;
 import pl.baczkowicz.mqttspy.storage.BasicMessageStoreWithSummary;
 import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
+import pl.baczkowicz.mqttspy.ui.events.observers.MessageFormatChangeObserver;
+import pl.baczkowicz.mqttspy.ui.events.observers.MessageIndexChangeObserver;
 import pl.baczkowicz.mqttspy.ui.search.SearchOptions;
 import pl.baczkowicz.mqttspy.utils.FormattingUtils;
 import pl.baczkowicz.mqttspy.utils.TimeUtils;
@@ -98,6 +99,8 @@ public class MessageController implements Initializable, MessageIndexChangeObser
 	private boolean detailedView;
 
 	private ConfigurationManager configurationManager;
+	
+	private FormattingManager formattingManager;
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources)
@@ -119,7 +122,8 @@ public class MessageController implements Initializable, MessageIndexChangeObser
 			{
 				if (event.getClickCount() == 2)
 				{
-					final String textToDisplay = message.getFormattedPayload(store.getFormatter());				
+					formattingManager.formatMessage(message, store.getFormatter());
+					final String textToDisplay = message.getFormattedPayload();				
 					displayNewText(textToDisplay);
 				}				
 			}
@@ -318,13 +322,15 @@ public class MessageController implements Initializable, MessageIndexChangeObser
 				else
 				{
 					final int max = UiProperties.getLargeMessageSubstring(configurationManager); 
-					textToDisplay = message.getFormattedPayload(store.getFormatter()).substring(0, max) 
+					formattingManager.formatMessage(message, store.getFormatter());
+					textToDisplay = message.getFormattedPayload().substring(0, max) 
 							+ "... [message truncated to " + max + " characters - double click on 'Data' to display]";
 				}
 			}
 			else
 			{
-				textToDisplay = message.getFormattedPayload(store.getFormatter());
+				formattingManager.formatMessage(message, store.getFormatter());
+				textToDisplay = message.getFormattedPayload();
 			}
 			
 			displayNewText(textToDisplay);
@@ -386,6 +392,11 @@ public class MessageController implements Initializable, MessageIndexChangeObser
 	public void setConfingurationManager(final ConfigurationManager configurationManager)
 	{
 		this.configurationManager = configurationManager;
+	}
+	
+	public void setFormattingManager(final FormattingManager formattingManager)
+	{
+		this.formattingManager = formattingManager;
 	}
 	
 	public void setStore(final BasicMessageStoreWithSummary store)

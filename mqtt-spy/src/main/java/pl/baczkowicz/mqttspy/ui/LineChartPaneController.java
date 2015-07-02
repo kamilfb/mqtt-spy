@@ -68,11 +68,11 @@ import org.gillius.jfxutils.chart.JFXChartUtil;
 import org.gillius.jfxutils.chart.StableTicksAxis;
 
 import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
-import pl.baczkowicz.mqttspy.events.EventManager;
-import pl.baczkowicz.mqttspy.events.observers.MessageAddedObserver;
 import pl.baczkowicz.mqttspy.storage.BasicMessageStoreWithSummary;
 import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.ui.charts.ChartMode;
+import pl.baczkowicz.mqttspy.ui.events.EventManager;
+import pl.baczkowicz.mqttspy.ui.events.observers.MessageAddedObserver;
 import pl.baczkowicz.mqttspy.ui.properties.MessageLimitProperties;
 import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
 import pl.baczkowicz.mqttspy.ui.utils.StylingUtils;

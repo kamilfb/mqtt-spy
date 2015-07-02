@@ -35,6 +35,11 @@ public class ScriptBasedFormatter
 	
 	private Map<FormatterDetails, Script> formattingScripts = new HashMap<>();
 		
+	public ScriptBasedFormatter(final ScriptManager scriptManager)
+	{
+		this.scriptManager = scriptManager;
+	}
+
 	public Script getScript(final FormatterDetails formatter) throws ScriptException
 	{
 		Script script = formattingScripts.get(formatter);
@@ -96,13 +101,13 @@ public class ScriptBasedFormatter
 			return message.getPayload();
 		}	
 	}
-
-	/**
-	 * @param scriptManager the scriptManager to set
-	 */
-	public void setScriptManager(final ScriptManager scriptManager)
-	{
-		this.scriptManager = scriptManager;
-	}
+//
+//	/**
+//	 * @param scriptManager the scriptManager to set
+//	 */
+//	public void setScriptManager(final ScriptManager scriptManager)
+//	{
+//		this.scriptManager = scriptManager;
+//	}
 
 }

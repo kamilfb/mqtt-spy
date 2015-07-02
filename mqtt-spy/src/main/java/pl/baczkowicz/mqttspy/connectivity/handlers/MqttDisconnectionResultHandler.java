@@ -22,8 +22,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
-import pl.baczkowicz.mqttspy.events.queuable.connectivity.MqttConnectionAttemptFailureEvent;
-import pl.baczkowicz.mqttspy.events.queuable.connectivity.MqttDisconnectionAttemptSuccessEvent;
+import pl.baczkowicz.mqttspy.ui.events.queuable.connectivity.MqttConnectionAttemptFailureEvent;
+import pl.baczkowicz.mqttspy.ui.events.queuable.connectivity.MqttDisconnectionAttemptSuccessEvent;
 
 public class MqttDisconnectionResultHandler implements IMqttActionListener
 {

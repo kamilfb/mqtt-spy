@@ -15,17 +15,22 @@
 package pl.baczkowicz.mqttspy.storage;
 
 import pl.baczkowicz.mqttspy.common.generated.FormatterDetails;
+import pl.baczkowicz.mqttspy.scripts.FormattingManager;
 
 /**
  * Basic message store, keeping all messages in a list.
  */
 public class BasicMessageStoreWithSummary extends BasicMessageStore
 {
+	protected FormattingManager formattingManager;
+	
 	private MessageListWithObservableTopicSummary messageListWithTopicSummary;
 	
-	public BasicMessageStoreWithSummary(final String name, final int preferredSize, final int maxSize, final int maxPayloadLength)
+	public BasicMessageStoreWithSummary(final String name, final int preferredSize, final int maxSize, final int maxPayloadLength, 
+			final FormattingManager formattingManager)
 	{
 		super(null);
+		this.formattingManager = formattingManager;
 		messageListWithTopicSummary = new MessageListWithObservableTopicSummary(preferredSize, maxSize, name, messageFormat, maxPayloadLength); 
 		setMessageList(messageListWithTopicSummary);
 	}
@@ -46,7 +51,7 @@ public class BasicMessageStoreWithSummary extends BasicMessageStore
 	@Override
 	public void setFormatter(final FormatterDetails messageFormat)
 	{
-		this.messageFormat = messageFormat;		
-		messageListWithTopicSummary.getTopicSummary().setFormatter(messageFormat);
+		this.messageFormat = messageFormat;	
+		messageListWithTopicSummary.getTopicSummary().setFormatter(messageFormat, formattingManager);
 	}	
 }

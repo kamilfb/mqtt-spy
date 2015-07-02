@@ -302,6 +302,8 @@ public class StatisticsManager implements Runnable
 	@Override
 	public void run()
 	{
+		Thread.currentThread().setName("StatisticsManager");
+		
 		while (true)
 		{
 			if (ThreadingUtils.sleep(1000))

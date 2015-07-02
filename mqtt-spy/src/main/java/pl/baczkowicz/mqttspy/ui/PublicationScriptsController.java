@@ -42,11 +42,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
-import pl.baczkowicz.mqttspy.events.EventManager;
-import pl.baczkowicz.mqttspy.events.observers.ScriptStateChangeObserver;
 import pl.baczkowicz.mqttspy.scripts.InteractiveScriptManager;
 import pl.baczkowicz.mqttspy.scripts.ScriptRunningState;
 import pl.baczkowicz.mqttspy.scripts.ScriptTypeEnum;
+import pl.baczkowicz.mqttspy.ui.events.EventManager;
+import pl.baczkowicz.mqttspy.ui.events.observers.ScriptStateChangeObserver;
 import pl.baczkowicz.mqttspy.ui.panes.TitledPaneController;
 import pl.baczkowicz.mqttspy.ui.properties.PublicationScriptProperties;
 import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;

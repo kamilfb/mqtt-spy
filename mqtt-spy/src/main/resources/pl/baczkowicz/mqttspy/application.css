@@ -54,6 +54,18 @@
 	-fx-stroke: 	red;
 }
 
+.valid
+{
+	-fx-text-fill: 	black;
+	-fx-stroke: 	black;
+}
+
+.invalid
+{
+	-fx-text-fill: 	red;
+	-fx-stroke: 	red;
+}
+
 .buttonArea
 {
 	-fx-background-color: white; 

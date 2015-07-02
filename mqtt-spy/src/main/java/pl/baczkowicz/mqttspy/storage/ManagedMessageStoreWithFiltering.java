@@ -24,11 +24,12 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import pl.baczkowicz.mqttspy.events.EventManager;
-import pl.baczkowicz.mqttspy.events.queuable.ui.BrowseReceivedMessageEvent;
-import pl.baczkowicz.mqttspy.events.queuable.ui.MqttSpyUIEvent;
-import pl.baczkowicz.mqttspy.events.queuable.ui.TopicSummaryNewMessageEvent;
-import pl.baczkowicz.mqttspy.events.queuable.ui.TopicSummaryRemovedMessageEvent;
+import pl.baczkowicz.mqttspy.scripts.FormattingManager;
+import pl.baczkowicz.mqttspy.ui.events.EventManager;
+import pl.baczkowicz.mqttspy.ui.events.queuable.ui.BrowseReceivedMessageEvent;
+import pl.baczkowicz.mqttspy.ui.events.queuable.ui.MqttSpyUIEvent;
+import pl.baczkowicz.mqttspy.ui.events.queuable.ui.TopicSummaryNewMessageEvent;
+import pl.baczkowicz.mqttspy.ui.events.queuable.ui.TopicSummaryRemovedMessageEvent;
 
 /**
  * The top level message store, handling received messages.
@@ -46,19 +47,21 @@ public class ManagedMessageStoreWithFiltering extends BasicMessageStoreWithSumma
 	
 	private FilteredMessageStore filteredStore;
 	
-	protected final EventManager eventManager;
+	protected final EventManager eventManager;	
 	
 	/** Stores events for the UI to be updated. */
 	protected final Queue<MqttSpyUIEvent> uiEventQueue;
 	
 	public ManagedMessageStoreWithFiltering(final String name, final int minMessagesPerTopic, final int preferredSize, final int maxSize, 
-			final Queue<MqttSpyUIEvent> uiEventQueue, final EventManager eventManager, final int maxPayloadLength)
+			final Queue<MqttSpyUIEvent> uiEventQueue, final EventManager eventManager, final FormattingManager formattingManager,
+			final int maxPayloadLength)
 	{
-		super(name, preferredSize, maxSize, maxPayloadLength);
+		super(name, preferredSize, maxSize, maxPayloadLength, formattingManager);
 		
 		this.uiEventQueue = uiEventQueue;
 		this.eventManager = eventManager;
-		this.filteredStore = new FilteredMessageStore(super.getMessageList(), preferredSize, maxSize, name, messageFormat, maxPayloadLength);		
+		this.filteredStore = new FilteredMessageStore(super.getMessageList(), preferredSize, maxSize, name, 
+				messageFormat, formattingManager, maxPayloadLength);		
 		
 		new Thread(new MessageStoreGarbageCollector(this, super.getMessageList(), uiEventQueue, minMessagesPerTopic, true, false)).start();
 		new Thread(new MessageStoreGarbageCollector(this, filteredStore.getFilteredMessages(), uiEventQueue, minMessagesPerTopic, false, true)).start();
@@ -73,6 +76,9 @@ public class ManagedMessageStoreWithFiltering extends BasicMessageStoreWithSumma
 	 */
 	public void messageReceived(final FormattedMqttMessage message)
 	{	
+		// 0. Format the message with the currently selected formatter
+		formattingManager.formatMessage(message, getFormatter());
+				
 		// Record the current state of topics
 		final boolean allTopicsShown = !browsingFiltersEnabled();		
 		final boolean topicAlreadyExists = allTopics.contains(message.getTopic());
@@ -102,11 +108,8 @@ public class ManagedMessageStoreWithFiltering extends BasicMessageStoreWithSumma
 			// This doesn't need to trigger 'show first' or sth because the following two UI events should refresh the screen
 			filteredStore.applyTopicFilter(message.getTopic(), false);	 
 		}
-
-		// 5. Formats the message with the currently selected formatter
-		message.format(getFormatter());			
-		
-		// 6. Summary table update - required are: removed message, new message, and whether to show the topic
+			
+		// 5. Summary table update - required are: removed message, new message, and whether to show the topic
 		if (removed != null)
 		{
 			uiEventQueue.add(new TopicSummaryRemovedMessageEvent(super.getMessageList(), removed));
@@ -232,5 +235,10 @@ public class ManagedMessageStoreWithFiltering extends BasicMessageStoreWithSumma
 	public Queue<MqttSpyUIEvent> getUiEventQueue()
 	{
 		return this.uiEventQueue;
+	}
+
+	public FormattingManager getFormattingManager()
+	{
+		return formattingManager;
 	}
 }

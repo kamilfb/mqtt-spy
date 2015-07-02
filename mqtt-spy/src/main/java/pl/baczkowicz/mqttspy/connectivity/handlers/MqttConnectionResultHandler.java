@@ -22,9 +22,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
-import pl.baczkowicz.mqttspy.events.queuable.connectivity.MqttConnectionAttemptFailureEvent;
-import pl.baczkowicz.mqttspy.events.queuable.connectivity.MqttConnectionAttemptSuccessEvent;
 import pl.baczkowicz.mqttspy.stats.StatisticsManager;
+import pl.baczkowicz.mqttspy.ui.events.queuable.connectivity.MqttConnectionAttemptFailureEvent;
+import pl.baczkowicz.mqttspy.ui.events.queuable.connectivity.MqttConnectionAttemptSuccessEvent;
 
 public class MqttConnectionResultHandler implements IMqttActionListener
 {

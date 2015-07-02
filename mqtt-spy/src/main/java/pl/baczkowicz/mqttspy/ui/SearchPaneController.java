@@ -46,14 +46,15 @@ import org.slf4j.LoggerFactory;
 import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
 import pl.baczkowicz.mqttspy.configuration.UiProperties;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
-import pl.baczkowicz.mqttspy.events.EventManager;
-import pl.baczkowicz.mqttspy.events.observers.MessageAddedObserver;
-import pl.baczkowicz.mqttspy.events.observers.MessageFormatChangeObserver;
+import pl.baczkowicz.mqttspy.scripts.FormattingManager;
 import pl.baczkowicz.mqttspy.scripts.Script;
 import pl.baczkowicz.mqttspy.scripts.ScriptManager;
 import pl.baczkowicz.mqttspy.storage.FilteredMessageStore;
 import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
 import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
+import pl.baczkowicz.mqttspy.ui.events.EventManager;
+import pl.baczkowicz.mqttspy.ui.events.observers.MessageAddedObserver;
+import pl.baczkowicz.mqttspy.ui.events.observers.MessageFormatChangeObserver;
 import pl.baczkowicz.mqttspy.ui.properties.MqttContentProperties;
 import pl.baczkowicz.mqttspy.ui.search.InlineScriptMatcher;
 import pl.baczkowicz.mqttspy.ui.search.ScriptMatcher;
@@ -142,6 +143,8 @@ public class SearchPaneController implements Initializable, MessageFormatChangeO
 	private UniqueContentOnlyFilter uniqueContentOnlyFilter;
 
 	private ConfigurationManager configurationManager;
+
+	private FormattingManager formattingManager;
 	
 	public void initialize(URL location, ResourceBundle resources)
 	{
@@ -166,8 +169,10 @@ public class SearchPaneController implements Initializable, MessageFormatChangeO
 	
 	public void init()
 	{
-		foundMessageStore = new FilteredMessageStore(store.getMessageList(), store.getMessageList().getPreferredSize(), store.getMessageList().getMaxSize(), 
-				"search-" + store.getName(), store.getFormatter(), UiProperties.getSummaryMaxPayloadLength(configurationManager));
+		foundMessageStore = new FilteredMessageStore(store.getMessageList(), store.getMessageList().getPreferredSize(), 
+				store.getMessageList().getMaxSize(), 
+				"search-" + store.getName(), store.getFormatter(), 
+				formattingManager, UiProperties.getSummaryMaxPayloadLength(configurationManager));
 		
 		uniqueContentOnlyFilter = new UniqueContentOnlyFilter(store.getUiEventQueue());
 		uniqueContentOnlyFilter.setUniqueContentOnly(messageNavigationPaneController.getUniqueOnlyMenu().isSelected());
@@ -193,6 +198,7 @@ public class SearchPaneController implements Initializable, MessageFormatChangeO
 		
 		messagePaneController.setStore(foundMessageStore);
 		messagePaneController.setConfingurationManager(configurationManager);
+		messagePaneController.setFormattingManager(formattingManager);
 		messagePaneController.init();		
 		// The search pane's message browser wants to know about changing indices and format
 		eventManager.registerChangeMessageIndexObserver(messagePaneController, foundMessageStore);
@@ -213,6 +219,14 @@ public class SearchPaneController implements Initializable, MessageFormatChangeO
 		eventManager.registerFormatChangeObserver(this, store);
 	}
 	
+	/**
+	 * @param formattingManager the formattingManager to set
+	 */
+	public void setFormattingManager(FormattingManager formattingManager)
+	{
+		this.formattingManager = formattingManager;
+	}
+
 	public void toggleMessagePayloadSize(final boolean resize)
 	{
 		if (resize)
@@ -363,7 +377,8 @@ public class SearchPaneController implements Initializable, MessageFormatChangeO
 	
 	private void messageFound(final FormattedMqttMessage message)
 	{	
-		foundMessages.add(0, new MqttContentProperties(message, store.getFormatter(), UiProperties.getSummaryMaxPayloadLength(configurationManager)));
+		foundMessages.add(0, new MqttContentProperties(message, /*store.getFormatter(), */
+				UiProperties.getSummaryMaxPayloadLength(configurationManager)));
 		
 		if (!uniqueContentOnlyFilter.filter(message, foundMessageStore.getMessageList(), true))
 		{

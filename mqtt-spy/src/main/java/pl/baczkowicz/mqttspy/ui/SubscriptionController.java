@@ -57,15 +57,16 @@ import pl.baczkowicz.mqttspy.common.generated.Formatting;
 import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
 import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
 import pl.baczkowicz.mqttspy.connectivity.RuntimeConnectionProperties;
-import pl.baczkowicz.mqttspy.events.EventManager;
-import pl.baczkowicz.mqttspy.events.observers.ClearTabObserver;
-import pl.baczkowicz.mqttspy.events.observers.SubscriptionStatusChangeObserver;
-import pl.baczkowicz.mqttspy.events.queuable.ui.BrowseReceivedMessageEvent;
+import pl.baczkowicz.mqttspy.scripts.FormattingManager;
 import pl.baczkowicz.mqttspy.stats.StatisticsManager;
 import pl.baczkowicz.mqttspy.storage.BasicMessageStoreWithSummary;
 import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
 import pl.baczkowicz.mqttspy.ui.connections.SubscriptionManager;
+import pl.baczkowicz.mqttspy.ui.events.EventManager;
+import pl.baczkowicz.mqttspy.ui.events.observers.ClearTabObserver;
+import pl.baczkowicz.mqttspy.ui.events.observers.SubscriptionStatusChangeObserver;
+import pl.baczkowicz.mqttspy.ui.events.queuable.ui.BrowseReceivedMessageEvent;
 import pl.baczkowicz.mqttspy.ui.messagelog.MessageLogUtils;
 import pl.baczkowicz.mqttspy.ui.panes.TabController;
 import pl.baczkowicz.mqttspy.ui.panes.TabStatus;
@@ -182,6 +183,8 @@ public class SubscriptionController implements Initializable, ClearTabObserver, 
 
 	private ConfigurationManager configurationManager;
 
+	private FormattingManager formattingManager;
+
 	public void initialize(URL location, ResourceBundle resources)
 	{			
 		statsLabel = new Label();
@@ -267,7 +270,7 @@ public class SubscriptionController implements Initializable, ClearTabObserver, 
 		statsHistory = new BasicMessageStoreWithSummary(
 				"stats" + store.getName(), 
 				store.getMessageList().getPreferredSize(), store.getMessageList().getMaxSize(), 
-				/*store.getUiEventQueue(), eventManager, */0);
+				0, formattingManager);
 		
 		eventManager.registerClearTabObserver(this, store);
 		
@@ -278,6 +281,7 @@ public class SubscriptionController implements Initializable, ClearTabObserver, 
 		
 		messagePaneController.setStore(store);
 		messagePaneController.setConfingurationManager(configurationManager);
+		messagePaneController.setFormattingManager(formattingManager);
 		messagePaneController.init();
 		// The search pane's message browser wants to know about changing indices and format
 		eventManager.registerChangeMessageIndexObserver(messagePaneController, store);
@@ -537,6 +541,7 @@ public class SubscriptionController implements Initializable, ClearTabObserver, 
 			searchWindowController.setSubscriptionName(subscription != null ? subscription.getTopic() : SubscriptionManager.ALL_SUBSCRIPTIONS_TAB_TITLE);
 			searchWindowController.setEventManager(eventManager);
 			searchWindowController.setConfingurationManager(configurationManager);
+			searchWindowController.setFormattingManager(formattingManager);
 			searchWindowController.setConnectionController(connectionController);
 			
 			eventManager.registerMessageAddedObserver(searchWindowController, store.getMessageList());
@@ -771,5 +776,13 @@ public class SubscriptionController implements Initializable, ClearTabObserver, 
 	public Scene getScene()
 	{
 		return splitPane.getScene();
+	}
+
+	/**
+	 * @param formattingManager the formattingManager to set
+	 */
+	public void setFormattingManager(FormattingManager formattingManager)
+	{
+		this.formattingManager = formattingManager;
 	}
 }

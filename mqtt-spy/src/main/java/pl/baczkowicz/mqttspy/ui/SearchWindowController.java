@@ -37,12 +37,13 @@ import org.slf4j.LoggerFactory;
 import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
-import pl.baczkowicz.mqttspy.events.EventManager;
-import pl.baczkowicz.mqttspy.events.observers.MessageAddedObserver;
-import pl.baczkowicz.mqttspy.events.observers.MessageListChangedObserver;
-import pl.baczkowicz.mqttspy.events.observers.MessageRemovedObserver;
+import pl.baczkowicz.mqttspy.scripts.FormattingManager;
 import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
 import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
+import pl.baczkowicz.mqttspy.ui.events.EventManager;
+import pl.baczkowicz.mqttspy.ui.events.observers.MessageAddedObserver;
+import pl.baczkowicz.mqttspy.ui.events.observers.MessageListChangedObserver;
+import pl.baczkowicz.mqttspy.ui.events.observers.MessageRemovedObserver;
 import pl.baczkowicz.mqttspy.ui.utils.FxmlUtils;
 import pl.baczkowicz.mqttspy.ui.utils.StylingUtils;
 
@@ -84,7 +85,17 @@ public class SearchWindowController extends AnchorPane implements Initializable,
 	private ConnectionController connectionController;
 
 	private ConfigurationManager configurationManager;
+
+	private FormattingManager formattingManager;
 	
+	/**
+	 * @param formattingManager the formattingManager to set
+	 */
+	public void setFormattingManager(FormattingManager formattingManager)
+	{
+		this.formattingManager = formattingManager;
+	}
+
 	public void initialize(URL location, ResourceBundle resources)
 	{
 		searchTabs.getTabs().clear();				
@@ -135,6 +146,7 @@ public class SearchWindowController extends AnchorPane implements Initializable,
 		searchPaneController.setEventManager(eventManager);
 		searchPaneController.setStore(store);
 		searchPaneController.setConfingurationManager(configurationManager);
+		searchPaneController.setFormattingManager(formattingManager);
 		searchPaneController.setConnection(connection);
 		searchPaneController.toggleMessagePayloadSize(connectionController.getResizeMessageContentMenu().isSelected());
 		searchPaneController.init();		

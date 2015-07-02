@@ -168,8 +168,7 @@ public class FormattersController implements Initializable
 	
 	public void init()
 	{					
-		scriptBasedFormatter = new ScriptBasedFormatter();
-		scriptBasedFormatter.setScriptManager(new ScriptManager(null, null, connection));
+		scriptBasedFormatter = new ScriptBasedFormatter(new ScriptManager(null, null, connection));
 		
 		formattersList.getItems().clear();
 		
@@ -180,8 +179,10 @@ public class FormattersController implements Initializable
 	
 	private void onChange()
 	{		
+		formatterDetails.getStyleClass().removeAll("valid", "invalid");
 		applyChangesButton.setDisable(true);
 	
+		// Process script changes
 		if (newFormatter != null)
 		{
 			applyChangesButton.setDisable(false);
@@ -192,14 +193,21 @@ public class FormattersController implements Initializable
 				
 				// Evaluate it
 				scriptBasedFormatter.evaluate(script);
-				
-				sampleOutput.setText(scriptBasedFormatter.formatMessage(newFormatter, 
+				if (script.getScriptRunner().getLastThrownException() != null)
+				{
+					formatterDetails.getStyleClass().add("invalid");
+				}
+				else
+				{
+					sampleOutput.setText(scriptBasedFormatter.formatMessage(newFormatter, 
 						new BaseMqttMessageWithSubscriptions(0, "", new MqttMessage(sampleInput.getText().getBytes()), connection)));
+					formatterDetails.getStyleClass().add("valid");
+				}
 			}
 			catch (ScriptException e)
 			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				formatterDetails.getStyleClass().add("invalid");
+				logger.error("Script error", e);
 			}
 			return;
 		}
@@ -220,8 +228,7 @@ public class FormattersController implements Initializable
 			}
 			catch (ScriptException e)
 			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.error("Script error: ", e);
 			}
 		}
 	}

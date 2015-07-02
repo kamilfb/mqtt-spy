@@ -48,24 +48,26 @@ import pl.baczkowicz.mqttspy.connectivity.handlers.MqttCallbackHandler;
 import pl.baczkowicz.mqttspy.connectivity.handlers.MqttDisconnectionResultHandler;
 import pl.baczkowicz.mqttspy.connectivity.handlers.MqttEventHandler;
 import pl.baczkowicz.mqttspy.connectivity.reconnection.ReconnectionManager;
-import pl.baczkowicz.mqttspy.events.EventManager;
-import pl.baczkowicz.mqttspy.events.queuable.UIEventHandler;
-import pl.baczkowicz.mqttspy.events.queuable.connectivity.MqttConnectionAttemptFailureEvent;
-import pl.baczkowicz.mqttspy.events.queuable.connectivity.MqttDisconnectionAttemptFailureEvent;
-import pl.baczkowicz.mqttspy.events.queuable.ui.MqttSpyUIEvent;
 import pl.baczkowicz.mqttspy.exceptions.ConfigurationException;
 import pl.baczkowicz.mqttspy.exceptions.MqttSpyException;
 import pl.baczkowicz.mqttspy.logger.MqttMessageLogger;
 import pl.baczkowicz.mqttspy.messages.BaseMqttMessage;
 import pl.baczkowicz.mqttspy.messages.BaseMqttMessageWithSubscriptions;
+import pl.baczkowicz.mqttspy.scripts.FormattingManager;
 import pl.baczkowicz.mqttspy.scripts.InteractiveScriptManager;
 import pl.baczkowicz.mqttspy.scripts.Script;
+import pl.baczkowicz.mqttspy.scripts.ScriptManager;
 import pl.baczkowicz.mqttspy.stats.StatisticsManager;
 import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
 import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.ui.ConnectionController;
 import pl.baczkowicz.mqttspy.ui.MainController;
 import pl.baczkowicz.mqttspy.ui.SubscriptionController;
+import pl.baczkowicz.mqttspy.ui.events.EventManager;
+import pl.baczkowicz.mqttspy.ui.events.queuable.UIEventHandler;
+import pl.baczkowicz.mqttspy.ui.events.queuable.connectivity.MqttConnectionAttemptFailureEvent;
+import pl.baczkowicz.mqttspy.ui.events.queuable.connectivity.MqttDisconnectionAttemptFailureEvent;
+import pl.baczkowicz.mqttspy.ui.events.queuable.ui.MqttSpyUIEvent;
 import pl.baczkowicz.mqttspy.ui.panes.PaneVisibilityStatus;
 import pl.baczkowicz.mqttspy.ui.panes.TabStatus;
 import pl.baczkowicz.mqttspy.ui.utils.ConnectivityUtils;
@@ -299,7 +301,8 @@ public class ConnectionManager
 		final SubscriptionManager subscriptionManager = new SubscriptionManager(eventManager, configurationManager, uiEventQueue);			
 		
         final ManagedMessageStoreWithFiltering store = new ManagedMessageStoreWithFiltering(
-        		name, 0, list.size(), list.size(), uiEventQueue, eventManager, UiProperties.getSummaryMaxPayloadLength(configurationManager));               
+        		name, 0, list.size(), list.size(), uiEventQueue, eventManager, 
+        		new FormattingManager(new ScriptManager(null, null, null)), UiProperties.getSummaryMaxPayloadLength(configurationManager));               
         
 		final SubscriptionController subscriptionController = subscriptionManager.createSubscriptionTab(
 				true, store, null, null, connectionController);
@@ -388,7 +391,11 @@ public class ConnectionManager
 		// Stop all scripts
 		for (final Script script : connection.getScriptManager().getScripts().values())
 		{
-			connection.getScriptManager().stopScriptFile(script.getScriptFile());
+			// Only stop file-based scripts
+			if (script.getScriptFile() != null)
+			{
+				connection.getScriptManager().stopScriptFile(script.getScriptFile());
+			}
 		}		
 	}
 		
@@ -419,9 +426,14 @@ public class ConnectionManager
 
 	public MqttAsyncConnection createConnection(final RuntimeConnectionProperties connectionProperties, final Queue<MqttSpyUIEvent> uiEventQueue)
 	{
+		final InteractiveScriptManager scriptManager = new InteractiveScriptManager(eventManager, null);
+		
 		final MqttAsyncConnection connection = new MqttAsyncConnection(reconnectionManager,
-				connectionProperties, MqttConnectionStatus.DISCONNECTED, eventManager, uiEventQueue, configurationManager);
+				connectionProperties, MqttConnectionStatus.DISCONNECTED, 
+				eventManager, scriptManager, new FormattingManager(scriptManager), uiEventQueue, configurationManager);
 
+		scriptManager.setConnection(connection);
+		
 		// Set up message logger		
 		final MessageLog messageLog = connectionProperties.getConfiguredProperties().getMessageLog();		
 		if (messageLog != null && !messageLog.getValue().equals(MessageLogEnum.DISABLED) 
@@ -442,8 +454,9 @@ public class ConnectionManager
 			}
 		}		
 				
-		final InteractiveScriptManager scriptManager = new InteractiveScriptManager(eventManager, connection);
-		connection.setScriptManager(scriptManager);
+		
+		// connection.setScriptManager(scriptManager);
+		//connection.getStore().setFormattingManager(new FormattingManager(scriptManager));
 	
 		// Store the created connection
 		connections.put(connectionProperties.getConfiguredProperties().getId(), connection);

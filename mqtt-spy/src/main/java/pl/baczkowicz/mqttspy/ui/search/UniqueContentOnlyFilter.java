@@ -16,10 +16,10 @@ package pl.baczkowicz.mqttspy.ui.search;
 
 import java.util.Queue;
 
-import pl.baczkowicz.mqttspy.events.queuable.ui.BrowseRemovedMessageEvent;
-import pl.baczkowicz.mqttspy.events.queuable.ui.MqttSpyUIEvent;
 import pl.baczkowicz.mqttspy.storage.MessageList;
 import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
+import pl.baczkowicz.mqttspy.ui.events.queuable.ui.BrowseRemovedMessageEvent;
+import pl.baczkowicz.mqttspy.ui.events.queuable.ui.MqttSpyUIEvent;
 
 public class UniqueContentOnlyFilter implements MessageFilter
 {

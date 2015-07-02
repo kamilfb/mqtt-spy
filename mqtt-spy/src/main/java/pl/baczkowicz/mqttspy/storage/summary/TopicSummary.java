@@ -83,14 +83,14 @@ public class TopicSummary extends TopicMessageCount
 	
 			if (value == null)
 			{
-				value = new SubscriptionTopicSummaryProperties(false, 1, message, messageFormat, maxPayloadLength);
+				value = new SubscriptionTopicSummaryProperties(false, 1, message, /*messageFormat, */maxPayloadLength);
 				topicToSummaryMapping.put(message.getTopic(), value);
 				newElement = value;
 			}
 			else
 			{
 				value.setCount(value.countProperty().intValue() + 1);	
-				value.setMessage(message, messageFormat);				
+				value.setMessage(message/*, messageFormat*/);				
 			}
 			
 			logger.trace("[{}] has {} messages", name, value.countProperty().intValue());

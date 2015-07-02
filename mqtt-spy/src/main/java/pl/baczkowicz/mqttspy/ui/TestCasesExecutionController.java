@@ -44,11 +44,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
-import pl.baczkowicz.mqttspy.events.EventManager;
 import pl.baczkowicz.mqttspy.scripts.InteractiveScriptManager;
 import pl.baczkowicz.mqttspy.testcases.TestCase;
 import pl.baczkowicz.mqttspy.testcases.TestCaseManager;
 import pl.baczkowicz.mqttspy.testcases.TestCaseStatus;
+import pl.baczkowicz.mqttspy.ui.events.EventManager;
 import pl.baczkowicz.mqttspy.ui.panes.TitledPaneController;
 import pl.baczkowicz.mqttspy.ui.properties.TestCaseProperties;
 

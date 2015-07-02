@@ -28,15 +28,15 @@ import pl.baczkowicz.mqttspy.common.generated.ScriptDetails;
 import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
 import pl.baczkowicz.mqttspy.configuration.UiProperties;
 import pl.baczkowicz.mqttspy.connectivity.reconnection.ReconnectionManager;
-import pl.baczkowicz.mqttspy.events.EventManager;
-import pl.baczkowicz.mqttspy.events.queuable.ui.MqttSpyUIEvent;
 import pl.baczkowicz.mqttspy.logger.MqttMessageLogger;
+import pl.baczkowicz.mqttspy.scripts.FormattingManager;
 import pl.baczkowicz.mqttspy.scripts.InteractiveScriptManager;
 import pl.baczkowicz.mqttspy.scripts.Script;
-import pl.baczkowicz.mqttspy.scripts.ScriptBasedFormatter;
 import pl.baczkowicz.mqttspy.stats.StatisticsManager;
 import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
+import pl.baczkowicz.mqttspy.ui.events.EventManager;
+import pl.baczkowicz.mqttspy.ui.events.queuable.ui.MqttSpyUIEvent;
 import pl.baczkowicz.mqttspy.utils.ConversionUtils;
 
 /**
@@ -59,16 +59,15 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection
 
 	private StatisticsManager statisticsManager;
 
-	private EventManager eventManager;
+	private final EventManager eventManager;
 
-	private InteractiveScriptManager scriptManager;
+	private final InteractiveScriptManager scriptManager;
 
 	private MqttMessageLogger messageLogger;
 
-	private ScriptBasedFormatter scriptBasedFormatter;
-
 	public MqttAsyncConnection(final ReconnectionManager reconnectionManager, final RuntimeConnectionProperties properties, 
-			final MqttConnectionStatus status, final EventManager eventManager,
+			final MqttConnectionStatus status, final EventManager eventManager, 
+			final InteractiveScriptManager scriptManager, final FormattingManager formattingManager,
 			final Queue<MqttSpyUIEvent> uiEventQueue, final ConfigurationManager configurationManager)
 	{ 
 		super(reconnectionManager, properties);
@@ -78,20 +77,23 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection
 				properties.getConfiguredProperties().getMinMessagesStoredPerTopic(), 
 				properties.getMaxMessagesStored(), 
 				properties.getMaxMessagesStored() * 2, 
-				uiEventQueue, eventManager, UiProperties.getSummaryMaxPayloadLength(configurationManager));
+				uiEventQueue, eventManager,
+				formattingManager,
+				UiProperties.getSummaryMaxPayloadLength(configurationManager));
 		
 		this.setPreferredStoreSize(properties.getMaxMessagesStored());
 		this.properties = properties;
 		this.eventManager = eventManager;
+		this.scriptManager = scriptManager;
 		setConnectionStatus(status);
 	}
 	
 	public void messageReceived(final FormattedMqttMessage receivedMessage)
 	{		
+		// TODO: we should only delete from the topic matcher when a subscription is closed for good, not when just unsubscribed
 		final List<String> matchingSubscriptionTopics = getTopicMatcher().getMatchingSubscriptions(receivedMessage.getTopic());
 					
 		final FormattedMqttMessage message = new FormattedMqttMessage(receivedMessage);		
-		message.setScriptBasedFormatter(scriptBasedFormatter);
 		
 		final List<String> matchingActiveSubscriptions = new ArrayList<String>();
 		
@@ -107,8 +109,16 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection
 		
 		statisticsManager.messageReceived(getId(), matchingActiveSubscriptions);
 
-		// Pass the message for connection (all subscriptions) handling
-		message.setSubscription(lastMatchingSubscription.getTopic());		
+		if (lastMatchingSubscription != null)
+		{
+			message.setSubscription(lastMatchingSubscription.getTopic());
+		} 
+		else
+		{
+			logger.warn("Cannot find a matching subscription for " + receivedMessage.getTopic());
+		}
+		
+		// Pass the message to the "all" message store		
 		store.messageReceived(message);
 	}
 	
@@ -395,14 +405,12 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection
 	{
 		this.statisticsManager = statisticsManager;
 	}
-
+/*
 	public void setScriptManager(final InteractiveScriptManager scriptManager)
 	{
 		this.scriptManager = scriptManager;
-		this.scriptBasedFormatter = new ScriptBasedFormatter();
-		this.scriptBasedFormatter.setScriptManager(scriptManager);
 	}
-	
+	*/
 	public InteractiveScriptManager getScriptManager()
 	{
 		return this.scriptManager;
