@@ -94,4 +94,9 @@ public class BasicMessageStore implements MessageStore
 	{
 		return messageList.getName();
 	}	
+	
+	public void cleanUp()
+	{
+		// Nothing to do here
+	}
 }

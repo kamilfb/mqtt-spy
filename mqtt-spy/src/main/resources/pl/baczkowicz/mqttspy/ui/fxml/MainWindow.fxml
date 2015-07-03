@@ -45,12 +45,6 @@
 					</items>
 				</Menu>
 			
-				<Menu mnemonicParsing="false" text="Log">
-					<items>
-						<MenuItem mnemonicParsing="false" onAction="#openMessageLog" text="Open message log for off-line analysis" />
-					</items>
-				</Menu>
-			
 				<Menu mnemonicParsing="false" text="Window">
 					<items>
 						<Menu mnemonicParsing="false" text="Change Perspective">
@@ -68,6 +62,7 @@
 						
 						<Menu text="Open View">
 								<items>
+									<MenuItem mnemonicParsing="false" onAction="#openMessageLog" text="Message log browser" />
 									<!-- Converter has been replaced by Formatters -->
 									<!-- <MenuItem mnemonicParsing="false" text="Converter" onAction="#showConverter" /> -->
 									<MenuItem mnemonicParsing="false" text="Formatters" onAction="#showFormatters" />

@@ -54,6 +54,8 @@ public class Script extends BasicScriptProperties
 	/** Observer of any changes to script's properties. */
 	private ScriptChangeObserver observer;
 
+	private boolean asynchronous;
+
 	/**
 	 * Creates a script.
 	 */
@@ -202,5 +204,15 @@ public class Script extends BasicScriptProperties
 	public void setObserver(ScriptChangeObserver observer)
 	{
 		this.observer = observer;
+	}
+
+	public void setAsynchronous(boolean asynchronous)
+	{
+		this.asynchronous = asynchronous;
+	}
+	
+	public boolean isAsynchronous()
+	{
+		return this.asynchronous;
 	}
 }

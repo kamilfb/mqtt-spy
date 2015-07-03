@@ -14,17 +14,36 @@
  */
 package pl.baczkowicz.mqttspy.scripts;
 
+import javax.script.ScriptException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import pl.baczkowicz.mqttspy.common.generated.FormatterDetails;
 import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.utils.FormattingUtils;
 
 public class FormattingManager
 {
+	final static Logger logger = LoggerFactory.getLogger(FormattingManager.class);
+	
 	private ScriptBasedFormatter scriptFormatter;
 	
 	public FormattingManager(final ScriptManager scriptManager)
 	{
 		this.scriptFormatter = new ScriptBasedFormatter(scriptManager);
+	}
+	
+	public void initialiseFormatter(final FormatterDetails formatter)
+	{
+		try
+		{		
+			scriptFormatter.addFormatter(formatter);
+		}
+		catch (ScriptException e)
+		{
+			logger.error("Couldn't load the formatter");
+		}
 	}
 	
 	public void formatMessage(final FormattedMqttMessage message, final FormatterDetails formatter)
@@ -48,11 +67,4 @@ public class FormattingManager
 			}
 		}
 	}
-	
-//	public String getFormattedPayload(final FormatterDetails formatter)
-//	{
-//		format(formatter);
-//		
-//		return formattedPayload;
-//	}
 }

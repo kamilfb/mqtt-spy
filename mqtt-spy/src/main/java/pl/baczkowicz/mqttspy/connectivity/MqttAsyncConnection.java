@@ -406,12 +406,7 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection
 	{
 		this.statisticsManager = statisticsManager;
 	}
-/*
-	public void setScriptManager(final InteractiveScriptManager scriptManager)
-	{
-		this.scriptManager = scriptManager;
-	}
-	*/
+
 	public InteractiveScriptManager getScriptManager()
 	{
 		return this.scriptManager;

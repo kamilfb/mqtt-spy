@@ -23,28 +23,13 @@ import pl.baczkowicz.mqttspy.ui.SubscriptionController;
 import pl.baczkowicz.mqttspy.ui.events.EventManager;
 import pl.baczkowicz.mqttspy.ui.events.queuable.EventQueueManager;
 
-// TODO: split the logic from UI
 public class MqttSubscription extends BaseMqttSubscription
 {
-	//private int id;
-	
-	//private String topic;
-
-	//private Integer qos;
-
 	private Color color;
-
-	//private boolean subscribing;
-	
-	//private boolean subscriptionRequested;
-
-	//private boolean active;
 	
 	private SubscriptionController subscriptionController;
 
 	private MqttAsyncConnection connection;
-	
-	//private SubscriptionDetails details;
 	
 	private final ManagedMessageStoreWithFiltering store;
 

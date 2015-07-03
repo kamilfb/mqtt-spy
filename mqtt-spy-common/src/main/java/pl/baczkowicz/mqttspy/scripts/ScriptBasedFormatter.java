@@ -26,6 +26,8 @@ import org.slf4j.LoggerFactory;
 import pl.baczkowicz.mqttspy.common.generated.FormatterDetails;
 import pl.baczkowicz.mqttspy.messages.BaseMqttMessageWithSubscriptions;
 import pl.baczkowicz.mqttspy.utils.ConversionUtils;
+import pl.baczkowicz.mqttspy.utils.FormattingUtils;
+import pl.baczkowicz.mqttspy.utils.TimeUtils;
 
 public class ScriptBasedFormatter
 {
@@ -71,13 +73,21 @@ public class ScriptBasedFormatter
 	
 	public void addFormatter(final FormatterDetails formatter) throws ScriptException
 	{
-		final Script script = scriptManager.addInlineScript(formatter.getID(), 
-				ConversionUtils.base64ToString(formatter.getFunction().get(0).getScriptExecution().getInlineScript()));
+		final long start = TimeUtils.getMonotonicTime();					
 		
-		// Store it for future
-		formattingScripts.put(formatter, script);
+		if (FormattingUtils.isScriptBased(formatter))
+		{
+			final Script script = scriptManager.addInlineScript(formatter.getID(), 
+					ConversionUtils.base64ToString(formatter.getFunction().get(0).getScriptExecution().getInlineScript()));
+			
+			// Store it for future
+			formattingScripts.put(formatter, script);
+			
+			evaluate(script);
+		}
 		
-		evaluate(script);
+		final long end = TimeUtils.getMonotonicTime();
+		logger.debug("Adding formatter {} took {} ms", formatter.getName(), (end - start));
 	}
 	
 	public String formatMessage(final FormatterDetails formatter, final BaseMqttMessageWithSubscriptions message)
@@ -101,13 +111,4 @@ public class ScriptBasedFormatter
 			return message.getPayload();
 		}	
 	}
-//
-//	/**
-//	 * @param scriptManager the scriptManager to set
-//	 */
-//	public void setScriptManager(final ScriptManager scriptManager)
-//	{
-//		this.scriptManager = scriptManager;
-//	}
-
 }

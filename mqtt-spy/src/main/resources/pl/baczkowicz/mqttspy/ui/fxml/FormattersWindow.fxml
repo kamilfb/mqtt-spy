@@ -42,7 +42,7 @@
 		      	</graphic>
       </Button>
       
-      <Button fx:id="applyChangesButton" layoutX="14.0" layoutY="331.0" mnemonicParsing="false" onAction="#applyChanges" prefHeight="25.0" prefWidth="233.0" text="Apply changes">
+      <Button fx:id="applyChangesButton" layoutX="14.0" layoutY="331.0" mnemonicParsing="false" onAction="#applyChanges" prefHeight="25.0" prefWidth="233.0" text="Apply changes" AnchorPane.bottomAnchor="46.0">
          <graphic>
             <ImageView fitHeight="16" fitWidth="16" pickOnBounds="true">
                <image>
@@ -136,7 +136,7 @@
          </font>
       </Label>
       <Separator layoutX="266.0" layoutY="125.0" prefHeight="3.0" prefWidth="501.0" AnchorPane.leftAnchor="262.0" AnchorPane.rightAnchor="7.0" />
-      <Label layoutX="14.0" layoutY="260.0" prefHeight="33.0" prefWidth="233.0" text="Note: reload your connection(s) for the changes to have an effect" wrapText="true">
+      <Label layoutX="14.0" layoutY="260.0" prefHeight="33.0" prefWidth="233.0" text="Note: reload your connection(s) for the changes to have an effect" wrapText="true" AnchorPane.bottomAnchor="109.0">
          <font>
             <Font size="11.0" />
          </font>

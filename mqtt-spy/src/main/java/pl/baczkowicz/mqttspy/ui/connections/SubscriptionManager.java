@@ -112,12 +112,14 @@ public class SubscriptionManager
 		final SubscriptionController subscriptionController = createSubscriptionTab(
 				false, subscription.getStore(), subscription, connection, connectionController);
 		subscriptionController.getTab().setContextMenu(ContextMenuUtils.createSubscriptionTabContextMenu(
-				connection, subscription, eventManager, this, configurationManager, subscriptionController));
+				connection, subscription, eventManager, this, configurationManager, subscriptionController));		
+
 		subscriptionController.setConnectionController(connectionController);
 		subscriptionController.setFormatting(configurationManager.getConfiguration().getFormatting());
 		subscriptionController.setTabStatus(new TabStatus());
 		subscriptionController.getTabStatus().setVisibility(PaneVisibilityStatus.NOT_VISIBLE);
 		subscriptionController.init();
+		subscriptionController.onSubscriptionStatusChanged(subscription);
 		
 		subscription.setSubscriptionController(subscriptionController);
 		subscriptionController.setDetailedViewVisibility(connectionController.getDetailedViewVisibility());
@@ -166,6 +168,7 @@ public class SubscriptionManager
 		{
 			eventManager.registerSubscriptionStatusObserver(subscriptionController, subscription);
 		}
+		
 		subscriptionController.setStore(observableMessageStore);
 		subscriptionController.setEventManager(eventManager);
 		subscriptionController.setConfingurationManager(configurationManager);
@@ -173,14 +176,7 @@ public class SubscriptionManager
 		subscriptionController.setTab(tab);
 		subscriptionController.toggleMessagePayloadSize(connectionController.getResizeMessageContentMenu().isSelected());
 		
-		if (connection != null)
-		{
-			subscriptionController.setConnectionProperties(connection.getProperties());
-		}
-		else
-		{
-			logger.warn("Supplied connection is null");
-		}
+		subscriptionController.setConnectionProperties(connection.getProperties());
 				
 		tab.setClosable(false);
 		tab.setContent(subscriptionPane);
@@ -198,12 +194,13 @@ public class SubscriptionManager
 		}
 		else
 		{
+			logger.debug("Mapping subscription topic {} to controller", subscription.getTopic());
 			subscriptionControllers.put(subscription.getTopic(), subscriptionController);						
 			tab.setGraphic(new Label(subscription.getTopic()));
 			tab.getGraphic().getStyleClass().add("unsubscribed");
 			tab.setTooltip(new Tooltip("Status: " + "unsubscribed"));
 		}		
-
+		
 		return subscriptionController;
 	}
 	
@@ -216,8 +213,10 @@ public class SubscriptionManager
 	{
 		synchronized (subscriptionControllers)
 		{
+			logger.debug("Trying to remove subscription {}", topic);
 			final MqttSubscription subscription = subscriptionControllers.get(topic).getSubscription();
 			subscription.getConnection().unsubscribeAndRemove(subscription);
+			subscription.getStore().cleanUp();
 			TabUtils.requestClose(subscriptionControllers.get(topic).getTab());
 			subscriptionControllers.remove(topic);
 		}

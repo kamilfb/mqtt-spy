@@ -40,6 +40,7 @@ import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
 import pl.baczkowicz.mqttspy.configuration.ConfiguredConnectionDetails;
 import pl.baczkowicz.mqttspy.configuration.UiProperties;
 import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnectionDetails;
+import pl.baczkowicz.mqttspy.connectivity.BaseMqttSubscription;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnectionRunnable;
 import pl.baczkowicz.mqttspy.connectivity.MqttConnectionStatus;
@@ -58,8 +59,8 @@ import pl.baczkowicz.mqttspy.scripts.InteractiveScriptManager;
 import pl.baczkowicz.mqttspy.scripts.Script;
 import pl.baczkowicz.mqttspy.scripts.ScriptManager;
 import pl.baczkowicz.mqttspy.stats.StatisticsManager;
-import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
 import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
+import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
 import pl.baczkowicz.mqttspy.ui.ConnectionController;
 import pl.baczkowicz.mqttspy.ui.MainController;
 import pl.baczkowicz.mqttspy.ui.SubscriptionController;
@@ -68,7 +69,6 @@ import pl.baczkowicz.mqttspy.ui.events.queuable.EventQueueManager;
 import pl.baczkowicz.mqttspy.ui.events.queuable.UIEventHandler;
 import pl.baczkowicz.mqttspy.ui.events.queuable.connectivity.MqttConnectionAttemptFailureEvent;
 import pl.baczkowicz.mqttspy.ui.events.queuable.connectivity.MqttDisconnectionAttemptFailureEvent;
-import pl.baczkowicz.mqttspy.ui.events.queuable.ui.MqttSpyUIEvent;
 import pl.baczkowicz.mqttspy.ui.panes.PaneVisibilityStatus;
 import pl.baczkowicz.mqttspy.ui.panes.TabStatus;
 import pl.baczkowicz.mqttspy.ui.utils.ConnectivityUtils;
@@ -381,7 +381,7 @@ public class ConnectionManager
 		connection.closeConnection();
 		if (connection.getMessageLogger() != null && connection.getMessageLogger().isRunning())
 		{
-			connection.getMessageLogger().stop();
+			connection.getMessageLogger().stop();			
 		}
 		
 		TabUtils.requestClose(connectionControllers.get(connection).getTab());
@@ -398,6 +398,12 @@ public class ConnectionManager
 				connection.getScriptManager().stopScriptFile(script.getScriptFile());
 			}
 		}		
+		
+		for (final BaseMqttSubscription subscription : connection.getSubscriptions().values())
+		{
+			subscription.getStore().cleanUp();
+		}
+		connection.getStore().cleanUp();
 	}
 		
 	public void closeOfflineTab(final ConnectionController connectionController)
@@ -428,11 +434,12 @@ public class ConnectionManager
 	public MqttAsyncConnection createConnection(final RuntimeConnectionProperties connectionProperties, final EventQueueManager uiEventQueue)
 	{
 		final InteractiveScriptManager scriptManager = new InteractiveScriptManager(eventManager, null);
-		
+		final FormattingManager formattingManager = new FormattingManager(scriptManager);
 		final MqttAsyncConnection connection = new MqttAsyncConnection(reconnectionManager,
 				connectionProperties, MqttConnectionStatus.DISCONNECTED, 
-				eventManager, scriptManager, new FormattingManager(scriptManager), uiEventQueue, configurationManager);
+				eventManager, scriptManager, formattingManager, uiEventQueue, configurationManager);
 
+		formattingManager.initialiseFormatter(connection.getProperties().getFormatter());
 		scriptManager.setConnection(connection);
 		
 		// Set up message logger		

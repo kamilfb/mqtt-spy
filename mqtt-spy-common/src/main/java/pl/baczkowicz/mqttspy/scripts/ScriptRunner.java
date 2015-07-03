@@ -68,8 +68,11 @@ public class ScriptRunner implements Runnable
 	 */
 	public void run()
 	{
-		Thread.currentThread().setName("Script " + script.getName());
-		ThreadingUtils.logStarting();
+		if (script.isAsynchronous())
+		{
+			Thread.currentThread().setName("Script " + script.getName());
+			ThreadingUtils.logStarting();
+		}		
 		
 		script.getPublicationScriptIO().touch();
 		runningThread = Thread.currentThread();
@@ -81,7 +84,11 @@ public class ScriptRunner implements Runnable
 			firstRun = false;
 			
 			changeState(ScriptRunningState.RUNNING);
-			new Thread(new ScriptHealthDetector(eventManager, script, executor)).start();		
+			
+			if (script.isAsynchronous())
+			{
+				new Thread(new ScriptHealthDetector(eventManager, script, executor)).start();
+			}
 			
 			try
 			{
@@ -103,7 +110,10 @@ public class ScriptRunner implements Runnable
 		
 		script.getPublicationScriptIO().stop();
 		
-		ThreadingUtils.logEnding();
+		if (script.isAsynchronous())
+		{
+			ThreadingUtils.logEnding();
+		}
 	}
 	
 	/**

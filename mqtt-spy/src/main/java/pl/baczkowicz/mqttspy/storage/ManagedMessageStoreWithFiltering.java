@@ -60,10 +60,16 @@ public class ManagedMessageStoreWithFiltering extends BasicMessageStoreWithSumma
 		this.uiEventQueue = uiEventQueue;
 		this.eventManager = eventManager;
 		this.filteredStore = new FilteredMessageStore(super.getMessageList(), preferredSize, maxSize, name, 
-				messageFormat, formattingManager, maxPayloadLength);		
+				messageFormat, formattingManager, maxPayloadLength);
 		
-		new Thread(new MessageStoreGarbageCollector(this, super.getMessageList(), uiEventQueue, minMessagesPerTopic, true, false)).start();
-		new Thread(new MessageStoreGarbageCollector(this, filteredStore.getFilteredMessages(), uiEventQueue, minMessagesPerTopic, false, true)).start();
+		// Set up message store garbage collectors
+		this.filteredStore.setMessageStoreGarbageCollector(
+				new MessageStoreGarbageCollector(this, filteredStore.getFilteredMessages(), uiEventQueue, minMessagesPerTopic, false, true));		
+		this.setMessageStoreGarbageCollector(
+				new MessageStoreGarbageCollector(this, super.getMessageList(), uiEventQueue, minMessagesPerTopic, true, false));
+		
+		new Thread(this.filteredStore.getMessageStoreGarbageCollector()).start();
+		new Thread(this.getMessageStoreGarbageCollector()).start();
 	}
 	
 	/**
@@ -239,5 +245,11 @@ public class ManagedMessageStoreWithFiltering extends BasicMessageStoreWithSumma
 	public FormattingManager getFormattingManager()
 	{
 		return formattingManager;
+	}
+	
+	public void cleanUp()
+	{
+		this.getMessageStoreGarbageCollector().setRunning(false);
+		this.filteredStore.getMessageStoreGarbageCollector().setRunning(false);
 	}
 }

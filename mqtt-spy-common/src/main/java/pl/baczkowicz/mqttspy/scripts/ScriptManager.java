@@ -328,6 +328,7 @@ public class ScriptManager
 		if (!ScriptRunningState.RUNNING.equals(script.getStatus()))
 		{
 			script.createScriptRunner(eventManager, executor);
+			script.setAsynchronous(asynchronous);
 			
 			if (asynchronous)
 			{

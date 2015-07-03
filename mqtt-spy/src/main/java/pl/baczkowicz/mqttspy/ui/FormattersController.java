@@ -108,6 +108,8 @@ public class FormattersController implements Initializable
 
 	private FormatterDetails newFormatter;
 
+	private boolean ignoreChanges;
+
 	@Override
 	public void initialize(URL location, ResourceBundle resources)
 	{		
@@ -158,7 +160,7 @@ public class FormattersController implements Initializable
 						}
 						else
 						{									
-							setText(item.getName());
+							setText(item == newFormatter ? EditConnectionsController.MODIFIED_ITEM + item.getName() : item.getName());
 						}
 					}
 				};
@@ -179,6 +181,11 @@ public class FormattersController implements Initializable
 	
 	private void onChange()
 	{		
+		// TODO: split this method into individual on change
+		if (ignoreChanges)
+		{
+			return;
+		}
 		formatterDetails.getStyleClass().removeAll("valid", "invalid");
 		applyChangesButton.setDisable(true);
 	
@@ -266,6 +273,7 @@ public class FormattersController implements Initializable
 	@FXML
 	private void newFormatter() throws ScriptException
 	{		
+		ignoreChanges = true;
 		selectedFormatter = null;
 		newFormatter = new FormatterDetails();
 		
@@ -294,23 +302,30 @@ public class FormattersController implements Initializable
 			}			
 		}
 		
-		newFormatter.setID(FormattingUtils.SCRIPT_PREFIX + "-" + name.get().replace(" ", "-").toLowerCase());
-		newFormatter.setName(name.get());
+		if (!cancelled & valid)
+		{
+			newFormatter.setID(FormattingUtils.SCRIPT_PREFIX + "-" + name.get().replace(" ", "-").toLowerCase());
+			newFormatter.setName(name.get());
+			
+			formattersList.getItems().add(newFormatter);
+			formattersList.getSelectionModel().select(newFormatter);
+						
+			final ScriptExecutionDetails scriptExecution = new ScriptExecutionDetails("ZnVuY3Rpb24gZm9ybWF0KCkKewkKCXJldHVybiByZWNlaXZlZE1lc3NhZ2UuZ2V0UGF5bG9hZCgpICsgIi0gbW9kaWZpZWQhIjsKfQ==");
+			newFormatter.getFunction().add(new FormatterFunction(null, null, null, null, null, scriptExecution));
 					
-		final ScriptExecutionDetails scriptExecution = new ScriptExecutionDetails("ZnVuY3Rpb24gZm9ybWF0KCkKewkKCXJldHVybiByZWNlaXZlZE1lc3NhZ2UuZ2V0UGF5bG9hZCgpICsgIi0gbW9kaWZpZWQhIjsKfQ==");
-		newFormatter.getFunction().add(new FormatterFunction(null, null, null, null, null, scriptExecution));
-				
-		formatterName.setText(newFormatter.getName());
-		formatterType.setText("Script-based");
-		detailsLabel.setText("Inline script");			
-		scriptBasedFormatter.addFormatter(newFormatter);
-		formatterDetails.setText(scriptBasedFormatter.getScript(newFormatter).getScriptContent());
-		sampleOutput.setText(scriptBasedFormatter.formatMessage(newFormatter, 
-				new BaseMqttMessageWithSubscriptions(0, "", new MqttMessage(sampleInput.getText().getBytes()), connection)));
-		
-		newButton.setDisable(true);	
-		applyChangesButton.setDisable(false);
-		deleteButton.setDisable(true);		
+			formatterName.setText(newFormatter.getName());
+			formatterType.setText("Script-based");
+			detailsLabel.setText("Inline script");			
+			scriptBasedFormatter.addFormatter(newFormatter);
+			formatterDetails.setText(scriptBasedFormatter.getScript(newFormatter).getScriptContent());
+			sampleOutput.setText(scriptBasedFormatter.formatMessage(newFormatter, 
+					new BaseMqttMessageWithSubscriptions(0, "", new MqttMessage(sampleInput.getText().getBytes()), connection)));
+			
+			newButton.setDisable(true);	
+			applyChangesButton.setDisable(false);
+			deleteButton.setDisable(true);		
+		}
+		ignoreChanges = false;
 	}
 	
 	@FXML
@@ -321,7 +336,18 @@ public class FormattersController implements Initializable
 	
 	private void showFormatterInfo()	
 	{
-		newFormatter = null;
+		if (selectedFormatter == newFormatter)
+		{
+			return;
+		}
+		
+		ignoreChanges = true;
+		if (newFormatter != null)
+		{
+			formattersList.getItems().remove(newFormatter);
+			newFormatter = null;
+		}
+
 		newButton.setDisable(false);		
 		deleteButton.setDisable(false);
 		detailsLabel.setText("Details");
@@ -370,6 +396,7 @@ public class FormattersController implements Initializable
 		}		
 		
 		applyChangesButton.setDisable(true);
+		ignoreChanges = false;
 	}
 	
 	// ===============================

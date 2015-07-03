@@ -28,10 +28,10 @@ public class ThreadingUtils
 	private final static Logger logger = LoggerFactory.getLogger(ThreadingUtils.class);
 	
 	/** Log entry for starting a thread. */
-	private static final String STARTING_THREAD = "Starting %s thread...";
+	private static final String STARTING_THREAD = "Starting thread ID=%s \"%s\" ...";
 	
 	/** Log entry for stopping a thread. */
-	private static final String ENDING_THREAD = "Ending %s thread...";	 
+	private static final String ENDING_THREAD = "Ending thread ID=%s \"%s\" ...";	 
 	
 	/**
 	 * Logs the fact of starting a thread.
@@ -40,7 +40,7 @@ public class ThreadingUtils
 	{
 		if (logger.isTraceEnabled())
 		{
-			logger.trace(String.format(ThreadingUtils.STARTING_THREAD, Thread.currentThread().getName()));
+			logger.trace(String.format(ThreadingUtils.STARTING_THREAD, Thread.currentThread().getId(), Thread.currentThread().getName()));
 		}
 	}
 	
@@ -51,7 +51,7 @@ public class ThreadingUtils
 	{
 		if (logger.isTraceEnabled())
 		{
-			logger.trace(String.format(ThreadingUtils.ENDING_THREAD, Thread.currentThread().getName()));
+			logger.trace(String.format(ThreadingUtils.ENDING_THREAD, Thread.currentThread().getId(), Thread.currentThread().getName()));
 		}
 	}
 	

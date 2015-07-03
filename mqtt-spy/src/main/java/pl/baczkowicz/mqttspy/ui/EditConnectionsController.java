@@ -53,7 +53,7 @@ import pl.baczkowicz.mqttspy.utils.MqttUtils;
 @SuppressWarnings({"unchecked", "rawtypes", "deprecation"})
 public class EditConnectionsController extends AnchorPane implements Initializable, ConnectionStatusChangeObserver
 {
-	private final static String MODIFIED_ITEM = "* ";
+	public final static String MODIFIED_ITEM = "* ";
 	
 	/** Diagnostic logger. */
 	private final static Logger logger = LoggerFactory.getLogger(EditConnectionsController.class);

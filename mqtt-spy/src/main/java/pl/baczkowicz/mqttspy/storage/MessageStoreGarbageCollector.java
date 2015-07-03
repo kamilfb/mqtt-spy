@@ -14,9 +14,6 @@
  */
 package pl.baczkowicz.mqttspy.storage;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import pl.baczkowicz.mqttspy.ui.events.queuable.EventQueueManager;
 import pl.baczkowicz.mqttspy.ui.events.queuable.ui.BrowseRemovedMessageEvent;
 import pl.baczkowicz.mqttspy.ui.events.queuable.ui.TopicSummaryRemovedMessageEvent;
@@ -29,8 +26,6 @@ import pl.baczkowicz.mqttspy.utils.ThreadingUtils;
  */
 public class MessageStoreGarbageCollector implements Runnable
 {
-	private final static Logger logger = LoggerFactory.getLogger(MessageStoreGarbageCollector.class);
-	
 	/** Stores events for the UI to be updated. */
 	protected final EventQueueManager uiEventQueue;
 	
@@ -43,6 +38,8 @@ public class MessageStoreGarbageCollector implements Runnable
 	private boolean createBrowseEvents;
 
 	private ManagedMessageStoreWithFiltering store;
+
+	private boolean running;
 	
 	public MessageStoreGarbageCollector(final ManagedMessageStoreWithFiltering store, final MessageListWithObservableTopicSummary messages, 
 			final EventQueueManager uiEventQueue, 
@@ -56,6 +53,11 @@ public class MessageStoreGarbageCollector implements Runnable
 		this.store = store;
 	}
 	
+	public void setRunning(final boolean running)
+	{
+		this.running = running;
+	}
+	
 	private void checkAndRemove(boolean shouldRemove)
 	{
 		// logger.trace("[{}] Checking if can delete messages...", messages.getName());
@@ -65,24 +67,10 @@ public class MessageStoreGarbageCollector implements Runnable
 								
 			final int count = messages.getTopicSummary().getCountForTopic(element.getTopic());
 			if (count > minMessagesPerTopic)
-			{
-				// logger.info("[{} {} {}/{}/{}] Deleting message on " +
-				// element.getTopic() + ", content " +
-				// element.getFormattedPayload(),
-				// messages.getName(), shouldRemove, count,
-				// messages.getMessages().size(),
-				// messages.getPreferredSize());
-				
+			{	
 				// Remove from the store
 				messages.remove(i);
 				shouldRemove = messages.exceedingPreferredSize();
-				
-				// logger.info("[{} {} {}/{}/{}] Deleted message on " +
-				// element.getTopic() + ", content " +
-				// element.getFormattedPayload(),
-				// messages.getName(), shouldRemove, count,
-				// messages.getMessages().size(),
-				// messages.getPreferredSize());
 										
 				// Update topic summary and UI
 
@@ -103,21 +91,19 @@ public class MessageStoreGarbageCollector implements Runnable
 					break;
 				}
 			}				
-			// else
-			// {
-			// logger.info("[{}] Message count for topic {} = {}",
-			// messages.getName(), element.getTopic(), count);
-			// }
 		}
 	}
 	
 	@Override
 	public void run()
 	{
-		Thread.currentThread().setName("Garbage Message Collector for " + messages.getName());
-		logger.debug("Starting thread " + Thread.currentThread().getName());
+		running = true;
+		
+		Thread.currentThread().setName("Message Store Garbage Collector for " + messages.getName());
+		ThreadingUtils.logStarting();
+		//logger.debug("Starting thread " + Thread.currentThread().getName());
 				
-		while (true)		
+		while (running)		
 		{			
 			if (ThreadingUtils.sleep(1000))			
 			{
@@ -136,5 +122,6 @@ public class MessageStoreGarbageCollector implements Runnable
 				checkAndRemove(shouldRemove);
 			}
 		}
+		ThreadingUtils.logEnding();
 	}
 }

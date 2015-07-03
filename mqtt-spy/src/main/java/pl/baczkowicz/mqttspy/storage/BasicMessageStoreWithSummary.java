@@ -22,6 +22,8 @@ import pl.baczkowicz.mqttspy.scripts.FormattingManager;
  */
 public class BasicMessageStoreWithSummary extends BasicMessageStore
 {
+	private MessageStoreGarbageCollector messageStoreGarbageCollector;
+	
 	protected FormattingManager formattingManager;
 	
 	private MessageListWithObservableTopicSummary messageListWithTopicSummary;
@@ -53,5 +55,22 @@ public class BasicMessageStoreWithSummary extends BasicMessageStore
 	{
 		this.messageFormat = messageFormat;	
 		messageListWithTopicSummary.getTopicSummary().setFormatter(messageFormat, formattingManager);
+	}
+
+	/**
+	 * @return the messageStoreGarbageCollector
+	 */
+	public MessageStoreGarbageCollector getMessageStoreGarbageCollector()
+	{
+		return messageStoreGarbageCollector;
+	}
+
+	/**
+	 * @param messageStoreGarbageCollector the messageStoreGarbageCollector to set
+	 */
+	public void setMessageStoreGarbageCollector(
+			MessageStoreGarbageCollector messageStoreGarbageCollector)
+	{
+		this.messageStoreGarbageCollector = messageStoreGarbageCollector;
 	}	
 }

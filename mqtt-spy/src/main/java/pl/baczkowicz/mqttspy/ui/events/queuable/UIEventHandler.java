@@ -72,7 +72,7 @@ public class UIEventHandler implements Runnable
 			}
 			
 			// Sleep so that we don't run all the time - updating the UI 10 times a second should be more than enough
-			if (ThreadingUtils.sleep(2000))			
+			if (ThreadingUtils.sleep(100))			
 			{
 				break;
 			}
@@ -114,17 +114,7 @@ public class UIEventHandler implements Runnable
 						}
 					}
 				}
-			}			
-//			final MqttSpyUIEvent event = uiEventQueue.remove();
-//			
-//			if (event instanceof BrowseReceivedMessageEvent)
-//			{
-//				eventManager.notifyMessageAdded((BrowseReceivedMessageEvent) event);				
-//			}
-//			else if (event instanceof BrowseRemovedMessageEvent)
-//			{
-//				eventManager.notifyMessageRemoved((BrowseRemovedMessageEvent) event);
-//			}						
+			}								
 		}	
 		final long end = TimeUtils.getMonotonicTime();
 		if (logger.isTraceEnabled())
