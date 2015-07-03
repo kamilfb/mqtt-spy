@@ -16,6 +16,7 @@ package pl.baczkowicz.mqttspy.ui;
 
 import java.io.File;
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 
 import javafx.beans.value.ChangeListener;
@@ -51,6 +52,8 @@ import pl.baczkowicz.mqttspy.ui.events.observers.MessageAddedObserver;
 import pl.baczkowicz.mqttspy.ui.events.observers.MessageIndexIncrementObserver;
 import pl.baczkowicz.mqttspy.ui.events.observers.MessageIndexToFirstObserver;
 import pl.baczkowicz.mqttspy.ui.events.observers.MessageRemovedObserver;
+import pl.baczkowicz.mqttspy.ui.events.queuable.ui.BrowseReceivedMessageEvent;
+import pl.baczkowicz.mqttspy.ui.events.queuable.ui.BrowseRemovedMessageEvent;
 import pl.baczkowicz.mqttspy.ui.messagelog.MessageLogUtils;
 import pl.baczkowicz.mqttspy.ui.utils.TextUtils;
 import pl.baczkowicz.mqttspy.ui.utils.UiUtils;
@@ -255,7 +258,8 @@ public class MessageNavigationController implements Initializable, MessageIndexT
 	// === Other methods ==
 	// ====================
 		
-	public void onMessageAdded(final FormattedMqttMessage message)
+	@Override
+	public void onMessageAdded(final List<BrowseReceivedMessageEvent> events)
 	{
 		// This is registered for filtered messages only
 		if (showLatest())
@@ -264,7 +268,7 @@ public class MessageNavigationController implements Initializable, MessageIndexT
 		}
 		else
 		{
-			onMessageIndexIncrement();
+			onMessageIndexIncrement(events.size());
 		}
 	}
 		
@@ -287,25 +291,30 @@ public class MessageNavigationController implements Initializable, MessageIndexT
 	}
 	
 	@Override
-	public void onMessageIndexIncrement()
+	public void onMessageIndexIncrement(final int incrementValue)
 	{
 		// logger.info("{} Index increment", store.getName());
 		
-		selectedMessage++;
+		selectedMessage = selectedMessage + incrementValue;
 		
 		// Because this is an event saying a new message is available, but we don't want to display it,
 		// so by not refreshing the content of the old one we allow uninterrupted interaction with UI fields (e.g. selection, etc.)
 		updateIndex(false);			
 	}
 	
-	public void onMessageRemoved(final FormattedMqttMessage message, final int messageIndex)
+	// TODO: optimise message handling
+	@Override
+	public void onMessageRemoved(final List<BrowseRemovedMessageEvent> events)
 	{
-		if (messageIndex < selectedMessage)
+		for (final BrowseRemovedMessageEvent event : events)
 		{
-			selectedMessage--;					
-		}		
-			
-		updateIndex(false);		
+			if (event.getMessageIndex() < selectedMessage)
+			{
+				selectedMessage--;					
+			}	
+		}
+		
+		updateIndex(false);
 	}
 	
 	private void showFirstMessage()

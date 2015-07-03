@@ -26,6 +26,7 @@ import org.junit.Test;
 
 import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
 import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
+import pl.baczkowicz.mqttspy.ui.events.queuable.EventQueueManager;
 import pl.baczkowicz.mqttspy.ui.events.queuable.ui.MqttSpyUIEvent;
 
 public class ObservableMessageStoreWithFilteringTest
@@ -36,7 +37,7 @@ public class ObservableMessageStoreWithFilteringTest
 	@Before
 	public void setUp() throws Exception
 	{
-		store = new ManagedMessageStoreWithFiltering("test", 5, 5, 5, new LinkedBlockingQueue<MqttSpyUIEvent>(), null, null, 0);
+		store = new ManagedMessageStoreWithFiltering("test", 5, 5, 5, new EventQueueManager(), null, null, 0);
 	}
 
 	@Test

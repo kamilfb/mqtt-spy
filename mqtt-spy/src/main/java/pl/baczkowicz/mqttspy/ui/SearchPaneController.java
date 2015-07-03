@@ -55,6 +55,7 @@ import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.ui.events.EventManager;
 import pl.baczkowicz.mqttspy.ui.events.observers.MessageAddedObserver;
 import pl.baczkowicz.mqttspy.ui.events.observers.MessageFormatChangeObserver;
+import pl.baczkowicz.mqttspy.ui.events.queuable.ui.BrowseReceivedMessageEvent;
 import pl.baczkowicz.mqttspy.ui.properties.MqttContentProperties;
 import pl.baczkowicz.mqttspy.ui.search.InlineScriptMatcher;
 import pl.baczkowicz.mqttspy.ui.search.ScriptMatcher;
@@ -174,7 +175,7 @@ public class SearchPaneController implements Initializable, MessageFormatChangeO
 				"search-" + store.getName(), store.getFormatter(), 
 				formattingManager, UiProperties.getSummaryMaxPayloadLength(configurationManager));
 		
-		uniqueContentOnlyFilter = new UniqueContentOnlyFilter(store.getUiEventQueue());
+		uniqueContentOnlyFilter = new UniqueContentOnlyFilter(store, store.getUiEventQueue());
 		uniqueContentOnlyFilter.setUniqueContentOnly(messageNavigationPaneController.getUniqueOnlyMenu().isSelected());
 		foundMessageStore.addMessageFilter(uniqueContentOnlyFilter);
 		messageNavigationPaneController.getUniqueOnlyMenu().setOnAction(new EventHandler<ActionEvent>()
@@ -442,7 +443,16 @@ public class SearchPaneController implements Initializable, MessageFormatChangeO
 		eventManager.notifyFormatChanged(foundMessageStore);
 	}
 
+	// TODO: optimise message handling
 	@Override
+	public void onMessageAdded(final List<BrowseReceivedMessageEvent> events)
+	{
+		for (final BrowseReceivedMessageEvent event : events)
+		{
+			onMessageAdded(event.getMessage());
+		}
+	}
+	
 	public void onMessageAdded(final FormattedMqttMessage message)
 	{
 		// TODO: is that ever deregistered?

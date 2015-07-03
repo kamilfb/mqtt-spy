@@ -64,6 +64,7 @@ import pl.baczkowicz.mqttspy.ui.ConnectionController;
 import pl.baczkowicz.mqttspy.ui.MainController;
 import pl.baczkowicz.mqttspy.ui.SubscriptionController;
 import pl.baczkowicz.mqttspy.ui.events.EventManager;
+import pl.baczkowicz.mqttspy.ui.events.queuable.EventQueueManager;
 import pl.baczkowicz.mqttspy.ui.events.queuable.UIEventHandler;
 import pl.baczkowicz.mqttspy.ui.events.queuable.connectivity.MqttConnectionAttemptFailureEvent;
 import pl.baczkowicz.mqttspy.ui.events.queuable.connectivity.MqttDisconnectionAttemptFailureEvent;
@@ -107,7 +108,7 @@ public class ConnectionManager
 	private final Map<ConnectionController, SubscriptionManager> subscriptionManagers = new HashMap<>();
 	
 	/** UI event queue. */
-	private final Queue<MqttSpyUIEvent> uiEventQueue;
+	private final EventQueueManager uiEventQueue;
 
 	/** Reconnection manager. */
 	private ReconnectionManager reconnectionManager;
@@ -116,7 +117,7 @@ public class ConnectionManager
 
 	public ConnectionManager(final EventManager eventManager, final StatisticsManager statisticsManager, final ConfigurationManager configurationManager)
 	{
-		this.uiEventQueue = new LinkedBlockingQueue<>();
+		this.uiEventQueue = new EventQueueManager();
 		
 		this.eventManager = eventManager;
 		this.statisticsManager = statisticsManager;
@@ -424,7 +425,7 @@ public class ConnectionManager
 		return tab;
 	}	
 
-	public MqttAsyncConnection createConnection(final RuntimeConnectionProperties connectionProperties, final Queue<MqttSpyUIEvent> uiEventQueue)
+	public MqttAsyncConnection createConnection(final RuntimeConnectionProperties connectionProperties, final EventQueueManager uiEventQueue)
 	{
 		final InteractiveScriptManager scriptManager = new InteractiveScriptManager(eventManager, null);
 		

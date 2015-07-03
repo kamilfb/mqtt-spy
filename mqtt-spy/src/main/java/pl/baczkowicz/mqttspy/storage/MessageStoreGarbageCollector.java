@@ -14,13 +14,11 @@
  */
 package pl.baczkowicz.mqttspy.storage;
 
-import java.util.Queue;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import pl.baczkowicz.mqttspy.ui.events.queuable.EventQueueManager;
 import pl.baczkowicz.mqttspy.ui.events.queuable.ui.BrowseRemovedMessageEvent;
-import pl.baczkowicz.mqttspy.ui.events.queuable.ui.MqttSpyUIEvent;
 import pl.baczkowicz.mqttspy.ui.events.queuable.ui.TopicSummaryRemovedMessageEvent;
 import pl.baczkowicz.mqttspy.utils.ThreadingUtils;
 
@@ -34,7 +32,7 @@ public class MessageStoreGarbageCollector implements Runnable
 	private final static Logger logger = LoggerFactory.getLogger(MessageStoreGarbageCollector.class);
 	
 	/** Stores events for the UI to be updated. */
-	protected final Queue<MqttSpyUIEvent> uiEventQueue;
+	protected final EventQueueManager uiEventQueue;
 	
 	private MessageListWithObservableTopicSummary messages;
 	
@@ -43,9 +41,11 @@ public class MessageStoreGarbageCollector implements Runnable
 	private boolean createTopicSummaryEvents;
 
 	private boolean createBrowseEvents;
+
+	private ManagedMessageStoreWithFiltering store;
 	
 	public MessageStoreGarbageCollector(final ManagedMessageStoreWithFiltering store, final MessageListWithObservableTopicSummary messages, 
-			final Queue<MqttSpyUIEvent> uiEventQueue, 
+			final EventQueueManager uiEventQueue, 
 			final int minMessages, final boolean createTopicSummaryEvents, final boolean createBrowseEvents)
 	{
 		this.messages = messages;
@@ -53,6 +53,7 @@ public class MessageStoreGarbageCollector implements Runnable
 		this.minMessagesPerTopic = minMessages;
 		this.createTopicSummaryEvents = createTopicSummaryEvents;
 		this.createBrowseEvents = createBrowseEvents;
+		this.store = store;
 	}
 	
 	private void checkAndRemove(boolean shouldRemove)
@@ -88,13 +89,13 @@ public class MessageStoreGarbageCollector implements Runnable
 				// Remove events are for the normal store
 				if (createTopicSummaryEvents)
 				{
-					uiEventQueue.add(new TopicSummaryRemovedMessageEvent(messages, element));
+					uiEventQueue.add(store, new TopicSummaryRemovedMessageEvent(messages, element));
 				}
 				
 				// Index update are for the filtered store
 				if (createBrowseEvents)
 				{
-					uiEventQueue.add(new BrowseRemovedMessageEvent(messages, element, i + 1));
+					uiEventQueue.add(store, new BrowseRemovedMessageEvent(messages, element, i + 1));
 				}
 				
 				if (!shouldRemove)

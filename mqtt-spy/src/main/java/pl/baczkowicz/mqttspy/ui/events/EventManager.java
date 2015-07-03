@@ -15,6 +15,7 @@
 package pl.baczkowicz.mqttspy.ui.events;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javafx.application.Platform;
@@ -22,6 +23,7 @@ import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
 import pl.baczkowicz.mqttspy.scripts.IScriptEventManager;
 import pl.baczkowicz.mqttspy.scripts.ScriptRunningState;
+import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
 import pl.baczkowicz.mqttspy.storage.MessageList;
 import pl.baczkowicz.mqttspy.storage.MessageListWithObservableTopicSummary;
@@ -155,28 +157,29 @@ public class EventManager implements IScriptEventManager
 		scriptListChangeObservers.put(observer, filter);
 	}
 	
-	public void notifyMessageAdded(final BrowseReceivedMessageEvent browseEvent)
+	public void notifyMessageAdded(final List<BrowseReceivedMessageEvent> browseEvents, final MessageListWithObservableTopicSummary list)
 	{
 		for (final MessageAddedObserver observer : messageAddedObservers.keySet())
 		{
 			final MessageListWithObservableTopicSummary filter = messageAddedObservers.get(observer);
 			
-			if (filter == null || filter.equals(browseEvent.getList()))
+			if (filter == null || filter.equals(list))
 			{				
-				observer.onMessageAdded(browseEvent.getMessage());
+				observer.onMessageAdded(browseEvents);
 			}			
 		}				
 	}
 	
-	public void notifyMessageRemoved(final BrowseRemovedMessageEvent browseEvent)
+	public void notifyMessageRemoved(final List<BrowseRemovedMessageEvent> browseEvents, final MessageList messageList)
 	{
 		for (final MessageRemovedObserver observer : messageRemovedObservers.keySet())
 		{
 			final MessageList filter = messageRemovedObservers.get(observer);
 			
-			if (filter == null || filter.equals(browseEvent.getList()))
+			if (filter == null || filter.equals(messageList))
 			{				
-				observer.onMessageRemoved(browseEvent.getMessage(), browseEvent.getMessageIndex());
+				//observer.onMessageRemoved(browseEvent.getMessage(), browseEvent.getMessageIndex());
+				observer.onMessageRemoved(browseEvents);
 			}			
 		}		
 	}
@@ -296,7 +299,7 @@ public class EventManager implements IScriptEventManager
 
 			if (filter == null || filter.equals(store))
 			{
-				observer.onMessageIndexIncrement();
+				observer.onMessageIndexIncrement(1);
 			}
 		}
 	}

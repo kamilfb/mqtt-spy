@@ -14,12 +14,11 @@
  */
 package pl.baczkowicz.mqttspy.ui.search;
 
-import java.util.Queue;
-
-import pl.baczkowicz.mqttspy.storage.MessageList;
+import pl.baczkowicz.mqttspy.storage.BasicMessageStore;
 import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
+import pl.baczkowicz.mqttspy.storage.MessageList;
+import pl.baczkowicz.mqttspy.ui.events.queuable.EventQueueManager;
 import pl.baczkowicz.mqttspy.ui.events.queuable.ui.BrowseRemovedMessageEvent;
-import pl.baczkowicz.mqttspy.ui.events.queuable.ui.MqttSpyUIEvent;
 
 public class UniqueContentOnlyFilter implements MessageFilter
 {
@@ -28,11 +27,14 @@ public class UniqueContentOnlyFilter implements MessageFilter
 	private int deleted = 0;
 	
 	/** Stores events for the UI to be updated. */
-	protected final Queue<MqttSpyUIEvent> uiEventQueue;
+	protected final EventQueueManager uiEventQueue;
+
+	private BasicMessageStore store;
 	
-	public UniqueContentOnlyFilter(final Queue<MqttSpyUIEvent> uiEventQueue)
+	public UniqueContentOnlyFilter(final BasicMessageStore store, final EventQueueManager uiEventQueue)
 	{
 		this.uiEventQueue = uiEventQueue;
+		this.store = store;
 	}
 	
 	@Override
@@ -51,7 +53,7 @@ public class UniqueContentOnlyFilter implements MessageFilter
 			
 			if (updateUi)
 			{
-				uiEventQueue.add(new BrowseRemovedMessageEvent(messageList, deletedMessage, 0));
+				uiEventQueue.add(store, new BrowseRemovedMessageEvent(messageList, deletedMessage, 0));
 			}
 			deleted++;
 		}

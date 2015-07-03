@@ -16,5 +16,5 @@ package pl.baczkowicz.mqttspy.ui.events.observers;
 
 public interface MessageIndexIncrementObserver
 {
-	void onMessageIndexIncrement();
+	void onMessageIndexIncrement(int increment);
 }

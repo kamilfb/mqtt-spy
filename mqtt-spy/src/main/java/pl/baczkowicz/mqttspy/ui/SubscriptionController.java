@@ -15,6 +15,8 @@
 package pl.baczkowicz.mqttspy.ui;
 
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -376,7 +378,7 @@ public class SubscriptionController implements Initializable, ClearTabObserver, 
 		// logger.info("init(); finished on SubscriptionController");
 		
 		// Filtering
-		uniqueContentOnlyFilter = new UniqueContentOnlyFilter(store.getUiEventQueue());
+		uniqueContentOnlyFilter = new UniqueContentOnlyFilter(store, store.getUiEventQueue());
 		uniqueContentOnlyFilter.setUniqueContentOnly(messageNavigationPaneController.getUniqueOnlyMenu().isSelected());
 		store.getFilteredMessageStore().addMessageFilter(uniqueContentOnlyFilter);
 		messageNavigationPaneController.getUniqueOnlyMenu().setOnAction(new EventHandler<ActionEvent>()
@@ -634,9 +636,15 @@ public class SubscriptionController implements Initializable, ClearTabObserver, 
 		statsHistory.storeMessage(avg5message);
 		statsHistory.storeMessage(avg30message);
 		statsHistory.storeMessage(avg300message);
-		eventManager.notifyMessageAdded(new BrowseReceivedMessageEvent(statsHistory.getMessageList(), avg5message));
-		eventManager.notifyMessageAdded(new BrowseReceivedMessageEvent(statsHistory.getMessageList(), avg30message));
-		eventManager.notifyMessageAdded(new BrowseReceivedMessageEvent(statsHistory.getMessageList(), avg300message));
+		eventManager.notifyMessageAdded(
+				Arrays.asList(new BrowseReceivedMessageEvent(statsHistory.getMessageList(), avg5message)),
+				statsHistory.getMessageList());
+		eventManager.notifyMessageAdded(
+				Arrays.asList(new BrowseReceivedMessageEvent(statsHistory.getMessageList(), avg30message)),
+				statsHistory.getMessageList());
+		eventManager.notifyMessageAdded(
+				Arrays.asList(new BrowseReceivedMessageEvent(statsHistory.getMessageList(), avg300message)),
+				statsHistory.getMessageList());
 	}
 
 	/**

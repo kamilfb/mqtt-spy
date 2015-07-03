@@ -16,6 +16,7 @@ package pl.baczkowicz.mqttspy.ui;
 
 import java.net.URL;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
 
@@ -39,11 +40,12 @@ import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
 import pl.baczkowicz.mqttspy.scripts.FormattingManager;
 import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
-import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.ui.events.EventManager;
 import pl.baczkowicz.mqttspy.ui.events.observers.MessageAddedObserver;
 import pl.baczkowicz.mqttspy.ui.events.observers.MessageListChangedObserver;
 import pl.baczkowicz.mqttspy.ui.events.observers.MessageRemovedObserver;
+import pl.baczkowicz.mqttspy.ui.events.queuable.ui.BrowseReceivedMessageEvent;
+import pl.baczkowicz.mqttspy.ui.events.queuable.ui.BrowseRemovedMessageEvent;
 import pl.baczkowicz.mqttspy.ui.utils.FxmlUtils;
 import pl.baczkowicz.mqttspy.ui.utils.StylingUtils;
 
@@ -199,14 +201,16 @@ public class SearchWindowController extends AnchorPane implements Initializable,
 		}		
 	}
 	
+	// TODO: optimise message handling
 	@Override
-	public void onMessageAdded(final FormattedMqttMessage message)
+	public void onMessageAdded(final List<BrowseReceivedMessageEvent> events)
 	{
 		updateTitle();		
 	}
 	
+	// TODO: optimise message handling
 	@Override
-	public void onMessageRemoved(final FormattedMqttMessage message, final int messageIndex)
+	public void onMessageRemoved(final List<BrowseRemovedMessageEvent> events)
 	{
 		updateTitle();
 	}

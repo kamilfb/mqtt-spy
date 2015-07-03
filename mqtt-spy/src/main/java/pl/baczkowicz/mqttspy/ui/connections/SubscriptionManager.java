@@ -18,7 +18,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Queue;
 
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Label;
@@ -40,7 +39,7 @@ import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
 import pl.baczkowicz.mqttspy.ui.ConnectionController;
 import pl.baczkowicz.mqttspy.ui.SubscriptionController;
 import pl.baczkowicz.mqttspy.ui.events.EventManager;
-import pl.baczkowicz.mqttspy.ui.events.queuable.ui.MqttSpyUIEvent;
+import pl.baczkowicz.mqttspy.ui.events.queuable.EventQueueManager;
 import pl.baczkowicz.mqttspy.ui.panes.PaneVisibilityStatus;
 import pl.baczkowicz.mqttspy.ui.panes.TabStatus;
 import pl.baczkowicz.mqttspy.ui.utils.ContextMenuUtils;
@@ -66,7 +65,7 @@ public class SubscriptionManager
 	private final Map<String, SubscriptionController> subscriptionControllers = new LinkedHashMap<>();
 	
 	/** UI event queue to be used. */
-	private final Queue<MqttSpyUIEvent> uiEventQueue;
+	private final EventQueueManager uiEventQueue;
 
 	/** Configuration manager. */
 	private ConfigurationManager configurationManager;
@@ -78,7 +77,7 @@ public class SubscriptionManager
 	 * @param configurationManager The configuration manager
 	 * @param uiEventQueue The UI event queue to be used
 	 */
-	public SubscriptionManager(final EventManager eventManager, final ConfigurationManager configurationManager, final Queue<MqttSpyUIEvent> uiEventQueue)
+	public SubscriptionManager(final EventManager eventManager, final ConfigurationManager configurationManager, final EventQueueManager uiEventQueue)
 	{
 		this.eventManager = eventManager;
 		this.configurationManager = configurationManager;

@@ -36,6 +36,7 @@ import pl.baczkowicz.mqttspy.stats.StatisticsManager;
 import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
 import pl.baczkowicz.mqttspy.ui.events.EventManager;
+import pl.baczkowicz.mqttspy.ui.events.queuable.EventQueueManager;
 import pl.baczkowicz.mqttspy.ui.events.queuable.ui.MqttSpyUIEvent;
 import pl.baczkowicz.mqttspy.utils.ConversionUtils;
 
@@ -68,7 +69,7 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection
 	public MqttAsyncConnection(final ReconnectionManager reconnectionManager, final RuntimeConnectionProperties properties, 
 			final MqttConnectionStatus status, final EventManager eventManager, 
 			final InteractiveScriptManager scriptManager, final FormattingManager formattingManager,
-			final Queue<MqttSpyUIEvent> uiEventQueue, final ConfigurationManager configurationManager)
+			final EventQueueManager uiEventQueue, final ConfigurationManager configurationManager)
 	{ 
 		super(reconnectionManager, properties);
 		

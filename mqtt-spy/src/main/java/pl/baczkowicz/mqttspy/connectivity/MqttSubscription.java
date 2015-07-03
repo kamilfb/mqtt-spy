@@ -14,8 +14,6 @@
  */
 package pl.baczkowicz.mqttspy.connectivity;
 
-import java.util.Queue;
-
 import javafx.scene.paint.Color;
 import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
 import pl.baczkowicz.mqttspy.configuration.UiProperties;
@@ -23,7 +21,7 @@ import pl.baczkowicz.mqttspy.scripts.FormattingManager;
 import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
 import pl.baczkowicz.mqttspy.ui.SubscriptionController;
 import pl.baczkowicz.mqttspy.ui.events.EventManager;
-import pl.baczkowicz.mqttspy.ui.events.queuable.ui.MqttSpyUIEvent;
+import pl.baczkowicz.mqttspy.ui.events.queuable.EventQueueManager;
 
 // TODO: split the logic from UI
 public class MqttSubscription extends BaseMqttSubscription
@@ -53,7 +51,7 @@ public class MqttSubscription extends BaseMqttSubscription
 	private EventManager eventManager;
 
 	public MqttSubscription(final String topic, final Integer qos, final Color color, 
-			final int minMessagesPerTopic, final int preferredStoreSize, final Queue<MqttSpyUIEvent> uiEventQueue, final EventManager eventManager, 
+			final int minMessagesPerTopic, final int preferredStoreSize, final EventQueueManager uiEventQueue, final EventManager eventManager, 
 			final ConfigurationManager configurationManager, final FormattingManager formattingManager)
 	{
 		super(topic, qos, minMessagesPerTopic, preferredStoreSize);

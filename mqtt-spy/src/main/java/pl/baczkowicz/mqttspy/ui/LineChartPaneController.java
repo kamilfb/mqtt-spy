@@ -73,6 +73,7 @@ import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.ui.charts.ChartMode;
 import pl.baczkowicz.mqttspy.ui.events.EventManager;
 import pl.baczkowicz.mqttspy.ui.events.observers.MessageAddedObserver;
+import pl.baczkowicz.mqttspy.ui.events.queuable.ui.BrowseReceivedMessageEvent;
 import pl.baczkowicz.mqttspy.ui.properties.MessageLimitProperties;
 import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
 import pl.baczkowicz.mqttspy.ui.utils.StylingUtils;
@@ -523,8 +524,17 @@ public class LineChartPaneController implements Initializable, MessageAddedObser
 			}
 		}
 	}
-
+	
+	// TODO: optimise message handling
 	@Override
+	public void onMessageAdded(final List<BrowseReceivedMessageEvent> events)
+	{
+		for (final BrowseReceivedMessageEvent event : events)
+		{
+			onMessageAdded(event.getMessage());
+		}
+	}
+	
 	public void onMessageAdded(final FormattedMqttMessage message)
 	{
 		// TODO: is that ever deregistered?

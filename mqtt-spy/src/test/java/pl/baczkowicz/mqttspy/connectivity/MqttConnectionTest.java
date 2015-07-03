@@ -35,6 +35,7 @@ import pl.baczkowicz.mqttspy.exceptions.XMLException;
 import pl.baczkowicz.mqttspy.stats.StatisticsManager;
 import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.ui.events.EventManager;
+import pl.baczkowicz.mqttspy.ui.events.queuable.EventQueueManager;
 import pl.baczkowicz.mqttspy.ui.events.queuable.ui.MqttSpyUIEvent;
 
 public class MqttConnectionTest extends TestCase
@@ -90,7 +91,7 @@ public class MqttConnectionTest extends TestCase
 		
 		final MqttAsyncConnection connection = new MqttAsyncConnection(
 				mockedReconnectionManager, connectionProperties, MqttConnectionStatus.CONNECTING, 
-				mockEventManager, null, null, new LinkedBlockingQueue<MqttSpyUIEvent>(), null);
+				mockEventManager, null, null, new EventQueueManager(), null);
 		connection.setStatisticsManager(statisticsManager);
 		context.assertIsSatisfied();
 		
@@ -98,7 +99,7 @@ public class MqttConnectionTest extends TestCase
 
 		// This should add a subscription
 		final MqttSubscription subscription = new MqttSubscription(subscription_TOPIC, 0, Color.WHITE, 10, 100, 
-				new LinkedBlockingQueue<MqttSpyUIEvent>(), mockEventManager, null, null);
+				new EventQueueManager(), mockEventManager, null, null);
 
 		context.checking(new Expectations()
 		{
@@ -154,7 +155,7 @@ public class MqttConnectionTest extends TestCase
 		
 		final MqttAsyncConnection connection = new MqttAsyncConnection(
 				mockedReconnectionManager, connectionProperties, MqttConnectionStatus.CONNECTING, 
-				mockEventManager, null, null, new LinkedBlockingQueue<MqttSpyUIEvent>(), null);
+				mockEventManager, null, null, new EventQueueManager(), null);
 		connection.setStatisticsManager(statisticsManager);
 		context.assertIsSatisfied();
 		
@@ -162,7 +163,7 @@ public class MqttConnectionTest extends TestCase
 
 		// This should add a subscription
 		final MqttSubscription subscription = new MqttSubscription(subscription_TOPIC, 0, Color.WHITE, 10, 100, 
-				new LinkedBlockingQueue<MqttSpyUIEvent>(), mockEventManager, null, null);
+				new EventQueueManager(), mockEventManager, null, null);
 		//subscription.addObserver(mockObserver);
 		
 		context.checking(new Expectations()
