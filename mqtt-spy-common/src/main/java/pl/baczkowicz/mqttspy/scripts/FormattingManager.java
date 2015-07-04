@@ -36,6 +36,11 @@ public class FormattingManager
 	
 	public void initialiseFormatter(final FormatterDetails formatter)
 	{
+		if (formatter == null)
+		{
+			return;
+		}
+		
 		try
 		{		
 			scriptFormatter.addFormatter(formatter);

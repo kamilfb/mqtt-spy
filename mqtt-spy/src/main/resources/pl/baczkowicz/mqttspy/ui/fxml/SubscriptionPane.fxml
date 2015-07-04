@@ -123,7 +123,7 @@
          <items>
          <!-- -->
          <!-- prefHeight="1000.0" --> 
-         	<fx:include fx:id="messagePane" prefHeight="50.0" source="MessagePane.fxml" />
+         	<fx:include fx:id="messagePane" prefHeight="85" source="MessagePane.fxml" />
          	 <!-- maxHeight="1000.0" prefHeight="1000.0" SplitPane.resizableWithParent="false" -->
             <TitledPane fx:id="summaryTitledPane"  prefHeight="800.0" alignment="TOP_LEFT" animated="false" minHeight="26.0" text="Received messages summary">
               <content>

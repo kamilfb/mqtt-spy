@@ -15,7 +15,6 @@
 package pl.baczkowicz.mqttspy.ui;
 
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -663,7 +662,7 @@ public class SubscriptionController implements Initializable, ClearTabObserver, 
 		}
 		else
 		{			
-			messagePane.setMaxHeight(50);
+			messagePane.setMaxHeight(85);
 		}
 		
 		if (searchWindowController != null)

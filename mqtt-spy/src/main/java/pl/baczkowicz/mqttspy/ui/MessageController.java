@@ -25,6 +25,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.Tooltip;
@@ -41,6 +42,9 @@ import pl.baczkowicz.mqttspy.configuration.UiProperties;
 import pl.baczkowicz.mqttspy.scripts.FormattingManager;
 import pl.baczkowicz.mqttspy.storage.BasicMessageStoreWithSummary;
 import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
+import pl.baczkowicz.mqttspy.ui.controls.StyledTextAreaWrapper;
+import pl.baczkowicz.mqttspy.ui.controls.TextAreaInterface;
+import pl.baczkowicz.mqttspy.ui.controls.TextAreaWrapper;
 import pl.baczkowicz.mqttspy.ui.events.observers.MessageFormatChangeObserver;
 import pl.baczkowicz.mqttspy.ui.events.observers.MessageIndexChangeObserver;
 import pl.baczkowicz.mqttspy.ui.search.SearchOptions;
@@ -55,7 +59,13 @@ public class MessageController implements Initializable, MessageIndexChangeObser
 	final static Logger logger = LoggerFactory.getLogger(MessageController.class);
 
 	@FXML
-	private StyleClassedTextArea dataField;
+	private AnchorPane parentPane;
+	@FXML
+	private TextArea dataField;
+	
+	private TextAreaInterface dataFieldInteface;
+	
+	private StyleClassedTextArea styledDataField;
 
 	@FXML
 	private ToggleButton wrapToggle;
@@ -102,10 +112,49 @@ public class MessageController implements Initializable, MessageIndexChangeObser
 	
 	private FormattingManager formattingManager;
 
+	private boolean styled;
+
 	@Override
 	public void initialize(URL location, ResourceBundle resources)
 	{		
-		dataField.selectedTextProperty().addListener(new ChangeListener<String>()
+		// All done in init() as this is where the dataFieldInterface is assigned
+	}
+	
+	public void init()
+	{
+//		dataField.heightProperty().addListener(new ChangeListener<Number>()
+//		{
+//
+//			@Override
+//			public void changed(ObservableValue<? extends Number> observable,
+//					Number oldValue, Number newValue)
+//			{
+//				logger.info("New height = {}; pane height = {}", newValue, parentPane.getHeight());
+//				
+//			}
+//		});
+		
+		if (styled)
+		{		
+			styledDataField = new StyleClassedTextArea();
+												
+			AnchorPane.setBottomAnchor(styledDataField, AnchorPane.getBottomAnchor(dataField) - 1);
+			AnchorPane.setLeftAnchor(styledDataField, AnchorPane.getLeftAnchor(dataField) - 1);
+			AnchorPane.setTopAnchor(styledDataField, AnchorPane.getTopAnchor(dataField) - 1);
+			AnchorPane.setRightAnchor(styledDataField, AnchorPane.getRightAnchor(dataField) - 1);
+			parentPane.getChildren().add(styledDataField);
+			parentPane.getChildren().remove(dataField);
+			
+			dataFieldInteface = new StyledTextAreaWrapper(styledDataField);
+		}
+		else
+		{
+			dataFieldInteface = new TextAreaWrapper(dataField);
+		}
+		
+		dataFieldInteface.setEditable(false);
+		dataFieldInteface.setWrapText(true);
+		dataFieldInteface.selectedTextProperty().addListener(new ChangeListener<String>()
 		{
 			@Override
 			public void changed(ObservableValue<? extends String> observable, String oldValue,
@@ -128,17 +177,14 @@ public class MessageController implements Initializable, MessageIndexChangeObser
 				}				
 			}
 		});
-	}
-	
-	public void init()
-	{
+		
 		tooltip = new Tooltip("");
 		tooltip.setWrapText(true);
 		
 		lengthTooltip = new Tooltip();
 		lengthLabel.setTooltip(lengthTooltip);
 	}
-	
+
 	private void updateVisibility()
 	{
 		if (detailedView)
@@ -283,7 +329,7 @@ public class MessageController implements Initializable, MessageIndexChangeObser
 
 		topicField.setText("");
 		
-		dataField.clear();		
+		dataFieldInteface.clear();		
 		
 		qosField.setText("");
 		timeField.setText("");
@@ -298,11 +344,11 @@ public class MessageController implements Initializable, MessageIndexChangeObser
 		if (selectionFormat != null)
 		{
 			updateTooltipText();
-			dataField.setTooltip(tooltip);
+			dataFieldInteface.setTooltip(tooltip);
 		}
 		else			
 		{
-			dataField.setTooltip(null);
+			dataFieldInteface.setTooltip(null);
 		}
 	}
 
@@ -340,24 +386,27 @@ public class MessageController implements Initializable, MessageIndexChangeObser
 	private void displayNewText(final String textToDisplay)
 	{
 		// Won't refresh the text if it is the same...
-		if (!textToDisplay.equals(dataField.getText()))
+		if (!textToDisplay.equals(dataFieldInteface.getText()))
 		{
-			dataField.clear();
-			dataField.appendText(textToDisplay);
-			dataField.setStyleClass(0, dataField.getText().length(), "messageText");
-		
-			if (searchOptions != null && searchOptions.getSearchValue().length() > 0)
+			dataFieldInteface.clear();
+			dataFieldInteface.appendText(textToDisplay);
+			dataFieldInteface.positionCaret(0);
+					
+			if (searchOptions != null && styled)
 			{
-				final String textToSearch = searchOptions.isMatchCase() ? dataField.getText() : dataField.getText().toLowerCase();
-				
-				int pos = textToSearch.indexOf(searchOptions.getSearchValue());
-				while (pos >= 0)
+				styledDataField.setStyleClass(0, dataFieldInteface.getText().length(), "messageText");
+				if (searchOptions.getSearchValue().length() > 0)				
 				{
-					dataField.setStyleClass(pos, pos + searchOptions.getSearchValue().length(), "messageTextHighlighted");
-					pos = textToSearch.indexOf(searchOptions.getSearchValue(), pos + 1);
+					final String textToSearch = searchOptions.isMatchCase() ? dataFieldInteface.getText() : dataFieldInteface.getText().toLowerCase();
+					
+					int pos = textToSearch.indexOf(searchOptions.getSearchValue());
+					while (pos >= 0)
+					{
+						styledDataField.setStyleClass(pos, pos + searchOptions.getSearchValue().length(), "messageTextHighlighted");
+						pos = textToSearch.indexOf(searchOptions.getSearchValue(), pos + 1);
+					}
 				}
 			}
-			dataField.positionCaret(0);;
 			
 			updateTooltipText();
 		}						
@@ -367,7 +416,7 @@ public class MessageController implements Initializable, MessageIndexChangeObser
 	{
 		if (selectionFormat != null)
 		{
-			final String tooltipText = FormattingUtils.checkAndFormatText(selectionFormat, dataField.getSelectedText());
+			final String tooltipText = FormattingUtils.checkAndFormatText(selectionFormat, dataFieldInteface.getSelectedText());
 			
 			if (tooltipText.length() > 0)
 			{
@@ -402,5 +451,10 @@ public class MessageController implements Initializable, MessageIndexChangeObser
 	public void setStore(final BasicMessageStoreWithSummary store)
 	{
 		this.store = store;
+	}
+
+	public void setStyled(final boolean styled)
+	{
+		this.styled = styled;		
 	}
 }

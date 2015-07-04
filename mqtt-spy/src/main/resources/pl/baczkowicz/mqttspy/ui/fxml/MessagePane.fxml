@@ -20,9 +20,8 @@
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.layout.AnchorPane?>
-<?import org.fxmisc.richtext.StyleClassedTextArea?>
 
-<AnchorPane prefHeight="79.0" prefWidth="586.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.baczkowicz.mqttspy.ui.MessageController">
+<AnchorPane fx:id="parentPane" prefHeight="79.0" prefWidth="586.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.baczkowicz.mqttspy.ui.MessageController">
    <children>
    	<TextField fx:id="topicField" editable="false" layoutX="48.0" layoutY="10.0" prefHeight="22.0" prefWidth="196.0" AnchorPane.leftAnchor="48.0" AnchorPane.rightAnchor="342.0" AnchorPane.topAnchor="11.0">
          <font>
@@ -55,11 +54,11 @@
             <Font size="11.0" />
          </font>
       </TextField>
-      <StyleClassedTextArea fx:id="dataField" editable="false" minHeight="35.0" prefHeight="35.0" prefWidth="478.0" wrapText="true" AnchorPane.bottomAnchor="7.0" AnchorPane.leftAnchor="47.0" AnchorPane.rightAnchor="6.0" AnchorPane.topAnchor="37.0">
+      <TextArea fx:id="dataField" minHeight="39" prefHeight="39" AnchorPane.bottomAnchor="8.0" AnchorPane.leftAnchor="48.0" AnchorPane.rightAnchor="7.0" AnchorPane.topAnchor="38.0">
          <font>
             <Font name="System" size="11.0" />
          </font>
-      </StyleClassedTextArea>
+      </TextArea>
       <Label fx:id="dataLabel" layoutX="10.0" layoutY="40.0" text="Data" AnchorPane.leftAnchor="10.0">
          <font>
             <Font size="11.0" />

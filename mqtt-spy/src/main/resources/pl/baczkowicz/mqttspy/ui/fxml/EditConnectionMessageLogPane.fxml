@@ -38,7 +38,7 @@
        -->
       <TextField fx:id="messageLogLocation" layoutX="279.0" layoutY="55.0" prefHeight="25.0" prefWidth="296.0" AnchorPane.rightAnchor="14.0" />
 
-      <Label layoutX="23.0" layoutY="20.0" text="Logging mode" />
+      <Label layoutX="23.0" layoutY="20.0" text="Message logging mode" />
       <ComboBox fx:id="loggingMode" layoutX="279.0" layoutY="15" prefHeight="25.0" prefWidth="296.0" AnchorPane.rightAnchor="14.0" />
                               
 	</children>

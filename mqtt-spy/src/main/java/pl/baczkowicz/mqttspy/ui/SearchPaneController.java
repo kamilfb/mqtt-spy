@@ -200,6 +200,7 @@ public class SearchPaneController implements Initializable, MessageFormatChangeO
 		messagePaneController.setStore(foundMessageStore);
 		messagePaneController.setConfingurationManager(configurationManager);
 		messagePaneController.setFormattingManager(formattingManager);
+		messagePaneController.setStyled(true);
 		messagePaneController.init();		
 		// The search pane's message browser wants to know about changing indices and format
 		eventManager.registerChangeMessageIndexObserver(messagePaneController, foundMessageStore);

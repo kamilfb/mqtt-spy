@@ -49,6 +49,7 @@ import pl.baczkowicz.mqttspy.scripts.Script;
 import pl.baczkowicz.mqttspy.scripts.ScriptBasedFormatter;
 import pl.baczkowicz.mqttspy.scripts.ScriptManager;
 import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
+import pl.baczkowicz.mqttspy.utils.ConversionUtils;
 import pl.baczkowicz.mqttspy.utils.FormattingUtils;
 
 /**
@@ -177,6 +178,16 @@ public class FormattersController implements Initializable
 		final List<FormatterDetails> baseFormatters = FormattingUtils.createBaseFormatters();	
 		formattersList.getItems().addAll(baseFormatters);
 		addFormattersToList(configurationManager.getConfiguration().getFormatting().getFormatter(), formattersList.getItems());
+	}
+	
+	private void readValues(final FormatterDetails formatter)
+	{  
+		formatter.setName(formatterName.getText());
+		
+		if (FormattingUtils.isScriptBased(formatter))
+		{
+			formatter.getFunction().get(0).getScriptExecution().setInlineScript(ConversionUtils.stringToBase64(formatterDetails.getText()));
+		}
 	}
 	
 	private void onChange()
