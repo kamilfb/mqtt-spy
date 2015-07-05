@@ -34,6 +34,10 @@ Oxygen Icons (GNU Lesser General Public License):
     * testcase_stop.png
     * tools.png
     
+    * tab-detach.png
+    * tab-close.png
+    * tab-close-other.png
+    
 Crystal Clear Icons (GNU Lesser General Public License):
 
     * login.png

@@ -14,6 +14,7 @@
  */
 package pl.baczkowicz.mqttspy.ui.utils;
 
+import javafx.scene.image.ImageView;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 
@@ -27,5 +28,22 @@ public class UiUtils
 		final ClipboardContent content = new ClipboardContent();
 		content.putString(value);
 		Clipboard.getSystemClipboard().setContent(content);
+	}
+	
+	public static ImageView createImage(final String iconLocation, final int size)
+	{
+		final ImageView icon = new ImageView(iconLocation);
+		icon.setFitHeight(14);
+		icon.setFitWidth(14);
+		return icon;
+	}
+	
+	public static ImageView createImage(final String iconLocation, final int size, final String style)
+	{
+		final ImageView icon = new ImageView(iconLocation);
+		icon.setFitHeight(14);
+		icon.setFitWidth(14);
+		icon.getStyleClass().add("style");
+		return icon;
 	}
 }

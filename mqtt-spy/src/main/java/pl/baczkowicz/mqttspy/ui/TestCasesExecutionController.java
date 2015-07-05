@@ -29,6 +29,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuButton;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TitledPane;
 import javafx.scene.control.TreeItem;
@@ -49,6 +50,7 @@ import pl.baczkowicz.mqttspy.testcases.TestCase;
 import pl.baczkowicz.mqttspy.testcases.TestCaseManager;
 import pl.baczkowicz.mqttspy.testcases.TestCaseStatus;
 import pl.baczkowicz.mqttspy.ui.events.EventManager;
+import pl.baczkowicz.mqttspy.ui.panes.PaneVisibilityStatus;
 import pl.baczkowicz.mqttspy.ui.panes.TitledPaneController;
 import pl.baczkowicz.mqttspy.ui.properties.TestCaseProperties;
 
@@ -66,6 +68,8 @@ public class TestCasesExecutionController extends AnchorPane implements Initiali
 	final static Logger logger = LoggerFactory.getLogger(TestCasesExecutionController.class);	
 
 	private TitledPane pane;
+	
+	private AnchorPane paneTitle;
 	
 	@FXML
 	private TreeTableView<TestCaseProperties> scriptTree;
@@ -136,6 +140,10 @@ public class TestCasesExecutionController extends AnchorPane implements Initiali
 	private TestCaseManager testCaseManager;
 
 	private MqttAsyncConnection connection;
+
+	private MenuButton settingsButton;
+
+	private ConnectionController connectionController;
 	
 	public void initialize(URL location, ResourceBundle resources)
 	{			
@@ -312,6 +320,12 @@ public class TestCasesExecutionController extends AnchorPane implements Initiali
 		testCaseManager = new TestCaseManager(scriptManager, this, testCaseExecutionPaneController);
 		
 		testCaseExecutionPaneController.setTestCaseManager(testCaseManager);
+		
+		if (connectionController != null)
+		{
+			paneTitle = new AnchorPane();
+			settingsButton = NewPublicationController.createTitleButtons(pane, paneTitle, connectionController);
+		}
 	}	
 	
 	public void refreshInfo()
@@ -415,5 +429,23 @@ public class TestCasesExecutionController extends AnchorPane implements Initiali
 	public void setConnection(MqttAsyncConnection connection)
 	{
 		this.connection = connection;		
+	}
+	
+	public void setConnectionController(final ConnectionController connectionController)
+	{
+		this.connectionController = connectionController;
+	}
+	
+	@Override
+	public void updatePane(PaneVisibilityStatus status)
+	{
+		if (PaneVisibilityStatus.ATTACHED.equals(status))
+		{
+			settingsButton.setVisible(true);
+		}		
+		else
+		{
+			settingsButton.setVisible(false);
+		}
 	}
 }

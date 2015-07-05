@@ -159,7 +159,7 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 
 	private EventManager eventManager;
 	
-	private Map<TitledPane, TitledPaneStatus> paneToController = new HashMap<>();
+	private Map<TitledPane, TitledPaneStatus> paneToStatus = new HashMap<>();
 
 	private boolean detailedView;
 
@@ -198,9 +198,11 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 		
 		// panes.put(subscriptionsController, true);
 		subscriptionsTitledStatus.setVisibility(PaneVisibilityStatus.ATTACHED);
-		paneToController.put(subscriptionsTitledPane, subscriptionsTitledStatus);
+		paneToStatus.put(subscriptionsTitledPane, subscriptionsTitledStatus);
 		
 		subscriptionsController.setTitledPane(subscriptionsTitledPane);
+		subscriptionsController.setConnectionController(this);
+		subscriptionsController.init();
 		
 		if (!replayMode)
 		{
@@ -215,13 +217,14 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 			newSubscriptionTitledStatus.setVisibility(PaneVisibilityStatus.ATTACHED);
 			testCasesTitledStatus.setVisibility(PaneVisibilityStatus.NOT_VISIBLE);
 			
-			paneToController.put(publishMessageTitledPane, publishMessageTitledStatus);
-			paneToController.put(scriptedPublicationsTitledPane, scriptedPublicationsTitledStatus);
-			paneToController.put(newSubscriptionTitledPane, newSubscriptionTitledStatus);			
+			paneToStatus.put(publishMessageTitledPane, publishMessageTitledStatus);
+			paneToStatus.put(scriptedPublicationsTitledPane, scriptedPublicationsTitledStatus);
+			paneToStatus.put(newSubscriptionTitledPane, newSubscriptionTitledStatus);			
 			
 			newPublicationPaneController.setConnection(connection);
 			newPublicationPaneController.setScriptManager(connection.getScriptManager());
 			newPublicationPaneController.setEventManager(eventManager);
+			newPublicationPaneController.setConnectionController(this);
 			newPublicationPaneController.setTitledPane(publishMessageTitledPane);
 			newPublicationPaneController.init();
 			
@@ -229,9 +232,11 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 			newSubscriptionPaneController.setConnectionController(this);
 			newSubscriptionPaneController.setConnectionManager(connectionManager);
 			newSubscriptionPaneController.setTitledPane(newSubscriptionTitledPane);
+			newSubscriptionPaneController.init();
 			
 			publicationScriptsPaneController.setConnection(connection);
 			publicationScriptsPaneController.setEventManager(eventManager);
+			publicationScriptsPaneController.setConnectionController(this);
 			publicationScriptsPaneController.setTitledPane(scriptedPublicationsTitledPane);
 			publicationScriptsPaneController.init();	
 			
@@ -270,15 +275,21 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 			
 			testCasesPaneController = loader.getController();
 			testCasesPaneController.setConnection(connection);
+			testCasesPaneController.setConnectionController(this);
 			testCasesPaneController.init();
 			
 			testCasesTitledStatus.setController(testCasesPaneController);
 			testCasesTitledStatus.getController().setTitledPane(testCasesTitledPane);
 						
-			paneToController.put(testCasesTitledPane, testCasesTitledStatus);
+			paneToStatus.put(testCasesTitledPane, testCasesTitledStatus);
 			
 			logger.info("Test cases pane initialised!");
 		}
+	}
+	
+	public Map<TitledPane, TitledPaneStatus> getPaneToStatusMapping()
+	{
+		return paneToStatus;
 	}
 	
 	public void setConnectionManager(final ConnectionManager connectionManager)
@@ -576,7 +587,7 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 	
 	private void updateMenus()
 	{
-		for (final TitledPaneStatus status : paneToController.values())
+		for (final TitledPaneStatus status : paneToStatus.values())
 		{
 			status.updateMenu();
 		}		
@@ -590,7 +601,7 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 		{
 			final Node pane = splitPane.getItems().get(i);
 			
-			if (paneToController.get(pane).getDisplayIndex() > status.getDisplayIndex())
+			if (paneToStatus.get(pane).getDisplayIndex() > status.getDisplayIndex())
 			{
 				insertIndex = i;
 				break;
@@ -603,7 +614,7 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 	
 	private void updateVisiblePanes()
 	{	
-		for (final TitledPaneStatus status : paneToController.values())
+		for (final TitledPaneStatus status : paneToStatus.values())
 		{	
 			// If no changes, go to next controller...
 			if (status.getVisibility().equals(status.getRequestedVisibility()))
@@ -612,12 +623,14 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 			}
 			
 			status.setVisibility(status.getRequestedVisibility());
+			status.getController().updatePane(status.getRequestedVisibility());
 			
 			// If previous value was detached, close the detached window
 			if (status.getPreviousVisibility().equals(PaneVisibilityStatus.DETACHED))
 			{
 				status.getController().getTitledPane().setCollapsible(true);
 				status.getController().getTitledPane().setExpanded(status.isLastExpanded());
+				
 				if (status.getParentWhenDetached().isShowing())
 				{
 					status.getParentWhenDetached().close();

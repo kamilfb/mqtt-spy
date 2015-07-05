@@ -256,7 +256,8 @@ public class SubscriptionController implements Initializable, ClearTabObserver, 
 					public void run()
 					{
 						final double absoluteSearchBoxX = searchBox.getLayoutX() + topicFilterBox.getLayoutX() + titleBox.getLayoutX();
-						updateTitleWidth(40, absoluteSearchBoxX);	
+						final double titledPaneWidth = updateTitleWidth(summaryTitledPane, paneTitle, 40);
+						searchBox.setPrefWidth(titledPaneWidth - absoluteSearchBoxX - statsLabel.getWidth() - 100);
 					}
 				});
 			}
@@ -329,8 +330,7 @@ public class SubscriptionController implements Initializable, ClearTabObserver, 
 		paneTitle = new AnchorPane();
 		paneTitle.setPadding(new Insets(0, 0, 0, 0));
 		paneTitle.setMaxWidth(Double.MAX_VALUE);
-		
-		
+				
 		searchBox = new TextField();
 		searchBox.setFont(new Font("System", 11));
 		searchBox.setPadding(new Insets(2, 5, 2, 5));
@@ -345,13 +345,14 @@ public class SubscriptionController implements Initializable, ClearTabObserver, 
 		});
 		
 		paneTitle = new AnchorPane();
-		titleBox = new HBox();
-		titleBox.setPadding(new Insets(0, 0, 0, 0));		
+		paneTitle.setPadding(new Insets(0, 0, 0, 0));
+		
 		topicFilterBox.getChildren().addAll(new Label(" [search topics: "), searchBox, new Label("] "));
+		titleBox = new HBox();
+		titleBox.setPadding(new Insets(0, 0, 0, 0));				
 		titleBox.getChildren().addAll(new Label(SUMMARY_PANE_TITLE), topicFilterBox);
 		titleBox.prefWidth(Double.MAX_VALUE);
-		
-		paneTitle.setPadding(new Insets(0, 0, 0, 0));
+				
 		summaryTitledPane.widthProperty().addListener(createPaneTitleWidthListener());
 		statsLabel.widthProperty().addListener(createPaneTitleWidthListener());
 		
@@ -460,21 +461,21 @@ public class SubscriptionController implements Initializable, ClearTabObserver, 
 		}
 	}
 	
-	private void updateTitleWidth(final int margin, double absoluteSearchBoxX)
+	public static double updateTitleWidth(final TitledPane titledPane, final AnchorPane paneTitle, final int margin)
 	{
-		double titledPaneWidth = summaryTitledPane.getWidth();
+		double titledPaneWidth = titledPane.getWidth();
 		
-		if (summaryTitledPane.getScene() != null)			
+		if (titledPane.getScene() != null)			
 		{
-			if (summaryTitledPane.getScene().getWidth() < titledPaneWidth)
+			if (titledPane.getScene().getWidth() < titledPaneWidth)
 			{
-				titledPaneWidth = summaryTitledPane.getScene().getWidth();
+				titledPaneWidth = titledPane.getScene().getWidth();
 			}
 		}
 		paneTitle.setPrefWidth(titledPaneWidth - margin);				
 		paneTitle.setMaxWidth(titledPaneWidth - margin);
 		
-		searchBox.setPrefWidth(titledPaneWidth - absoluteSearchBoxX - statsLabel.getWidth() - 100);
+		return titledPaneWidth;
 	}
 
 	public void setStore(final ManagedMessageStoreWithFiltering store)

@@ -29,6 +29,7 @@ import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuButton;
 import javafx.scene.control.TitledPane;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
@@ -42,6 +43,7 @@ import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.exceptions.MqttSpyException;
 import pl.baczkowicz.mqttspy.ui.connections.ConnectionManager;
 import pl.baczkowicz.mqttspy.ui.keyboard.TimeBasedKeyEventFilter;
+import pl.baczkowicz.mqttspy.ui.panes.PaneVisibilityStatus;
 import pl.baczkowicz.mqttspy.ui.panes.TitledPaneController;
 import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
 import pl.baczkowicz.mqttspy.utils.MqttUtils;
@@ -85,6 +87,10 @@ public class NewSubscriptionController implements Initializable, TitledPaneContr
 	private TimeBasedKeyEventFilter timeBasedFilter;
 
 	private TitledPane pane;
+
+	private AnchorPane paneTitle;
+
+	private MenuButton settingsButton;
 
 	public NewSubscriptionController()
 	{
@@ -137,7 +143,13 @@ public class NewSubscriptionController implements Initializable, TitledPaneContr
 		        		break;
 	        	}
 	        }
-	    });
+	    });	
+	}
+	
+	public void init()
+	{
+		paneTitle = new AnchorPane();
+		settingsButton = NewPublicationController.createTitleButtons(pane, paneTitle, connectionController);
 	}
 	
 	private void updateVisibility()
@@ -252,5 +264,18 @@ public class NewSubscriptionController implements Initializable, TitledPaneContr
 	public void setTitledPane(TitledPane pane)
 	{
 		this.pane = pane;
+	}
+	
+	@Override
+	public void updatePane(PaneVisibilityStatus status)
+	{
+		if (PaneVisibilityStatus.ATTACHED.equals(status))
+		{
+			settingsButton.setVisible(true);
+		}		
+		else
+		{
+			settingsButton.setVisible(false);
+		}
 	}
 }

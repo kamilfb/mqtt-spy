@@ -22,5 +22,5 @@ public interface TitledPaneController
 	
 	void setTitledPane(TitledPane pane);
 	
-	// TitledPaneStatus getTitledPaneStatus();
+	void updatePane(PaneVisibilityStatus attached);
 }
