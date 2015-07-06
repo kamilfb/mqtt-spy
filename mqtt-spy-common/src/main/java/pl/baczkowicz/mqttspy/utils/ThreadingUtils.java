@@ -36,7 +36,7 @@ public class ThreadingUtils
 	/**
 	 * Logs the fact of starting a thread.
 	 */
-	public static void logStarting()
+	private static void logThreadStarting()
 	{
 		if (logger.isTraceEnabled())
 		{
@@ -45,9 +45,18 @@ public class ThreadingUtils
 	}
 	
 	/**
+	 * Logs the fact of starting a thread.
+	 */
+	public static void logThreadStarting(final String threadName)
+	{
+		Thread.currentThread().setName("mqtt-spy [" + threadName + "]");
+		logThreadStarting();
+	}
+	
+	/**
 	 * Logs the fact of finishing a thread.
 	 */
-	public static void logEnding()
+	public static void logThreadEnding()
 	{
 		if (logger.isTraceEnabled())
 		{

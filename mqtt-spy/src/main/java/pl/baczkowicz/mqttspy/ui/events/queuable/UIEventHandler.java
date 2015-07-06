@@ -14,8 +14,10 @@
  */
 package pl.baczkowicz.mqttspy.ui.events.queuable;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 
 import javafx.application.Platform;
 
@@ -85,34 +87,26 @@ public class UIEventHandler implements Runnable
 		long processed = 0;
 		while (uiEventQueue.getEventCount() > 0)
 		{
-			final Map<BasicMessageStore, Map<String, List<MqttSpyUIEvent>>> events = uiEventQueue.getEvents();
-				
-			synchronized (events)
+			final Map<BasicMessageStore, Map<String, Queue<MqttSpyUIEvent>>> events = uiEventQueue.getEvents();
 			{
 				for (final BasicMessageStore store : events.keySet())
 				{
-					synchronized (store)
+					for (final String type : events.get(store).keySet())
 					{
-						for (final String type : events.get(store).keySet())
+						final List<MqttSpyUIEvent> eventQueue = new ArrayList<MqttSpyUIEvent>(events.get(store).get(type));
+						
+						if (eventQueue == null || eventQueue.isEmpty())
 						{
-							final List<MqttSpyUIEvent> eventQueue = events.get(store).get(type);
-							
-							if (eventQueue == null || eventQueue.isEmpty())
-							{
-								continue;
-							}
-							
-							synchronized (eventQueue)
-							{
-								// Remove the event queue from the manager
-								events.get(store).put(type, null);
-								processed = processed + eventQueue.size();
-								uiEventQueue.reduceCount(eventQueue.size());
-								
-								handleEvents(eventQueue);
-							}
+							continue;
 						}
-					}
+						
+						// Remove the event queue from the manager
+						uiEventQueue.resetStoreEvents(store, type);
+						
+						processed = processed + eventQueue.size();
+												
+						handleEvents(eventQueue);						
+					}					
 				}
 			}								
 		}	

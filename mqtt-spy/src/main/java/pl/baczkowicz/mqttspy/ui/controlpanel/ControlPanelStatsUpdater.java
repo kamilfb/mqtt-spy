@@ -248,6 +248,8 @@ public class ControlPanelStatsUpdater implements Runnable
 	@Override
 	public void run()
 	{
+		ThreadingUtils.logThreadStarting("Control Panel Stats Updater");
+		
 		secondCounter = 0;
 		while (true)
 		{
@@ -260,6 +262,8 @@ public class ControlPanelStatsUpdater implements Runnable
 				break;
 			}			
 		}
+		
+		ThreadingUtils.logThreadEnding();
 	}
 	
 	/**

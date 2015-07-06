@@ -14,8 +14,6 @@
  */
 package pl.baczkowicz.mqttspy.connectivity;
 
-import java.util.concurrent.LinkedBlockingQueue;
-
 import javafx.scene.paint.Color;
 import junit.framework.TestCase;
 
@@ -36,7 +34,6 @@ import pl.baczkowicz.mqttspy.stats.StatisticsManager;
 import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.ui.events.EventManager;
 import pl.baczkowicz.mqttspy.ui.events.queuable.EventQueueManager;
-import pl.baczkowicz.mqttspy.ui.events.queuable.ui.MqttSpyUIEvent;
 
 public class MqttConnectionTest extends TestCase
 {

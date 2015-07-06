@@ -16,11 +16,9 @@ package pl.baczkowicz.mqttspy.ui.events.observers;
 
 import java.util.List;
 
-import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.ui.events.queuable.ui.BrowseRemovedMessageEvent;
 
 public interface MessageRemovedObserver
 {
-	// void onMessageRemoved(final FormattedMqttMessage message, final int messageIndex);
 	void onMessageRemoved(final List<BrowseRemovedMessageEvent> events);	
 }

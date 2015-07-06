@@ -70,8 +70,7 @@ public class ScriptRunner implements Runnable
 	{
 		if (script.isAsynchronous())
 		{
-			Thread.currentThread().setName("Script " + script.getName());
-			ThreadingUtils.logStarting();
+			ThreadingUtils.logThreadStarting("Script " + script.getName());
 		}		
 		
 		script.getPublicationScriptIO().touch();
@@ -112,7 +111,7 @@ public class ScriptRunner implements Runnable
 		
 		if (script.isAsynchronous())
 		{
-			ThreadingUtils.logEnding();
+			ThreadingUtils.logThreadEnding();
 		}
 	}
 	

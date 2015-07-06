@@ -61,8 +61,7 @@ public class ScriptHealthDetector implements Runnable
 	 */
 	public void run()
 	{
-		Thread.currentThread().setName("Script Health Detector");
-		ThreadingUtils.logStarting();
+		ThreadingUtils.logThreadStarting("Script Health Detector");
 		
 		while (script.getStatus().equals(ScriptRunningState.RUNNING))
 		{
@@ -86,6 +85,6 @@ public class ScriptHealthDetector implements Runnable
 		}
 		// TODO: what if it freezes for the second time in the same run?
 		
-		ThreadingUtils.logEnding();
+		ThreadingUtils.logThreadEnding();
 	}
 }

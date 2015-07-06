@@ -23,7 +23,6 @@ import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
 import pl.baczkowicz.mqttspy.scripts.IScriptEventManager;
 import pl.baczkowicz.mqttspy.scripts.ScriptRunningState;
-import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
 import pl.baczkowicz.mqttspy.storage.MessageList;
 import pl.baczkowicz.mqttspy.storage.MessageListWithObservableTopicSummary;

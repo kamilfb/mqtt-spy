@@ -36,6 +36,8 @@ public class ConnectionStatsUpdater implements Runnable
 	@Override
 	public void run()
 	{
+		ThreadingUtils.logThreadStarting("Connection Stats Updater");
+		
 		while (true)
 		{
 			if (ThreadingUtils.sleep(REFRESH_INTERVAL))			
@@ -52,6 +54,8 @@ public class ConnectionStatsUpdater implements Runnable
 				}
 			});						
 		}
+		
+		ThreadingUtils.logThreadEnding();
 	}
 
 	private void updateConnectionStats()

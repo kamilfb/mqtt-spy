@@ -53,8 +53,7 @@ public class SimpleMqttConnectionRunnable implements Runnable
 	
 	public void run()
 	{
-		Thread.currentThread().setName("Connection " + connection.getMqttConnectionDetails().getName());
-		ThreadingUtils.logStarting();
+		ThreadingUtils.logThreadStarting("Connection " + connection.getMqttConnectionDetails().getName());
 		
 		// Get reconnection settings
 		final ReconnectionSettings reconnectionSettings = connection.getMqttConnectionDetails().getReconnectionSettings();
@@ -77,6 +76,6 @@ public class SimpleMqttConnectionRunnable implements Runnable
 			}
 		}
 		
-		ThreadingUtils.logEnding();
+		ThreadingUtils.logThreadEnding();
 	}				
 }

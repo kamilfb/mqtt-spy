@@ -34,6 +34,8 @@ import javafx.util.Callback;
 
 import javax.script.ScriptException;
 
+import org.controlsfx.control.action.Action;
+import org.controlsfx.dialog.Dialog;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,6 +45,7 @@ import pl.baczkowicz.mqttspy.common.generated.FormatterDetails;
 import pl.baczkowicz.mqttspy.common.generated.FormatterFunction;
 import pl.baczkowicz.mqttspy.common.generated.ScriptExecutionDetails;
 import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
+import pl.baczkowicz.mqttspy.configuration.ConfiguredConnectionDetails;
 import pl.baczkowicz.mqttspy.connectivity.BaseMqttConnection;
 import pl.baczkowicz.mqttspy.messages.BaseMqttMessageWithSubscriptions;
 import pl.baczkowicz.mqttspy.scripts.Script;
@@ -190,37 +193,44 @@ public class FormattersController implements Initializable
 		}
 	}
 	
+	private void checkInlineScript(final FormatterDetails formatter) throws ScriptException
+	{
+		// TODO: should this be a new script object?
+		final Script script = scriptBasedFormatter.getScript(formatter);
+		script.setScriptContent(formatterDetails.getText());
+		
+		// Evaluate it
+		scriptBasedFormatter.evaluate(script);
+		if (script.getScriptRunner().getLastThrownException() != null)
+		{
+			formatterDetails.getStyleClass().add("invalid");
+		}
+		else
+		{
+			sampleOutput.setText(scriptBasedFormatter.formatMessage(newFormatter, 
+				new BaseMqttMessageWithSubscriptions(0, "", new MqttMessage(sampleInput.getText().getBytes()), connection)));
+			formatterDetails.getStyleClass().add("valid");
+		}
+	}
+	
 	private void onChange()
 	{		
 		// TODO: split this method into individual on change
-		if (ignoreChanges)
+		if (ignoreChanges || (newFormatter == null && selectedFormatter == null))
 		{
 			return;
 		}
+		
 		formatterDetails.getStyleClass().removeAll("valid", "invalid");
 		applyChangesButton.setDisable(true);
 	
-		// Process script changes
+		// New formatter
 		if (newFormatter != null)
 		{
-			applyChangesButton.setDisable(false);
 			try
 			{
-				final Script script = scriptBasedFormatter.getScript(newFormatter);
-				script.setScriptContent(formatterDetails.getText());
-				
-				// Evaluate it
-				scriptBasedFormatter.evaluate(script);
-				if (script.getScriptRunner().getLastThrownException() != null)
-				{
-					formatterDetails.getStyleClass().add("invalid");
-				}
-				else
-				{
-					sampleOutput.setText(scriptBasedFormatter.formatMessage(newFormatter, 
-						new BaseMqttMessageWithSubscriptions(0, "", new MqttMessage(sampleInput.getText().getBytes()), connection)));
-					formatterDetails.getStyleClass().add("valid");
-				}
+				checkInlineScript(newFormatter);
+				applyChangesButton.setDisable(false);
 			}
 			catch (ScriptException e)
 			{
@@ -229,11 +239,8 @@ public class FormattersController implements Initializable
 			}
 			return;
 		}
-		else if (selectedFormatter == null)
-		{
-			return;
-		}
 		
+		// Modifying existing formatter
 		if (selectedFormatter.getID().startsWith(FormattingUtils.SCRIPT_PREFIX))
 		{
 			try
@@ -241,7 +248,8 @@ public class FormattersController implements Initializable
 				if (!formatterName.getText().equals(selectedFormatter.getName()) 
 						|| !formatterDetails.getText().equals(scriptBasedFormatter.getScript(selectedFormatter).getScriptContent()))
 				{
-					applyChangesButton.setDisable(false);
+					checkInlineScript(selectedFormatter);
+					applyChangesButton.setDisable(false);				
 				}
 			}
 			catch (ScriptException e)
@@ -278,7 +286,38 @@ public class FormattersController implements Initializable
 	@FXML
 	private void deleteFormatter()
 	{
-		// TODO
+		if (selectedFormatter == null)			
+		{
+			return;
+		}
+		
+		int count = 0;
+		for (final ConfiguredConnectionDetails connectionDetails : configurationManager.getConnections())
+		{
+			if (connectionDetails.getFormatter() == null)
+			{
+				continue;
+			}
+			
+			if (selectedFormatter.getID().equals(((FormatterDetails) connectionDetails.getFormatter()).getID()))
+			{
+				count++;
+			}
+		}
+		
+		if (count > 0)
+		{
+			Action result = DialogUtils.showQuestion("Formatter is still in use", 
+					"There are " + count + " connections configured with this formatter. Are you sure you want to delete it?", 
+					true);
+			
+			if (result == Dialog.ACTION_YES)
+			{
+				// TODO: modify config
+
+				configurationManager.saveConfiguration();
+			}
+		}
 	}
 	
 	@FXML
@@ -341,8 +380,10 @@ public class FormattersController implements Initializable
 	
 	@FXML
 	private void applyChanges()
-	{
-		// TODO
+	{		
+		// TODO: populate config
+		
+		configurationManager.saveConfiguration();
 	}
 	
 	private void showFormatterInfo()	

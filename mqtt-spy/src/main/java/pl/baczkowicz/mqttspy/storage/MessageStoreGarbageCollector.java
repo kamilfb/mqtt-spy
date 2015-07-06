@@ -99,9 +99,7 @@ public class MessageStoreGarbageCollector implements Runnable
 	{
 		running = true;
 		
-		Thread.currentThread().setName("Message Store Garbage Collector for " + messages.getName());
-		ThreadingUtils.logStarting();
-		//logger.debug("Starting thread " + Thread.currentThread().getName());
+		ThreadingUtils.logThreadStarting("Message Store Garbage Collector for " + messages.getName());
 				
 		while (running)		
 		{			
@@ -122,6 +120,6 @@ public class MessageStoreGarbageCollector implements Runnable
 				checkAndRemove(shouldRemove);
 			}
 		}
-		ThreadingUtils.logEnding();
+		ThreadingUtils.logThreadEnding();
 	}
 }

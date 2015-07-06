@@ -104,8 +104,7 @@ public class ReconnectionManager implements Runnable
 	 */
 	public void run()
 	{
-		Thread.currentThread().setName("Reconnection Manager ");
-		ThreadingUtils.logStarting();
+		ThreadingUtils.logThreadStarting("Reconnection Manager");
 		
 		running = true;
 		
@@ -122,7 +121,7 @@ public class ReconnectionManager implements Runnable
 			}
 		}	
 		
-		ThreadingUtils.logEnding();
+		ThreadingUtils.logThreadEnding();
 	}
 	
 	/**

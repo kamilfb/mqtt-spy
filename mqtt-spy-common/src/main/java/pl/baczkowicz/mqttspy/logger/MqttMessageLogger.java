@@ -96,8 +96,7 @@ public class MqttMessageLogger implements Runnable
 	
 	public void run()
 	{
-		Thread.currentThread().setName("Message Logger");
-		ThreadingUtils.logStarting();
+		ThreadingUtils.logThreadStarting("Message Logger");
 		running = true;
 		
 		while (running)
@@ -133,7 +132,7 @@ public class MqttMessageLogger implements Runnable
 			}
 		}
 		
-		ThreadingUtils.logEnding();
+		ThreadingUtils.logThreadEnding();
 	}
 		
 	/**

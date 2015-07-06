@@ -137,8 +137,7 @@ public class MessageLogIO implements IMessageLogIO, Runnable
 	@Override
 	public void run()
 	{
-		Thread.currentThread().setName("Message Log IO");
-		ThreadingUtils.logStarting();
+		ThreadingUtils.logThreadStarting("Message Log IO");
 		
 		while (running)
 		{
@@ -160,7 +159,7 @@ public class MessageLogIO implements IMessageLogIO, Runnable
 		}	
 		stop();
 		
-		ThreadingUtils.logEnding();
+		ThreadingUtils.logThreadEnding();
 	}
 	
 	@Override
