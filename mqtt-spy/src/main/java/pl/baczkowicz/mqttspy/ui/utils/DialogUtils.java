@@ -186,9 +186,9 @@ public class DialogUtils
 	 * 
 	 * @return The user's response
 	 */
-	public static Optional<String> askForInput(final String title, final String label)
+	public static Optional<String> askForInput(final Object owner, final String title, final String label)
 	{
-		return Dialogs.create().owner(null).title(title).masthead(null)
+		return Dialogs.create().owner(owner).title(title).masthead(null)
 		.message(label).showTextInput();		
 	}
 	
@@ -197,9 +197,9 @@ public class DialogUtils
 	 * 
 	 * @return The user's response
 	 */
-	public static Optional<String> askForScriptName()
+	public static Optional<String> askForScriptName(final Object owner)
 	{
-		return askForInput("Enter a name for your message-based script", "Script name (without .js)");
+		return askForInput(owner, "Enter a name for your message-based script", "Script name (without .js)");
 	}
 	
 	/**

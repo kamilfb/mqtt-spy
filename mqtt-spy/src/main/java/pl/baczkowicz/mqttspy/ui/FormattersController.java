@@ -30,6 +30,7 @@ import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.AnchorPane;
 import javafx.util.Callback;
 
 import javax.script.ScriptException;
@@ -58,7 +59,7 @@ import pl.baczkowicz.mqttspy.utils.FormattingUtils;
 /**
  * Controller for the converter window.
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
+@SuppressWarnings({"rawtypes", "unchecked", "deprecation"})
 public class FormattersController implements Initializable
 {
 	final static Logger logger = LoggerFactory.getLogger(FormattersController.class);
@@ -113,6 +114,9 @@ public class FormattersController implements Initializable
 	private FormatterDetails newFormatter;
 
 	private boolean ignoreChanges;
+
+	@FXML
+	private AnchorPane formattersWindow;
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources)
@@ -305,19 +309,29 @@ public class FormattersController implements Initializable
 			}
 		}
 		
+		Action result = null;
 		if (count > 0)
 		{
-			Action result = DialogUtils.showQuestion("Formatter is still in use", 
+			result = DialogUtils.showQuestion("Formatter is still in use", 
 					"There are " + count + " connections configured with this formatter. Are you sure you want to delete it?", 
 					true);
-			
-			if (result == Dialog.ACTION_YES)
-			{
-				// TODO: modify config
-
-				configurationManager.saveConfiguration();
-			}
 		}
+		
+		if (count == 0 || result == Dialog.ACTION_YES)
+		{
+			for (final ConfiguredConnectionDetails connectionDetails : configurationManager.getConnections())
+			{					
+				connectionDetails.setFormatter(null);					
+			}
+			configurationManager.getConfiguration().getFormatting().getFormatter().remove(selectedFormatter);
+			
+			if (configurationManager.saveConfiguration())
+			{
+				DialogUtils.showTooltip(deleteButton, "Formatter deleted. Changes saved.");
+				init();
+				formattersList.getSelectionModel().selectFirst();
+			}
+		}		
 	}
 	
 	@FXML
@@ -327,7 +341,7 @@ public class FormattersController implements Initializable
 		selectedFormatter = null;
 		newFormatter = new FormatterDetails();
 		
-		Optional<String> name = DialogUtils.askForInput("Enter formatter name", "Name for the new formatter");
+		Optional<String> name = DialogUtils.askForInput(formattersWindow, "Enter formatter name", "Name for the new formatter");
 		
 		boolean cancelled = !name.isPresent();
 		boolean valid = false;
@@ -344,7 +358,7 @@ public class FormattersController implements Initializable
 				if (formatter.getName().equals(newFormatter.getName()) || formatter.getID().equals(newFormatter.getID()))
 				{
 					DialogUtils.showWarning("Invalid name", "Entered formatter name/ID already exists. Please chose a different one.");
-					name = DialogUtils.askForInput("Enter formatter name", "Name for the new formatter");
+					name = DialogUtils.askForInput(formattersWindow, "Enter formatter name", "Name for the new formatter");
 					cancelled = name.isPresent();
 					valid = false;
 					break;
@@ -381,17 +395,31 @@ public class FormattersController implements Initializable
 	@FXML
 	private void applyChanges()
 	{		
-		// TODO: populate config
+		if (newFormatter != null)
+		{
+			readValues(newFormatter);
+			configurationManager.getConfiguration().getFormatting().getFormatter().add(newFormatter);
+		}
+		else
+		{
+			readValues(selectedFormatter);			
+		}
 		
-		configurationManager.saveConfiguration();
+		if (configurationManager.saveConfiguration())
+		{
+			DialogUtils.showTooltip(newButton, "Formatter added. Changes saved.");
+			init();
+			formattersList.getSelectionModel().selectFirst();
+		}
 	}
 	
 	private void showFormatterInfo()	
 	{
+		// If both are null or the same
 		if (selectedFormatter == newFormatter)
 		{
 			return;
-		}
+		}	
 		
 		ignoreChanges = true;
 		if (newFormatter != null)
@@ -399,54 +427,53 @@ public class FormattersController implements Initializable
 			formattersList.getItems().remove(newFormatter);
 			newFormatter = null;
 		}
-
-		newButton.setDisable(false);		
-		deleteButton.setDisable(false);
-		detailsLabel.setText("Details");
-		
-		formatterName.setText(selectedFormatter.getName());
-		if (selectedFormatter.getID().startsWith(FormattingUtils.DEFAULT_PREFIX))
+		else if (selectedFormatter != null)
 		{
-			formatterType.setText("Built-in");
-			formatterDetails.setText("N/A");
-			deleteButton.setDisable(true);
-			sampleOutput.setText(FormattingUtils.formatText(selectedFormatter, sampleInput.getText(), sampleInput.getText().getBytes()));
+			newButton.setDisable(false);		
+			deleteButton.setDisable(false);
+			detailsLabel.setText("Details");
+			
+			formatterName.setText(selectedFormatter.getName());
+			if (selectedFormatter.getID().startsWith(FormattingUtils.DEFAULT_PREFIX))
+			{
+				formatterType.setText("Built-in");
+				formatterDetails.setText("N/A");
+				deleteButton.setDisable(true);
+				sampleOutput.setText(FormattingUtils.formatText(selectedFormatter, sampleInput.getText(), sampleInput.getText().getBytes()));
+			}
+			else if (selectedFormatter.getID().startsWith(FormattingUtils.SCRIPT_PREFIX))
+			{
+				// Add just in case
+				try
+				{
+					scriptBasedFormatter.addFormatter(selectedFormatter);
+				}
+				catch (ScriptException e)
+				{
+					logger.error("Script error", e);
+				}
+				
+				formatterType.setText("Script-based");
+				detailsLabel.setText("Inline script");			
+				try
+				{
+					formatterDetails.setText(scriptBasedFormatter.getScript(selectedFormatter).getScriptContent());
+				}
+				catch (ScriptException e)
+				{
+					logger.error("Script error", e);
+				}
+				
+				sampleOutput.setText(scriptBasedFormatter.formatMessage(selectedFormatter, 
+						new BaseMqttMessageWithSubscriptions(0, "", new MqttMessage(sampleInput.getText().getBytes()), connection)));
+			} 
+			else
+			{
+				formatterType.setText("Function-based");
+				formatterDetails.setText("(this formatter type has been deprecated)");
+				sampleOutput.setText(FormattingUtils.formatText(selectedFormatter, sampleInput.getText(), sampleInput.getText().getBytes()));
+			}		
 		}
-		else if (selectedFormatter.getID().startsWith(FormattingUtils.SCRIPT_PREFIX))
-		{
-			// Add just in case
-			try
-			{
-				scriptBasedFormatter.addFormatter(selectedFormatter);
-			}
-			catch (ScriptException e)
-			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			
-			formatterType.setText("Script-based");
-			detailsLabel.setText("Inline script");			
-			try
-			{
-				formatterDetails.setText(scriptBasedFormatter.getScript(selectedFormatter).getScriptContent());
-			}
-			catch (ScriptException e)
-			{
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			
-			sampleOutput.setText(scriptBasedFormatter.formatMessage(selectedFormatter, 
-					new BaseMqttMessageWithSubscriptions(0, "", new MqttMessage(sampleInput.getText().getBytes()), connection)));
-		} 
-		else
-		{
-			formatterType.setText("Function-based");
-			formatterDetails.setText("(this formatter type has been deprecated)");
-			sampleOutput.setText(FormattingUtils.formatText(selectedFormatter, sampleInput.getText(), sampleInput.getText().getBytes()));
-		}		
-		
 		applyChangesButton.setDisable(true);
 		ignoreChanges = false;
 	}
@@ -459,11 +486,6 @@ public class FormattersController implements Initializable
 	{
 		this.configurationManager = configurationManager;
 	}
-//	
-//	public void setScriptBasedFormatter(final ScriptBasedFormatter scriptBasedFormatter)
-//	{
-//		this.scriptBasedFormatter = scriptBasedFormatter;
-//	}
 
 	/**
 	 * @param connection the connection to set

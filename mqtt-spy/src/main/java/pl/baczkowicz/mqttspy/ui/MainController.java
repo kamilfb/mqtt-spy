@@ -117,7 +117,7 @@ public class MainController
 
 	private ConnectionManager connectionManager;
 
-	private Stage converterStage;
+	// private Stage converterStage;
 	
 	private Stage formattersStage;
 	
@@ -200,7 +200,7 @@ public class MainController
 	{
 		showEditConnectionsWindow(false);
 	}
-	
+	/*
 	@FXML
 	public void showConverter()
 	{
@@ -211,9 +211,9 @@ public class MainController
 		
 		converterStage.show();
 	}
-	
+	*/
 	@FXML
-	public void showFormatters()
+	private void showFormatters()
 	{
 		if (formattersStage == null)
 		{
@@ -221,6 +221,23 @@ public class MainController
 		}
 		
 		formattersStage.show();
+	}
+	
+	public void showFormatters(final boolean showAndWait, final Stage stage)
+	{
+		initialiseFormattersWindow();		
+		
+		if (showAndWait)
+		{
+			formattersStage.initOwner(stage.getScene().getWindow());
+			formattersStage.showAndWait();
+			
+			formattersStage = null;
+		}
+		else
+		{
+			showFormatters();
+		}
 	}
 	
 	@FXML
@@ -280,7 +297,7 @@ public class MainController
 		editConnectionsStage.initOwner(getParentWindow());
 		editConnectionsStage.setScene(scene);
 	}
-	
+	/*
 	private void initialiseConverterWindow()
 	{
 		final FXMLLoader loader = FxmlUtils.createFxmlLoaderForProjectFile("ConverterWindow.fxml");
@@ -294,7 +311,7 @@ public class MainController
 		converterStage.initOwner(getParentWindow());
 		converterStage.setScene(scene);
 	}
-	
+	*/
 	private void initialiseFormattersWindow()
 	{
 		final FXMLLoader loader = FxmlUtils.createFxmlLoaderForProjectFile("FormattersWindow.fxml");
@@ -309,6 +326,7 @@ public class MainController
 
 		formattersStage = new Stage();
 		formattersStage.setTitle("Formatters");		
+		formattersStage.initModality(Modality.WINDOW_MODAL);
 		formattersStage.initOwner(getParentWindow());
 		formattersStage.setScene(scene);
 	}
@@ -700,5 +718,10 @@ public class MainController
 	public CheckMenuItem getResizeMessagePaneMenu()
 	{
 		return resizeMessagePaneMenu;
+	}
+
+	public Stage getEditConnectionsStage()
+	{
+		return editConnectionsStage;
 	}
 }

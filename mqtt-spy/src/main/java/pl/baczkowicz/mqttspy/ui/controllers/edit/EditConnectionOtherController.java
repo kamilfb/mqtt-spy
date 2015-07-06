@@ -167,7 +167,7 @@ public class EditConnectionOtherController extends AnchorPane implements Initial
 	@FXML
 	private void editFormatters()
 	{
-		parent.getMainController().showFormatters();
+		parent.getMainController().showFormatters(true, parent.getMainController().getEditConnectionsStage());
 		
 		// In case there was a change
 		init();

@@ -343,7 +343,7 @@ public class NewPublicationController implements Initializable, ScriptListChange
 		button.setGraphic(UiUtils.createImage(iconLocation, 14));
 		
 		// TODO: actions
-		final MenuItem detach = new MenuItem("Detach to separate window", UiUtils.createImage("images/tab-detach.png", 14, "pane-settings-menu-graphic"));
+		final MenuItem detach = new MenuItem("Detach to a separate window", UiUtils.createImage("images/tab-detach.png", 14, "pane-settings-menu-graphic"));
 		detach.setOnAction(new EventHandler<ActionEvent>()
 		{
 			@Override
@@ -783,7 +783,7 @@ public class NewPublicationController implements Initializable, ScriptListChange
 		
 		while (!valid)
 		{
-			final Optional<String> response = DialogUtils.askForScriptName();
+			final Optional<String> response = DialogUtils.askForScriptName(pane);
 			
 			logger.info("Script name response = " + response);
 			if (response.isPresent())
