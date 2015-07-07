@@ -38,7 +38,7 @@ import pl.baczkowicz.mqttspy.utils.TimeUtils;
  * This class is responsible for handling queued events. This is done in batches
  * for improved performance. So rather than flooding JavaFX with hundreds or
  * thousands of requests to do runLater, we buffer those events, and then
- * process when in a single runLater.
+ * process them in batches.
  */
 public class UIEventHandler implements Runnable
 {

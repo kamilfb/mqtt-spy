@@ -90,7 +90,7 @@ public class TopicSummary extends TopicMessageCount
 			else
 			{
 				value.setCount(value.countProperty().intValue() + 1);	
-				value.setMessage(message/*, messageFormat*/);				
+				value.setMessage(message);				
 			}
 			
 			logger.trace("[{}] has {} messages", name, value.countProperty().intValue());
