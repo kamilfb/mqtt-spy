@@ -42,6 +42,7 @@ public class BrowseRemovedMessageEvent implements MqttSpyUIEvent
 		return messageIndex;
 	}
 
+	@Override
 	public MessageList getList()
 	{
 		return store;

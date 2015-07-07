@@ -15,16 +15,16 @@
 package pl.baczkowicz.mqttspy.ui.events.queuable;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 
 import javafx.application.Platform;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import pl.baczkowicz.mqttspy.storage.BasicMessageStore;
+import pl.baczkowicz.mqttspy.storage.MessageList;
 import pl.baczkowicz.mqttspy.ui.events.EventManager;
 import pl.baczkowicz.mqttspy.ui.events.queuable.ui.BrowseReceivedMessageEvent;
 import pl.baczkowicz.mqttspy.ui.events.queuable.ui.BrowseRemovedMessageEvent;
@@ -57,20 +57,13 @@ public class UIEventHandler implements Runnable
 	@Override
 	public void run()
 	{
-		Thread.currentThread().setName("UI handler");
+		ThreadingUtils.logThreadStarting("UI event handler");
 		
 		while (true)
 		{
 			if (uiEventQueue.getEventCount() > 0)
 			{
-				Platform.runLater(new Runnable()
-				{				
-					@Override
-					public void run()
-					{					
-						showUpdates();					
-					}
-				});	
+				showUpdates();
 			}
 			
 			// Sleep so that we don't run all the time - updating the UI 10 times a second should be more than enough
@@ -79,6 +72,8 @@ public class UIEventHandler implements Runnable
 				break;
 			}
 		}		
+		
+		ThreadingUtils.logThreadEnding();
 	}
 
 	private void showUpdates()
@@ -87,26 +82,20 @@ public class UIEventHandler implements Runnable
 		long processed = 0;
 		while (uiEventQueue.getEventCount() > 0)
 		{
-			final Map<BasicMessageStore, Map<String, Queue<MqttSpyUIEvent>>> events = uiEventQueue.getEvents();
+			final Map<String, List<MqttSpyUIEvent>> events = uiEventQueue.getEvents();
 			{
-				for (final BasicMessageStore store : events.keySet())
+				for (final String type : events.keySet())
 				{
-					for (final String type : events.get(store).keySet())
+					// Remove the event queue from the manager
+					final List<MqttSpyUIEvent> eventQueue = uiEventQueue.getAndRemoveEvents(type);
+					
+					if (eventQueue.isEmpty())
 					{
-						final List<MqttSpyUIEvent> eventQueue = new ArrayList<MqttSpyUIEvent>(events.get(store).get(type));
-						
-						if (eventQueue == null || eventQueue.isEmpty())
-						{
-							continue;
-						}
-						
-						// Remove the event queue from the manager
-						uiEventQueue.resetStoreEvents(store, type);
-						
-						processed = processed + eventQueue.size();
-												
-						handleEvents(eventQueue);						
-					}					
+						continue;
+					}
+					
+					processed = processed + eventQueue.size();
+					processEventType(eventQueue);					
 				}
 			}								
 		}	
@@ -117,6 +106,37 @@ public class UIEventHandler implements Runnable
 		}
 	}
 	
+	private void processEventType(final List<MqttSpyUIEvent> eventQueue)
+	{
+		// Split by parent
+		final Map<MessageList, List<MqttSpyUIEvent>> parentToEvent = new HashMap<>();		
+		for (final MqttSpyUIEvent event : eventQueue)
+		{
+			List<MqttSpyUIEvent> parentQueue = parentToEvent.get(event.getList());
+			
+			if (parentQueue == null)
+			{
+				parentQueue = new ArrayList<>();
+				parentToEvent.put(event.getList(), parentQueue);
+			}
+			
+			parentToEvent.get(event.getList()).add(event);
+		}
+
+		// Process in batches
+		for (final MessageList parent : parentToEvent.keySet())
+		{
+			Platform.runLater(new Runnable()
+			{				
+				@Override
+				public void run()
+				{					
+					handleEvents(parentToEvent.get(parent));
+				}
+			});			
+		}		
+	}
+
 	@SuppressWarnings("unchecked")
 	private void handleEvents(final List<MqttSpyUIEvent> eventQueue)
 	{
@@ -132,7 +152,7 @@ public class UIEventHandler implements Runnable
 		{
 			eventManager.notifyMessageRemoved(
 					(List<BrowseRemovedMessageEvent>)(Object)eventQueue, 
-					((BrowseRemovedMessageEvent) event).getList());
+					event.getList());
 		}
 		else if (event instanceof TopicSummaryNewMessageEvent)
 		{

@@ -45,25 +45,34 @@ public class MqttMessageHandler implements Runnable
 	
 	public void run()
 	{
-		Thread.currentThread().setName(connection.getName());
+		ThreadingUtils.logThreadStarting("Message Handler for " + connection.getName());
 		
 		logger.debug("Starting processing thread for connection " + connection.getProperties().getName());
 		while (true)
 		{
-			if (queue.size() > 0)
+			try
 			{
-				final FormattedMqttMessage content = queue.remove();
-				connection.messageReceived(content);
-				
-				// Let other threads do stuff
-				ThreadingUtils.sleep(1);
+				if (queue.size() > 0)
+				{
+					final FormattedMqttMessage content = queue.remove();
+					connection.messageReceived(content);
+					
+					// Let other threads do stuff
+					Thread.sleep(1);
+				}
+				else
+				{
+					// If no messages present, sleep a bit
+					Thread.sleep(10);
+				}
 			}
-			else
+			catch (InterruptedException e)
 			{
-				// If no messages present, sleep a bit
-				ThreadingUtils.sleep(10);
+				break;
 			}
 		}
+		
+		ThreadingUtils.logThreadEnding();
 	}
 		
 	public int getMessagesToProcess()

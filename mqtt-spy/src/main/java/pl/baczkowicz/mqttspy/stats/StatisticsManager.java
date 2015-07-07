@@ -302,7 +302,7 @@ public class StatisticsManager implements Runnable
 	@Override
 	public void run()
 	{
-		Thread.currentThread().setName("StatisticsManager");
+		ThreadingUtils.logThreadStarting("StatisticsManager");
 		
 		while (true)
 		{
@@ -313,5 +313,7 @@ public class StatisticsManager implements Runnable
 			
 			nextInterval();			
 		}					
+		
+		ThreadingUtils.logThreadEnding();
 	}
 }

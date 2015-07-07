@@ -13,57 +13,98 @@
  *    
  */
 package pl.baczkowicz.mqttspy.ui.events.queuable;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Queue;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicLong;
 
 import pl.baczkowicz.mqttspy.storage.BasicMessageStore;
+import pl.baczkowicz.mqttspy.ui.events.queuable.ui.BrowseReceivedMessageEvent;
+import pl.baczkowicz.mqttspy.ui.events.queuable.ui.BrowseRemovedMessageEvent;
 import pl.baczkowicz.mqttspy.ui.events.queuable.ui.MqttSpyUIEvent;
+import pl.baczkowicz.mqttspy.ui.events.queuable.ui.TopicSummaryNewMessageEvent;
+import pl.baczkowicz.mqttspy.ui.events.queuable.ui.TopicSummaryRemovedMessageEvent;
 
 public class EventQueueManager
 {
-	private Map<BasicMessageStore, Map<String, Queue<MqttSpyUIEvent>>> events = new ConcurrentHashMap<>();
+	private Map<String, List<MqttSpyUIEvent>> events = new HashMap<>();  
+	// private Map<BasicMessageStore, Map<String, Queue<MqttSpyUIEvent>>> events = new ConcurrentHashMap<>();
 	
 	private AtomicLong eventCount = new AtomicLong();
 	
+	public EventQueueManager()
+	{
+		events.put(BrowseReceivedMessageEvent.class.toString(), new ArrayList<MqttSpyUIEvent>());
+		events.put(BrowseRemovedMessageEvent.class.toString(), new ArrayList<MqttSpyUIEvent>());
+		events.put(TopicSummaryNewMessageEvent.class.toString(), new ArrayList<MqttSpyUIEvent>());
+		events.put(TopicSummaryRemovedMessageEvent.class.toString(), new ArrayList<MqttSpyUIEvent>());
+	}
+	
 	public void add(final BasicMessageStore parent, final MqttSpyUIEvent event)
 	{
-		final String eventType = event.getClass().toString();
-		Map<String, Queue<MqttSpyUIEvent>> storeEvents = events.get(parent);
+		// Not using the parent for now - as probably not needed any more
 		
-		// Check if the parent map exists
-		if (storeEvents == null)
+		final String eventType = event.getClass().toString();		
+		
+		synchronized (events)
 		{
-			storeEvents = new ConcurrentHashMap<>();
-			events.put(parent, storeEvents);				
-		}			
+			final List<MqttSpyUIEvent> eventList = events.get(eventType);
+			eventList.add(event);
+		}
 		
-		Queue<MqttSpyUIEvent> eventQueue = storeEvents.get(eventType);
-		
-		// Check if the event queue exists
-		if (eventQueue == null)
-		{
-			eventQueue = new ConcurrentLinkedQueue<>();
-			storeEvents.put(eventType, eventQueue);		
-		}		
-		
-		// Add the event
-		eventQueue.add(event);
-		eventCount.incrementAndGet();			
+		eventCount.incrementAndGet();
 	}
 	
-	public void resetStoreEvents(final BasicMessageStore parent, final String eventType)
-	{
-		final Map<String, Queue<MqttSpyUIEvent>> storeEvents = events.get(parent);
-		final Queue<MqttSpyUIEvent> eventQueue = storeEvents.get(eventType);
+//	public void add(final BasicMessageStore parent, final MqttSpyUIEvent event)
+//	{
+//		final String eventType = event.getClass().toString();
+//		Map<String, Queue<MqttSpyUIEvent>> storeEvents = events.get(parent);
+//		
+//		// Check if the parent map exists
+//		if (storeEvents == null)
+//		{
+//			storeEvents = new ConcurrentHashMap<>();
+//			events.put(parent, storeEvents);				
+//		}			
+//		
+//		Queue<MqttSpyUIEvent> eventQueue = storeEvents.get(eventType);
+//		
+//		// Check if the event queue exists
+//		if (eventQueue == null)
+//		{
+//			eventQueue = new ConcurrentLinkedQueue<>();
+//			storeEvents.put(eventType, eventQueue);		
+//		}		
+//		
+//		// Add the event
+//		eventQueue.add(event);
+//		eventCount.incrementAndGet();			
+//	}
+	
+//	public void resetStoreEvents(final BasicMessageStore parent, final String eventType)
+//	{
+//		final Map<String, Queue<MqttSpyUIEvent>> storeEvents = events.get(parent);
+//		final Queue<MqttSpyUIEvent> eventQueue = storeEvents.get(eventType);
+//		
+//		reduceCount(eventQueue.size());		
+//		storeEvents.put(eventType, new ConcurrentLinkedQueue<>());		
+//	}
+	
+	public List<MqttSpyUIEvent> getAndRemoveEvents(final String eventType)
+	{		
+		final List<MqttSpyUIEvent> eventList = events.get(eventType);
 		
-		reduceCount(eventQueue.size());		
-		storeEvents.put(eventType, new ConcurrentLinkedQueue<>());		
+		synchronized (events)
+		{
+			events.put(eventType, new ArrayList<MqttSpyUIEvent>());
+		}
+		
+		reduceCount(eventList.size());	
+		return eventList;		
 	}
 	
-	public Map<BasicMessageStore, Map<String, Queue<MqttSpyUIEvent>>> getEvents()
+	public Map<String, List<MqttSpyUIEvent>> getEvents()
 	{
 		return events;
 	}

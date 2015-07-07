@@ -34,6 +34,7 @@ public class TopicSummaryRemovedMessageEvent implements MqttSpyUIEvent
 		return removed;
 	}
 
+	@Override
 	public MessageListWithObservableTopicSummary getList()
 	{
 		return list;

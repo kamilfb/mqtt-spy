@@ -34,6 +34,7 @@ public class BrowseReceivedMessageEvent implements MqttSpyUIEvent
 		return message;
 	}
 
+	@Override
 	public MessageListWithObservableTopicSummary getList()
 	{
 		return messageList;

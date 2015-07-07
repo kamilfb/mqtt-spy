@@ -42,6 +42,7 @@ public class TopicSummaryNewMessageEvent implements MqttSpyUIEvent
 		return showTopic;
 	}
 
+	@Override
 	public MessageListWithObservableTopicSummary getList()
 	{
 		return list;

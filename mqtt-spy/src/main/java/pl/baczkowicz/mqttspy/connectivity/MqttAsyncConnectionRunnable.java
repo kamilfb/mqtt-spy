@@ -40,6 +40,7 @@ public class MqttAsyncConnectionRunnable implements Runnable
 	@Override
 	public void run()
 	{
+		ThreadingUtils.logThreadStarting("ConnectionRunnable for " + connection.getName());
 		connection.setConnectionStatus(MqttConnectionStatus.CONNECTING);
 		
 		try
@@ -65,5 +66,7 @@ public class MqttAsyncConnectionRunnable implements Runnable
 			Platform.runLater(new MqttEventHandler(new MqttConnectionAttemptFailureEvent(connection, e)));
 			logger.error("Cannot connect to " + connection.getProperties().getServerURI(), e);
 		}				
+		
+		ThreadingUtils.logThreadEnding();
 	}
 }
