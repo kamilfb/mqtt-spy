@@ -97,6 +97,6 @@ public class BasicMessageStore implements MessageStore
 	
 	public void cleanUp()
 	{
-		// Nothing to do here
+		clear();
 	}
 }

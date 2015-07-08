@@ -390,7 +390,22 @@ public class ScriptManager
 	{
 		final Invocable invocable = (Invocable) script.getScriptEngine();
 		
-		return invocable.invokeFunction(function, args);
+		Object result = null;
+		try
+		{
+			 result = invocable.invokeFunction(function, args);
+		}
+		catch (NoSuchMethodException e)
+		{
+			throw e;
+		}
+		// Catch all - in case the script throws an undefined exception
+		catch (Exception e)
+		{
+			throw new ScriptException(e);
+		}
+		
+		return result;
 	}
 	
 	/**

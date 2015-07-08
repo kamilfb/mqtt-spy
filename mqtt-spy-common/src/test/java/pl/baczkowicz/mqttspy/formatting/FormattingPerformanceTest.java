@@ -15,6 +15,7 @@ import pl.baczkowicz.mqttspy.common.generated.SubstringExtractFormatterDetails;
 import pl.baczkowicz.mqttspy.scripts.ScriptBasedFormatter;
 import pl.baczkowicz.mqttspy.scripts.ScriptManager;
 import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
+import pl.baczkowicz.mqttspy.utils.ConversionUtils;
 import pl.baczkowicz.mqttspy.utils.FormattingUtils;
 
 public class FormattingPerformanceTest
@@ -73,7 +74,7 @@ public class FormattingPerformanceTest
 		
 		// 2. Script file-based		
 		ScriptManager scriptManager = new ScriptManager(null, null, null);
-		final String scriptFile1 = "/home/kamil/Programming/Git/mqtt-spy-common/src/test/resources/scripts/base64-body-decoder_1.js";
+		final String scriptFile1 = "/home/kamil/Programming/Git/mqtt-spy-common/src/test/resources/scripts/base64-body-decoder.js";
 		scriptManager.addScript(new ScriptDetails(false, false, scriptFile1));
 		
 		startTime = System.nanoTime();
@@ -88,12 +89,13 @@ public class FormattingPerformanceTest
 		System.out.println("Script file-based took " + totalTime + " ns; avg = " + (totalTime / repeat) + " ns");
 		
 		// 3. Script function-based
-		final String scriptFile2 = "/home/kamil/Programming/Git/mqtt-spy-common/src/test/resources/scripts/base64-body-decoder_2.js";
 		final FormatterDetails scriptFunctionBased = new FormatterDetails();
 		scriptFunctionBased.setID("script-base64-body-decoder");
 		scriptFunctionBased.setName("Script-based BASE64 body decoder");
+		
+		final String inlineScript = "function format() { return \"<tag2>\" + receivedMessage.getPayload() + \"- modified :)</tag2>\"; }"; 
 	
-		ScriptExecutionDetails scriptExecution = new ScriptExecutionDetails(scriptFile2);
+		ScriptExecutionDetails scriptExecution = new ScriptExecutionDetails(ConversionUtils.stringToBase64(inlineScript));
 		scriptFunctionBased.getFunction().add(new FormatterFunction(null, null, null, null, null, scriptExecution));
 		
 		final ScriptBasedFormatter scriptFormatter = new ScriptBasedFormatter(scriptManager);
