@@ -187,6 +187,7 @@ public class UIEventHandler implements Runnable
 		// Remove old message from stats
 		if (removeEvent.getRemoved() != null)
 		{
+			// TODO: does this actually work?
 			removeEvent.getList().getTopicSummary().removeMessage(removeEvent.getRemoved());
 		}
 	}

@@ -37,13 +37,12 @@ public class SubscriptionTopicSummaryProperties extends MqttContentProperties
 	 * @param show Whether to include this topic in the list of messages for browsing
 	 * @param count How many messages have been received for that topic - subject to clean-up
 	 * @param message The last message
-	 * @param format The formatter details
 	 * @param maxPayloadLength Maximum payload length to be displayed - to make sure UI remains responsive for large messages
 	 */
 	public SubscriptionTopicSummaryProperties(final Boolean show, final Integer count, final FormattedMqttMessage message, 
-			/*final FormatterDetails format, */final int maxPayloadLength)
+			final int maxPayloadLength)
 	{
-		super(message, /*format, */maxPayloadLength);
+		super(message, maxPayloadLength);
 		
 		this.show = new SimpleBooleanProperty(show);	               
         this.count = new SimpleIntegerProperty(count);                    

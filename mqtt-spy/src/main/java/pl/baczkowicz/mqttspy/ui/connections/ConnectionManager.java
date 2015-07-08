@@ -385,9 +385,13 @@ public class ConnectionManager
 		}
 		
 		TabUtils.requestClose(connectionControllers.get(connection).getTab());
+		subscriptionManagers.remove(connectionControllers.get(connection));
 		connectionControllers.remove(connection);
 		connectionTabs.remove(connection);
-		subscriptionManagers.remove(connectionControllers.get(connection));
+		logger.debug("Closing connection tab; sm = {}; cc = {}; ct = {}", 
+				subscriptionManagers.keySet().size(),
+				connectionControllers.keySet().size(),
+				connectionTabs.keySet().size());
 		
 		// Stop all scripts
 		for (final Script script : connection.getScriptManager().getScripts().values())

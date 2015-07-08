@@ -117,8 +117,6 @@ public class MainController
 
 	private ConnectionManager connectionManager;
 
-	// private Stage converterStage;
-	
 	private Stage formattersStage;
 	
 	private Stage testCasesStage;
@@ -200,18 +198,7 @@ public class MainController
 	{
 		showEditConnectionsWindow(false);
 	}
-	/*
-	@FXML
-	public void showConverter()
-	{
-		if (converterStage == null)
-		{
-			initialiseConverterWindow();
-		}
-		
-		converterStage.show();
-	}
-	*/
+
 	@FXML
 	private void showFormatters()
 	{
@@ -297,21 +284,7 @@ public class MainController
 		editConnectionsStage.initOwner(getParentWindow());
 		editConnectionsStage.setScene(scene);
 	}
-	/*
-	private void initialiseConverterWindow()
-	{
-		final FXMLLoader loader = FxmlUtils.createFxmlLoaderForProjectFile("ConverterWindow.fxml");
-		final AnchorPane converterWindow = FxmlUtils.loadAnchorPane(loader);
-		
-		Scene scene = new Scene(converterWindow);
-		scene.getStylesheets().addAll(mainPane.getScene().getStylesheets());		
 
-		converterStage = new Stage();
-		converterStage.setTitle("Converter");		
-		converterStage.initOwner(getParentWindow());
-		converterStage.setScene(scene);
-	}
-	*/
 	private void initialiseFormattersWindow()
 	{
 		final FXMLLoader loader = FxmlUtils.createFxmlLoaderForProjectFile("FormattersWindow.fxml");

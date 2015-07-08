@@ -51,26 +51,15 @@ public class MqttContentProperties extends BaseTopicProperty
 	 * @param format The formatting settings to be used for the payload
 	 * @param maxPayloadLength Maximum payload length - to make sure UI remains responsive for large messages
 	 */
-	public MqttContentProperties(final FormattedMqttMessage message, /*final FormatterDetails format, */final int maxPayloadLength)
+	public MqttContentProperties(final FormattedMqttMessage message, final int maxPayloadLength)
 	{
 		super(message.getTopic());
 		this.lastReceivedTimestamp = new SimpleStringProperty();
 		this.lastReceivedPayload = new SimpleStringProperty();
 		this.lastReceivedPayloadShort = new SimpleStringProperty();
 		this.maxPayloadLength = maxPayloadLength;
-		setMessage(message/*, format*/);
+		setMessage(message);
 	}
-	
-//	/**
-//	 * Changes the format of the last received payload.
-//	 * 
-//	 * @param format The new format to be used
-//	 */
-//	public void changeFormat(final FormatterDetails format)
-//	{
-//		formattingManager.formatMessage(mqttContent, format);
-//		updateReceivedPayload(mqttContent.getFormattedPayload());
-//	}
 	
 	public void updateReceivedPayload(final String formattedText)
 	{
@@ -119,13 +108,13 @@ public class MqttContentProperties extends BaseTopicProperty
 	 * @param message The last received message
 	 * @param format The format to use
 	 */
-	public void setMessage(final FormattedMqttMessage message/*, final FormatterDetails format*/)
+	public void setMessage(final FormattedMqttMessage message)
 	{
 		this.mqttContent = message;
 
 		this.lastReceivedTimestamp.set(TimeUtils.DATE_WITH_MILLISECONDS_SDF.format(mqttContent.getDate()));
 				
-		updateReceivedPayload(mqttContent.getFormattedPayload(/*format*/));
+		updateReceivedPayload(mqttContent.getFormattedPayload());
 	}
 
 	/**

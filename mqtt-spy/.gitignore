@@ -13,3 +13,4 @@ target/
 /mqtt-spy.messages
 /log2.messages
 /mqtt-spy.log.1
+/mqtt-spy.log.2

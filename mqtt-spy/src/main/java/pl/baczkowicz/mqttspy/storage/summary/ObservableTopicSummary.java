@@ -15,6 +15,7 @@
 package pl.baczkowicz.mqttspy.storage.summary;
 
 import java.util.Collection;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -48,20 +49,22 @@ public class ObservableTopicSummary extends TopicSummary
 	{
 		synchronized (topicToSummaryMapping)
 		{
-			SubscriptionTopicSummaryProperties newAdded = super.addMessage(message);
+			final AtomicBoolean newAdded = new AtomicBoolean(false);
+
+			SubscriptionTopicSummaryProperties updatedElement = super.addMessage(message, newAdded);
 			
-			if (newAdded != null)
+			if (newAdded.get())
 			{				
-				observableTopicSummaryList.add(newAdded);
+				observableTopicSummaryList.add(updatedElement);
 			}
 			else
 			{
 				// Set the updated object to notify the observers of the list
-				final SubscriptionTopicSummaryProperties updated = topicToSummaryMapping.get(message.getTopic());
-				observableTopicSummaryList.set(observableTopicSummaryList.indexOf(updated), updated);
+				//  - checked, and this seems not to be needed any more
+				//observableTopicSummaryList.set(observableTopicSummaryList.indexOf(updatedElement), updatedElement);
 			}
 			
-			return newAdded;
+			return updatedElement;
 		}				
 	}
 
@@ -69,13 +72,23 @@ public class ObservableTopicSummary extends TopicSummary
 	{
 		synchronized (topicToSummaryMapping)
 		{
-			for (final SubscriptionTopicSummaryProperties item : observableTopicSummaryList)
+			for (final String topic : topics)
 			{
-				if (topics.contains(item.topicProperty().getValue()))
+				final SubscriptionTopicSummaryProperties item = topicToSummaryMapping.get(topic);
+				
+				if (item != null)
 				{
 					item.showProperty().set(!item.showProperty().get());
 				}
 			}
+			
+//			for (final SubscriptionTopicSummaryProperties item : observableTopicSummaryList)
+//			{
+//				if (topics.contains(item.topicProperty().getValue()))
+//				{
+//					item.showProperty().set(!item.showProperty().get());
+//				}
+//			}
 		}
 	}
 	
@@ -83,14 +96,21 @@ public class ObservableTopicSummary extends TopicSummary
 	{
 		synchronized (topicToSummaryMapping)
 		{
-			for (final SubscriptionTopicSummaryProperties item : observableTopicSummaryList)
+			final SubscriptionTopicSummaryProperties item = topicToSummaryMapping.get(topic);
+			
+			if (item != null)
 			{
-				if (item.topicProperty().getValue().equals(topic))
-				{
-					item.showProperty().set(value);
-					break;
-				}
+				item.showProperty().set(value);
 			}
+			
+//			for (final SubscriptionTopicSummaryProperties item : observableTopicSummaryList)
+//			{
+//				if (item.topicProperty().getValue().equals(topic))
+//				{
+//					item.showProperty().set(value);
+//					break;
+//				}
+//			}
 		}
 	}
 	
@@ -132,7 +152,6 @@ public class ObservableTopicSummary extends TopicSummary
 		{
 			formattingManager.formatMessage(item.getMqttContent(), messageFormat);
 			item.updateReceivedPayload(item.getMqttContent().getFormattedPayload());
-			// item.changeFormat(messageFormat);
 		}
 	}
 }
