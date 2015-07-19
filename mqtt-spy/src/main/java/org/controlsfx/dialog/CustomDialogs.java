@@ -9,7 +9,7 @@
  * The Eclipse Public License is available at
  *    http://www.eclipse.org/legal/epl-v10.html
  *    
- * The BSD 3-Clause License is aavailable at
+ * The BSD 3-Clause License is available at
  *    http://opensource.org/licenses/BSD-3-Clause
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -36,8 +36,8 @@
  *
  * Contributors:
  * 
- * 	  ControlsFX - initial implementation
- *    Kamil Baczkowicz - minor changes in the extended class, derivative work created from ControlsFX (http://fxexperience.com/controlsfx/)
+ *		ControlsFX - initial implementation
+ *		Kamil Baczkowicz - minor changes in the extended class, derivative work created from ControlsFX (http://fxexperience.com/controlsfx/)
  *    
  */
 package org.controlsfx.dialog;
