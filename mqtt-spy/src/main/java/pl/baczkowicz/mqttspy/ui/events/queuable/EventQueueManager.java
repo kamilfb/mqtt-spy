@@ -4,8 +4,13 @@
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * and Eclipse Distribution License v1.0 which accompany this distribution.
+ *
+ * The Eclipse Public License is available at
+ *    http://www.eclipse.org/legal/epl-v10.html
+ *    
+ * The Eclipse Distribution License is available at
+ *   http://www.eclipse.org/org/documents/edl-v10.php.
  *
  * Contributors:
  * 
@@ -29,7 +34,6 @@ import pl.baczkowicz.mqttspy.ui.events.queuable.ui.TopicSummaryRemovedMessageEve
 public class EventQueueManager
 {
 	private Map<String, List<MqttSpyUIEvent>> events = new HashMap<>();  
-	// private Map<BasicMessageStore, Map<String, Queue<MqttSpyUIEvent>>> events = new ConcurrentHashMap<>();
 	
 	private AtomicLong eventCount = new AtomicLong();
 	
@@ -54,42 +58,7 @@ public class EventQueueManager
 		}
 		
 		eventCount.incrementAndGet();
-	}
-	
-//	public void add(final BasicMessageStore parent, final MqttSpyUIEvent event)
-//	{
-//		final String eventType = event.getClass().toString();
-//		Map<String, Queue<MqttSpyUIEvent>> storeEvents = events.get(parent);
-//		
-//		// Check if the parent map exists
-//		if (storeEvents == null)
-//		{
-//			storeEvents = new ConcurrentHashMap<>();
-//			events.put(parent, storeEvents);				
-//		}			
-//		
-//		Queue<MqttSpyUIEvent> eventQueue = storeEvents.get(eventType);
-//		
-//		// Check if the event queue exists
-//		if (eventQueue == null)
-//		{
-//			eventQueue = new ConcurrentLinkedQueue<>();
-//			storeEvents.put(eventType, eventQueue);		
-//		}		
-//		
-//		// Add the event
-//		eventQueue.add(event);
-//		eventCount.incrementAndGet();			
-//	}
-	
-//	public void resetStoreEvents(final BasicMessageStore parent, final String eventType)
-//	{
-//		final Map<String, Queue<MqttSpyUIEvent>> storeEvents = events.get(parent);
-//		final Queue<MqttSpyUIEvent> eventQueue = storeEvents.get(eventType);
-//		
-//		reduceCount(eventQueue.size());		
-//		storeEvents.put(eventType, new ConcurrentLinkedQueue<>());		
-//	}
+	}	
 	
 	public List<MqttSpyUIEvent> getAndRemoveEvents(final String eventType)
 	{		

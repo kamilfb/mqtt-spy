@@ -3,11 +3,15 @@
  * Copyright (c) 2013-2015 Jason Winnebeck, Kamil Baczkowicz
  * 
  * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * and Apache License Version 2.0 which accompany this distribution.
- * 
+ * are made available under the terms of the Eclipse Public License v1.0, 
+ * Eclipse Distribution License v1.0 and Apache License Version 2.0 which 
+ * accompany this distribution.
+ *
  * The Eclipse Public License is available at
  *    http://www.eclipse.org/legal/epl-v10.html
+ *    
+ * The Eclipse Distribution License is available at
+ *   http://www.eclipse.org/org/documents/edl-v10.php
  *    
  * The Apache License Version 2.0 is available at
  *    http://www.apache.org/licenses/LICENSE-2.0

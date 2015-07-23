@@ -3,11 +3,15 @@
  * Copyright (c) 2013-2015 ControlsFX, Kamil Baczkowicz
  * 
  * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
- * and BSD 3-Clause License which accompany this distribution.
- * 
+ * are made available under the terms of the Eclipse Public License v1.0, 
+ * Eclipse Distribution License v1.0, and BSD 3-Clause License which 
+ * accompany this distribution.
+ *
  * The Eclipse Public License is available at
  *    http://www.eclipse.org/legal/epl-v10.html
+ *    
+ * The Eclipse Distribution License is available at
+ *   http://www.eclipse.org/org/documents/edl-v10.php
  *    
  * The BSD 3-Clause License is available at
  *    http://opensource.org/licenses/BSD-3-Clause
