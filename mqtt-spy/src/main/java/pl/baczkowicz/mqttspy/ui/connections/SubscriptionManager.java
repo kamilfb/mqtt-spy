@@ -4,8 +4,13 @@
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * and Eclipse Distribution License v1.0 which accompany this distribution.
+ *
+ * The Eclipse Public License is available at
+ *    http://www.eclipse.org/legal/epl-v10.html
+ *    
+ * The Eclipse Distribution License is available at
+ *   http://www.eclipse.org/org/documents/edl-v10.php.
  *
  * Contributors:
  * 
@@ -18,7 +23,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Queue;
 
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Label;
@@ -36,11 +40,11 @@ import pl.baczkowicz.mqttspy.configuration.generated.TabbedSubscriptionDetails;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.connectivity.MqttConnectionStatus;
 import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
-import pl.baczkowicz.mqttspy.events.EventManager;
-import pl.baczkowicz.mqttspy.events.queuable.ui.MqttSpyUIEvent;
 import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
 import pl.baczkowicz.mqttspy.ui.ConnectionController;
 import pl.baczkowicz.mqttspy.ui.SubscriptionController;
+import pl.baczkowicz.mqttspy.ui.events.EventManager;
+import pl.baczkowicz.mqttspy.ui.events.queuable.EventQueueManager;
 import pl.baczkowicz.mqttspy.ui.panes.PaneVisibilityStatus;
 import pl.baczkowicz.mqttspy.ui.panes.TabStatus;
 import pl.baczkowicz.mqttspy.ui.utils.ContextMenuUtils;
@@ -66,7 +70,7 @@ public class SubscriptionManager
 	private final Map<String, SubscriptionController> subscriptionControllers = new LinkedHashMap<>();
 	
 	/** UI event queue to be used. */
-	private final Queue<MqttSpyUIEvent> uiEventQueue;
+	private final EventQueueManager uiEventQueue;
 
 	/** Configuration manager. */
 	private ConfigurationManager configurationManager;
@@ -78,7 +82,7 @@ public class SubscriptionManager
 	 * @param configurationManager The configuration manager
 	 * @param uiEventQueue The UI event queue to be used
 	 */
-	public SubscriptionManager(final EventManager eventManager, final ConfigurationManager configurationManager, final Queue<MqttSpyUIEvent> uiEventQueue)
+	public SubscriptionManager(final EventManager eventManager, final ConfigurationManager configurationManager, final EventQueueManager uiEventQueue)
 	{
 		this.eventManager = eventManager;
 		this.configurationManager = configurationManager;
@@ -94,6 +98,7 @@ public class SubscriptionManager
 	 * @param connection The connection for which to create this subscription
 	 * @param connectionController The connection controller
 	 * @param parent The parent UI node
+	 * @param formattingManager 
 	 * @param scene 
 	 */
 	public void createSubscription(final Color color, final boolean subscribe, final TabbedSubscriptionDetails subscriptionDetails, 
@@ -103,20 +108,23 @@ public class SubscriptionManager
 		final MqttSubscription subscription = new MqttSubscription(subscriptionDetails.getTopic(),
 				subscriptionDetails.getQos(), color,
 				connection.getProperties().getConfiguredProperties().getMinMessagesStoredPerTopic(),
-				connection.getPreferredStoreSize(), uiEventQueue, eventManager, configurationManager);
+				connection.getPreferredStoreSize(), uiEventQueue, eventManager, configurationManager, 
+				connection.getStore().getFormattingManager());
 		subscription.setConnection(connection);
 		subscription.setDetails(subscriptionDetails);
 		
 		// Add a new tab
 		final SubscriptionController subscriptionController = createSubscriptionTab(
-				false, subscription, subscription, connection, connectionController);
+				false, subscription.getStore(), subscription, connection, connectionController);
 		subscriptionController.getTab().setContextMenu(ContextMenuUtils.createSubscriptionTabContextMenu(
-				connection, subscription, eventManager, this, configurationManager, subscriptionController));
+				connection, subscription, eventManager, this, configurationManager, subscriptionController));		
+
 		subscriptionController.setConnectionController(connectionController);
 		subscriptionController.setFormatting(configurationManager.getConfiguration().getFormatting());
 		subscriptionController.setTabStatus(new TabStatus());
 		subscriptionController.getTabStatus().setVisibility(PaneVisibilityStatus.NOT_VISIBLE);
 		subscriptionController.init();
+		subscriptionController.onSubscriptionStatusChanged(subscription);
 		
 		subscription.setSubscriptionController(subscriptionController);
 		subscriptionController.setDetailedViewVisibility(connectionController.getDetailedViewVisibility());
@@ -165,20 +173,15 @@ public class SubscriptionManager
 		{
 			eventManager.registerSubscriptionStatusObserver(subscriptionController, subscription);
 		}
+		
 		subscriptionController.setStore(observableMessageStore);
 		subscriptionController.setEventManager(eventManager);
 		subscriptionController.setConfingurationManager(configurationManager);
+		subscriptionController.setFormattingManager(connection.getStore().getFormattingManager());
 		subscriptionController.setTab(tab);
 		subscriptionController.toggleMessagePayloadSize(connectionController.getResizeMessageContentMenu().isSelected());
 		
-		if (connection != null)
-		{
-			subscriptionController.setConnectionProperties(connection.getProperties());
-		}
-		else
-		{
-			logger.warn("Supplied connection is null");
-		}
+		subscriptionController.setConnectionProperties(connection.getProperties());
 				
 		tab.setClosable(false);
 		tab.setContent(subscriptionPane);
@@ -196,12 +199,13 @@ public class SubscriptionManager
 		}
 		else
 		{
+			logger.debug("Mapping subscription topic {} to controller", subscription.getTopic());
 			subscriptionControllers.put(subscription.getTopic(), subscriptionController);						
 			tab.setGraphic(new Label(subscription.getTopic()));
 			tab.getGraphic().getStyleClass().add("unsubscribed");
 			tab.setTooltip(new Tooltip("Status: " + "unsubscribed"));
 		}		
-
+		
 		return subscriptionController;
 	}
 	
@@ -214,8 +218,10 @@ public class SubscriptionManager
 	{
 		synchronized (subscriptionControllers)
 		{
+			logger.debug("Trying to remove subscription {}", topic);
 			final MqttSubscription subscription = subscriptionControllers.get(topic).getSubscription();
 			subscription.getConnection().unsubscribeAndRemove(subscription);
+			subscription.getStore().cleanUp();
 			TabUtils.requestClose(subscriptionControllers.get(topic).getTab());
 			subscriptionControllers.remove(topic);
 		}

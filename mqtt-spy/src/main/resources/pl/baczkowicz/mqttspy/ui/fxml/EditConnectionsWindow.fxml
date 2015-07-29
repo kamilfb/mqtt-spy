@@ -6,8 +6,13 @@
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * and Eclipse Distribution License v1.0 which accompany this distribution.
+ *
+ * The Eclipse Public License is available at
+ *    http://www.eclipse.org/legal/epl-v10.html
+ *    
+ * The Eclipse Distribution License is available at
+ *   http://www.eclipse.org/org/documents/edl-v10.php
  *
  * Contributors:
  * 
@@ -40,7 +45,7 @@
             <Button fx:id="applyAllButton" disable="true" focusTraversable="false" layoutX="122.0" layoutY="47.0" mnemonicParsing="false" onAction="#applyAll" prefHeight="25.0" prefWidth="100.0" text="Apply all" AnchorPane.rightAnchor="14.0">
 	            <padding><Insets bottom="1.0" left="1.0" right="1.0" top="1.0" /></padding>
 		        <graphic>
-		      		<ImageView fx:id="searchIcon" fitHeight="16" fitWidth="16" pickOnBounds="true">
+		      		<ImageView fitHeight="16" fitWidth="16" pickOnBounds="true">
 				         <image>
 				            <Image url="/images/button-apply.png" />
 				         </image>
@@ -49,9 +54,9 @@
             </Button>
             
             <Button fx:id="undoAllButton" disable="true" focusTraversable="false" layoutX="122.0" layoutY="47.0" mnemonicParsing="false" onAction="#undoAll" prefHeight="25.0" prefWidth="100.0" text="Undo all" AnchorPane.rightAnchor="122.0">
-            <padding><Insets bottom="1.0" left="1.0" right="1.0" top="1.0" /></padding>
+            	<padding><Insets bottom="1.0" left="1.0" right="1.0" top="1.0" /></padding>
 		        <graphic>
-		      		<ImageView fx:id="searchIcon" fitHeight="16" fitWidth="16" pickOnBounds="true">
+		      		<ImageView fitHeight="16" fitWidth="16" pickOnBounds="true">
 				         <image>
 				            <Image url="/images/button-undo.png" />
 				         </image>
@@ -60,9 +65,9 @@
             </Button>
             
             <Button fx:id="deleteConnectionButton" disable="true" focusTraversable="false" layoutX="230.0" layoutY="13.0" mnemonicParsing="false" onAction="#deleteConnection" prefHeight="25.0" prefWidth="100.0" text="Delete" AnchorPane.rightAnchor="14.0">
-            <padding><Insets bottom="1.0" left="1.0" right="1.0" top="1.0" /></padding>
+            	<padding><Insets bottom="1.0" left="1.0" right="1.0" top="1.0" /></padding>
 		        <graphic>
-		      		<ImageView fx:id="searchIcon" fitHeight="16" fitWidth="16" pickOnBounds="true">
+		      		<ImageView fitHeight="16" fitWidth="16" pickOnBounds="true">
 				         <image>
 				            <Image url="/images/button-delete.png" />
 				         </image>
@@ -71,9 +76,9 @@
             </Button>
             
             <Button fx:id="duplicateConnectionButton" disable="true" focusTraversable="false" layoutX="122.0" layoutY="13.0" mnemonicParsing="false" onAction="#duplicateConnection" prefHeight="25.0" prefWidth="100.0" text="Duplicate" AnchorPane.rightAnchor="122.0">
-            <padding><Insets bottom="1.0" left="1.0" right="1.0" top="1.0" /></padding>
+            	<padding><Insets bottom="1.0" left="1.0" right="1.0" top="1.0" /></padding>
 		        <graphic>
-		      		<ImageView fx:id="searchIcon" fitHeight="16" fitWidth="16" pickOnBounds="true">
+		      		<ImageView fitHeight="16" fitWidth="16" pickOnBounds="true">
 				         <image>
 				            <Image url="/images/button-copy.png" />
 				         </image>
@@ -82,9 +87,9 @@
             </Button>
             
             <Button fx:id="newConnectionButton" focusTraversable="false" layoutX="14.0" layoutY="13.0" mnemonicParsing="false" onAction="#newConnection" prefHeight="25.0" prefWidth="100.0" text="New" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="230.0">
-            <padding><Insets bottom="1.0" left="1.0" right="1.0" top="1.0" /></padding>
+            	<padding><Insets bottom="1.0" left="1.0" right="1.0" top="1.0" /></padding>
 		        <graphic>
-		      		<ImageView fx:id="searchIcon" fitHeight="16" fitWidth="16" pickOnBounds="true">
+		      		<ImageView fitHeight="16" fitWidth="16" pickOnBounds="true">
 				         <image>
 				            <Image url="/images/button-add.png" />
 				         </image>

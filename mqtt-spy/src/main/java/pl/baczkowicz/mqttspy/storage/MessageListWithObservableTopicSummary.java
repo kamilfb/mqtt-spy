@@ -4,8 +4,13 @@
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * and Eclipse Distribution License v1.0 which accompany this distribution.
+ *
+ * The Eclipse Public License is available at
+ *    http://www.eclipse.org/legal/epl-v10.html
+ *    
+ * The Eclipse Distribution License is available at
+ *   http://www.eclipse.org/org/documents/edl-v10.php.
  *
  * Contributors:
  * 
@@ -14,7 +19,7 @@
  */
 package pl.baczkowicz.mqttspy.storage;
 
-import pl.baczkowicz.mqttspy.configuration.generated.FormatterDetails;
+import pl.baczkowicz.mqttspy.common.generated.FormatterDetails;
 import pl.baczkowicz.mqttspy.storage.summary.ObservableTopicSummary;
 
 /**
@@ -38,9 +43,9 @@ public class MessageListWithObservableTopicSummary extends MessageList
 		return topicSummary;
 	}
 	
-	public UiMqttMessage add(final UiMqttMessage message)
+	public FormattedMqttMessage add(final FormattedMqttMessage message)
 	{
-		final UiMqttMessage removed = super.add(message);
+		final FormattedMqttMessage removed = super.add(message);
 		
 		if (removed != null)
 		{
@@ -51,9 +56,9 @@ public class MessageListWithObservableTopicSummary extends MessageList
 		return removed;
 	}
 	
-	public UiMqttMessage remove(final int index)
+	public FormattedMqttMessage remove(final int index)
 	{
-		final UiMqttMessage removed = super.remove(index);
+		final FormattedMqttMessage removed = super.remove(index);
 		
 		topicSummary.decreaseCount(removed);
 		

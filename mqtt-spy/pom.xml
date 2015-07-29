@@ -4,7 +4,7 @@
 
 	<groupId>pl.baczkowicz.mqttspy</groupId>
 	<artifactId>mqtt-spy</artifactId>
-	<version>0.1.11-beta</version>
+	<version>0.2.0-beta</version>
 	<packaging>jar</packaging>
 
 	<name>mqtt-spy</name>
@@ -68,7 +68,7 @@
 		<dependency>
 			<groupId>org.fxmisc.richtext</groupId>
 			<artifactId>richtextfx</artifactId>
-			<version>0.6.3</version>
+			<version>0.6.4</version>
 		</dependency>
 
 		<dependency>
@@ -206,12 +206,12 @@
 	        <plugin>
 	            <groupId>org.jvnet.jaxb2_commons</groupId>
 	            <artifactId>jaxb2-basics</artifactId>
-	            <version>0.9.0</version>
+	            <version>0.9.4</version>
 	        </plugin>        	
 			<plugin>
 			    <groupId>org.jvnet.jaxb2.maven2</groupId>
 			    <artifactId>maven-jaxb2-plugin</artifactId>
-			    <version>0.9.0</version>
+			    <version>0.12.3</version>
 			    <executions>
 			        <execution>
 			            <id>configuration</id>
@@ -258,7 +258,7 @@
 								<plugin>
 									<groupId>org.jvnet.jaxb2_commons</groupId>
 									<artifactId>jaxb2-basics</artifactId>
-									<version>0.5.0</version>
+									<version>0.9.4</version>
 								</plugin>
 							</plugins>
 			            </configuration>			            			          
@@ -288,7 +288,7 @@
 								<plugin>
 									<groupId>org.jvnet.jaxb2_commons</groupId>
 									<artifactId>jaxb2-basics</artifactId>
-									<version>0.5.0</version>
+									<version>0.9.4</version>
 								</plugin>
 							</plugins>
 			            </configuration>			            			          
@@ -318,7 +318,7 @@
 								<plugin>
 									<groupId>org.jvnet.jaxb2_commons</groupId>
 									<artifactId>jaxb2-basics</artifactId>
-									<version>0.5.0</version>
+									<version>0.9.4</version>
 								</plugin>
 							</plugins>
 			            </configuration>			            			          

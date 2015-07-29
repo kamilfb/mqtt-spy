@@ -4,8 +4,13 @@
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * and Eclipse Distribution License v1.0 which accompany this distribution.
+ *
+ * The Eclipse Public License is available at
+ *    http://www.eclipse.org/legal/epl-v10.html
+ *    
+ * The Eclipse Distribution License is available at
+ *   http://www.eclipse.org/org/documents/edl-v10.php.
  *
  * Contributors:
  * 
@@ -23,13 +28,14 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import pl.baczkowicz.mqttspy.configuration.generated.FormatterDetails;
+import pl.baczkowicz.mqttspy.common.generated.FormatterDetails;
+import pl.baczkowicz.mqttspy.scripts.FormattingManager;
 import pl.baczkowicz.mqttspy.ui.search.MessageFilter;
 
 /**
  * Message store with filtering. 
  */
-public class FilteredMessageStore extends BasicMessageStore
+public class FilteredMessageStore extends BasicMessageStoreWithSummary
 {
 	final static Logger logger = LoggerFactory.getLogger(FilteredMessageStore.class);
 	
@@ -43,9 +49,10 @@ public class FilteredMessageStore extends BasicMessageStore
 	private final Set<MessageFilter> messageFilters = new HashSet<>();
 	
 	public FilteredMessageStore(final MessageListWithObservableTopicSummary allMessages, 
-			final int preferredSize, final int maxSize, final String name, final FormatterDetails messageFormat, final int maxPayloadLength)
+			final int preferredSize, final int maxSize, final String name, final FormatterDetails messageFormat, 
+			final FormattingManager formattingManager, final int maxPayloadLength)
 	{
-		super("filtered-" + name, preferredSize, maxSize, null, null, maxPayloadLength);
+		super("filtered-" + name, preferredSize, maxSize, maxPayloadLength, formattingManager);
 		setFormatter(messageFormat);
 		//this.filteredMessages = new MessageListWithObservableTopicSummary(preferredSize, maxSize, "filtered-" + name, messageFormat);
 		this.allMessages = allMessages;
@@ -83,28 +90,29 @@ public class FilteredMessageStore extends BasicMessageStore
 	
 	private void reinitialiseFilteredStore()
 	{
-		messages.clear();
-		
+		getMessageList().clear();
+			
+		logger.trace("[{}] Store reinitialise = {}/{}", allMessages.getName(), allMessages.getMessages().size(), allMessages);
 		synchronized (allMessages.getMessages())
 		{			
 			final int size = allMessages.getMessages().size();
 			for (int i = size - 1; i >= 0; i--)
 			{
-				final UiMqttMessage message = allMessages.getMessages().get(i);
+				final FormattedMqttMessage message = allMessages.getMessages().get(i);
 				
 				if (browsedTopics.contains(message.getTopic()) && !filterMessage(message, false))
 				{
-					messages.add(message);								
+					getMessageList().add(message);								
 				}
 			}
 		}
 	}	
 	
-	public boolean filterMessage(final UiMqttMessage message, final boolean updateUi)
+	public boolean filterMessage(final FormattedMqttMessage message, final boolean updateUi)
 	{
 		for (final MessageFilter filter : messageFilters)
 		{
-			if (filter.filter(message, messages, updateUi))
+			if (filter.filter(message, getMessageList(), updateUi))
 			{
 				return true;
 			}
@@ -134,13 +142,13 @@ public class FilteredMessageStore extends BasicMessageStore
 		
 		synchronized (allMessages.getMessages())
 		{
-			for (UiMqttMessage message : allMessages.getMessages())
+			for (FormattedMqttMessage message : allMessages.getMessages())
 			{
 				browsedTopics.add(message.getTopic());
 				
 				if (!filterMessage(message, false))
 				{
-					messages.add(message);
+					getMessageList().add(message);
 				}
 			}
 		}
@@ -151,7 +159,7 @@ public class FilteredMessageStore extends BasicMessageStore
 		synchronized (browsedTopics)
 		{
 			browsedTopics.clear();
-			messages.clear();
+			getMessageList().clear();
 		}
 	}
 	
@@ -219,7 +227,7 @@ public class FilteredMessageStore extends BasicMessageStore
 	
 	public MessageListWithObservableTopicSummary getFilteredMessages()
 	{
-		return messages;
+		return getMessageList();
 	}
 
 	public Set<String> getBrowsedTopics()

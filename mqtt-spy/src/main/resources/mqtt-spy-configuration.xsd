@@ -6,8 +6,13 @@
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * and Eclipse Distribution License v1.0 which accompany this distribution.
+ *
+ * The Eclipse Public License is available at
+ *    http://www.eclipse.org/legal/epl-v10.html
+ *    
+ * The Eclipse Distribution License is available at
+ *   http://www.eclipse.org/org/documents/edl-v10.php
  *
  * Contributors:
  * 
@@ -25,7 +30,7 @@
 	<xs:complexType name="MqttSpyConfiguration">
 		<xs:sequence>
 			<xs:element name="Connectivity" type="config:Connectivity" />
-			<xs:element name="Formatting" 	type="config:Formatting"	minOccurs="0" maxOccurs="1"/>
+			<xs:element name="Formatting" 	type="mqttspycommon:Formatting"	minOccurs="0" maxOccurs="1"/>
 		</xs:sequence>
 	</xs:complexType>
 	
@@ -141,103 +146,6 @@
 			</xs:extension>
 		</xs:complexContent>
 	</xs:complexType>
-	
-	<!-- ================== -->
-	<!-- === FORMATTING === -->
-	<!-- ================== -->
-	
-	<xs:complexType name="Formatting">
-		<xs:sequence>
-			<xs:element name="Formatter" type="config:FormatterDetails" minOccurs="0" maxOccurs="unbounded"/>
-		</xs:sequence>
-	</xs:complexType>
-	
-	<xs:complexType name="FormatterDetails">
-		<xs:sequence>
-			<xs:element name="Name" type="xs:string" />
-			<xs:element name="ID" type="xs:ID" />
-			
-			<!-- Functions are executed in the order they are defined, so it is possible to perform multiple formatting functions -->
-			<xs:element name="Function" type="config:FormatterFunction" minOccurs="1" maxOccurs="unbounded" />		
-		</xs:sequence>
-	</xs:complexType>
-	
-	<xs:complexType name="FormatterFunction">
-		<xs:choice>			
-			<xs:element name="Conversion" 			type="config:ConversionFormatterDetails" />
-			<xs:element name="SubstringConversion" 	type="config:SubstringConversionFormatterDetails" />
-			<xs:element name="SubstringReplace" 	type="config:SubstringReplaceFormatterDetails" />
-			<xs:element name="SubstringExtract" 	type="config:SubstringExtractFormatterDetails" />
-			<xs:element name="CharacterReplace" 	type="config:CharacterReplaceFormatterDetails" />
-		</xs:choice>
-	</xs:complexType>
-			
-	<xs:complexType name="SubstringFormatterDetails" abstract="true" >
-		<xs:sequence>
-			<xs:element name="StartTag" type="xs:string" />
-			<xs:element name="EndTag" 	type="xs:string" />
-			<xs:element name="KeepTags" type="xs:boolean" />
-		</xs:sequence>
-	</xs:complexType>
-	
-	<!-- Simple format conversion, as available in the GUI -->
-	<xs:complexType name="ConversionFormatterDetails" >
-		<xs:sequence>
-			<xs:element name="Format" type="config:ConversionMethod" />
-		</xs:sequence>
-	</xs:complexType>
-	
-	<!-- Replaces the defined substring using the defined formatter -->
-	<xs:complexType name="CharacterReplaceFormatterDetails">
-		<xs:complexContent>
-    		<xs:extension base="config:ConversionFormatterDetails">
-      			<xs:sequence>
-      				<xs:element name="CharacterRangeFrom" type="xs:int" />
-					<xs:element name="CharacterRangeTo"   type="xs:int" />
-					<xs:element name="WrapCharacter"   	  type="xs:string" minOccurs="0" />
-      			</xs:sequence>
-    		</xs:extension>
-  		</xs:complexContent>
-	</xs:complexType>
-	
-	<!-- Replaces the defined substring using the defined formatter -->
-	<xs:complexType name="SubstringConversionFormatterDetails">
-		<xs:complexContent>
-    		<xs:extension base="config:SubstringFormatterDetails">
-      			<xs:sequence>
-        			<xs:element name="Format" type="config:ConversionMethod" />
-      			</xs:sequence>
-    		</xs:extension>
-  		</xs:complexContent>
-	</xs:complexType>
-	
-	<!-- Replaces the defined substring with the given value -->
-	<xs:complexType name="SubstringReplaceFormatterDetails">
-		<xs:complexContent>
-    		<xs:extension base="config:SubstringFormatterDetails">
-      			<xs:sequence>
-        			<xs:element name="ReplaceWith" type="xs:string" />
-      			</xs:sequence>
-    		</xs:extension>
-  		</xs:complexContent>
-	</xs:complexType>
-	
-	<!-- Extracts the defined substring from the whole message -->
-	<xs:complexType name="SubstringExtractFormatterDetails">
-		<xs:complexContent>
-    		<xs:extension base="config:SubstringFormatterDetails" />
-  		</xs:complexContent>
-	</xs:complexType>
-	
-	<xs:simpleType name="ConversionMethod">
-		<xs:restriction base="xs:string">
-			<xs:enumeration value="Plain"></xs:enumeration>
-			<xs:enumeration value="HexDecode"></xs:enumeration>
-			<xs:enumeration value="HexEncode"></xs:enumeration>
-			<xs:enumeration value="Base64Decode"></xs:enumeration>
-			<xs:enumeration value="Base64Encode"></xs:enumeration>
-		</xs:restriction>
-	</xs:simpleType>
 	
 	<!-- ================ -->
 	<!-- === ELEMENTS === -->

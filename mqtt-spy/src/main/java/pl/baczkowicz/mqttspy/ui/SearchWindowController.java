@@ -4,8 +4,13 @@
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * and Eclipse Distribution License v1.0 which accompany this distribution.
+ *
+ * The Eclipse Public License is available at
+ *    http://www.eclipse.org/legal/epl-v10.html
+ *    
+ * The Eclipse Distribution License is available at
+ *   http://www.eclipse.org/org/documents/edl-v10.php.
  *
  * Contributors:
  * 
@@ -16,6 +21,7 @@ package pl.baczkowicz.mqttspy.ui;
 
 import java.net.URL;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
 
@@ -37,12 +43,14 @@ import org.slf4j.LoggerFactory;
 import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
-import pl.baczkowicz.mqttspy.events.EventManager;
-import pl.baczkowicz.mqttspy.events.observers.MessageAddedObserver;
-import pl.baczkowicz.mqttspy.events.observers.MessageListChangedObserver;
-import pl.baczkowicz.mqttspy.events.observers.MessageRemovedObserver;
+import pl.baczkowicz.mqttspy.scripts.FormattingManager;
 import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
-import pl.baczkowicz.mqttspy.storage.UiMqttMessage;
+import pl.baczkowicz.mqttspy.ui.events.EventManager;
+import pl.baczkowicz.mqttspy.ui.events.observers.MessageAddedObserver;
+import pl.baczkowicz.mqttspy.ui.events.observers.MessageListChangedObserver;
+import pl.baczkowicz.mqttspy.ui.events.observers.MessageRemovedObserver;
+import pl.baczkowicz.mqttspy.ui.events.queuable.ui.BrowseReceivedMessageEvent;
+import pl.baczkowicz.mqttspy.ui.events.queuable.ui.BrowseRemovedMessageEvent;
 import pl.baczkowicz.mqttspy.ui.utils.FxmlUtils;
 import pl.baczkowicz.mqttspy.ui.utils.StylingUtils;
 
@@ -84,7 +92,17 @@ public class SearchWindowController extends AnchorPane implements Initializable,
 	private ConnectionController connectionController;
 
 	private ConfigurationManager configurationManager;
+
+	private FormattingManager formattingManager;
 	
+	/**
+	 * @param formattingManager the formattingManager to set
+	 */
+	public void setFormattingManager(FormattingManager formattingManager)
+	{
+		this.formattingManager = formattingManager;
+	}
+
 	public void initialize(URL location, ResourceBundle resources)
 	{
 		searchTabs.getTabs().clear();				
@@ -135,6 +153,7 @@ public class SearchWindowController extends AnchorPane implements Initializable,
 		searchPaneController.setEventManager(eventManager);
 		searchPaneController.setStore(store);
 		searchPaneController.setConfingurationManager(configurationManager);
+		searchPaneController.setFormattingManager(formattingManager);
 		searchPaneController.setConnection(connection);
 		searchPaneController.toggleMessagePayloadSize(connectionController.getResizeMessageContentMenu().isSelected());
 		searchPaneController.init();		
@@ -187,14 +206,16 @@ public class SearchWindowController extends AnchorPane implements Initializable,
 		}		
 	}
 	
+	// TODO: optimise message handling
 	@Override
-	public void onMessageAdded(final UiMqttMessage message)
+	public void onMessageAdded(final List<BrowseReceivedMessageEvent> events)
 	{
 		updateTitle();		
 	}
 	
+	// TODO: optimise message handling
 	@Override
-	public void onMessageRemoved(final UiMqttMessage message, final int messageIndex)
+	public void onMessageRemoved(final List<BrowseRemovedMessageEvent> events)
 	{
 		updateTitle();
 	}

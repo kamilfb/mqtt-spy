@@ -4,8 +4,13 @@
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * and Eclipse Distribution License v1.0 which accompany this distribution.
+ *
+ * The Eclipse Public License is available at
+ *    http://www.eclipse.org/legal/epl-v10.html
+ *    
+ * The Eclipse Distribution License is available at
+ *   http://www.eclipse.org/org/documents/edl-v10.php.
  *
  * Contributors:
  * 
@@ -15,6 +20,7 @@
 package pl.baczkowicz.mqttspy.daemon;
 
 import java.io.File;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,8 +62,7 @@ public class Main
 			
 			logger.info("#######################################################");
 			logger.info("### Starting mqtt-spy-daemon v{}", loader.getFullVersionName());
-			logger.info("### If you find it useful, see how you can help at http://github.com/kamilfb/mqtt-spy/wiki/Getting-involved :)");
-			logger.info("### Visit {} for more information on the project", loader.getProperty(PropertyFileLoader.DOWNLOAD_URL));
+			logger.info("### If you find it useful, see how you can help at {}", loader.getProperty(PropertyFileLoader.DOWNLOAD_URL));
 			logger.info("### To get release updates follow @mqtt_spy on Twitter");
 			logger.info("#######################################################");
 			
@@ -90,9 +95,10 @@ public class Main
 			}
 			
 			// Run all configured scripts
-			scriptManager.addScripts(connectionSettings.getBackgroundScript());
-			for (final Script script : scriptManager.getScripts().values())
+			final List<Script> backgroundScripts = scriptManager.addScripts(connectionSettings.getBackgroundScript());
+			for (final Script script : backgroundScripts)
 			{
+				logger.info("About to start background script " + script.getName());
 				scriptManager.runScript(script, true);
 			}
 			

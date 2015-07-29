@@ -4,8 +4,13 @@
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * and Eclipse Distribution License v1.0 which accompany this distribution.
+ *
+ * The Eclipse Public License is available at
+ *    http://www.eclipse.org/legal/epl-v10.html
+ *    
+ * The Eclipse Distribution License is available at
+ *   http://www.eclipse.org/org/documents/edl-v10.php.
  *
  * Contributors:
  * 
@@ -29,6 +34,7 @@ import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuButton;
 import javafx.scene.control.TitledPane;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
@@ -42,8 +48,8 @@ import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.exceptions.MqttSpyException;
 import pl.baczkowicz.mqttspy.ui.connections.ConnectionManager;
 import pl.baczkowicz.mqttspy.ui.keyboard.TimeBasedKeyEventFilter;
+import pl.baczkowicz.mqttspy.ui.panes.PaneVisibilityStatus;
 import pl.baczkowicz.mqttspy.ui.panes.TitledPaneController;
-import pl.baczkowicz.mqttspy.ui.panes.TitledPaneStatus;
 import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
 import pl.baczkowicz.mqttspy.utils.MqttUtils;
 
@@ -84,11 +90,12 @@ public class NewSubscriptionController implements Initializable, TitledPaneContr
 	private boolean detailedView;
 
 	private TimeBasedKeyEventFilter timeBasedFilter;
-	
-	/** Created pane status with index 2 (second the last pane). */
-	private final TitledPaneStatus paneStatus = new TitledPaneStatus(2);
 
 	private TitledPane pane;
+
+	private AnchorPane paneTitle;
+
+	private MenuButton settingsButton;
 
 	public NewSubscriptionController()
 	{
@@ -141,7 +148,13 @@ public class NewSubscriptionController implements Initializable, TitledPaneContr
 		        		break;
 	        	}
 	        }
-	    });
+	    });	
+	}
+	
+	public void init()
+	{
+		paneTitle = new AnchorPane();
+		settingsButton = NewPublicationController.createTitleButtons(pane, paneTitle, connectionController);
 	}
 	
 	private void updateVisibility()
@@ -257,10 +270,17 @@ public class NewSubscriptionController implements Initializable, TitledPaneContr
 	{
 		this.pane = pane;
 	}
-
+	
 	@Override
-	public TitledPaneStatus getTitledPaneStatus()
+	public void updatePane(PaneVisibilityStatus status)
 	{
-		return paneStatus;
+		if (PaneVisibilityStatus.ATTACHED.equals(status))
+		{
+			settingsButton.setVisible(true);
+		}		
+		else
+		{
+			settingsButton.setVisible(false);
+		}
 	}
 }

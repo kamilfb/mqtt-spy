@@ -4,8 +4,13 @@
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * and Eclipse Distribution License v1.0 which accompany this distribution.
+ *
+ * The Eclipse Public License is available at
+ *    http://www.eclipse.org/legal/epl-v10.html
+ *    
+ * The Eclipse Distribution License is available at
+ *   http://www.eclipse.org/org/documents/edl-v10.php.
  *
  * Contributors:
  * 
@@ -25,6 +30,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.Tooltip;
@@ -35,15 +41,19 @@ import org.fxmisc.richtext.StyleClassedTextArea;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import pl.baczkowicz.mqttspy.common.generated.FormatterDetails;
 import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
 import pl.baczkowicz.mqttspy.configuration.UiProperties;
-import pl.baczkowicz.mqttspy.configuration.generated.FormatterDetails;
-import pl.baczkowicz.mqttspy.events.observers.MessageFormatChangeObserver;
-import pl.baczkowicz.mqttspy.events.observers.MessageIndexChangeObserver;
-import pl.baczkowicz.mqttspy.storage.BasicMessageStore;
-import pl.baczkowicz.mqttspy.storage.UiMqttMessage;
+import pl.baczkowicz.mqttspy.scripts.FormattingManager;
+import pl.baczkowicz.mqttspy.storage.BasicMessageStoreWithSummary;
+import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
+import pl.baczkowicz.mqttspy.ui.controls.StyledTextAreaWrapper;
+import pl.baczkowicz.mqttspy.ui.controls.TextAreaInterface;
+import pl.baczkowicz.mqttspy.ui.controls.TextAreaWrapper;
+import pl.baczkowicz.mqttspy.ui.events.observers.MessageFormatChangeObserver;
+import pl.baczkowicz.mqttspy.ui.events.observers.MessageIndexChangeObserver;
 import pl.baczkowicz.mqttspy.ui.search.SearchOptions;
-import pl.baczkowicz.mqttspy.ui.utils.FormattingUtils;
+import pl.baczkowicz.mqttspy.utils.FormattingUtils;
 import pl.baczkowicz.mqttspy.utils.TimeUtils;
 
 /**
@@ -54,7 +64,13 @@ public class MessageController implements Initializable, MessageIndexChangeObser
 	final static Logger logger = LoggerFactory.getLogger(MessageController.class);
 
 	@FXML
-	private StyleClassedTextArea dataField;
+	private AnchorPane parentPane;
+	@FXML
+	private TextArea dataField;
+	
+	private TextAreaInterface dataFieldInteface;
+	
+	private StyleClassedTextArea styledDataField;
 
 	@FXML
 	private ToggleButton wrapToggle;
@@ -83,9 +99,9 @@ public class MessageController implements Initializable, MessageIndexChangeObser
 	@FXML
 	private Label qosFieldLabel;
 
-	private BasicMessageStore store;
+	private BasicMessageStoreWithSummary store;
 	
-	private UiMqttMessage message;
+	private FormattedMqttMessage message;
 
 	private FormatterDetails selectionFormat = null;
 
@@ -98,11 +114,52 @@ public class MessageController implements Initializable, MessageIndexChangeObser
 	private boolean detailedView;
 
 	private ConfigurationManager configurationManager;
+	
+	private FormattingManager formattingManager;
+
+	private boolean styled;
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources)
 	{		
-		dataField.selectedTextProperty().addListener(new ChangeListener<String>()
+		// All done in init() as this is where the dataFieldInterface is assigned
+	}
+	
+	public void init()
+	{
+//		dataField.heightProperty().addListener(new ChangeListener<Number>()
+//		{
+//
+//			@Override
+//			public void changed(ObservableValue<? extends Number> observable,
+//					Number oldValue, Number newValue)
+//			{
+//				logger.info("New height = {}; pane height = {}", newValue, parentPane.getHeight());
+//				
+//			}
+//		});
+		
+		if (styled)
+		{		
+			styledDataField = new StyleClassedTextArea();
+												
+			AnchorPane.setBottomAnchor(styledDataField, AnchorPane.getBottomAnchor(dataField) - 1);
+			AnchorPane.setLeftAnchor(styledDataField, AnchorPane.getLeftAnchor(dataField) - 1);
+			AnchorPane.setTopAnchor(styledDataField, AnchorPane.getTopAnchor(dataField) - 1);
+			AnchorPane.setRightAnchor(styledDataField, AnchorPane.getRightAnchor(dataField) - 1);
+			parentPane.getChildren().add(styledDataField);
+			parentPane.getChildren().remove(dataField);
+			
+			dataFieldInteface = new StyledTextAreaWrapper(styledDataField);
+		}
+		else
+		{
+			dataFieldInteface = new TextAreaWrapper(dataField);
+		}
+		
+		dataFieldInteface.setEditable(false);
+		dataFieldInteface.setWrapText(true);
+		dataFieldInteface.selectedTextProperty().addListener(new ChangeListener<String>()
 		{
 			@Override
 			public void changed(ObservableValue<? extends String> observable, String oldValue,
@@ -119,22 +176,20 @@ public class MessageController implements Initializable, MessageIndexChangeObser
 			{
 				if (event.getClickCount() == 2)
 				{
-					final String textToDisplay = message.getFormattedPayload(store.getFormatter());				
+					formattingManager.formatMessage(message, store.getFormatter());
+					final String textToDisplay = message.getFormattedPayload();				
 					displayNewText(textToDisplay);
 				}				
 			}
 		});
-	}
-	
-	public void init()
-	{
+		
 		tooltip = new Tooltip("");
 		tooltip.setWrapText(true);
 		
 		lengthTooltip = new Tooltip();
 		lengthLabel.setTooltip(lengthTooltip);
 	}
-	
+
 	private void updateVisibility()
 	{
 		if (detailedView)
@@ -187,7 +242,7 @@ public class MessageController implements Initializable, MessageIndexChangeObser
 	{
 		if (messageIndex > 0)
 		{
-			UiMqttMessage message = null; 
+			FormattedMqttMessage message = null; 
 		
 			// Optimised for showing the latest message
 			if (messageIndex == 1)
@@ -202,7 +257,7 @@ public class MessageController implements Initializable, MessageIndexChangeObser
 			{
 				synchronized (store)
 				{
-					final List<UiMqttMessage> messages = store.getMessages();
+					final List<FormattedMqttMessage> messages = store.getMessages();
 					
 					// Make sure we don't try to re-display a message that is not in the store anymore
 					if (messageIndex <= messages.size())
@@ -219,7 +274,7 @@ public class MessageController implements Initializable, MessageIndexChangeObser
 		}
 	}
 
-	public void populate(final UiMqttMessage message)
+	public void populate(final FormattedMqttMessage message)
 	{
 		// Don't populate with the same message object
 		if (message != null && !message.equals(this.message))
@@ -279,7 +334,7 @@ public class MessageController implements Initializable, MessageIndexChangeObser
 
 		topicField.setText("");
 		
-		dataField.clear();		
+		dataFieldInteface.clear();		
 		
 		qosField.setText("");
 		timeField.setText("");
@@ -294,11 +349,11 @@ public class MessageController implements Initializable, MessageIndexChangeObser
 		if (selectionFormat != null)
 		{
 			updateTooltipText();
-			dataField.setTooltip(tooltip);
+			dataFieldInteface.setTooltip(tooltip);
 		}
 		else			
 		{
-			dataField.setTooltip(null);
+			dataFieldInteface.setTooltip(null);
 		}
 	}
 
@@ -318,13 +373,15 @@ public class MessageController implements Initializable, MessageIndexChangeObser
 				else
 				{
 					final int max = UiProperties.getLargeMessageSubstring(configurationManager); 
-					textToDisplay = message.getFormattedPayload(store.getFormatter()).substring(0, max) 
+					formattingManager.formatMessage(message, store.getFormatter());
+					textToDisplay = message.getFormattedPayload().substring(0, max) 
 							+ "... [message truncated to " + max + " characters - double click on 'Data' to display]";
 				}
 			}
 			else
 			{
-				textToDisplay = message.getFormattedPayload(store.getFormatter());
+				formattingManager.formatMessage(message, store.getFormatter());
+				textToDisplay = message.getFormattedPayload();
 			}
 			
 			displayNewText(textToDisplay);
@@ -334,24 +391,27 @@ public class MessageController implements Initializable, MessageIndexChangeObser
 	private void displayNewText(final String textToDisplay)
 	{
 		// Won't refresh the text if it is the same...
-		if (!textToDisplay.equals(dataField.getText()))
+		if (!textToDisplay.equals(dataFieldInteface.getText()))
 		{
-			dataField.clear();
-			dataField.appendText(textToDisplay);
-			dataField.setStyleClass(0, dataField.getText().length(), "messageText");
-		
-			if (searchOptions != null && searchOptions.getSearchValue().length() > 0)
+			dataFieldInteface.clear();
+			dataFieldInteface.appendText(textToDisplay);
+			dataFieldInteface.positionCaret(0);
+					
+			if (searchOptions != null && styled)
 			{
-				final String textToSearch = searchOptions.isMatchCase() ? dataField.getText() : dataField.getText().toLowerCase();
-				
-				int pos = textToSearch.indexOf(searchOptions.getSearchValue());
-				while (pos >= 0)
+				styledDataField.setStyleClass(0, dataFieldInteface.getText().length(), "messageText");
+				if (searchOptions.getSearchValue().length() > 0)				
 				{
-					dataField.setStyleClass(pos, pos + searchOptions.getSearchValue().length(), "messageTextHighlighted");
-					pos = textToSearch.indexOf(searchOptions.getSearchValue(), pos + 1);
+					final String textToSearch = searchOptions.isMatchCase() ? dataFieldInteface.getText() : dataFieldInteface.getText().toLowerCase();
+					
+					int pos = textToSearch.indexOf(searchOptions.getSearchValue());
+					while (pos >= 0)
+					{
+						styledDataField.setStyleClass(pos, pos + searchOptions.getSearchValue().length(), "messageTextHighlighted");
+						pos = textToSearch.indexOf(searchOptions.getSearchValue(), pos + 1);
+					}
 				}
 			}
-			dataField.positionCaret(0);;
 			
 			updateTooltipText();
 		}						
@@ -361,7 +421,7 @@ public class MessageController implements Initializable, MessageIndexChangeObser
 	{
 		if (selectionFormat != null)
 		{
-			final String tooltipText = FormattingUtils.checkAndFormatText(selectionFormat, dataField.getSelectedText());
+			final String tooltipText = FormattingUtils.checkAndFormatText(selectionFormat, dataFieldInteface.getSelectedText());
 			
 			if (tooltipText.length() > 0)
 			{
@@ -388,8 +448,18 @@ public class MessageController implements Initializable, MessageIndexChangeObser
 		this.configurationManager = configurationManager;
 	}
 	
-	public void setStore(final BasicMessageStore store)
+	public void setFormattingManager(final FormattingManager formattingManager)
+	{
+		this.formattingManager = formattingManager;
+	}
+	
+	public void setStore(final BasicMessageStoreWithSummary store)
 	{
 		this.store = store;
+	}
+
+	public void setStyled(final boolean styled)
+	{
+		this.styled = styled;		
 	}
 }

@@ -4,8 +4,13 @@
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * and Eclipse Distribution License v1.0 which accompany this distribution.
+ *
+ * The Eclipse Public License is available at
+ *    http://www.eclipse.org/legal/epl-v10.html
+ *    
+ * The Eclipse Distribution License is available at
+ *   http://www.eclipse.org/org/documents/edl-v10.php.
  *
  * Contributors:
  * 
@@ -325,7 +330,7 @@ public class EditConnectionController extends AnchorPane implements Initializabl
 				{
 					try
 					{						
-						connectionManager.openConnection(editedConnectionDetails, mainController);
+						connectionManager.openConnection(editedConnectionDetails, getMainController());
 					}
 					catch (ConfigurationException e)
 					{
@@ -545,5 +550,13 @@ public class EditConnectionController extends AnchorPane implements Initializabl
 	public ConfiguredConnectionDetails getEditedConnectionDetails()
 	{
 		return editedConnectionDetails;
+	}
+
+	/**
+	 * @return the mainController
+	 */
+	public MainController getMainController()
+	{
+		return mainController;
 	}
 }

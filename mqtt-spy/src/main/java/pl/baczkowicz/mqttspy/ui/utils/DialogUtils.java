@@ -4,8 +4,13 @@
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * and Eclipse Distribution License v1.0 which accompany this distribution.
+ *
+ * The Eclipse Public License is available at
+ *    http://www.eclipse.org/legal/epl-v10.html
+ *    
+ * The Eclipse Distribution License is available at
+ *   http://www.eclipse.org/org/documents/edl-v10.php.
  *
  * Contributors:
  * 
@@ -54,12 +59,12 @@ import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
 import pl.baczkowicz.mqttspy.configuration.ConfigurationUtils;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.connectivity.MqttConnectionStatus;
-import pl.baczkowicz.mqttspy.events.EventManager;
 import pl.baczkowicz.mqttspy.stats.StatisticsManager;
-import pl.baczkowicz.mqttspy.storage.BasicMessageStore;
+import pl.baczkowicz.mqttspy.storage.BasicMessageStoreWithSummary;
 import pl.baczkowicz.mqttspy.ui.LineChartPaneController;
 import pl.baczkowicz.mqttspy.ui.PieChartPaneController;
 import pl.baczkowicz.mqttspy.ui.charts.ChartMode;
+import pl.baczkowicz.mqttspy.ui.events.EventManager;
 import pl.baczkowicz.mqttspy.ui.properties.SubscriptionTopicSummaryProperties;
 import pl.baczkowicz.mqttspy.utils.MqttUtils;
 import pl.baczkowicz.mqttspy.utils.ThreadingUtils;
@@ -182,14 +187,24 @@ public class DialogUtils
 	}
 	
 	/**
+	 * Asks the user for input.
+	 * 
+	 * @return The user's response
+	 */
+	public static Optional<String> askForInput(final Object owner, final String title, final String label)
+	{
+		return Dialogs.create().owner(owner).title(title).masthead(null)
+		.message(label).showTextInput();		
+	}
+	
+	/**
 	 * Asks the user for a script name.
 	 * 
 	 * @return The user's response
 	 */
-	public static Optional<String> askForScriptName()
+	public static Optional<String> askForScriptName(final Object owner)
 	{
-		return Dialogs.create().owner(null).title("Enter a name for your message-based script").masthead(null)
-		.message("Script name (without .js)").showTextInput();		
+		return askForInput(owner, "Enter a name for your message-based script", "Script name (without .js)");
 	}
 	
 	/**
@@ -485,7 +500,7 @@ public class DialogUtils
 	}
 
 	public static void showMessageBasedLineCharts(Collection<String> topics, 
-			final BasicMessageStore store,
+			final BasicMessageStoreWithSummary store,
 			final ChartMode mode, 
 			final String seriesType, final String seriesValueName, 
 			final String seriesUnit, final String title, 

@@ -4,8 +4,13 @@
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * and Eclipse Distribution License v1.0 which accompany this distribution.
+ *
+ * The Eclipse Public License is available at
+ *    http://www.eclipse.org/legal/epl-v10.html
+ *    
+ * The Eclipse Distribution License is available at
+ *   http://www.eclipse.org/org/documents/edl-v10.php.
  *
  * Contributors:
  * 
@@ -16,12 +21,13 @@ package pl.baczkowicz.mqttspy.storage.summary;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import pl.baczkowicz.mqttspy.configuration.generated.FormatterDetails;
-import pl.baczkowicz.mqttspy.storage.UiMqttMessage;
+import pl.baczkowicz.mqttspy.common.generated.FormatterDetails;
+import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.ui.properties.SubscriptionTopicSummaryProperties;
 
 /**
@@ -55,16 +61,16 @@ public class TopicSummary extends TopicMessageCount
 		}
 	}
 	
-	public void removeMessage(final UiMqttMessage message)
+	public void removeMessage(final FormattedMqttMessage message)
 	{
 		synchronized (topicToSummaryMapping)
 		{
-			final SubscriptionTopicSummaryProperties value = topicToSummaryMapping.get(message.getTopic());
+			final SubscriptionTopicSummaryProperties item = topicToSummaryMapping.get(message.getTopic());
 	
 			// There should be something in
-			if (value != null)
+			if (item != null)
 			{
-				value.setCount(value.countProperty().intValue() - 1);
+				item.setCount(item.countProperty().intValue() - 1);
 			}
 			else
 			{
@@ -73,30 +79,28 @@ public class TopicSummary extends TopicMessageCount
 		}
 	}
 	
-	public SubscriptionTopicSummaryProperties addMessage(final UiMqttMessage message)
+	public SubscriptionTopicSummaryProperties addMessage(final FormattedMqttMessage message, final AtomicBoolean newAdded)
 	{
-		SubscriptionTopicSummaryProperties newElement = null;
-		
 		synchronized (topicToSummaryMapping)
 		{
-			SubscriptionTopicSummaryProperties value = topicToSummaryMapping.get(message.getTopic());
+			SubscriptionTopicSummaryProperties item = topicToSummaryMapping.get(message.getTopic());
 	
-			if (value == null)
+			if (item == null)
 			{
-				value = new SubscriptionTopicSummaryProperties(false, 1, message, messageFormat, maxPayloadLength);
-				topicToSummaryMapping.put(message.getTopic(), value);
-				newElement = value;
+				item = new SubscriptionTopicSummaryProperties(false, 1, message, maxPayloadLength);
+				topicToSummaryMapping.put(message.getTopic(), item);
+				newAdded.set(true);
 			}
 			else
 			{
-				value.setCount(value.countProperty().intValue() + 1);	
-				value.setMessage(message, messageFormat);				
+				item.setCount(item.countProperty().intValue() + 1);	
+				item.setMessage(message);				
 			}
 			
-			logger.trace("[{}] has {} messages", name, value.countProperty().intValue());
-		}		
-		
-		return newElement;
+			logger.trace("[{}] has {} messages", name, item.countProperty().intValue());
+			
+			return item;
+		}				
 	}
 
 	public void setFormatter(final FormatterDetails messageFormat)

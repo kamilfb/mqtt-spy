@@ -4,8 +4,13 @@
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * and Eclipse Distribution License v1.0 which accompany this distribution.
+ *
+ * The Eclipse Public License is available at
+ *    http://www.eclipse.org/legal/epl-v10.html
+ *    
+ * The Eclipse Distribution License is available at
+ *   http://www.eclipse.org/org/documents/edl-v10.php.
  *
  * Contributors:
  * 
@@ -22,9 +27,11 @@ import java.util.Map;
 import java.util.concurrent.Executor;
 
 import javax.script.Bindings;
+import javax.script.Invocable;
 import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
 import javax.script.SimpleBindings;
 
 import org.slf4j.Logger;
@@ -63,7 +70,7 @@ public class ScriptManager
 	private Executor executor;
 
 	/** Connection for which the script will be run. */
-	protected IMqttConnection connection;
+	private IMqttConnection connection;
 	
 	/**
 	 * Creates the script manager.
@@ -76,7 +83,7 @@ public class ScriptManager
 	{
 		this.eventManager = eventManager;
 		this.executor = executor;
-		this.connection = connection;
+		this.setConnection(connection);
 	}
 	
 	/**
@@ -106,9 +113,9 @@ public class ScriptManager
 		
 		final Script script = new Script();
 				
-		createFileBasedScript(script, scriptName, scriptFile, connection, scriptDetails);
+		createFileBasedScript(script, scriptName, scriptFile, getConnection(), scriptDetails);
 		
-		logger.debug("Adding script {}", scriptDetails.getFile());
+		logger.info("Adding script {}", scriptDetails.getFile());
 		scripts.put(scriptFile.getAbsolutePath(), script);
 		
 		return script;
@@ -128,7 +135,7 @@ public class ScriptManager
 		script.setScriptContent(content);
 		script.setScriptDetails(new ScriptDetails(true, false, null));
 				
-		createScript(script, scriptName, connection);
+		createScript(script, scriptName, getConnection());
 		
 		logger.debug("Adding in-line script {}", scriptName);
 
@@ -142,12 +149,16 @@ public class ScriptManager
 	 * 
 	 * @param scriptDetails The script details
 	 */
-	public void addScripts(final List<ScriptDetails> scriptDetails)
+	public List<Script> addScripts(final List<ScriptDetails> scriptDetails)
 	{
+		final List<Script> addedScripts = new ArrayList<>();
+		
 		for (final ScriptDetails script : scriptDetails)
 		{
-			addScript(script);
+			addedScripts.add(addScript(script));			
 		}
+		
+		return addedScripts;
 	}
 	
 	/**
@@ -191,7 +202,7 @@ public class ScriptManager
 				final String scriptName = getScriptName(scriptFile);				
 				script = new Script();
 				
-				createFileBasedScript(script, scriptName, scriptFile, connection, new ScriptDetails(true, false, scriptFile.getName())); 			
+				createFileBasedScript(script, scriptName, scriptFile, getConnection(), new ScriptDetails(true, false, scriptFile.getName())); 			
 				
 				addedScripts.add(script);
 				addScript(script);
@@ -231,7 +242,7 @@ public class ScriptManager
 					final String scriptName = getScriptName(scriptFile);
 					script = new Script();
 					
-					createFileBasedScript(script, scriptName, scriptFile, connection, details); 			
+					createFileBasedScript(script, scriptName, scriptFile, getConnection(), details); 			
 					
 					addedScripts.add(script);
 					addScript(script);
@@ -298,8 +309,9 @@ public class ScriptManager
 	 * @param variables The variables to be populated
 	 */
 	public static void putJavaVariablesIntoEngine(final ScriptEngine engine, final Map<String, Object> variables)
-	{
+	{		
 		final Bindings bindings = new SimpleBindings();
+		// final Bindings bindings = engine.createBindings();
 
 		for (String key : variables.keySet())
 		{
@@ -321,6 +333,7 @@ public class ScriptManager
 		if (!ScriptRunningState.RUNNING.equals(script.getStatus()))
 		{
 			script.createScriptRunner(eventManager, executor);
+			script.setAsynchronous(asynchronous);
 			
 			if (asynchronous)
 			{
@@ -378,6 +391,28 @@ public class ScriptManager
 		runScript(script, asynchronous);		
 	}
 	
+	public Object invokeFunction(final Script script, final String function, final Object... args) throws NoSuchMethodException, ScriptException
+	{
+		final Invocable invocable = (Invocable) script.getScriptEngine();
+		
+		Object result = null;
+		try
+		{
+			 result = invocable.invokeFunction(function, args);
+		}
+		catch (NoSuchMethodException e)
+		{
+			throw e;
+		}
+		// Catch all - in case the script throws an undefined exception
+		catch (Exception e)
+		{
+			throw new ScriptException(e);
+		}
+		
+		return result;
+	}
+	
 	/**
 	 * Gets script object for the given file.
 	 * 
@@ -426,5 +461,21 @@ public class ScriptManager
 	public boolean containsScript(final Script script)
 	{
 		return scripts.containsKey(script.getScriptId());
+	}
+
+	/**
+	 * @return the connection
+	 */
+	public IMqttConnection getConnection()
+	{
+		return connection;
+	}
+
+	/**
+	 * @param connection the connection to set
+	 */
+	public void setConnection(IMqttConnection connection)
+	{
+		this.connection = connection;
 	}
 }

@@ -4,8 +4,13 @@
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * and Eclipse Distribution License v1.0 which accompany this distribution.
+ *
+ * The Eclipse Public License is available at
+ *    http://www.eclipse.org/legal/epl-v10.html
+ *    
+ * The Eclipse Distribution License is available at
+ *   http://www.eclipse.org/org/documents/edl-v10.php.
  *
  * Contributors:
  * 
@@ -30,7 +35,7 @@ import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import pl.baczkowicz.mqttspy.stats.StatisticsManager;
 import pl.baczkowicz.mqttspy.ui.ControlPanelItemController;
-import pl.baczkowicz.mqttspy.ui.utils.FormattingUtils;
+import pl.baczkowicz.mqttspy.utils.FormattingUtils;
 import pl.baczkowicz.mqttspy.utils.ThreadingUtils;
 import pl.baczkowicz.mqttspy.utils.TimeUtils;
 
@@ -248,6 +253,8 @@ public class ControlPanelStatsUpdater implements Runnable
 	@Override
 	public void run()
 	{
+		ThreadingUtils.logThreadStarting("Control Panel Stats Updater");
+		
 		secondCounter = 0;
 		while (true)
 		{
@@ -260,6 +267,8 @@ public class ControlPanelStatsUpdater implements Runnable
 				break;
 			}			
 		}
+		
+		ThreadingUtils.logThreadEnding();
 	}
 	
 	/**

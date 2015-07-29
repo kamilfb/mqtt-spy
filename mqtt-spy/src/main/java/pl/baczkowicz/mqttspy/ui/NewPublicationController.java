@@ -4,8 +4,13 @@
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * and Eclipse Distribution License v1.0 which accompany this distribution.
+ *
+ * The Eclipse Public License is available at
+ *    http://www.eclipse.org/legal/epl-v10.html
+ *    
+ * The Eclipse Distribution License is available at
+ *   http://www.eclipse.org/org/documents/edl-v10.php.
  *
  * Contributors:
  * 
@@ -23,6 +28,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -32,6 +38,8 @@ import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ComboBox;
@@ -44,8 +52,11 @@ import javafx.scene.control.SplitMenuButton;
 import javafx.scene.control.TitledPane;
 import javafx.scene.control.Toggle;
 import javafx.scene.control.ToggleGroup;
+import javafx.scene.control.Tooltip;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.text.TextAlignment;
 
 import org.controlsfx.control.action.Action;
 import org.controlsfx.dialog.Dialog;
@@ -54,22 +65,23 @@ import org.fxmisc.richtext.StyleClassedTextArea;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import pl.baczkowicz.mqttspy.common.generated.ConversionMethod;
 import pl.baczkowicz.mqttspy.common.generated.SimpleMqttMessage;
-import pl.baczkowicz.mqttspy.configuration.generated.ConversionMethod;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
-import pl.baczkowicz.mqttspy.events.EventManager;
-import pl.baczkowicz.mqttspy.events.observers.ScriptListChangeObserver;
 import pl.baczkowicz.mqttspy.exceptions.ConversionException;
 import pl.baczkowicz.mqttspy.messages.BaseMqttMessage;
 import pl.baczkowicz.mqttspy.scripts.InteractiveScriptManager;
 import pl.baczkowicz.mqttspy.scripts.Script;
 import pl.baczkowicz.mqttspy.scripts.ScriptManager;
 import pl.baczkowicz.mqttspy.scripts.ScriptTypeEnum;
+import pl.baczkowicz.mqttspy.ui.events.EventManager;
+import pl.baczkowicz.mqttspy.ui.events.observers.ScriptListChangeObserver;
 import pl.baczkowicz.mqttspy.ui.keyboard.TimeBasedKeyEventFilter;
+import pl.baczkowicz.mqttspy.ui.panes.PaneVisibilityStatus;
 import pl.baczkowicz.mqttspy.ui.panes.TitledPaneController;
-import pl.baczkowicz.mqttspy.ui.panes.TitledPaneStatus;
 import pl.baczkowicz.mqttspy.ui.properties.PublicationScriptProperties;
 import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
+import pl.baczkowicz.mqttspy.ui.utils.UiUtils;
 import pl.baczkowicz.mqttspy.utils.ConversionUtils;
 import pl.baczkowicz.mqttspy.utils.FileUtils;
 import pl.baczkowicz.mqttspy.utils.MqttUtils;
@@ -86,6 +98,8 @@ public class NewPublicationController implements Initializable, ScriptListChange
 
 	/** How many recent messages to store. */
 	private final static int MAX_RECENT_MESSAGES = 10;
+
+	private MenuButton settingsButton;
 	
 	@FXML
 	private SplitMenuButton publishButton;
@@ -149,12 +163,13 @@ public class NewPublicationController implements Initializable, ScriptListChange
 	private List<BaseMqttMessage> recentMessages = new ArrayList<>();
 
 	private TimeBasedKeyEventFilter timeBasedFilter;
-	
-	/** Created pane status with index 0 (the first pane). */
-	private final TitledPaneStatus paneStatus = new TitledPaneStatus(0);
 
 	private TitledPane pane;
 
+	private AnchorPane paneTitle;
+
+	protected ConnectionController connectionController;
+	
 	public void initialize(URL location, ResourceBundle resources)
 	{
 		timeBasedFilter = new TimeBasedKeyEventFilter(15);
@@ -294,12 +309,108 @@ public class NewPublicationController implements Initializable, ScriptListChange
 			}
 		});
 		
-		publishScript.getToggles().get(0).setUserData(null);
+		publishScript.getToggles().get(0).setUserData(null);		
 	}		
+	
+	public static ChangeListener<Number> createPaneTitleWidthListener(final TitledPane pane, final AnchorPane paneTitle)
+	{
+		return new ChangeListener<Number>()
+		{
+			@Override
+			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue)
+			{				 										
+				Platform.runLater(new Runnable()
+				{										
+					@Override
+					public void run()
+					{
+						SubscriptionController.updateTitleWidth(pane, paneTitle, 40);
+					}
+				});
+			}
+		};
+	}
+	
+	public static MenuButton createTitleButton(final String title, final String iconLocation, final double offset, 
+			final ConnectionController connectionController, final TitledPane pane)
+	{
+		final MenuButton button = new MenuButton();
+		button.setId("pane-settings-button");
+		button.setTooltip(new Tooltip(title));
+		// button.setPadding(new Insets(0, 0, 0, 0));
+		button.setPadding(Insets.EMPTY);
+		button.setLineSpacing(0);
+		button.setBorder(null);
+		button.setGraphicTextGap(0);
+		button.setFocusTraversable(false);
+		// button.setMaxHeight(16);
+		
+		button.setGraphic(UiUtils.createImage(iconLocation, 14));
+		
+		// TODO: actions
+		final MenuItem detach = new MenuItem("Detach to a separate window", UiUtils.createImage("images/tab-detach.png", 14, "pane-settings-menu-graphic"));
+		detach.setOnAction(new EventHandler<ActionEvent>()
+		{
+			@Override
+			public void handle(ActionEvent event)
+			{				
+				connectionController.setPaneVisiblity(
+						connectionController.getPaneToStatusMapping().get(pane), 
+						PaneVisibilityStatus.DETACHED);				
+			}
+		});
+		final MenuItem hide = new MenuItem("Hide this pane", UiUtils.createImage("images/tab-close.png", 14, "pane-settings-menu-graphic"));
+		hide.setOnAction(new EventHandler<ActionEvent>()
+		{
+			@Override
+			public void handle(ActionEvent event)
+			{				
+				connectionController.setPaneVisiblity(
+						connectionController.getPaneToStatusMapping().get(pane), 
+						PaneVisibilityStatus.NOT_VISIBLE);				
+			}
+		});
+		button.getItems().add(detach);
+		button.getItems().add(hide);
+		
+		for (MenuItem item : button.getItems())
+		{
+			item.getStyleClass().add("pane-settings-menu-item");
+		}
+		
+		button.setTextAlignment(TextAlignment.RIGHT);
+		button.setAlignment(Pos.CENTER_RIGHT);
+		AnchorPane.setRightAnchor(button, offset);
+		
+		return button;
+	}
+	
+	public static MenuButton createTitleButtons(final TitledPane pane, final AnchorPane paneTitle, final ConnectionController connectionController)	
+	{
+		final MenuButton settingsButton = createTitleButton("Pane settings", "images/settings.png", -5, connectionController, pane);
+			      
+		HBox titleBox = new HBox();
+		titleBox.setPadding(new Insets(0, 0, 0, 0));				
+		titleBox.getChildren().addAll(new Label(pane.getText()));
+		titleBox.prefWidth(Double.MAX_VALUE);		
+		
+		paneTitle.setPadding(new Insets(0, 0, 0, 0));
+		paneTitle.getChildren().addAll(titleBox, settingsButton);
+		paneTitle.setMaxWidth(Double.MAX_VALUE);
+		
+		pane.setText(null);
+		pane.setGraphic(paneTitle);
+		pane.widthProperty().addListener(createPaneTitleWidthListener(pane, paneTitle));
+		
+		return settingsButton;
+	}
 
 	public void init()
 	{
 		eventManager.registerScriptListChangeObserver(this, connection);		
+		
+		paneTitle = new AnchorPane();
+		settingsButton = createTitleButtons(pane, paneTitle, connectionController);
 	}
 
 	@Override
@@ -340,6 +451,11 @@ public class NewPublicationController implements Initializable, ScriptListChange
 				scriptsMenu.getItems().add(item);
 			}
 		}
+	}
+	
+	public void setConnectionController(final ConnectionController connectionController)
+	{
+		this.connectionController = connectionController;
 	}
 
 	public void recordPublicationTopic(final String publicationTopic)
@@ -672,7 +788,7 @@ public class NewPublicationController implements Initializable, ScriptListChange
 		
 		while (!valid)
 		{
-			final Optional<String> response = DialogUtils.askForScriptName();
+			final Optional<String> response = DialogUtils.askForScriptName(pane);
 			
 			logger.info("Script name response = " + response);
 			if (response.isPresent())
@@ -833,8 +949,15 @@ public class NewPublicationController implements Initializable, ScriptListChange
 	}
 
 	@Override
-	public TitledPaneStatus getTitledPaneStatus()
+	public void updatePane(PaneVisibilityStatus status)
 	{
-		return paneStatus;
+		if (PaneVisibilityStatus.ATTACHED.equals(status))
+		{
+			settingsButton.setVisible(true);
+		}		
+		else
+		{
+			settingsButton.setVisible(false);
+		}
 	}
 }

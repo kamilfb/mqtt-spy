@@ -4,8 +4,13 @@
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * and Eclipse Distribution License v1.0 which accompany this distribution.
+ *
+ * The Eclipse Public License is available at
+ *    http://www.eclipse.org/legal/epl-v10.html
+ *    
+ * The Eclipse Distribution License is available at
+ *   http://www.eclipse.org/org/documents/edl-v10.php.
  *
  * Contributors:
  * 
@@ -27,6 +32,7 @@ import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Menu;
+import javafx.scene.control.MenuButton;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.TableCell;
@@ -36,19 +42,20 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TitledPane;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.AnchorPane;
 import javafx.util.Callback;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
-import pl.baczkowicz.mqttspy.events.EventManager;
-import pl.baczkowicz.mqttspy.events.observers.ScriptStateChangeObserver;
 import pl.baczkowicz.mqttspy.scripts.InteractiveScriptManager;
 import pl.baczkowicz.mqttspy.scripts.ScriptRunningState;
 import pl.baczkowicz.mqttspy.scripts.ScriptTypeEnum;
+import pl.baczkowicz.mqttspy.ui.events.EventManager;
+import pl.baczkowicz.mqttspy.ui.events.observers.ScriptStateChangeObserver;
+import pl.baczkowicz.mqttspy.ui.panes.PaneVisibilityStatus;
 import pl.baczkowicz.mqttspy.ui.panes.TitledPaneController;
-import pl.baczkowicz.mqttspy.ui.panes.TitledPaneStatus;
 import pl.baczkowicz.mqttspy.ui.properties.PublicationScriptProperties;
 import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
 import pl.baczkowicz.mqttspy.ui.utils.UiUtils;
@@ -89,11 +96,14 @@ public class PublicationScriptsController implements Initializable, ScriptStateC
 	private EventManager eventManager;
 
 	private Map<ScriptTypeEnum, ContextMenu> contextMenus = new HashMap<>();
-	
-	/** Created pane status with index 1 (the second pane). */
-	private final TitledPaneStatus paneStatus = new TitledPaneStatus(1);
 
 	private TitledPane pane;
+
+	private AnchorPane paneTitle;
+
+	private MenuButton settingsButton;
+
+	private ConnectionController connectionController;
 
 	public void initialize(URL location, ResourceBundle resources)
 	{
@@ -305,6 +315,9 @@ public class PublicationScriptsController implements Initializable, ScriptStateC
 		contextMenus.put(ScriptTypeEnum.PUBLICATION, createDirectoryTypeScriptTableContextMenu(ScriptTypeEnum.PUBLICATION));		
 		contextMenus.put(ScriptTypeEnum.BACKGROUND, createDirectoryTypeScriptTableContextMenu(ScriptTypeEnum.BACKGROUND));
 		contextMenus.put(ScriptTypeEnum.SUBSCRIPTION, createDirectoryTypeScriptTableContextMenu(ScriptTypeEnum.SUBSCRIPTION));
+		
+		paneTitle = new AnchorPane();
+		settingsButton = NewPublicationController.createTitleButtons(pane, paneTitle, connectionController);
 	}
 	
 	private void refreshList()
@@ -479,10 +492,23 @@ public class PublicationScriptsController implements Initializable, ScriptStateC
 	{
 		this.pane = pane;
 	}
-
+	
 	@Override
-	public TitledPaneStatus getTitledPaneStatus()
+	public void updatePane(PaneVisibilityStatus status)
 	{
-		return paneStatus;
+		if (PaneVisibilityStatus.ATTACHED.equals(status))
+		{
+			settingsButton.setVisible(true);
+		}		
+		else
+		{
+			settingsButton.setVisible(false);
+		}
+	}
+	
+
+	public void setConnectionController(ConnectionController connectionController)
+	{
+		this.connectionController = connectionController;
 	}
 }

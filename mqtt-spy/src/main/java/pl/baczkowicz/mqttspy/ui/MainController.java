@@ -4,8 +4,13 @@
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * and Eclipse Distribution License v1.0 which accompany this distribution.
+ *
+ * The Eclipse Public License is available at
+ *    http://www.eclipse.org/legal/epl-v10.html
+ *    
+ * The Eclipse Distribution License is available at
+ *   http://www.eclipse.org/org/documents/edl-v10.php.
  *
  * Contributors:
  * 
@@ -46,7 +51,6 @@ import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
 import pl.baczkowicz.mqttspy.configuration.ConfiguredConnectionDetails;
 import pl.baczkowicz.mqttspy.configuration.generated.TabbedSubscriptionDetails;
 import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnectionDetails;
-import pl.baczkowicz.mqttspy.events.EventManager;
 import pl.baczkowicz.mqttspy.exceptions.ConfigurationException;
 import pl.baczkowicz.mqttspy.exceptions.MqttSpyUncaughtExceptionHandler;
 import pl.baczkowicz.mqttspy.exceptions.XMLException;
@@ -54,12 +58,12 @@ import pl.baczkowicz.mqttspy.messages.BaseMqttMessage;
 import pl.baczkowicz.mqttspy.stats.ConnectionStatsUpdater;
 import pl.baczkowicz.mqttspy.stats.StatisticsManager;
 import pl.baczkowicz.mqttspy.ui.connections.ConnectionManager;
+import pl.baczkowicz.mqttspy.ui.events.EventManager;
 import pl.baczkowicz.mqttspy.ui.messagelog.LogReaderTask;
 import pl.baczkowicz.mqttspy.ui.messagelog.TaskWithProgressUpdater;
 import pl.baczkowicz.mqttspy.ui.panes.PaneVisibilityStatus;
 import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
 import pl.baczkowicz.mqttspy.ui.utils.FxmlUtils;
-import pl.baczkowicz.mqttspy.ui.utils.MqttSpyPerspective;
 
 /**
  * Controller for the main window.
@@ -117,7 +121,9 @@ public class MainController
 
 	private ConnectionManager connectionManager;
 
-	private Stage converterStage;
+	private Stage formattersStage;
+	
+	private Stage testCasesStage;
 
 	private MqttSpyPerspective selectedPerspective = MqttSpyPerspective.DEFAULT;
 	
@@ -196,16 +202,44 @@ public class MainController
 	{
 		showEditConnectionsWindow(false);
 	}
-	
+
 	@FXML
-	public void showConverter()
+	private void showFormatters()
 	{
-		if (converterStage == null)
+		if (formattersStage == null)
 		{
-			initialiseConverterWindow();
+			initialiseFormattersWindow();
 		}
 		
-		converterStage.show();
+		formattersStage.show();
+	}
+	
+	public void showFormatters(final boolean showAndWait, final Stage stage)
+	{
+		initialiseFormattersWindow();		
+		
+		if (showAndWait)
+		{
+			formattersStage.initOwner(stage.getScene().getWindow());
+			formattersStage.showAndWait();
+			
+			formattersStage = null;
+		}
+		else
+		{
+			showFormatters();
+		}
+	}
+	
+	@FXML
+	public void showTestCases()
+	{
+		if (testCasesStage == null)
+		{
+			initialiseTestCasesWindow();
+		}
+		
+		testCasesStage.show();
 	}
 	
 	@FXML
@@ -254,19 +288,39 @@ public class MainController
 		editConnectionsStage.initOwner(getParentWindow());
 		editConnectionsStage.setScene(scene);
 	}
-	
-	private void initialiseConverterWindow()
+
+	private void initialiseFormattersWindow()
 	{
-		final FXMLLoader loader = FxmlUtils.createFxmlLoaderForProjectFile("ConverterWindow.fxml");
-		final AnchorPane converterWindow = FxmlUtils.loadAnchorPane(loader);
+		final FXMLLoader loader = FxmlUtils.createFxmlLoaderForProjectFile("FormattersWindow.fxml");
+		final AnchorPane formattersWindow = FxmlUtils.loadAnchorPane(loader);
 		
-		Scene scene = new Scene(converterWindow);
+		final FormattersController formattersController = ((FormattersController) loader.getController());
+		formattersController.setConfigurationManager(configurationManager);	
+		formattersController.init();
+		
+		Scene scene = new Scene(formattersWindow);
 		scene.getStylesheets().addAll(mainPane.getScene().getStylesheets());		
 
-		converterStage = new Stage();
-		converterStage.setTitle("Converter");		
-		converterStage.initOwner(getParentWindow());
-		converterStage.setScene(scene);
+		formattersStage = new Stage();
+		formattersStage.setTitle("Formatters");		
+		formattersStage.initModality(Modality.WINDOW_MODAL);
+		formattersStage.initOwner(getParentWindow());
+		formattersStage.setScene(scene);
+	}
+	
+	private void initialiseTestCasesWindow()
+	{
+		final FXMLLoader loader = FxmlUtils.createFxmlLoaderForProjectFile("TestCasesExecutionPane.fxml");
+		final AnchorPane testCasesWindow = FxmlUtils.loadAnchorPane(loader);
+		
+		Scene scene = new Scene(testCasesWindow);
+		scene.getStylesheets().addAll(mainPane.getScene().getStylesheets());		
+
+		testCasesStage = new Stage();
+		testCasesStage.setTitle("Test cases");		
+		testCasesStage.initOwner(getParentWindow());
+		testCasesStage.setScene(scene);
+		((TestCasesExecutionController) loader.getController()).init();
 	}
 	
 	private void showEditConnectionsWindow(final boolean createNew)
@@ -641,5 +695,10 @@ public class MainController
 	public CheckMenuItem getResizeMessagePaneMenu()
 	{
 		return resizeMessagePaneMenu;
+	}
+
+	public Stage getEditConnectionsStage()
+	{
+		return editConnectionsStage;
 	}
 }

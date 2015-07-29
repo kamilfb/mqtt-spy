@@ -4,8 +4,13 @@
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * and Eclipse Distribution License v1.0 which accompany this distribution.
+ *
+ * The Eclipse Public License is available at
+ *    http://www.eclipse.org/legal/epl-v10.html
+ *    
+ * The Eclipse Distribution License is available at
+ *   http://www.eclipse.org/org/documents/edl-v10.php.
  *
  * Contributors:
  * 
@@ -20,8 +25,8 @@ import org.slf4j.LoggerFactory;
 import javafx.application.Platform;
 import pl.baczkowicz.mqttspy.connectivity.handlers.MqttConnectionResultHandler;
 import pl.baczkowicz.mqttspy.connectivity.handlers.MqttEventHandler;
-import pl.baczkowicz.mqttspy.events.queuable.connectivity.MqttConnectionAttemptFailureEvent;
 import pl.baczkowicz.mqttspy.exceptions.MqttSpyException;
+import pl.baczkowicz.mqttspy.ui.events.queuable.connectivity.MqttConnectionAttemptFailureEvent;
 import pl.baczkowicz.mqttspy.utils.ThreadingUtils;
 
 public class MqttAsyncConnectionRunnable implements Runnable
@@ -40,6 +45,7 @@ public class MqttAsyncConnectionRunnable implements Runnable
 	@Override
 	public void run()
 	{
+		ThreadingUtils.logThreadStarting("ConnectionRunnable for " + connection.getName());
 		connection.setConnectionStatus(MqttConnectionStatus.CONNECTING);
 		
 		try
@@ -65,5 +71,7 @@ public class MqttAsyncConnectionRunnable implements Runnable
 			Platform.runLater(new MqttEventHandler(new MqttConnectionAttemptFailureEvent(connection, e)));
 			logger.error("Cannot connect to " + connection.getProperties().getServerURI(), e);
 		}				
+		
+		ThreadingUtils.logThreadEnding();
 	}
 }

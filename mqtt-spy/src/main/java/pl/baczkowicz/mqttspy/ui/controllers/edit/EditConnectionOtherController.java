@@ -4,8 +4,13 @@
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * and Eclipse Distribution License v1.0 which accompany this distribution.
+ *
+ * The Eclipse Public License is available at
+ *    http://www.eclipse.org/legal/epl-v10.html
+ *    
+ * The Eclipse Distribution License is available at
+ *   http://www.eclipse.org/org/documents/edl-v10.php.
  *
  * Contributors:
  * 
@@ -21,6 +26,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
@@ -30,14 +36,14 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
+import pl.baczkowicz.mqttspy.common.generated.FormatterDetails;
 import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
 import pl.baczkowicz.mqttspy.configuration.ConfiguredConnectionDetails;
-import pl.baczkowicz.mqttspy.configuration.generated.ConversionMethod;
-import pl.baczkowicz.mqttspy.configuration.generated.FormatterDetails;
 import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnectionDetails;
 import pl.baczkowicz.mqttspy.ui.EditConnectionController;
-import pl.baczkowicz.mqttspy.ui.utils.FormattingUtils;
+import pl.baczkowicz.mqttspy.ui.FormattersController;
 import pl.baczkowicz.mqttspy.ui.utils.KeyboardUtils;
+import pl.baczkowicz.mqttspy.utils.FormattingUtils;
 
 /**
  * Controller for editing a single connection - other/ui tab.
@@ -50,6 +56,9 @@ public class EditConnectionOtherController extends AnchorPane implements Initial
 
 	// UI & Formatting
 		
+	@FXML
+	private Button editFormatters;
+	
 	@FXML
 	private CheckBox autoOpen;
 	
@@ -78,6 +87,8 @@ public class EditConnectionOtherController extends AnchorPane implements Initial
 			onChange();			
 		}		
 	};
+
+	private ConfiguredConnectionDetails currentConnection;
 	
 	// ===============================
 	// === Initialisation ============
@@ -146,38 +157,28 @@ public class EditConnectionOtherController extends AnchorPane implements Initial
 	public void init()
 	{
 		formatter.getItems().clear();		
-		formatter.getItems().add(FormattingUtils.createBasicFormatter("default", 				"Plain", ConversionMethod.PLAIN));
-		formatter.getItems().add(FormattingUtils.createBasicFormatter("default-hexDecoder", 	"HEX decoder", ConversionMethod.HEX_DECODE));
-		formatter.getItems().add(FormattingUtils.createBasicFormatter("default-hexEncoder", 	"HEX encoder", ConversionMethod.HEX_ENCODE));
-		formatter.getItems().add(FormattingUtils.createBasicFormatter("default-base64Decoder", 	"Base64 decoder", ConversionMethod.BASE_64_DECODE));
-		formatter.getItems().add(FormattingUtils.createBasicFormatter("default-base64Encoder", 	"Base64 encoder", ConversionMethod.BASE_64_ENCODE));	
-		
+		formatter.getItems().addAll(FormattingUtils.createBaseFormatters());
+
 		// Populate those from the configuration file
-		for (final FormatterDetails formatterDetails : configurationManager.getConfiguration().getFormatting().getFormatter())
-		{			
-			// Make sure the element we're trying to add is not on the list already
-			boolean found = false;
-			
-			for (final FormatterDetails existingFormatterDetails : formatter.getItems())
-			{
-				if (existingFormatterDetails.getID().equals(formatterDetails.getID()))
-				{
-					found = true;
-					break;
-				}
-			}
-			
-			if (!found)
-			{
-				formatter.getItems().add(formatterDetails);
-			}
-		}	
+		FormattersController.addFormattersToList(
+				configurationManager.getConfiguration().getFormatting().getFormatter(), formatter.getItems());		
 	}
+	
 
 	// ===============================
 	// === Logic =====================
 	// ===============================
 
+	@FXML
+	private void editFormatters()
+	{
+		parent.getMainController().showFormatters(true, parent.getMainController().getEditConnectionsStage());
+		
+		// In case there was a change
+		init();
+		displayConnectionDetails(currentConnection);
+	}
+	
 	public void onChange()
 	{
 		parent.onChange();				
@@ -199,6 +200,8 @@ public class EditConnectionOtherController extends AnchorPane implements Initial
 	@Override
 	public void displayConnectionDetails(final ConfiguredConnectionDetails connection)
 	{
+		this.currentConnection = connection;
+		
 		// UI
 		autoConnect.setSelected(connection.isAutoConnect() == null ? false : connection.isAutoConnect());
 		autoOpen.setSelected(connection.isAutoOpen() == null ? false : connection.isAutoOpen());

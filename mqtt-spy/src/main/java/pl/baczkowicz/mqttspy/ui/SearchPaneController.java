@@ -4,8 +4,13 @@
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * and Eclipse Distribution License v1.0 which accompany this distribution.
+ *
+ * The Eclipse Public License is available at
+ *    http://www.eclipse.org/legal/epl-v10.html
+ *    
+ * The Eclipse Distribution License is available at
+ *   http://www.eclipse.org/org/documents/edl-v10.php.
  *
  * Contributors:
  * 
@@ -46,14 +51,16 @@ import org.slf4j.LoggerFactory;
 import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
 import pl.baczkowicz.mqttspy.configuration.UiProperties;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
-import pl.baczkowicz.mqttspy.events.EventManager;
-import pl.baczkowicz.mqttspy.events.observers.MessageAddedObserver;
-import pl.baczkowicz.mqttspy.events.observers.MessageFormatChangeObserver;
+import pl.baczkowicz.mqttspy.scripts.FormattingManager;
 import pl.baczkowicz.mqttspy.scripts.Script;
 import pl.baczkowicz.mqttspy.scripts.ScriptManager;
 import pl.baczkowicz.mqttspy.storage.FilteredMessageStore;
 import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
-import pl.baczkowicz.mqttspy.storage.UiMqttMessage;
+import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
+import pl.baczkowicz.mqttspy.ui.events.EventManager;
+import pl.baczkowicz.mqttspy.ui.events.observers.MessageAddedObserver;
+import pl.baczkowicz.mqttspy.ui.events.observers.MessageFormatChangeObserver;
+import pl.baczkowicz.mqttspy.ui.events.queuable.ui.BrowseReceivedMessageEvent;
 import pl.baczkowicz.mqttspy.ui.properties.MqttContentProperties;
 import pl.baczkowicz.mqttspy.ui.search.InlineScriptMatcher;
 import pl.baczkowicz.mqttspy.ui.search.ScriptMatcher;
@@ -142,6 +149,8 @@ public class SearchPaneController implements Initializable, MessageFormatChangeO
 	private UniqueContentOnlyFilter uniqueContentOnlyFilter;
 
 	private ConfigurationManager configurationManager;
+
+	private FormattingManager formattingManager;
 	
 	public void initialize(URL location, ResourceBundle resources)
 	{
@@ -166,10 +175,12 @@ public class SearchPaneController implements Initializable, MessageFormatChangeO
 	
 	public void init()
 	{
-		foundMessageStore = new FilteredMessageStore(store.getMessageList(), store.getMessageList().getPreferredSize(), store.getMessageList().getMaxSize(), 
-				"search-" + store.getName(), store.getFormatter(), UiProperties.getSummaryMaxPayloadLength(configurationManager));
+		foundMessageStore = new FilteredMessageStore(store.getMessageList(), store.getMessageList().getPreferredSize(), 
+				store.getMessageList().getMaxSize(), 
+				"search-" + store.getName(), store.getFormatter(), 
+				formattingManager, UiProperties.getSummaryMaxPayloadLength(configurationManager));
 		
-		uniqueContentOnlyFilter = new UniqueContentOnlyFilter(store.getUiEventQueue());
+		uniqueContentOnlyFilter = new UniqueContentOnlyFilter(store, store.getUiEventQueue());
 		uniqueContentOnlyFilter.setUniqueContentOnly(messageNavigationPaneController.getUniqueOnlyMenu().isSelected());
 		foundMessageStore.addMessageFilter(uniqueContentOnlyFilter);
 		messageNavigationPaneController.getUniqueOnlyMenu().setOnAction(new EventHandler<ActionEvent>()
@@ -186,12 +197,15 @@ public class SearchPaneController implements Initializable, MessageFormatChangeO
 		
 		messageListTablePaneController.setItems(foundMessages);
 		messageListTablePaneController.setStore(foundMessageStore);
+		messageListTablePaneController.setConnection(connection);
 		messageListTablePaneController.setEventManager(eventManager);
 		messageListTablePaneController.init();
 		eventManager.registerChangeMessageIndexObserver(messageListTablePaneController, foundMessageStore);
 		
 		messagePaneController.setStore(foundMessageStore);
 		messagePaneController.setConfingurationManager(configurationManager);
+		messagePaneController.setFormattingManager(formattingManager);
+		messagePaneController.setStyled(true);
 		messagePaneController.init();		
 		// The search pane's message browser wants to know about changing indices and format
 		eventManager.registerChangeMessageIndexObserver(messagePaneController, foundMessageStore);
@@ -212,6 +226,14 @@ public class SearchPaneController implements Initializable, MessageFormatChangeO
 		eventManager.registerFormatChangeObserver(this, store);
 	}
 	
+	/**
+	 * @param formattingManager the formattingManager to set
+	 */
+	public void setFormattingManager(FormattingManager formattingManager)
+	{
+		this.formattingManager = formattingManager;
+	}
+
 	public void toggleMessagePayloadSize(final boolean resize)
 	{
 		if (resize)
@@ -311,7 +333,7 @@ public class SearchPaneController implements Initializable, MessageFormatChangeO
 		searchField.requestFocus();
 	}
 	
-	private void processMessages(final List<UiMqttMessage> messages)
+	private void processMessages(final List<FormattedMqttMessage> messages)
 	{
 		final SearchMatcher matcher = getSearchMatcher();
 		
@@ -345,7 +367,7 @@ public class SearchPaneController implements Initializable, MessageFormatChangeO
 		}
 	}
 	
-	private boolean processMessage(final UiMqttMessage message, final SearchMatcher matcher)
+	private boolean processMessage(final FormattedMqttMessage message, final SearchMatcher matcher)
 	{
 		seachedCount++;
 		
@@ -360,9 +382,10 @@ public class SearchPaneController implements Initializable, MessageFormatChangeO
 		return false;
 	}
 	
-	private void messageFound(final UiMqttMessage message)
+	private void messageFound(final FormattedMqttMessage message)
 	{	
-		foundMessages.add(0, new MqttContentProperties(message, store.getFormatter(), UiProperties.getSummaryMaxPayloadLength(configurationManager)));
+		foundMessages.add(0, new MqttContentProperties(message, /*store.getFormatter(), */
+				UiProperties.getSummaryMaxPayloadLength(configurationManager)));
 		
 		if (!uniqueContentOnlyFilter.filter(message, foundMessageStore.getMessageList(), true))
 		{
@@ -426,8 +449,17 @@ public class SearchPaneController implements Initializable, MessageFormatChangeO
 		eventManager.notifyFormatChanged(foundMessageStore);
 	}
 
+	// TODO: optimise message handling
 	@Override
-	public void onMessageAdded(final UiMqttMessage message)
+	public void onMessageAdded(final List<BrowseReceivedMessageEvent> events)
+	{
+		for (final BrowseReceivedMessageEvent event : events)
+		{
+			onMessageAdded(event.getMessage());
+		}
+	}
+	
+	public void onMessageAdded(final FormattedMqttMessage message)
 	{
 		// TODO: is that ever deregistered?
 		if (autoRefreshCheckBox.isSelected())

@@ -4,8 +4,13 @@
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * and Eclipse Distribution License v1.0 which accompany this distribution.
+ *
+ * The Eclipse Public License is available at
+ *    http://www.eclipse.org/legal/epl-v10.html
+ *    
+ * The Eclipse Distribution License is available at
+ *   http://www.eclipse.org/org/documents/edl-v10.php.
  *
  * Contributors:
  * 
@@ -71,25 +76,6 @@ public class SimpleMqttConnection extends MqttConnectionWithReconnection
 	}
 	
 	/**
-	 * Attempts a subscription to the given topic and quality of service.
-	 */
-	public boolean subscribe(final String topic, final int qos)
-	{
-		try
-		{
-			super.subscribeToTopic(topic, qos);
-			logger.info("Successfully subscribed to " + topic);
-			return true;
-		}
-		catch (MqttSpyException e)
-		{
-			logger.error("Subscription attempt failed for topic {}", topic, e);
-		}
-		
-		return false;
-	}
-	
-	/**
 	 * Tries to publish a message to the given topic, with the provided payload, quality of service and retained flag.
 	 * 
 	 * @param publicationTopic Topic to which to publish the message
@@ -116,10 +102,10 @@ public class SimpleMqttConnection extends MqttConnectionWithReconnection
 		{
 			try
 			{
-				logger.info("Publishing message on topic \"" + publicationTopic + "\". Payload = \"" + payload + "\"");
+				logger.info("Publishing message on topic \"" + publicationTopic + "\". Payload size = " + payload.length);
 				client.publish(publicationTopic, payload, qos, retained);
 				
-				logger.trace("Published message on topic \"" + publicationTopic + "\". Payload = \"" + payload + "\"");
+				logger.trace("Published message on topic \"" + publicationTopic + "\". Payload size = " + payload.length);
 				
 				return true;
 			}
@@ -139,6 +125,6 @@ public class SimpleMqttConnection extends MqttConnectionWithReconnection
 	@Override
 	public boolean unsubscribeAll(boolean manualOverride)
 	{
-		throw new UnsupportedOperationException("This operation is now available");
+		throw new UnsupportedOperationException("This operation is not available");
 	}
 }

@@ -4,8 +4,13 @@
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * and Eclipse Distribution License v1.0 which accompany this distribution.
+ *
+ * The Eclipse Public License is available at
+ *    http://www.eclipse.org/legal/epl-v10.html
+ *    
+ * The Eclipse Distribution License is available at
+ *   http://www.eclipse.org/org/documents/edl-v10.php.
  *
  * Contributors:
  * 
@@ -15,12 +20,19 @@
 package pl.baczkowicz.mqttspy.scripts.io;
 
 import java.io.IOException;
+import java.util.List;
+
+import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
 
 /**
- * Interface between a script and the mqttspy object, which can be used primarily for publishing messages.
+ * Interface between a script and the mqttspy object, primarily used for publishing messages.
  */
 public interface IScriptIO
 {
+	boolean subscribe(final String topic, final int qos);
+	
+	boolean unsubscribe(final String topic);
+	
 	/**
 	 * Publishes a message with the given payload to the given topic (qos = 0; retained = false).
 	 * 
@@ -70,6 +82,7 @@ public interface IScriptIO
 	 * 
 	 * @return True if successfully initialised
 	 */
+	@Deprecated
 	boolean instantiate(String className);
 
 	/**
@@ -82,5 +95,7 @@ public interface IScriptIO
 	 * @throws IOException Thrown when a problem is encountered
 	 * @throws InterruptedException Thrown when a the thread is interrupted
 	 */
-	String execute(String command) throws IOException, InterruptedException;	
+	String execute(String command) throws IOException, InterruptedException;
+
+	List<FormattedMqttMessage> getMessages(String subscriptionTopic);	
 }

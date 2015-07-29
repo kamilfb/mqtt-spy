@@ -4,8 +4,13 @@
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * and Eclipse Distribution License v1.0 which accompany this distribution.
+ *
+ * The Eclipse Public License is available at
+ *    http://www.eclipse.org/legal/epl-v10.html
+ *    
+ * The Eclipse Distribution License is available at
+ *   http://www.eclipse.org/org/documents/edl-v10.php.
  *
  * Contributors:
  * 
@@ -18,17 +23,17 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Queue;
 import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import pl.baczkowicz.mqttspy.events.EventManager;
-import pl.baczkowicz.mqttspy.events.queuable.ui.BrowseReceivedMessageEvent;
-import pl.baczkowicz.mqttspy.events.queuable.ui.MqttSpyUIEvent;
-import pl.baczkowicz.mqttspy.events.queuable.ui.TopicSummaryNewMessageEvent;
-import pl.baczkowicz.mqttspy.events.queuable.ui.TopicSummaryRemovedMessageEvent;
+import pl.baczkowicz.mqttspy.scripts.FormattingManager;
+import pl.baczkowicz.mqttspy.ui.events.EventManager;
+import pl.baczkowicz.mqttspy.ui.events.queuable.EventQueueManager;
+import pl.baczkowicz.mqttspy.ui.events.queuable.ui.BrowseReceivedMessageEvent;
+import pl.baczkowicz.mqttspy.ui.events.queuable.ui.TopicSummaryNewMessageEvent;
+import pl.baczkowicz.mqttspy.ui.events.queuable.ui.TopicSummaryRemovedMessageEvent;
 
 /**
  * The top level message store, handling received messages.
@@ -37,7 +42,7 @@ import pl.baczkowicz.mqttspy.events.queuable.ui.TopicSummaryRemovedMessageEvent;
  * MessageStore interface. There are 3 message lists, two in FilteredStore and
  * one in BasicMessageStore - probably only need two.
  */
-public class ManagedMessageStoreWithFiltering extends BasicMessageStore
+public class ManagedMessageStoreWithFiltering extends BasicMessageStoreWithSummary
 {
 	final static Logger logger = LoggerFactory.getLogger(ManagedMessageStoreWithFiltering.class);
 	
@@ -46,15 +51,30 @@ public class ManagedMessageStoreWithFiltering extends BasicMessageStore
 	
 	private FilteredMessageStore filteredStore;
 	
+	protected final EventManager eventManager;	
+	
+	/** Stores events for the UI to be updated. */
+	protected final EventQueueManager uiEventQueue;
+	
 	public ManagedMessageStoreWithFiltering(final String name, final int minMessagesPerTopic, final int preferredSize, final int maxSize, 
-			final Queue<MqttSpyUIEvent> uiEventQueue, final EventManager eventManager, final int maxPayloadLength)
+			final EventQueueManager uiEventQueue, final EventManager eventManager, final FormattingManager formattingManager,
+			final int maxPayloadLength)
 	{
-		super(name, preferredSize, maxSize, uiEventQueue, eventManager, maxPayloadLength);
+		super(name, preferredSize, maxSize, maxPayloadLength, formattingManager);
 		
-		filteredStore = new FilteredMessageStore(messages, preferredSize, maxSize, name, messageFormat, maxPayloadLength);		
+		this.uiEventQueue = uiEventQueue;
+		this.eventManager = eventManager;
+		this.filteredStore = new FilteredMessageStore(super.getMessageList(), preferredSize, maxSize, name, 
+				messageFormat, formattingManager, maxPayloadLength);
 		
-		new Thread(new MessageStoreGarbageCollector(this, messages, uiEventQueue, minMessagesPerTopic, true, false)).start();
-		new Thread(new MessageStoreGarbageCollector(this, filteredStore.getFilteredMessages(), uiEventQueue, minMessagesPerTopic, false, true)).start();
+		// Set up message store garbage collectors
+		this.filteredStore.setMessageStoreGarbageCollector(
+				new MessageStoreGarbageCollector(this, filteredStore.getFilteredMessages(), uiEventQueue, minMessagesPerTopic, false, true));		
+		this.setMessageStoreGarbageCollector(
+				new MessageStoreGarbageCollector(this, super.getMessageList(), uiEventQueue, minMessagesPerTopic, true, false));
+		
+		new Thread(this.filteredStore.getMessageStoreGarbageCollector()).start();
+		new Thread(this.getMessageStoreGarbageCollector()).start();
 	}
 	
 	/**
@@ -64,8 +84,11 @@ public class ManagedMessageStoreWithFiltering extends BasicMessageStore
 	 * 
 	 * @param message Received message
 	 */
-	public void messageReceived(final UiMqttMessage message)
+	public void messageReceived(final FormattedMqttMessage message)
 	{	
+		// 0. Format the message with the currently selected formatter
+		formattingManager.formatMessage(message, getFormatter());
+				
 		// Record the current state of topics
 		final boolean allTopicsShown = !browsingFiltersEnabled();		
 		final boolean topicAlreadyExists = allTopics.contains(message.getTopic());
@@ -76,7 +99,7 @@ public class ManagedMessageStoreWithFiltering extends BasicMessageStore
 		allTopics.add(message.getTopic());
 		
 		// 2. Add the message to 'all messages' store - oldest could be removed if the store has reached its max size 
-		final UiMqttMessage removed = storeMessage(message);
+		final FormattedMqttMessage removed = storeMessage(message);
 		
 		// 3. Add it to the filtered store if:
 		// - message is not filtered out
@@ -86,7 +109,7 @@ public class ManagedMessageStoreWithFiltering extends BasicMessageStore
 			filteredStore.getFilteredMessages().add(message);
 			
 			// Message browsing update
-			uiEventQueue.add(new BrowseReceivedMessageEvent(filteredStore.getFilteredMessages(), message));
+			uiEventQueue.add(this, new BrowseReceivedMessageEvent(filteredStore.getFilteredMessages(), message));
 		}
 
 		// 4. If the topic doesn't exist yet, add it (e.g. all shown but this is the first message for this topic)
@@ -95,20 +118,17 @@ public class ManagedMessageStoreWithFiltering extends BasicMessageStore
 			// This doesn't need to trigger 'show first' or sth because the following two UI events should refresh the screen
 			filteredStore.applyTopicFilter(message.getTopic(), false);	 
 		}
-
-		// 5. Formats the message with the currently selected formatter
-		message.format(getFormatter());			
-		
-		// 6. Summary table update - required are: removed message, new message, and whether to show the topic
+			
+		// 5. Summary table update - required are: removed message, new message, and whether to show the topic
 		if (removed != null)
 		{
-			uiEventQueue.add(new TopicSummaryRemovedMessageEvent(messages, removed));
+			uiEventQueue.add(this, new TopicSummaryRemovedMessageEvent(super.getMessageList(), removed));
 		}
-		uiEventQueue.add(new TopicSummaryNewMessageEvent(messages, message, allTopicsShown && !topicAlreadyExists));
+		uiEventQueue.add(this, new TopicSummaryNewMessageEvent(super.getMessageList(), message, allTopicsShown && !topicAlreadyExists));
 	}	
 	
 	@Override
-	public List<UiMqttMessage> getMessages()
+	public List<FormattedMqttMessage> getMessages()
 	{		
 		return filteredStore.getFilteredMessages().getMessages();
 	}
@@ -121,7 +141,7 @@ public class ManagedMessageStoreWithFiltering extends BasicMessageStore
 	
 	public MessageListWithObservableTopicSummary getNonFilteredMessageList()
 	{
-		return messages;
+		return super.getMessageList();
 	}
 	
 	public FilteredMessageStore getFilteredMessageStore()
@@ -165,7 +185,7 @@ public class ManagedMessageStoreWithFiltering extends BasicMessageStore
 			filteredStore.removeAllTopicFilters();
 		}
 		
-		messages.getTopicSummary().setAllShowValues(show);
+		super.getMessageList().getTopicSummary().setAllShowValues(show);
 	}
 	
 	public void setShowValues(final boolean show, final Collection<String> topics)
@@ -181,7 +201,7 @@ public class ManagedMessageStoreWithFiltering extends BasicMessageStore
 				filteredStore.removeTopicFilters(topics);
 			}
 			
-			messages.getTopicSummary().setShowValues(topics, show);
+			super.getMessageList().getTopicSummary().setShowValues(topics, show);
 		}
 	}
 	
@@ -212,13 +232,29 @@ public class ManagedMessageStoreWithFiltering extends BasicMessageStore
 			filteredStore.removeTopicFilters(topicsToRemove);
 			filteredStore.applyTopicFilters(topicsToAdd, true);
 			
-			messages.getTopicSummary().toggleShowValues(topics);
+			super.getMessageList().getTopicSummary().toggleShowValues(topics);
 		}
 	}
 
 	public void setShowValue(final String topic, final boolean show)
 	{
 		filteredStore.updateTopicFilter(topic, show);
-		messages.getTopicSummary().setShowValue(topic, show);
+		super.getMessageList().getTopicSummary().setShowValue(topic, show);
+	}
+		
+	public EventQueueManager getUiEventQueue()
+	{
+		return this.uiEventQueue;
+	}
+
+	public FormattingManager getFormattingManager()
+	{
+		return formattingManager;
+	}
+	
+	public void cleanUp()
+	{
+		this.getMessageStoreGarbageCollector().setRunning(false);
+		this.filteredStore.getMessageStoreGarbageCollector().setRunning(false);
 	}
 }

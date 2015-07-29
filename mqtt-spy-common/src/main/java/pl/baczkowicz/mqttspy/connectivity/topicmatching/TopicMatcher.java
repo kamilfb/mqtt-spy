@@ -4,8 +4,13 @@
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * and Eclipse Distribution License v1.0 which accompany this distribution.
+ *
+ * The Eclipse Public License is available at
+ *    http://www.eclipse.org/legal/epl-v10.html
+ *    
+ * The Eclipse Distribution License is available at
+ *   http://www.eclipse.org/org/documents/edl-v10.php.
  *
  * Contributors:
  * 
@@ -74,8 +79,13 @@ public class TopicMatcher
 	 */
 	public void addSubscriptionToStore(final String topic)
 	{
-		// Store the subscription topic for further matching
-		subscriptionsStore.add(new Subscription(DUMMY_CLIENT_ID, topic, QOSType.MOST_ONE, true));
+		final Subscription subscription = new Subscription(DUMMY_CLIENT_ID, topic, QOSType.MOST_ONE, true);
+		
+		if (!subscriptionsStore.contains(subscription))
+		{
+			// Store the subscription topic for further matching
+			subscriptionsStore.add(subscription);
+		}
 	}
 	
 	/**

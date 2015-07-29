@@ -4,15 +4,19 @@
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * and Eclipse Distribution License v1.0 which accompany this distribution.
+ *
+ * The Eclipse Public License is available at
+ *    http://www.eclipse.org/legal/epl-v10.html
+ *    
+ * The Eclipse Distribution License is available at
+ *   http://www.eclipse.org/org/documents/edl-v10.php.
  *
  * Contributors:
  * 
  *    Kamil Baczkowicz - initial API and implementation and/or initial documentation
  *    
  */
-
 package pl.baczkowicz.mqttspy.connectivity;
 
 import java.io.FileInputStream;
@@ -42,8 +46,20 @@ import org.bouncycastle.util.io.pem.PemReader;
 
 import pl.baczkowicz.mqttspy.exceptions.MqttSpyException;
 
+/**
+ * Utility class for handling SSL/TLS connections.
+ */
 public class SslUtils
 {
+	/**
+	 * Loads a PEM file from the specified location.
+	 * 
+	 * @param file Location of the file to load
+	 * 
+	 * @return Content of the PEM file
+	 * 
+	 * @throws IOException Thrown when cannot read the file
+	 */
     public static byte[] loadPemFile(final String file) throws IOException 
     {
         final PemReader pemReader = new PemReader(new FileReader(file));
@@ -51,7 +67,10 @@ public class SslUtils
         pemReader.close();
         return content;        
     }
-    
+
+    /**
+     * Loads a Private Key from the specified location and algorithm.
+     */
     public static PrivateKey loadPrivateKeyFromPemFile(final String keyPemFile, final String algorithm) throws IOException, InvalidKeySpecException, NoSuchAlgorithmException 
     {
         final PKCS8EncodedKeySpec privateKeySpec = new PKCS8EncodedKeySpec(loadPemFile(keyPemFile));
@@ -59,20 +78,26 @@ public class SslUtils
         return privateKey;
     }
     
-    public static X509Certificate loadX509CertificatePem(String crtFile) throws CertificateException, IOException 
+    /**
+     * Loads an X509 certificate from the given location.
+     */
+    public static X509Certificate loadX509Certificate(final String certificateFile) throws IOException, CertificateException 
     {
         final CertificateFactory cf = CertificateFactory.getInstance("X.509");
-        final FileInputStream fileStream = new FileInputStream(crtFile);
+        final FileInputStream fileStream = new FileInputStream(certificateFile);
         final X509Certificate certificate = (X509Certificate) cf.generateCertificate(fileStream);
         fileStream.close();
         return certificate;
     }
 	
+    /**
+     * Creates a trust manager factory.
+     */
 	public static TrustManagerFactory getTrustManagerFactory(final String caCertificateFile) 
 			throws IOException, KeyStoreException, NoSuchAlgorithmException, CertificateException
 	{
 		// Load CA certificate
-		final X509Certificate caCertificate = (X509Certificate) loadX509CertificatePem(caCertificateFile);
+		final X509Certificate caCertificate = (X509Certificate) loadX509Certificate(caCertificateFile);
 		
 		// CA certificate is used to authenticate server
 		final KeyStore caKs = KeyStore.getInstance(KeyStore.getDefaultType());
@@ -85,16 +110,19 @@ public class SslUtils
 		return tmf;
 	}
 	
+	/**
+	 * Creates a key manager factory.
+	 */
 	public static KeyManagerFactory getKeyManagerFactory(final String clientCertificateFile, final String clientKeyFile, final String clientKeyPassword) 
-			throws NoSuchAlgorithmException, IOException, KeyStoreException, CertificateException, UnrecoverableKeyException, InvalidKeySpecException
+			throws IOException, NoSuchAlgorithmException, KeyStoreException, CertificateException, UnrecoverableKeyException, InvalidKeySpecException
 	{
 		// Load client certificate
-		final X509Certificate clientCertificate = loadX509CertificatePem(clientCertificateFile);			
+		final X509Certificate clientCertificate = loadX509Certificate(clientCertificateFile);			
 
-		// Load client private key
+		// Load private client key
 		final PrivateKey privateKey = loadPrivateKeyFromPemFile(clientKeyFile, "RSA");
 
-		// Client key and certificates are sent to server
+		// Client key and certificate are sent to server
 		final KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
 		ks.load(null, null);
 		ks.setCertificateEntry("certificate", clientCertificate);
@@ -106,7 +134,9 @@ public class SslUtils
 		return kmf;
 	}
 	
-
+	/**
+	 * Creates an SSL/TLS socket factory with the given CA certificate file and protocol version.
+	 */
 	public static SSLSocketFactory getSocketFactory(final String caCrtFile, final String protocolVersion) throws MqttSpyException
 	{
 		try
@@ -124,10 +154,13 @@ public class SslUtils
 		}
 		catch (Exception e)
 		{
-			throw new MqttSpyException("Cannot create SSL connection", e);
+			throw new MqttSpyException("Cannot create SSL/TLS connection", e);
 		}
 	}
 	
+	/**
+	 * Creates an SSL/TLS socket factory with the given CA certificate file, client certificate, key&password and protocol version.
+	 */
 	public static SSLSocketFactory getSocketFactory(final String caCrtFile,
 			final String crtFile, final String keyFile, final String password,
 			final String protocolVersion) throws MqttSpyException
@@ -147,8 +180,7 @@ public class SslUtils
 		}
 		catch (Exception e)
 		{
-			throw new MqttSpyException("Cannot create SSL connection", e);
-		}
-			
+			throw new MqttSpyException("Cannot create SSL/TLS connection", e);
+		}			
 	}
 }

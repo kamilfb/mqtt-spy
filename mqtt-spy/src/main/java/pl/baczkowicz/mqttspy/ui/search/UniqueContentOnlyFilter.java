@@ -4,8 +4,13 @@
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * and Eclipse Distribution License v1.0 which accompany this distribution.
+ *
+ * The Eclipse Public License is available at
+ *    http://www.eclipse.org/legal/epl-v10.html
+ *    
+ * The Eclipse Distribution License is available at
+ *   http://www.eclipse.org/org/documents/edl-v10.php.
  *
  * Contributors:
  * 
@@ -14,12 +19,11 @@
  */
 package pl.baczkowicz.mqttspy.ui.search;
 
-import java.util.Queue;
-
-import pl.baczkowicz.mqttspy.events.queuable.ui.BrowseRemovedMessageEvent;
-import pl.baczkowicz.mqttspy.events.queuable.ui.MqttSpyUIEvent;
+import pl.baczkowicz.mqttspy.storage.BasicMessageStore;
+import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.storage.MessageList;
-import pl.baczkowicz.mqttspy.storage.UiMqttMessage;
+import pl.baczkowicz.mqttspy.ui.events.queuable.EventQueueManager;
+import pl.baczkowicz.mqttspy.ui.events.queuable.ui.BrowseRemovedMessageEvent;
 
 public class UniqueContentOnlyFilter implements MessageFilter
 {
@@ -28,30 +32,33 @@ public class UniqueContentOnlyFilter implements MessageFilter
 	private int deleted = 0;
 	
 	/** Stores events for the UI to be updated. */
-	protected final Queue<MqttSpyUIEvent> uiEventQueue;
+	protected final EventQueueManager uiEventQueue;
+
+	private BasicMessageStore store;
 	
-	public UniqueContentOnlyFilter(final Queue<MqttSpyUIEvent> uiEventQueue)
+	public UniqueContentOnlyFilter(final BasicMessageStore store, final EventQueueManager uiEventQueue)
 	{
 		this.uiEventQueue = uiEventQueue;
+		this.store = store;
 	}
 	
 	@Override
-	public boolean filter(final UiMqttMessage message, final MessageList messageList, final boolean updateUi)
+	public boolean filter(final FormattedMqttMessage message, final MessageList messageList, final boolean updateUi)
 	{
 		if (!uniqueContentOnly || messageList.getMessages().size() == 0)
 		{
 			return false;			
 		}
 		
-		final UiMqttMessage lastMessage = messageList.getMessages().get(0);
+		final FormattedMqttMessage lastMessage = messageList.getMessages().get(0);
 		
 		if (message.getFormattedPayload().equals(lastMessage.getFormattedPayload()) && message.getTopic().equals(lastMessage.getTopic()))
 		{
-			final UiMqttMessage deletedMessage = messageList.getMessages().remove(0);
+			final FormattedMqttMessage deletedMessage = messageList.getMessages().remove(0);
 			
 			if (updateUi)
 			{
-				uiEventQueue.add(new BrowseRemovedMessageEvent(messageList, deletedMessage, 0));
+				uiEventQueue.add(store, new BrowseRemovedMessageEvent(messageList, deletedMessage, 0));
 			}
 			deleted++;
 		}

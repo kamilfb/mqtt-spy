@@ -4,8 +4,13 @@
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * and Eclipse Distribution License v1.0 which accompany this distribution.
+ *
+ * The Eclipse Public License is available at
+ *    http://www.eclipse.org/legal/epl-v10.html
+ *    
+ * The Eclipse Distribution License is available at
+ *   http://www.eclipse.org/org/documents/edl-v10.php.
  *
  * Contributors:
  * 
@@ -15,11 +20,13 @@
 package pl.baczkowicz.mqttspy.storage.summary;
 
 import java.util.Collection;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import pl.baczkowicz.mqttspy.configuration.generated.FormatterDetails;
-import pl.baczkowicz.mqttspy.storage.UiMqttMessage;
+import pl.baczkowicz.mqttspy.common.generated.FormatterDetails;
+import pl.baczkowicz.mqttspy.scripts.FormattingManager;
+import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.ui.properties.SubscriptionTopicSummaryProperties;
 
 /**
@@ -43,24 +50,26 @@ public class ObservableTopicSummary extends TopicSummary
 		}
 	}
 	
-	public SubscriptionTopicSummaryProperties addMessage(final UiMqttMessage message)
+	public SubscriptionTopicSummaryProperties addMessage(final FormattedMqttMessage message)
 	{
 		synchronized (topicToSummaryMapping)
 		{
-			SubscriptionTopicSummaryProperties newAdded = super.addMessage(message);
+			final AtomicBoolean newAdded = new AtomicBoolean(false);
+
+			SubscriptionTopicSummaryProperties updatedElement = super.addMessage(message, newAdded);
 			
-			if (newAdded != null)
+			if (newAdded.get())
 			{				
-				observableTopicSummaryList.add(newAdded);
+				observableTopicSummaryList.add(updatedElement);
 			}
 			else
 			{
 				// Set the updated object to notify the observers of the list
-				final SubscriptionTopicSummaryProperties updated = topicToSummaryMapping.get(message.getTopic());
-				observableTopicSummaryList.set(observableTopicSummaryList.indexOf(updated), updated);
+				//  - checked, and this seems not to be needed any more
+				//observableTopicSummaryList.set(observableTopicSummaryList.indexOf(updatedElement), updatedElement);
 			}
 			
-			return newAdded;
+			return updatedElement;
 		}				
 	}
 
@@ -68,13 +77,23 @@ public class ObservableTopicSummary extends TopicSummary
 	{
 		synchronized (topicToSummaryMapping)
 		{
-			for (final SubscriptionTopicSummaryProperties item : observableTopicSummaryList)
+			for (final String topic : topics)
 			{
-				if (topics.contains(item.topicProperty().getValue()))
+				final SubscriptionTopicSummaryProperties item = topicToSummaryMapping.get(topic);
+				
+				if (item != null)
 				{
 					item.showProperty().set(!item.showProperty().get());
 				}
 			}
+			
+//			for (final SubscriptionTopicSummaryProperties item : observableTopicSummaryList)
+//			{
+//				if (topics.contains(item.topicProperty().getValue()))
+//				{
+//					item.showProperty().set(!item.showProperty().get());
+//				}
+//			}
 		}
 	}
 	
@@ -82,14 +101,21 @@ public class ObservableTopicSummary extends TopicSummary
 	{
 		synchronized (topicToSummaryMapping)
 		{
-			for (final SubscriptionTopicSummaryProperties item : observableTopicSummaryList)
+			final SubscriptionTopicSummaryProperties item = topicToSummaryMapping.get(topic);
+			
+			if (item != null)
 			{
-				if (item.topicProperty().getValue().equals(topic))
-				{
-					item.showProperty().set(value);
-					break;
-				}
+				item.showProperty().set(value);
 			}
+			
+//			for (final SubscriptionTopicSummaryProperties item : observableTopicSummaryList)
+//			{
+//				if (item.topicProperty().getValue().equals(topic))
+//				{
+//					item.showProperty().set(value);
+//					break;
+//				}
+//			}
 		}
 	}
 	
@@ -123,13 +149,14 @@ public class ObservableTopicSummary extends TopicSummary
 		return observableTopicSummaryList;
 	}
 	
-	public void setFormatter(final FormatterDetails messageFormat)
+	public void setFormatter(final FormatterDetails messageFormat, final FormattingManager formattingManager)
 	{
 		super.setFormatter(messageFormat);
 		
 		for (final SubscriptionTopicSummaryProperties item : observableTopicSummaryList)
 		{
-			item.changeFormat(messageFormat);
+			formattingManager.formatMessage(item.getMqttContent(), messageFormat);
+			item.updateReceivedPayload(item.getMqttContent().getFormattedPayload());
 		}
 	}
 }

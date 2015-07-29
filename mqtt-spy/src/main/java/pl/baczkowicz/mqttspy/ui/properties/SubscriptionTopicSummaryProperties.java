@@ -4,8 +4,13 @@
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * and Eclipse Distribution License v1.0 which accompany this distribution.
+ *
+ * The Eclipse Public License is available at
+ *    http://www.eclipse.org/legal/epl-v10.html
+ *    
+ * The Eclipse Distribution License is available at
+ *   http://www.eclipse.org/org/documents/edl-v10.php.
  *
  * Contributors:
  * 
@@ -18,8 +23,7 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
-import pl.baczkowicz.mqttspy.configuration.generated.FormatterDetails;
-import pl.baczkowicz.mqttspy.storage.UiMqttMessage;
+import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
 
 /**
  * Properties displayed in the subscription topic summary table.
@@ -38,13 +42,12 @@ public class SubscriptionTopicSummaryProperties extends MqttContentProperties
 	 * @param show Whether to include this topic in the list of messages for browsing
 	 * @param count How many messages have been received for that topic - subject to clean-up
 	 * @param message The last message
-	 * @param format The formatter details
 	 * @param maxPayloadLength Maximum payload length to be displayed - to make sure UI remains responsive for large messages
 	 */
-	public SubscriptionTopicSummaryProperties(final Boolean show, final Integer count, final UiMqttMessage message, 
-			final FormatterDetails format, final int maxPayloadLength)
+	public SubscriptionTopicSummaryProperties(final Boolean show, final Integer count, final FormattedMqttMessage message, 
+			final int maxPayloadLength)
 	{
-		super(message, format, maxPayloadLength);
+		super(message, maxPayloadLength);
 		
 		this.show = new SimpleBooleanProperty(show);	               
         this.count = new SimpleIntegerProperty(count);                    

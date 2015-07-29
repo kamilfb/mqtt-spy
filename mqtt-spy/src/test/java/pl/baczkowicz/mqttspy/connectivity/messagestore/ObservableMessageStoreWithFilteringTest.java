@@ -4,8 +4,13 @@
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * and Eclipse Distribution License v1.0 which accompany this distribution.
+ *
+ * The Eclipse Public License is available at
+ *    http://www.eclipse.org/legal/epl-v10.html
+ *    
+ * The Eclipse Distribution License is available at
+ *   http://www.eclipse.org/org/documents/edl-v10.php.
  *
  * Contributors:
  * 
@@ -18,15 +23,13 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import java.util.concurrent.LinkedBlockingQueue;
-
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.junit.Before;
 import org.junit.Test;
 
-import pl.baczkowicz.mqttspy.events.queuable.ui.MqttSpyUIEvent;
+import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
-import pl.baczkowicz.mqttspy.storage.UiMqttMessage;
+import pl.baczkowicz.mqttspy.ui.events.queuable.EventQueueManager;
 
 public class ObservableMessageStoreWithFilteringTest
 {
@@ -36,13 +39,13 @@ public class ObservableMessageStoreWithFilteringTest
 	@Before
 	public void setUp() throws Exception
 	{
-		store = new ManagedMessageStoreWithFiltering("test", 5, 5, 5, new LinkedBlockingQueue<MqttSpyUIEvent>(), null, 0);
+		store = new ManagedMessageStoreWithFiltering("test", 5, 5, 5, new EventQueueManager(), null, null, 0);
 	}
 
 	@Test
 	public final void testStoreMaxSize()
 	{
-		final UiMqttMessage message = new UiMqttMessage(1, "t1", new MqttMessage("test1".getBytes()), null);
+		final FormattedMqttMessage message = new FormattedMqttMessage(1, "t1", new MqttMessage("test1".getBytes()), null);
 		
 		store.messageReceived(message);
 				
@@ -66,7 +69,7 @@ public class ObservableMessageStoreWithFilteringTest
 		testStoreMaxSize();
 		assertTrue(store.getFilteredMessageStore().getBrowsedTopics().contains("t1"));
 		
-		final UiMqttMessage message = new UiMqttMessage(2, "t2", new MqttMessage("test2".getBytes()), null);
+		final FormattedMqttMessage message = new FormattedMqttMessage(2, "t2", new MqttMessage("test2".getBytes()), null);
 		store.messageReceived(message);
 		assertTrue(store.getFilteredMessageStore().getBrowsedTopics().contains("t2"));
 	}
@@ -77,7 +80,7 @@ public class ObservableMessageStoreWithFilteringTest
 		testDefaultActiveFilters();
 		store.getFilteredMessageStore().updateTopicFilter("t2", false);
 		
-		final UiMqttMessage message = new UiMqttMessage(3, "t3", new MqttMessage("test3".getBytes()), null);
+		final FormattedMqttMessage message = new FormattedMqttMessage(3, "t3", new MqttMessage("test3".getBytes()), null);
 		store.messageReceived(message);
 		assertFalse(store.getFilteredMessageStore().getBrowsedTopics().contains("t3"));
 	}

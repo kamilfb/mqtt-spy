@@ -47,14 +47,6 @@
 			<version>1.52</version>
 		</dependency>
 		
-		<!-- Old MQTT client dependency, deprecated 
-		<dependency>
-			<groupId>org.eclipse.paho</groupId>
-			<artifactId>mqtt-client</artifactId>
-			<version>0.4.0</version>
-		</dependency>
-		-->
-		
 		<dependency>
 			<groupId>org.eclipse.paho</groupId>
 			<artifactId>org.eclipse.paho.client.mqttv3</artifactId>
@@ -72,8 +64,7 @@
 			<artifactId>slf4j-log4j12</artifactId>
 			<version>1.7.7</version>
 		</dependency>
-		
-		
+				
 		<dependency>
 			<groupId>org.dna.mqtt</groupId>
 			<artifactId>moquette-broker</artifactId>
@@ -140,33 +131,33 @@
 		</dependency>
 		
 		<!--=== SCHEMAS/JAXB === -->
-    <dependency>
-      <groupId>org.jvnet.jaxb2.maven2</groupId>
-      <artifactId>maven-jaxb2-plugin</artifactId>
-      <version>0.9.0</version>
-      <exclusions>
-        <exclusion>
-          <groupId>javax.xml.bind</groupId>
-          <artifactId>jsr173_api</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
+	    <dependency>
+	      <groupId>org.jvnet.jaxb2.maven2</groupId>
+	      <artifactId>maven-jaxb2-plugin</artifactId>
+	      <version>0.9.0</version>
+	      <exclusions>
+	        <exclusion>
+	          <groupId>javax.xml.bind</groupId>
+	          <artifactId>jsr173_api</artifactId>
+	        </exclusion>
+	      </exclusions>
+	    </dependency>
 
 		<dependency>
 			<groupId>org.jvnet.jaxb2_commons</groupId>
 			<artifactId>jaxb2-commons-lang</artifactId>
-			<version>2.3</version>
-		</dependency>		
-		<dependency>
-			<groupId>commons-lang</groupId>
-			<artifactId>commons-lang</artifactId>
 			<version>2.4</version>
-		</dependency>
+		</dependency>		
 		<dependency>
 			<groupId>org.jvnet.jaxb2_commons</groupId>
 			<artifactId>jaxb2-basics-runtime</artifactId>
-			<version>0.5.0</version>
-		</dependency>		
+			<version>0.9.4</version>
+		</dependency>	
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+			<version>3.4</version>
+		</dependency>	
 
 		<!--=== TEST === -->
 	
@@ -208,12 +199,12 @@
 	        <plugin>
 	            <groupId>org.jvnet.jaxb2_commons</groupId>
 	            <artifactId>jaxb2-basics</artifactId>
-	            <version>0.9.0</version>
+	            <version>0.9.4</version>
 	        </plugin>        	
 			<plugin>
 			    <groupId>org.jvnet.jaxb2.maven2</groupId>
 			    <artifactId>maven-jaxb2-plugin</artifactId>
-			    <version>0.9.0</version>
+			    <version>0.12.3</version>
 			    <executions>
 			    
 			        <execution>
@@ -243,7 +234,7 @@
 								<plugin>
 									<groupId>org.jvnet.jaxb2_commons</groupId>
 									<artifactId>jaxb2-basics</artifactId>
-									<version>0.5.0</version>
+									<version>0.9.4</version>
 								</plugin>
 							</plugins>
 			            </configuration>			            			          

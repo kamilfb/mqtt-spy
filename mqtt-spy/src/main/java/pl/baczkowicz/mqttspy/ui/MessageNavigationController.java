@@ -4,8 +4,13 @@
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * and Eclipse Distribution License v1.0 which accompany this distribution.
+ *
+ * The Eclipse Public License is available at
+ *    http://www.eclipse.org/legal/epl-v10.html
+ *    
+ * The Eclipse Distribution License is available at
+ *   http://www.eclipse.org/org/documents/edl-v10.php.
  *
  * Contributors:
  * 
@@ -16,6 +21,7 @@ package pl.baczkowicz.mqttspy.ui;
 
 import java.io.File;
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 
 import javafx.beans.value.ChangeListener;
@@ -43,14 +49,16 @@ import javafx.stage.Window;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import pl.baczkowicz.mqttspy.events.EventManager;
-import pl.baczkowicz.mqttspy.events.observers.MessageAddedObserver;
-import pl.baczkowicz.mqttspy.events.observers.MessageIndexIncrementObserver;
-import pl.baczkowicz.mqttspy.events.observers.MessageIndexToFirstObserver;
-import pl.baczkowicz.mqttspy.events.observers.MessageRemovedObserver;
-import pl.baczkowicz.mqttspy.storage.BasicMessageStore;
+import pl.baczkowicz.mqttspy.storage.BasicMessageStoreWithSummary;
 import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
-import pl.baczkowicz.mqttspy.storage.UiMqttMessage;
+import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
+import pl.baczkowicz.mqttspy.ui.events.EventManager;
+import pl.baczkowicz.mqttspy.ui.events.observers.MessageAddedObserver;
+import pl.baczkowicz.mqttspy.ui.events.observers.MessageIndexIncrementObserver;
+import pl.baczkowicz.mqttspy.ui.events.observers.MessageIndexToFirstObserver;
+import pl.baczkowicz.mqttspy.ui.events.observers.MessageRemovedObserver;
+import pl.baczkowicz.mqttspy.ui.events.queuable.ui.BrowseReceivedMessageEvent;
+import pl.baczkowicz.mqttspy.ui.events.queuable.ui.BrowseRemovedMessageEvent;
 import pl.baczkowicz.mqttspy.ui.messagelog.MessageLogUtils;
 import pl.baczkowicz.mqttspy.ui.utils.TextUtils;
 import pl.baczkowicz.mqttspy.ui.utils.UiUtils;
@@ -110,7 +118,7 @@ public class MessageNavigationController implements Initializable, MessageIndexT
 
 	private int selectedMessage;
 
-	private BasicMessageStore store; 
+	private BasicMessageStoreWithSummary store; 
 	
 	private TextField messageIndexValueField;
 	
@@ -255,7 +263,8 @@ public class MessageNavigationController implements Initializable, MessageIndexT
 	// === Other methods ==
 	// ====================
 		
-	public void onMessageAdded(final UiMqttMessage message)
+	@Override
+	public void onMessageAdded(final List<BrowseReceivedMessageEvent> events)
 	{
 		// This is registered for filtered messages only
 		if (showLatest())
@@ -264,7 +273,7 @@ public class MessageNavigationController implements Initializable, MessageIndexT
 		}
 		else
 		{
-			onMessageIndexIncrement();
+			onMessageIndexIncrement(events.size());
 		}
 	}
 		
@@ -287,25 +296,30 @@ public class MessageNavigationController implements Initializable, MessageIndexT
 	}
 	
 	@Override
-	public void onMessageIndexIncrement()
+	public void onMessageIndexIncrement(final int incrementValue)
 	{
 		// logger.info("{} Index increment", store.getName());
 		
-		selectedMessage++;
+		selectedMessage = selectedMessage + incrementValue;
 		
 		// Because this is an event saying a new message is available, but we don't want to display it,
 		// so by not refreshing the content of the old one we allow uninterrupted interaction with UI fields (e.g. selection, etc.)
 		updateIndex(false);			
 	}
 	
-	public void onMessageRemoved(final UiMqttMessage message, final int messageIndex)
+	// TODO: optimise message handling
+	@Override
+	public void onMessageRemoved(final List<BrowseRemovedMessageEvent> events)
 	{
-		if (messageIndex < selectedMessage)
+		for (final BrowseRemovedMessageEvent event : events)
 		{
-			selectedMessage--;					
-		}		
-			
-		updateIndex(false);		
+			if (event.getMessageIndex() < selectedMessage)
+			{
+				selectedMessage--;					
+			}	
+		}
+		
+		updateIndex(false);
 	}
 	
 	private void showFirstMessage()
@@ -461,7 +475,7 @@ public class MessageNavigationController implements Initializable, MessageIndexT
 	{
 		if (getSelectedMessageIndex() > 0)
 		{
-			final UiMqttMessage message = store.getMessages().get(getSelectedMessageIndex() - 1);
+			final FormattedMqttMessage message = store.getMessages().get(getSelectedMessageIndex() - 1);
 			UiUtils.copyToClipboard(message.getTopic());
 		}
 	}
@@ -526,7 +540,7 @@ public class MessageNavigationController implements Initializable, MessageIndexT
 	// === Setters and getters =======
 	// ===============================
 	
-	public void setStore(final BasicMessageStore store)
+	public void setStore(final BasicMessageStoreWithSummary store)
 	{
 		this.store = store;
 	}

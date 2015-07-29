@@ -4,8 +4,13 @@
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * and Eclipse Distribution License v1.0 which accompany this distribution.
+ *
+ * The Eclipse Public License is available at
+ *    http://www.eclipse.org/legal/epl-v10.html
+ *    
+ * The Eclipse Distribution License is available at
+ *   http://www.eclipse.org/org/documents/edl-v10.php.
  *
  * Contributors:
  * 
@@ -40,6 +45,7 @@ import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
 import pl.baczkowicz.mqttspy.configuration.ConfiguredConnectionDetails;
 import pl.baczkowicz.mqttspy.configuration.UiProperties;
 import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnectionDetails;
+import pl.baczkowicz.mqttspy.connectivity.BaseMqttSubscription;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnectionRunnable;
 import pl.baczkowicz.mqttspy.connectivity.MqttConnectionStatus;
@@ -48,24 +54,26 @@ import pl.baczkowicz.mqttspy.connectivity.handlers.MqttCallbackHandler;
 import pl.baczkowicz.mqttspy.connectivity.handlers.MqttDisconnectionResultHandler;
 import pl.baczkowicz.mqttspy.connectivity.handlers.MqttEventHandler;
 import pl.baczkowicz.mqttspy.connectivity.reconnection.ReconnectionManager;
-import pl.baczkowicz.mqttspy.events.EventManager;
-import pl.baczkowicz.mqttspy.events.queuable.UIEventHandler;
-import pl.baczkowicz.mqttspy.events.queuable.connectivity.MqttConnectionAttemptFailureEvent;
-import pl.baczkowicz.mqttspy.events.queuable.connectivity.MqttDisconnectionAttemptFailureEvent;
-import pl.baczkowicz.mqttspy.events.queuable.ui.MqttSpyUIEvent;
 import pl.baczkowicz.mqttspy.exceptions.ConfigurationException;
 import pl.baczkowicz.mqttspy.exceptions.MqttSpyException;
 import pl.baczkowicz.mqttspy.logger.MqttMessageLogger;
 import pl.baczkowicz.mqttspy.messages.BaseMqttMessage;
 import pl.baczkowicz.mqttspy.messages.BaseMqttMessageWithSubscriptions;
+import pl.baczkowicz.mqttspy.scripts.FormattingManager;
 import pl.baczkowicz.mqttspy.scripts.InteractiveScriptManager;
 import pl.baczkowicz.mqttspy.scripts.Script;
+import pl.baczkowicz.mqttspy.scripts.ScriptManager;
 import pl.baczkowicz.mqttspy.stats.StatisticsManager;
+import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
-import pl.baczkowicz.mqttspy.storage.UiMqttMessage;
 import pl.baczkowicz.mqttspy.ui.ConnectionController;
 import pl.baczkowicz.mqttspy.ui.MainController;
 import pl.baczkowicz.mqttspy.ui.SubscriptionController;
+import pl.baczkowicz.mqttspy.ui.events.EventManager;
+import pl.baczkowicz.mqttspy.ui.events.queuable.EventQueueManager;
+import pl.baczkowicz.mqttspy.ui.events.queuable.UIEventHandler;
+import pl.baczkowicz.mqttspy.ui.events.queuable.connectivity.MqttConnectionAttemptFailureEvent;
+import pl.baczkowicz.mqttspy.ui.events.queuable.connectivity.MqttDisconnectionAttemptFailureEvent;
 import pl.baczkowicz.mqttspy.ui.panes.PaneVisibilityStatus;
 import pl.baczkowicz.mqttspy.ui.panes.TabStatus;
 import pl.baczkowicz.mqttspy.ui.utils.ConnectivityUtils;
@@ -105,7 +113,7 @@ public class ConnectionManager
 	private final Map<ConnectionController, SubscriptionManager> subscriptionManagers = new HashMap<>();
 	
 	/** UI event queue. */
-	private final Queue<MqttSpyUIEvent> uiEventQueue;
+	private final EventQueueManager uiEventQueue;
 
 	/** Reconnection manager. */
 	private ReconnectionManager reconnectionManager;
@@ -114,7 +122,7 @@ public class ConnectionManager
 
 	public ConnectionManager(final EventManager eventManager, final StatisticsManager statisticsManager, final ConfigurationManager configurationManager)
 	{
-		this.uiEventQueue = new LinkedBlockingQueue<>();
+		this.uiEventQueue = new EventQueueManager();
 		
 		this.eventManager = eventManager;
 		this.statisticsManager = statisticsManager;
@@ -299,7 +307,8 @@ public class ConnectionManager
 		final SubscriptionManager subscriptionManager = new SubscriptionManager(eventManager, configurationManager, uiEventQueue);			
 		
         final ManagedMessageStoreWithFiltering store = new ManagedMessageStoreWithFiltering(
-        		name, 0, list.size(), list.size(), uiEventQueue, eventManager, UiProperties.getSummaryMaxPayloadLength(configurationManager));               
+        		name, 0, list.size(), list.size(), uiEventQueue, eventManager, 
+        		new FormattingManager(new ScriptManager(null, null, null)), UiProperties.getSummaryMaxPayloadLength(configurationManager));               
         
 		final SubscriptionController subscriptionController = subscriptionManager.createSubscriptionTab(
 				true, store, null, null, connectionController);
@@ -336,7 +345,7 @@ public class ConnectionManager
 				// Process the messages
 		        for (final BaseMqttMessage mqttMessage : list)
 		        {		        	
-		        	store.messageReceived(new UiMqttMessage(mqttMessage, null));
+		        	store.messageReceived(new FormattedMqttMessage(mqttMessage, null));
 		        }
 			}
 		});		
@@ -377,19 +386,33 @@ public class ConnectionManager
 		connection.closeConnection();
 		if (connection.getMessageLogger() != null && connection.getMessageLogger().isRunning())
 		{
-			connection.getMessageLogger().stop();
+			connection.getMessageLogger().stop();			
 		}
 		
 		TabUtils.requestClose(connectionControllers.get(connection).getTab());
+		subscriptionManagers.remove(connectionControllers.get(connection));
 		connectionControllers.remove(connection);
 		connectionTabs.remove(connection);
-		subscriptionManagers.remove(connectionControllers.get(connection));
+		logger.debug("Closing connection tab; sm = {}; cc = {}; ct = {}", 
+				subscriptionManagers.keySet().size(),
+				connectionControllers.keySet().size(),
+				connectionTabs.keySet().size());
 		
 		// Stop all scripts
 		for (final Script script : connection.getScriptManager().getScripts().values())
 		{
-			connection.getScriptManager().stopScriptFile(script.getScriptFile());
+			// Only stop file-based scripts
+			if (script.getScriptFile() != null)
+			{
+				connection.getScriptManager().stopScriptFile(script.getScriptFile());
+			}
 		}		
+		
+		for (final BaseMqttSubscription subscription : connection.getSubscriptions().values())
+		{
+			subscription.getStore().cleanUp();
+		}
+		connection.getStore().cleanUp();
 	}
 		
 	public void closeOfflineTab(final ConnectionController connectionController)
@@ -417,11 +440,17 @@ public class ConnectionManager
 		return tab;
 	}	
 
-	public MqttAsyncConnection createConnection(final RuntimeConnectionProperties connectionProperties, final Queue<MqttSpyUIEvent> uiEventQueue)
+	public MqttAsyncConnection createConnection(final RuntimeConnectionProperties connectionProperties, final EventQueueManager uiEventQueue)
 	{
+		final InteractiveScriptManager scriptManager = new InteractiveScriptManager(eventManager, null);
+		final FormattingManager formattingManager = new FormattingManager(scriptManager);
 		final MqttAsyncConnection connection = new MqttAsyncConnection(reconnectionManager,
-				connectionProperties, MqttConnectionStatus.DISCONNECTED, eventManager, uiEventQueue, configurationManager);
+				connectionProperties, MqttConnectionStatus.DISCONNECTED, 
+				eventManager, scriptManager, formattingManager, uiEventQueue, configurationManager);
 
+		formattingManager.initialiseFormatter(connection.getProperties().getFormatter());
+		scriptManager.setConnection(connection);
+		
 		// Set up message logger		
 		final MessageLog messageLog = connectionProperties.getConfiguredProperties().getMessageLog();		
 		if (messageLog != null && !messageLog.getValue().equals(MessageLogEnum.DISABLED) 
@@ -442,8 +471,9 @@ public class ConnectionManager
 			}
 		}		
 				
-		final InteractiveScriptManager scriptManager = new InteractiveScriptManager(eventManager, connection);
-		connection.setScriptManager(scriptManager);
+		
+		// connection.setScriptManager(scriptManager);
+		//connection.getStore().setFormattingManager(new FormattingManager(scriptManager));
 	
 		// Store the created connection
 		connections.put(connectionProperties.getConfiguredProperties().getId(), connection);

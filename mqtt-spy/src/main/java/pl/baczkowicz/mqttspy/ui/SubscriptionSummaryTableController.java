@@ -4,8 +4,13 @@
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * and Eclipse Distribution License v1.0 which accompany this distribution.
+ *
+ * The Eclipse Public License is available at
+ *    http://www.eclipse.org/legal/epl-v10.html
+ *    
+ * The Eclipse Distribution License is available at
+ *   http://www.eclipse.org/org/documents/edl-v10.php.
  *
  * Contributors:
  * 
@@ -49,10 +54,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.configuration.generated.TabbedSubscriptionDetails;
+import pl.baczkowicz.mqttspy.connectivity.BaseMqttSubscription;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
-import pl.baczkowicz.mqttspy.events.EventManager;
+import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
 import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
 import pl.baczkowicz.mqttspy.ui.charts.ChartMode;
+import pl.baczkowicz.mqttspy.ui.events.EventManager;
 import pl.baczkowicz.mqttspy.ui.properties.SubscriptionTopicSummaryProperties;
 import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
 import pl.baczkowicz.mqttspy.ui.utils.StylingUtils;
@@ -91,6 +98,7 @@ public class SubscriptionSummaryTableController implements Initializable
 	private FilteredList<SubscriptionTopicSummaryProperties> filteredData;
 	
 	private ConnectionController connectionController;
+	
 	private EventManager eventManager;
 
 	private Menu filteredTopicsMenu;
@@ -132,30 +140,30 @@ public class SubscriptionSummaryTableController implements Initializable
 
 		contentColumn.setCellValueFactory(new PropertyValueFactory<SubscriptionTopicSummaryProperties, String>("lastReceivedPayloadShort"));
 		contentColumn.setCellFactory(new Callback<TableColumn<SubscriptionTopicSummaryProperties, String>, TableCell<SubscriptionTopicSummaryProperties, String>>()
+		{
+			public TableCell<SubscriptionTopicSummaryProperties, String> call(
+					TableColumn<SubscriptionTopicSummaryProperties, String> param)
+			{
+				final TableCell<SubscriptionTopicSummaryProperties, String> cell = new TableCell<SubscriptionTopicSummaryProperties, String>()
 				{
-					public TableCell<SubscriptionTopicSummaryProperties, String> call(
-							TableColumn<SubscriptionTopicSummaryProperties, String> param)
+					@Override
+					public void updateItem(String item, boolean empty)
 					{
-						final TableCell<SubscriptionTopicSummaryProperties, String> cell = new TableCell<SubscriptionTopicSummaryProperties, String>()
+						super.updateItem(item, empty);
+						if (!isEmpty())
+						{								
+							setText(item);
+						}
+						else
 						{
-							@Override
-							public void updateItem(String item, boolean empty)
-							{
-								super.updateItem(item, empty);
-								if (!isEmpty())
-								{								
-									setText(item);
-								}
-								else
-								{
-									setText(null);
-								}
-							}
-						};
-						
-						return cell;
+							setText(null);
+						}
 					}
-				});
+				};
+				
+				return cell;
+			}
+		});
 
 		messageCountColumn.setCellValueFactory(new PropertyValueFactory<SubscriptionTopicSummaryProperties, Integer>("count"));
 		messageCountColumn.setCellFactory(new Callback<TableColumn<SubscriptionTopicSummaryProperties, Integer>, TableCell<SubscriptionTopicSummaryProperties, Integer>>()
@@ -224,12 +232,23 @@ public class SubscriptionSummaryTableController implements Initializable
 					@Override
 					protected void updateItem(SubscriptionTopicSummaryProperties item, boolean empty)
 					{
-						super.updateItem(item, empty);
+						super.updateItem(item, empty);											
+						
 						if (!isEmpty() && item.getSubscription() != null)
 						{
-							this.setStyle(StylingUtils.createBgRGBString(item.getSubscription()
-									.getColor(), getIndex() % 2 == 0 ? 0.8 : 0.6)
+							final BaseMqttSubscription subscription = connectionController.getConnection().getMqttSubscriptionForTopic(item.getSubscription());
+						
+							if (subscription instanceof MqttSubscription)
+							{
+								this.setStyle(StylingUtils.createBgRGBString(
+									((MqttSubscription) subscription).getColor(), 
+									getIndex() % 2 == 0 ? 0.8 : 0.6)
 									+ " -fx-background-radius: 6; ");
+							}
+							else
+							{
+								this.setStyle(null);
+							}
 						}
 						else
 						{
@@ -246,7 +265,8 @@ public class SubscriptionSummaryTableController implements Initializable
 	private void changeShowProperty(final SubscriptionTopicSummaryProperties item, final boolean checked)
 	{
 		logger.trace("[{}] Show property changed; topic = {}, show value = {}", store.getName(), item.topicProperty().getValue(), checked);
-									
+		logger.trace("[{}] Store = {}, filtered store = {}", store.getName(), store.getNonFilteredMessageList(), store.getFilteredMessageStore().getMessageList());
+		
 		if (store.getFilteredMessageStore().updateTopicFilter(item.topicProperty().getValue(), checked))
 		{
 			// Wouldn't get updated properly if this is in the same thread 

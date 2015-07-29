@@ -4,8 +4,13 @@
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * and Eclipse Distribution License v1.0 which accompany this distribution.
+ *
+ * The Eclipse Public License is available at
+ *    http://www.eclipse.org/legal/epl-v10.html
+ *    
+ * The Eclipse Distribution License is available at
+ *   http://www.eclipse.org/org/documents/edl-v10.php.
  *
  * Contributors:
  * 
@@ -16,9 +21,11 @@ package pl.baczkowicz.mqttspy.ui.properties;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import pl.baczkowicz.mqttspy.configuration.generated.FormatterDetails;
-import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
-import pl.baczkowicz.mqttspy.storage.UiMqttMessage;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.utils.TimeUtils;
 
 /**
@@ -26,6 +33,8 @@ import pl.baczkowicz.mqttspy.utils.TimeUtils;
  */
 public class MqttContentProperties extends BaseTopicProperty
 {
+	final static Logger logger = LoggerFactory.getLogger(MqttContentProperties.class);
+	
 	/** The timestamp of when it was received. */
 	private StringProperty lastReceivedTimestamp;
 	
@@ -36,7 +45,7 @@ public class MqttContentProperties extends BaseTopicProperty
 	private StringProperty lastReceivedPayloadShort;
 
 	/** Last message. */
-	private UiMqttMessage mqttContent;
+	private FormattedMqttMessage mqttContent;
 
 	private int maxPayloadLength;
 
@@ -47,50 +56,18 @@ public class MqttContentProperties extends BaseTopicProperty
 	 * @param format The formatting settings to be used for the payload
 	 * @param maxPayloadLength Maximum payload length - to make sure UI remains responsive for large messages
 	 */
-	public MqttContentProperties(final UiMqttMessage message, final FormatterDetails format, final int maxPayloadLength)
+	public MqttContentProperties(final FormattedMqttMessage message, final int maxPayloadLength)
 	{
 		super(message.getTopic());
 		this.lastReceivedTimestamp = new SimpleStringProperty();
 		this.lastReceivedPayload = new SimpleStringProperty();
 		this.lastReceivedPayloadShort = new SimpleStringProperty();
 		this.maxPayloadLength = maxPayloadLength;
-		setMessage(message, format);
+		setMessage(message);
 	}
 	
-	/**
-	 * Changes the format of the last received payload.
-	 * 
-	 * @param format The new format to be used
-	 */
-	public void changeFormat(final FormatterDetails format)
+	public void updateReceivedPayload(final String formattedText)
 	{
-		this.lastReceivedPayload.set(mqttContent.getFormattedPayload(format));
-	}
-
-	/**
-	 * Gets the subscription object for this message.
-	 * 
-	 * @return The subscription object as MqttSubscription
-	 */
-	public MqttSubscription getSubscription()
-	{
-		return mqttContent.getSubscription();
-	}
-
-	/**
-	 * Sets a newly received message object.
-	 * 
-	 * @param message The last received message
-	 * @param format The format to use
-	 */
-	public void setMessage(final UiMqttMessage message, final FormatterDetails format)
-	{
-		this.mqttContent = message;
-
-		this.lastReceivedTimestamp.set(TimeUtils.DATE_WITH_MILLISECONDS_SDF.format(mqttContent.getDate()));
-		
-		final String formattedText = mqttContent.getFormattedPayload(format);
-		
 		if (maxPayloadLength > 0)
 		{			
 			final int lengthToSet = Math.min(formattedText.length(), maxPayloadLength); 
@@ -102,6 +79,47 @@ public class MqttContentProperties extends BaseTopicProperty
 		}
 		
 		this.lastReceivedPayload.set(formattedText);
+	}
+
+	/**
+	 * @return the mqttContent
+	 */
+	public FormattedMqttMessage getMqttContent()
+	{
+		return mqttContent;
+	}
+
+	/**
+	 * @param mqttContent the mqttContent to set
+	 */
+	public void setMqttContent(FormattedMqttMessage mqttContent)
+	{
+		this.mqttContent = mqttContent;
+	}
+
+	/**
+	 * Gets the subscription object for this message.
+	 * 
+	 * @return The subscription object as MqttSubscription
+	 */
+	public String getSubscription()
+	{
+		return mqttContent.getSubscription();
+	}
+
+	/**
+	 * Sets a newly received message object.
+	 * 
+	 * @param message The last received message
+	 * @param format The format to use
+	 */
+	public void setMessage(final FormattedMqttMessage message)
+	{
+		this.mqttContent = message;
+
+		this.lastReceivedTimestamp.set(TimeUtils.DATE_WITH_MILLISECONDS_SDF.format(mqttContent.getDate()));
+				
+		updateReceivedPayload(mqttContent.getFormattedPayload());
 	}
 
 	/**

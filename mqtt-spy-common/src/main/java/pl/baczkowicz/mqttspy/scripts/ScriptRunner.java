@@ -4,8 +4,13 @@
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * and Eclipse Distribution License v1.0 which accompany this distribution.
+ *
+ * The Eclipse Public License is available at
+ *    http://www.eclipse.org/legal/epl-v10.html
+ *    
+ * The Eclipse Distribution License is available at
+ *   http://www.eclipse.org/org/documents/edl-v10.php.
  *
  * Contributors:
  * 
@@ -68,8 +73,10 @@ public class ScriptRunner implements Runnable
 	 */
 	public void run()
 	{
-		Thread.currentThread().setName("Script " + script.getName());
-		ThreadingUtils.logStarting();
+		if (script.isAsynchronous())
+		{
+			ThreadingUtils.logThreadStarting("Script " + script.getName());
+		}		
 		
 		script.getPublicationScriptIO().touch();
 		runningThread = Thread.currentThread();
@@ -81,7 +88,11 @@ public class ScriptRunner implements Runnable
 			firstRun = false;
 			
 			changeState(ScriptRunningState.RUNNING);
-			new Thread(new ScriptHealthDetector(eventManager, script, executor)).start();		
+			
+			if (script.isAsynchronous())
+			{
+				new Thread(new ScriptHealthDetector(eventManager, script, executor)).start();
+			}
 			
 			try
 			{
@@ -103,7 +114,10 @@ public class ScriptRunner implements Runnable
 		
 		script.getPublicationScriptIO().stop();
 		
-		ThreadingUtils.logEnding();
+		if (script.isAsynchronous())
+		{
+			ThreadingUtils.logThreadEnding();
+		}
 	}
 	
 	/**
@@ -128,7 +142,7 @@ public class ScriptRunner implements Runnable
 		else if (script.getScriptContent() != null)
 		{
 			lastReturnValue = script.getScriptEngine().eval(script.getScriptContent());
-			logger.debug("Script {} returned with value {}", script.getName(), lastReturnValue);
+			logger.debug("Inline script {} returned with value {}", script.getName(), lastReturnValue);
 		}
 		else
 		{

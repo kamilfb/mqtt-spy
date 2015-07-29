@@ -4,8 +4,13 @@
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * and Eclipse Distribution License v1.0 which accompany this distribution.
+ *
+ * The Eclipse Public License is available at
+ *    http://www.eclipse.org/legal/epl-v10.html
+ *    
+ * The Eclipse Distribution License is available at
+ *   http://www.eclipse.org/org/documents/edl-v10.php.
  *
  * Contributors:
  * 
@@ -28,30 +33,39 @@ public class ThreadingUtils
 	private final static Logger logger = LoggerFactory.getLogger(ThreadingUtils.class);
 	
 	/** Log entry for starting a thread. */
-	private static final String STARTING_THREAD = "Starting %s thread...";
+	private static final String STARTING_THREAD = "Starting thread ID=%s \"%s\" ...";
 	
 	/** Log entry for stopping a thread. */
-	private static final String ENDING_THREAD = "Ending %s thread...";	 
+	private static final String ENDING_THREAD = "Ending thread ID=%s \"%s\" ...";	 
 	
 	/**
 	 * Logs the fact of starting a thread.
 	 */
-	public static void logStarting()
+	private static void logThreadStarting()
 	{
 		if (logger.isTraceEnabled())
 		{
-			logger.trace(String.format(ThreadingUtils.STARTING_THREAD, Thread.currentThread().getName()));
+			logger.trace(String.format(ThreadingUtils.STARTING_THREAD, Thread.currentThread().getId(), Thread.currentThread().getName()));
 		}
+	}
+	
+	/**
+	 * Logs the fact of starting a thread.
+	 */
+	public static void logThreadStarting(final String threadName)
+	{
+		Thread.currentThread().setName("mqtt-spy [" + threadName + "]");
+		logThreadStarting();
 	}
 	
 	/**
 	 * Logs the fact of finishing a thread.
 	 */
-	public static void logEnding()
+	public static void logThreadEnding()
 	{
 		if (logger.isTraceEnabled())
 		{
-			logger.trace(String.format(ThreadingUtils.ENDING_THREAD, Thread.currentThread().getName()));
+			logger.trace(String.format(ThreadingUtils.ENDING_THREAD, Thread.currentThread().getId(), Thread.currentThread().getName()));
 		}
 	}
 	

@@ -4,8 +4,13 @@
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * and Eclipse Distribution License v1.0 which accompany this distribution.
+ *
+ * The Eclipse Public License is available at
+ *    http://www.eclipse.org/legal/epl-v10.html
+ *    
+ * The Eclipse Distribution License is available at
+ *   http://www.eclipse.org/org/documents/edl-v10.php.
  *
  * Contributors:
  * 
@@ -14,73 +19,41 @@
  */
 package pl.baczkowicz.mqttspy.connectivity;
 
-import java.util.Queue;
-
 import javafx.scene.paint.Color;
-import pl.baczkowicz.mqttspy.common.generated.SubscriptionDetails;
 import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
 import pl.baczkowicz.mqttspy.configuration.UiProperties;
-import pl.baczkowicz.mqttspy.events.EventManager;
-import pl.baczkowicz.mqttspy.events.queuable.ui.MqttSpyUIEvent;
+import pl.baczkowicz.mqttspy.scripts.FormattingManager;
 import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
 import pl.baczkowicz.mqttspy.ui.SubscriptionController;
+import pl.baczkowicz.mqttspy.ui.events.EventManager;
+import pl.baczkowicz.mqttspy.ui.events.queuable.EventQueueManager;
 
-// TODO: split the logic from UI
-public class MqttSubscription extends ManagedMessageStoreWithFiltering
+public class MqttSubscription extends BaseMqttSubscription
 {
-	private int id;
-	
-	private String topic;
-
-	private Integer qos;
-
 	private Color color;
-
-	private boolean subscribing;
-	
-	private boolean subscriptionRequested;
-
-	private boolean active;
 	
 	private SubscriptionController subscriptionController;
 
 	private MqttAsyncConnection connection;
 	
-	private SubscriptionDetails details;
+	private final ManagedMessageStoreWithFiltering store;
+
+	private EventManager eventManager;
 
 	public MqttSubscription(final String topic, final Integer qos, final Color color, 
-			final int minMessagesPerTopic, final int preferredStoreSize, final Queue<MqttSpyUIEvent> uiEventQueue, final EventManager eventManager, 
-			final ConfigurationManager configurationManager)
+			final int minMessagesPerTopic, final int preferredStoreSize, final EventQueueManager uiEventQueue, final EventManager eventManager, 
+			final ConfigurationManager configurationManager, final FormattingManager formattingManager)
 	{
+		super(topic, qos, minMessagesPerTopic, preferredStoreSize);
+		
 		// Max size is double the preferred size
-		super(topic, minMessagesPerTopic, preferredStoreSize, preferredStoreSize * 2, uiEventQueue, eventManager, 
+		store = new ManagedMessageStoreWithFiltering(topic, minMessagesPerTopic, 
+				preferredStoreSize, preferredStoreSize * 2, 
+				uiEventQueue, eventManager, formattingManager,
 				UiProperties.getSummaryMaxPayloadLength(configurationManager));
 		
-		this.topic = topic;
-		this.qos = qos;
 		this.color = color;
-		this.active = false;
-		this.subscriptionRequested = false;
-	}
-
-	public String getTopic()
-	{
-		return topic;
-	}
-
-	public void setTopic(String topic)
-	{
-		this.topic = topic;
-	}
-
-	public Integer getQos()
-	{
-		return qos;
-	}
-
-	public void setQos(Integer qos)
-	{
-		this.qos = qos;
+		this.eventManager = eventManager;
 	}
 
 	public Color getColor()
@@ -93,14 +66,10 @@ public class MqttSubscription extends ManagedMessageStoreWithFiltering
 		this.color = color;
 	}
 
-	public boolean isActive()
-	{
-		return active;
-	}
-
+	@Override
 	public void setActive(final boolean active)
 	{
-		this.active = active;
+		super.setActive(active);
 		subscriptionStatusChanged();
 	}
 
@@ -119,7 +88,7 @@ public class MqttSubscription extends ManagedMessageStoreWithFiltering
 		return subscriptionController;
 	}
 
-	public void setConnection(MqttAsyncConnection connection)
+	public void setConnection(final MqttAsyncConnection connection)
 	{
 		this.connection = connection;		
 	}
@@ -129,43 +98,9 @@ public class MqttSubscription extends ManagedMessageStoreWithFiltering
 		return connection;
 	}
 
-	public int getId()
+	@Override
+	public ManagedMessageStoreWithFiltering getStore()
 	{
-		return id;
-	}
-
-	public void setId(final int id)
-	{
-		this.id = id;		
-	}
-
-	public boolean isSubscribing()
-	{
-		return subscribing;
-	}
-	
-	public void setSubscribing(final boolean value)
-	{
-		subscribing = value;
-	}
-
-	public boolean getSubscriptionRequested()
-	{
-		return subscriptionRequested;
-	}
-
-	public void setSubscriptionRequested(final boolean subscriptionRequested)
-	{
-		this.subscriptionRequested = subscriptionRequested;
-	}
-
-	public SubscriptionDetails getDetails()
-	{
-		return details;
-	}
-
-	public void setDetails(SubscriptionDetails details)
-	{
-		this.details = details;
+		return store;
 	}
 }
