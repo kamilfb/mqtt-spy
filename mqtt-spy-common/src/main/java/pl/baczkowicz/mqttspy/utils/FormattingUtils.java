@@ -359,10 +359,18 @@ public class FormattingUtils
 			{
 				return new String(Hex.encodeHex(text));
 			}
+			case HEX_DECODE:
+			{
+				return ConversionUtils.hexToStringNoException(ConversionUtils.arrayToString(text));
+			}
 			case BASE_64_ENCODE:
 			{
 				return Base64.encodeBase64String(text);
 			}
+			case BASE_64_DECODE:
+			{
+				return new String(Base64.decodeBase64(text));
+			}	
 			default:
 				return ConversionUtils.arrayToString(text);
 		}
