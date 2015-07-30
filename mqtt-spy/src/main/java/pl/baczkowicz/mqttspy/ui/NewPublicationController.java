@@ -390,7 +390,8 @@ public class NewPublicationController implements Initializable, ScriptListChange
 		final MenuButton settingsButton = createTitleButton("Pane settings", "images/settings.png", -5, connectionController, pane);
 			      
 		HBox titleBox = new HBox();
-		titleBox.setPadding(new Insets(0, 0, 0, 0));				
+		titleBox.setPadding(new Insets(0, 0, 0, 0));	
+		logger.info(pane + ", " + paneTitle + ", " + connectionController);
 		titleBox.getChildren().addAll(new Label(pane.getText()));
 		titleBox.prefWidth(Double.MAX_VALUE);		
 		

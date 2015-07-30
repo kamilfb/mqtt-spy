@@ -281,10 +281,10 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 			testCasesPaneController = loader.getController();
 			testCasesPaneController.setConnection(connection);
 			testCasesPaneController.setConnectionController(this);
+			testCasesPaneController.setTitledPane(testCasesTitledPane);
 			testCasesPaneController.init();
 			
 			testCasesTitledStatus.setController(testCasesPaneController);
-			testCasesTitledStatus.getController().setTitledPane(testCasesTitledPane);
 						
 			paneToStatus.put(testCasesTitledPane, testCasesTitledStatus);
 			

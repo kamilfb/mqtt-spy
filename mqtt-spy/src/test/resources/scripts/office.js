@@ -5,7 +5,7 @@ function publish()
 	for (i = 0; i < 20; i++)
 	{
 		// "<temp>" + 
-		mqttspy.publish("/home/office/current", (21 + Math.floor((Math.random() * 20) + 1) / 10), 0, false);
+		mqttspy.publish("home/office/current", (21 + Math.floor((Math.random() * 20) + 1) / 10), 0, false);
 		// + "</temp>"
 		
 		if (i == 10)
