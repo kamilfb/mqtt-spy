@@ -1,9 +1,14 @@
-function publishReply()
+function before()
 {
-	if (!receivedMessage.getTopic().equals("/reply"))
+	logger.info("Runing the 'before' function...");
+}
+
+function onMessage()
+{
+	if (!receivedMessage.getTopic().equals("reply"))
 	{
 		mqttspy.publish(
-			"/reply", "<simpleReply><topic>" + receivedMessage.getTopic() + "</topic>" 
+			"reply", "<simpleReply><topic>" + receivedMessage.getTopic() + "</topic>" 
 			+ "<payload><![CDATA[" + receivedMessage.getPayload() + "]]></payload>"
 			+ "</simpleReply>", 0, false);
 		
@@ -16,5 +21,3 @@ function publishReply()
 	
 	return true;
 }
-
-publishReply();

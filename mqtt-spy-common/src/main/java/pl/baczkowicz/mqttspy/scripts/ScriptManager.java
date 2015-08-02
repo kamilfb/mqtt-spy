@@ -57,6 +57,12 @@ public class ScriptManager
 	
 	public static final String SCRIPT_EXTENSION = ".js";
 	
+	public static final String BEFORE_METHOD = "before";
+	
+	public static final String AFTER_METHOD = "after";
+	
+	public static final String ON_MESSAGE_METHOD = "onMessage";
+	
 	/** Diagnostic logger. */
 	private final static Logger logger = LoggerFactory.getLogger(ScriptManager.class);
 	
@@ -367,6 +373,26 @@ public class ScriptManager
 	}
 	
 	/**
+	 * Runs the given script and passes the given message as a parameter. Defaults to the 'receivedMessage' parameter and synchronous execution.
+	 * 
+	 * @param script The script to run
+	 * @param message The message to be passed onto the script
+	 */
+	public boolean runScriptWithReceivedMessage(final Script script, final IBaseMessage receivedMessage)
+	{
+		script.getScriptEngine().put(ScriptManager.RECEIVED_MESSAGE_PARAMETER, receivedMessage);
+		try
+		{
+			invokeFunction(script, ON_MESSAGE_METHOD);
+			return true;
+		}
+		catch (NoSuchMethodException | ScriptException e)
+		{
+			return false;
+		}		
+	}
+	
+	/**
 	 * Runs the given script and passes the given message as a parameter. Defaults to the 'message' parameter and asynchronous execution.
 	 * 
 	 * @param script The script to run
@@ -389,6 +415,46 @@ public class ScriptManager
 	{				
 		script.getScriptEngine().put(parameterName, message);
 		runScript(script, asynchronous);		
+	}
+	
+	public boolean invokeBefore(final Script script)
+	{
+		try
+		{
+			invokeFunction(script, ScriptManager.BEFORE_METHOD);
+		}
+		catch (NoSuchMethodException e)
+		{
+			logger.info("No setup function present");
+		}
+		catch (ScriptException e)
+		{					
+			logger.error("Function execution failure", e);
+			
+			return false;
+		}
+		
+		return true;
+	}
+	
+	public boolean invokeAfter(final Script script)
+	{
+		try
+		{
+			invokeFunction(script, ScriptManager.AFTER_METHOD);
+		}
+		catch (NoSuchMethodException e)
+		{
+			logger.info("No after function present");
+		}
+		catch (ScriptException e)
+		{					
+			logger.error("Function execution failure", e);
+			
+			return false;
+		}
+		
+		return true;
 	}
 	
 	public Object invokeFunction(final Script script, final String function, final Object... args) throws NoSuchMethodException, ScriptException

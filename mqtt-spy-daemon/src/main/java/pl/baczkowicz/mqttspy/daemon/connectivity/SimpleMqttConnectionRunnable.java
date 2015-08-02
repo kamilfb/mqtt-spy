@@ -22,6 +22,7 @@ package pl.baczkowicz.mqttspy.daemon.connectivity;
 import pl.baczkowicz.mqttspy.common.generated.ReconnectionSettings;
 import pl.baczkowicz.mqttspy.common.generated.ScriptDetails;
 import pl.baczkowicz.mqttspy.common.generated.SubscriptionDetails;
+import pl.baczkowicz.mqttspy.connectivity.BaseMqttSubscription;
 import pl.baczkowicz.mqttspy.connectivity.SimpleMqttConnection;
 import pl.baczkowicz.mqttspy.daemon.configuration.generated.DaemonMqttConnectionDetails;
 import pl.baczkowicz.mqttspy.scripts.ScriptManager;
@@ -70,14 +71,18 @@ public class SimpleMqttConnectionRunnable implements Runnable
 				&& (neverStarted || (reconnectionSettings != null && reconnectionSettings.isResubscribe())))
 		{
 			// Subscribe to all configured subscriptions
-			for (final SubscriptionDetails subscription : connectionSettings.getSubscription())
+			for (final SubscriptionDetails subscriptionDetails : connectionSettings.getSubscription())
 			{	
-				if (neverStarted && subscription.getScriptFile() != null)
+				if (neverStarted && subscriptionDetails.getScriptFile() != null)
 				{
-					scriptManager.addScript(new ScriptDetails(true, false, subscription.getScriptFile()));
+					scriptManager.addScript(new ScriptDetails(true, false, subscriptionDetails.getScriptFile()));
 				}
-					
-				connection.subscribe(subscription.getTopic(), subscription.getQos());							
+				
+				final BaseMqttSubscription subscription = new BaseMqttSubscription(
+						subscriptionDetails.getTopic(), subscriptionDetails.getQos()); 
+				subscription.setDetails(subscriptionDetails);
+				
+				connection.subscribe(subscription);					
 			}
 		}
 		

@@ -32,8 +32,11 @@ import org.eclipse.paho.client.mqttv3.MqttSecurityException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import pl.baczkowicz.mqttspy.common.generated.ScriptDetails;
 import pl.baczkowicz.mqttspy.connectivity.topicmatching.TopicMatcher;
 import pl.baczkowicz.mqttspy.exceptions.MqttSpyException;
+import pl.baczkowicz.mqttspy.scripts.Script;
+import pl.baczkowicz.mqttspy.scripts.ScriptManager;
 import pl.baczkowicz.mqttspy.utils.ConnectionUtils;
 import pl.baczkowicz.mqttspy.utils.TimeUtils;
 
@@ -72,6 +75,9 @@ public abstract class BaseMqttConnection implements IMqttConnection
 	
 	/** Used for matching topics to subscriptions. */
 	private final TopicMatcher topicMatcher;
+
+	/** Used for calling subscription scripts. */
+	private ScriptManager scriptManager;
 	
 	/**
 	 * Instantiates the BaseMqttConnection.
@@ -209,7 +215,7 @@ public abstract class BaseMqttConnection implements IMqttConnection
 	 * 
 	 * @throws MqttSpyException Thrown when errors detected
 	 */
-	public void subscribeToTopic(final String topic, final int qos) throws MqttSpyException
+	private void subscribeToTopic(final String topic, final int qos) throws MqttSpyException
 	{
 		if (client == null || !client.isConnected())
 		{
@@ -236,6 +242,7 @@ public abstract class BaseMqttConnection implements IMqttConnection
 	 * @param topic Subscription topic
 	 * @param qos Subscription QoS
 	 */
+	// TODO: deprecate?
 	public boolean subscribe(final String topic, final int qos)
 	{
 		try
@@ -286,6 +293,20 @@ public abstract class BaseMqttConnection implements IMqttConnection
 			
 			logger.trace("Subscription " + subscription.getTopic() + " is active = "
 					+ subscription.isActive());
+			
+			if (subscription.getDetails() != null 
+					&& subscription.getDetails().getScriptFile() != null 
+					&& !subscription.getDetails().getScriptFile().isEmpty())
+			{
+				final Script script = scriptManager.addScript(new ScriptDetails(false, false, subscription.getDetails().getScriptFile()));
+				subscription.setScript(script);
+				scriptManager.runScript(script, false);
+				
+				if (scriptManager.invokeBefore(script))					
+				{
+					subscription.setScriptActive(true);
+				}
+			}
 
 			return true;
 		}
@@ -514,6 +535,11 @@ public abstract class BaseMqttConnection implements IMqttConnection
 	public void setClient(final MqttAsyncClient client)
 	{
 		this.client = client;
+	}
+	
+	public void setScriptManager(final ScriptManager scriptManager)
+	{
+		this.scriptManager = scriptManager;
 	}
 	
 	// TODO: is that needed?

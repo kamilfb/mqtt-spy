@@ -48,6 +48,8 @@ import pl.baczkowicz.mqttspy.utils.TimeUtils;
 
 public class TestCaseManager
 {	
+	public static String GET_INFO_METHOD = "getInfo";
+	
 	public static SimpleDateFormat testCaseFileSdf = new SimpleDateFormat("yyyyMMdd_HHmmss");
 	
 	public static SimpleDateFormat testCasesFileSdf = new SimpleDateFormat("yyyyMMdd");
@@ -96,7 +98,7 @@ public class TestCaseManager
 			try
 			{	
 				scriptManager.runScript(testCase, false);
-				testCase.setInfo((TestCaseInfo) scriptManager.invokeFunction(testCase, "getInfo"));
+				testCase.setInfo((TestCaseInfo) scriptManager.invokeFunction(testCase, GET_INFO_METHOD));
 				
 				int stepNumber = 1;
 				for (final String step : testCase.getInfo().getSteps())
@@ -177,20 +179,9 @@ public class TestCaseManager
 				TestCaseStepResult lastResult = null;
 				testCase.setCurrentStep(0);		
 				
-				// Run before / setup
-				try
+				if (!scriptManager.invokeBefore(testCase))
 				{
-					scriptManager.invokeFunction(testCase, "before");
-				}
-				catch (NoSuchMethodException e)
-				{
-					logger.info("No setup method present");
-				}
-				catch (ScriptException e)
-				{
-					//selected.statusProperty().setValue(TestCaseStatus.FAILED);
 					testCase.setStatus(ScriptRunningState.FAILED);					
-					logger.error("Step execution failure", e);
 				}
 				
 				while (testCase.getCurrentStep() < testCase.getSteps().size() && testCase.getStatus().equals(ScriptRunningState.RUNNING))
@@ -255,20 +246,9 @@ public class TestCaseManager
 					}		
 				}		
 				
-				// Run after / clean-up
-				try
+				if (!scriptManager.invokeAfter(testCase))
 				{
-					scriptManager.invokeFunction(testCase, "after");
-				}
-				catch (NoSuchMethodException e)
-				{
-					logger.info("No after method present");
-				}
-				catch (ScriptException e)
-				{
-					//selected.statusProperty().setValue(TestCaseStatus.FAILED);
 					testCase.setStatus(ScriptRunningState.FAILED);					
-					logger.error("Step execution failure", e);
 				}
 				
 				final TestCaseStepResult testCaseStatus = lastResult;

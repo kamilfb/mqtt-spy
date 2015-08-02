@@ -75,6 +75,7 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection
 			final EventQueueManager uiEventQueue, final ConfigurationManager configurationManager)
 	{ 
 		super(reconnectionManager, properties);
+		setScriptManager(scriptManager);
 		
 		// Max size is double the preferred size
 		store = new ManagedMessageStoreWithFiltering(properties.getName(), 
@@ -152,7 +153,7 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection
 		for (final String matchingSubscriptionTopic : matchingSubscriptionTopics)
 		{					
 			// Get the mqtt-spy's subscription object
-			final BaseMqttSubscription mqttSubscription = subscriptions.get(matchingSubscriptionTopic);
+			final BaseMqttSubscription mqttSubscription = getMqttSubscriptionForTopic(matchingSubscriptionTopic);
 
 			// If a match has been found, and the subscription is active or we don't care
 			if (mqttSubscription != null && (anySubscription || mqttSubscription.isSubscribing() || mqttSubscription.isActive()))
@@ -166,11 +167,9 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection
 				message.setSubscription(mqttSubscription.getTopic());
 				foundMqttSubscription = mqttSubscription;
 				
-				if (mqttSubscription.getDetails() != null 
-						&& mqttSubscription.getDetails().getScriptFile() != null 
-						&& !mqttSubscription.getDetails().getScriptFile().isEmpty())
+				if (mqttSubscription.isScriptActive())
 				{
-					scriptManager.runScriptFileWithReceivedMessage(mqttSubscription.getDetails().getScriptFile(), message);
+					scriptManager.runScriptWithReceivedMessage(mqttSubscription.getScript(), message);
 				}
 				
 				// Pass the message for subscription handling
@@ -308,6 +307,12 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection
 
 		logger.debug("Unsubscribing from " + subscription.getTopic());
 		final boolean unsubscribed = unsubscribe(subscription.getTopic());
+
+		// Run 'after' for script - TODO: move to BaseMqttConnection?
+		if (subscription.isScriptActive())
+		{
+			scriptManager.invokeAfter(subscription.getScript());
+		}
 		
 		subscription.setActive(false);
 		logger.trace("Subscription " + subscription.getTopic() + " is active = " + subscription.isActive());

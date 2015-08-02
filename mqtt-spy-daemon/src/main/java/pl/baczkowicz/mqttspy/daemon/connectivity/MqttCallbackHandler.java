@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 import pl.baczkowicz.mqttspy.common.generated.MessageLogEnum;
 import pl.baczkowicz.mqttspy.common.generated.SubscriptionDetails;
 import pl.baczkowicz.mqttspy.connectivity.BaseMqttConnection;
+import pl.baczkowicz.mqttspy.connectivity.BaseMqttSubscription;
 import pl.baczkowicz.mqttspy.daemon.configuration.generated.DaemonMqttConnectionDetails;
 import pl.baczkowicz.mqttspy.logger.MqttMessageLogger;
 import pl.baczkowicz.mqttspy.messages.BaseMqttMessageWithSubscriptions;
@@ -60,7 +61,7 @@ public class MqttCallbackHandler implements MqttCallback
 	private final DaemonMqttConnectionDetails connectionSettings;
 	
 	/** Subscription details (as configured). */
-	private final Map<String, SubscriptionDetails> subscriptions = new HashMap<String, SubscriptionDetails>();
+	private final Map<String, SubscriptionDetails> subscriptionsDetails = new HashMap<String, SubscriptionDetails>();
 
 	/** Script manager - for running subscription scripts. */
 	private final ScriptManager scriptManager;
@@ -84,7 +85,7 @@ public class MqttCallbackHandler implements MqttCallback
 		
 		for (final SubscriptionDetails subscriptionDetails : connectionSettings.getSubscription())
 		{
-			this.subscriptions.put(subscriptionDetails.getTopic(), subscriptionDetails);
+			this.subscriptionsDetails.put(subscriptionDetails.getTopic(), subscriptionDetails);
 		}
 		
 		new Thread(messageLogger).start();			
@@ -128,14 +129,13 @@ public class MqttCallbackHandler implements MqttCallback
 		}
 		
 		// If configured, run scripts for the matching subscriptions
-		for (final String matchingSubscription : matchingSubscriptions)
+		for (final String matchingSubscriptionTopic : matchingSubscriptions)
 		{
-			final SubscriptionDetails subscriptionDetails = subscriptions.get(matchingSubscription);
-			
-			if (subscriptionDetails.getScriptFile() != null)
+			final BaseMqttSubscription subscription = connection.getMqttSubscriptionForTopic(matchingSubscriptionTopic);
+			if (subscription.isScriptActive())
 			{
-				scriptManager.runScriptFileWithReceivedMessage(subscriptionDetails.getScriptFile(), receivedMessage);
-			}
+				scriptManager.runScriptWithReceivedMessage(subscription.getScript(), receivedMessage);
+			}		
 		}
 		
 		// After scripts

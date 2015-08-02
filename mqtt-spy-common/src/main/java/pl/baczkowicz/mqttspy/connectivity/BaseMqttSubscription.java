@@ -20,6 +20,7 @@
 package pl.baczkowicz.mqttspy.connectivity;
 
 import pl.baczkowicz.mqttspy.common.generated.SubscriptionDetails;
+import pl.baczkowicz.mqttspy.scripts.Script;
 import pl.baczkowicz.mqttspy.storage.BasicMessageStore;
 import pl.baczkowicz.mqttspy.storage.MessageList;
 
@@ -41,19 +42,28 @@ public class BaseMqttSubscription
 	
 	private SubscriptionDetails details;
 	
-	private final BasicMessageStore store;
+	private BasicMessageStore store;
 
-	public BaseMqttSubscription(final String topic, final Integer qos, 
-			final int minMessagesPerTopic, final int preferredStoreSize)
+	private Script script;
+
+	private boolean scriptActive;
+
+	public BaseMqttSubscription(final String topic, final Integer qos)
 	{
-		// Max size is double the preferred size
-		//this.store = new BasicMessageStore(topic, minMessagesPerTopic, preferredStoreSize, preferredStoreSize * 2);
-		this.store = new BasicMessageStore(new MessageList(minMessagesPerTopic, preferredStoreSize, topic));
-		
 		this.topic = topic;
 		this.qos = qos;
 		this.active = false;
 		this.subscriptionRequested = false;
+		
+		this.store = null;
+	}
+	
+	public BaseMqttSubscription(final String topic, final Integer qos, 
+			final int minMessagesPerTopic, final int preferredStoreSize)
+	{
+		this(topic, qos);
+		
+		this.store = new BasicMessageStore(new MessageList(minMessagesPerTopic, preferredStoreSize, topic));
 	}
 
 	public String getTopic()
@@ -131,7 +141,7 @@ public class BaseMqttSubscription
 		return details;
 	}
 
-	public void setDetails(SubscriptionDetails details)
+	public void setDetails(final SubscriptionDetails details)
 	{
 		this.details = details;
 	}
@@ -139,5 +149,25 @@ public class BaseMqttSubscription
 	public BasicMessageStore getStore()
 	{
 		return store;
+	}
+
+	public void setScript(final Script script)
+	{
+		this.script = script;		
+	}
+
+	public void setScriptActive(final boolean scriptActive)
+	{
+		this.scriptActive = scriptActive;		
+	}
+	
+	public boolean isScriptActive()
+	{
+		return scriptActive;
+	}
+
+	public Script getScript()
+	{
+		return script;
 	}
 }
