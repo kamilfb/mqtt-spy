@@ -76,7 +76,7 @@ public class ContextMenuUtils
 		final ContextMenu contextMenu = new ContextMenu();
 
 		// Cancel
-		MenuItem cancelItem = new MenuItem("[Subscription] Unsubscribe (and keep the tab)");
+		MenuItem cancelItem = new MenuItem("Unsubscribe (and keep the tab)");
 		cancelItem.setDisable(false);
 
 		cancelItem.setOnAction(new EventHandler<ActionEvent>()
@@ -89,7 +89,7 @@ public class ContextMenuUtils
 		contextMenu.getItems().add(cancelItem);
 
 		// Re-subscribe
-		MenuItem resubscribeItem = new MenuItem("[Subscription] Re-subscribe");
+		MenuItem resubscribeItem = new MenuItem("Re-subscribe");
 		resubscribeItem.setDisable(true);
 
 		resubscribeItem.setOnAction(new EventHandler<ActionEvent>()
@@ -102,7 +102,7 @@ public class ContextMenuUtils
 		contextMenu.getItems().add(resubscribeItem);
 
 		// Close
-		MenuItem closeItem = new MenuItem("[Subscription] Unsubscribe (and close tab)");
+		MenuItem closeItem = new MenuItem("Unsubscribe (and close tab)");
 
 		closeItem.setOnAction(new EventHandler<ActionEvent>()
 		{
@@ -117,7 +117,7 @@ public class ContextMenuUtils
 		contextMenu.getItems().add(new SeparatorMenuItem());
 
 		// Copy subscription topic string
-		final MenuItem copyTopicItem = new MenuItem("[Subscription] Copy subscription topic to clipboard");
+		final MenuItem copyTopicItem = new MenuItem("Copy subscription topic to clipboard");
 		copyTopicItem.setOnAction(new EventHandler<ActionEvent>()
 		{
 			public void handle(ActionEvent e)
@@ -127,17 +127,101 @@ public class ContextMenuUtils
 		});
 		contextMenu.getItems().add(copyTopicItem);
 
+
 		// Separator
 		contextMenu.getItems().add(new SeparatorMenuItem());
 		
-		final Menu other = new Menu("[Subscription] Other");
-		contextMenu.getItems().add(other);
+		// Clear data
+		MenuItem clearItem = new MenuItem("Clear subscription history");
+
+		clearItem.setOnAction(new EventHandler<ActionEvent>()
+		{
+			public void handle(ActionEvent e)
+			{				
+				eventManager.notifyClearHistory(subscription.getStore());
+				StatisticsManager.resetMessagesReceived(connection.getId(), subscription.getTopic());
+				subscription.getStore().clear();
+			}
+		});
+		contextMenu.getItems().add(clearItem);		
 		
 		// Separator
 		contextMenu.getItems().add(new SeparatorMenuItem());
+		
+
+		final Menu chartsMenu = new Menu("Charts");
+		contextMenu.getItems().add(chartsMenu);
+		
+		// Message load charts
+		MenuItem messageLoadChartItem = new MenuItem("Show message load chart");
+		messageLoadChartItem.setOnAction(new EventHandler<ActionEvent>()
+		{
+			public void handle(ActionEvent e)
+			{			
+				DialogUtils.showMessageBasedLineCharts(
+						Arrays.asList(SubscriptionController.AVG5_TOPIC, SubscriptionController.AVG30_TOPIC, SubscriptionController.AVG300_TOPIC),
+						subscriptionController.getStatsHistory(), 
+						ChartMode.USER_DRIVEN_MSG_PAYLOAD,
+						"Series", "Load", "msgs/s", 
+						"Message load statistics for " + subscription.getTopic() + " - " + connection.getName(), 
+						subscriptionController.getScene(), eventManager);
+			}
+		});			
+		chartsMenu.getItems().add(messageLoadChartItem);
+		
+		// Message count charts
+		MenuItem messageCountChartItem = new MenuItem("Show message count chart");
+		messageCountChartItem.setOnAction(new EventHandler<ActionEvent>()
+		{
+			public void handle(ActionEvent e)
+			{			
+				DialogUtils.showMessageBasedPieCharts("Message count statistics for " + subscription.getTopic(), 
+						subscriptionController.getScene(),
+						subscriptionController.getSubscription().getStore().getNonFilteredMessageList().getTopicSummary().getObservableMessagesPerTopic());
+			}
+		});			
+		chartsMenu.getItems().add(messageCountChartItem);		
+		
+		final Menu configuration = new Menu("Configuration");
+		contextMenu.getItems().add(configuration);
+		
+		// Separator
+		// configuration.getItems().add(new SeparatorMenuItem());
+		
+		// Adds/updates this subscription in the configuration file
+		final MenuItem addItem = new MenuItem("Add/update this subscription");
+		addItem.setOnAction(new EventHandler<ActionEvent>()
+		{
+			public void handle(ActionEvent e)
+			{
+				configurationManager.updateSubscriptionConfiguration(connection, subscription);
+			}
+		});
+		configuration.getItems().add(addItem);
+		
+		// Removes this subscription from the configuration file
+		final MenuItem removeItem = new MenuItem("Remove this subscription");
+		removeItem.setOnAction(new EventHandler<ActionEvent>()
+		{
+			public void handle(ActionEvent e)
+			{
+				configurationManager.deleteSubscriptionConfiguration(connection, subscription);
+			}
+		});
+		configuration.getItems().add(removeItem);
+		
+		// Separator
+		configuration.getItems().add(new SeparatorMenuItem());
+		
+
+		final Menu view = new Menu("View");
+		contextMenu.getItems().add(view);
+		
+		// Separator
+		//contextMenu.getItems().add(new SeparatorMenuItem());
 		
 		// Change color
-		final MenuItem changeColorMenu = new MenuItem("[Subscription] Change color");
+		final MenuItem changeColorMenu = new MenuItem("Change tab color");
 		changeColorMenu.setOnAction(new EventHandler<ActionEvent>()
 		{
 			@Override
@@ -161,89 +245,14 @@ public class ContextMenuUtils
 				}
 			}
 		});
-		other.getItems().add(changeColorMenu);
-		
-		// Separator
-		other.getItems().add(new SeparatorMenuItem());
-		
-		// Adds/updates this subscription in the configuration file
-		final MenuItem addItem = new MenuItem("[Configuration] Add/update this subscription");
-		addItem.setOnAction(new EventHandler<ActionEvent>()
-		{
-			public void handle(ActionEvent e)
-			{
-				configurationManager.updateSubscriptionConfiguration(connection, subscription);
-			}
-		});
-		other.getItems().add(addItem);
-		
-		// Removes this subscription from the configuration file
-		final MenuItem removeItem = new MenuItem("[Configuration] Remove this subscription");
-		removeItem.setOnAction(new EventHandler<ActionEvent>()
-		{
-			public void handle(ActionEvent e)
-			{
-				configurationManager.deleteSubscriptionConfiguration(connection, subscription);
-			}
-		});
-		other.getItems().add(removeItem);
-		
-		// Separator
-		other.getItems().add(new SeparatorMenuItem());
+		view.getItems().add(changeColorMenu);
 		
 		// View
-		final MenuItem detachMenu = new MenuItem("[View] Detach to a separate window");
+		final MenuItem detachMenu = new MenuItem("Detach to a separate window");
 		detachMenu.setOnAction(TabUtils.createTabDetachEvent(
 				detachMenu, subscriptionController, 
 				connection.getName() + " - " + subscription.getTopic(), 5));
-		other.getItems().add(detachMenu);		
-		
-		// Message load charts
-		MenuItem messageLoadChartItem = new MenuItem("[Graphing] Show message load chart");
-		messageLoadChartItem.setOnAction(new EventHandler<ActionEvent>()
-		{
-			public void handle(ActionEvent e)
-			{			
-				DialogUtils.showMessageBasedLineCharts(
-						Arrays.asList(SubscriptionController.AVG5_TOPIC, SubscriptionController.AVG30_TOPIC, SubscriptionController.AVG300_TOPIC),
-						subscriptionController.getStatsHistory(), 
-						ChartMode.USER_DRIVEN_MSG_PAYLOAD,
-						"Series", "Load", "msgs/s", 
-						"Message load statistics for " + subscription.getTopic() + " - " + connection.getName(), 
-						subscriptionController.getScene(), eventManager);
-			}
-		});			
-		contextMenu.getItems().add(messageLoadChartItem);
-		
-		// Message count charts
-		MenuItem messageCountChartItem = new MenuItem("[Graphing] Show message count chart");
-		messageCountChartItem.setOnAction(new EventHandler<ActionEvent>()
-		{
-			public void handle(ActionEvent e)
-			{			
-				DialogUtils.showMessageBasedPieCharts("Message count statistics for " + subscription.getTopic(), 
-						subscriptionController.getScene(),
-						subscriptionController.getSubscription().getStore().getNonFilteredMessageList().getTopicSummary().getObservableMessagesPerTopic());
-			}
-		});			
-		contextMenu.getItems().add(messageCountChartItem);
-		
-		// Separator
-		contextMenu.getItems().add(new SeparatorMenuItem());
-		
-		// Clear data
-		MenuItem clearItem = new MenuItem("[History] Clear subscription history");
-
-		clearItem.setOnAction(new EventHandler<ActionEvent>()
-		{
-			public void handle(ActionEvent e)
-			{				
-				eventManager.notifyClearHistory(subscription.getStore());
-				StatisticsManager.resetMessagesReceived(connection.getId(), subscription.getTopic());
-				subscription.getStore().clear();
-			}
-		});
-		contextMenu.getItems().add(clearItem);		
+		view.getItems().add(detachMenu);		
 
 		return contextMenu;
 	}
@@ -267,7 +276,7 @@ public class ContextMenuUtils
 	{
 		final ContextMenu contextMenu = new ContextMenu();
 
-		MenuItem cancelItem = new MenuItem("[Subscriptions] Unsubscribe from all active subscriptions (if any)");
+		MenuItem cancelItem = new MenuItem("Unsubscribe from all active subscriptions (if any)");
 		cancelItem.setOnAction(new EventHandler<ActionEvent>()
 		{
 			public void handle(ActionEvent e)
@@ -277,7 +286,7 @@ public class ContextMenuUtils
 		});
 		contextMenu.getItems().add(cancelItem);
 
-		MenuItem resubscribeItem = new MenuItem("[Subscriptions] Re-subscribe to all non-active subscriptions (if any)");
+		MenuItem resubscribeItem = new MenuItem("Re-subscribe to all non-active subscriptions (if any)");
 
 		resubscribeItem.setOnAction(new EventHandler<ActionEvent>()
 		{
@@ -291,44 +300,25 @@ public class ContextMenuUtils
 		// Separator
 		contextMenu.getItems().add(new SeparatorMenuItem());
 		
-		// Adds/updates this subscription in the configuration file
-		final MenuItem addItem = new MenuItem("[Configuration] Add/update all shown subscriptions");
-		addItem.setOnAction(new EventHandler<ActionEvent>()
+		// Clear data
+		MenuItem clearItem = new MenuItem("Clear tab history");
+
+		clearItem.setOnAction(new EventHandler<ActionEvent>()
 		{
 			public void handle(ActionEvent e)
 			{
-				for (final SubscriptionController controller : subscriptionManager.getSubscriptionControllers())
-				{
-					if (controller.getSubscription() != null)
-					{
-						configurationManager.updateSubscriptionConfiguration(connection, controller.getSubscription());
-					}
-				}
+				eventManager.notifyClearHistory(connection.getStore());
+				StatisticsManager.resetMessagesReceived(connection.getId());
+				connection.getStore().clear();
 			}
 		});
-		contextMenu.getItems().add(addItem);
-		
-		// Removes this subscription from the configuration file
-		final MenuItem removeItem = new MenuItem("[Configuration] Remove all shown subscriptions");
-		removeItem.setOnAction(new EventHandler<ActionEvent>()
-		{
-			public void handle(ActionEvent e)
-			{
-				for (final SubscriptionController controller : subscriptionManager.getSubscriptionControllers())
-				{
-					if (controller.getSubscription() != null)
-					{
-						configurationManager.deleteSubscriptionConfiguration(connection, controller.getSubscription());
-					}
-				}
-			}
-		});
-		contextMenu.getItems().add(removeItem);
+		contextMenu.getItems().add(clearItem);
 		
 		// Separator
 		contextMenu.getItems().add(new SeparatorMenuItem());
 
-		MenuItem showAllChartItem = new MenuItem("[Graphing] Show overall message load chart");
+		final Menu charts = new Menu("Charts");
+		MenuItem showAllChartItem = new MenuItem("Show overall message load chart");
 		showAllChartItem.setOnAction(new EventHandler<ActionEvent>()
 		{
 			public void handle(ActionEvent e)
@@ -342,25 +332,46 @@ public class ContextMenuUtils
 						subscriptionController.getScene(), eventManager);
 			}
 		});
-
-		contextMenu.getItems().add(showAllChartItem);
-						
-		// Separator
-		contextMenu.getItems().add(new SeparatorMenuItem());
-
-		// Clear data
-		MenuItem clearItem = new MenuItem("[History] Clear tab history");
-
-		clearItem.setOnAction(new EventHandler<ActionEvent>()
+		contextMenu.getItems().add(charts);
+		charts.getItems().add(showAllChartItem);
+		
+		final Menu configuration = new Menu("Configuration");
+		
+		// Adds/updates this subscription in the configuration file
+		final MenuItem addItem = new MenuItem("Add/update all shown subscriptions");
+		addItem.setOnAction(new EventHandler<ActionEvent>()
 		{
 			public void handle(ActionEvent e)
 			{
-				eventManager.notifyClearHistory(connection.getStore());
-				StatisticsManager.resetMessagesReceived(connection.getId());
-				connection.getStore().clear();
+				for (final SubscriptionController controller : subscriptionManager.getSubscriptionControllers())
+				{
+					if (controller.getSubscription() != null)
+					{
+						configurationManager.updateSubscriptionConfiguration(connection, controller.getSubscription());
+					}
+				}
 			}
 		});
-		contextMenu.getItems().add(clearItem);
+		contextMenu.getItems().add(configuration);
+		configuration.getItems().add(addItem);
+		
+		
+		// Removes this subscription from the configuration file
+		final MenuItem removeItem = new MenuItem("Remove all shown subscriptions");
+		removeItem.setOnAction(new EventHandler<ActionEvent>()
+		{
+			public void handle(ActionEvent e)
+			{
+				for (final SubscriptionController controller : subscriptionManager.getSubscriptionControllers())
+				{
+					if (controller.getSubscription() != null)
+					{
+						configurationManager.deleteSubscriptionConfiguration(connection, controller.getSubscription());
+					}
+				}
+			}
+		});
+		configuration.getItems().add(removeItem);		
 
 		return contextMenu;
 	}
@@ -424,13 +435,13 @@ public class ContextMenuUtils
 		// Context menu
 		ContextMenu contextMenu = new ContextMenu();
 
-		MenuItem reconnectItem = new MenuItem("[Connection] Connect / reconnect");
+		MenuItem reconnectItem = new MenuItem("Connect / reconnect");
 		reconnectItem.setOnAction(ActionUtils.createConnectAction(connectionManager, connection));
 		
-		MenuItem disconnectItem = new MenuItem("[Connection] Disconnect (and keep tab)");
+		MenuItem disconnectItem = new MenuItem("Disconnect (and keep tab)");
 		disconnectItem.setOnAction(ActionUtils.createDisconnectAction(connectionManager, connection));
 
-		MenuItem disconnectAndCloseItem = new MenuItem("[Connection] Disconnect (and close tab)");
+		MenuItem disconnectAndCloseItem = new MenuItem("Disconnect (and close tab)");
 		disconnectAndCloseItem.setOnAction(ActionUtils.createDisconnectAndCloseAction(connectionManager, connection));
 
 		contextMenu.getItems().add(reconnectItem);
@@ -445,7 +456,7 @@ public class ContextMenuUtils
 		contextMenu.getItems().add(new SeparatorMenuItem());
 
 		// Show statistics
-		final MenuItem stats = new MenuItem("[Statistics] Show broker's statistics");
+		final MenuItem stats = new MenuItem("Show broker's statistics");
 		stats.setOnAction(new EventHandler<ActionEvent>()
 		{
 			public void handle(ActionEvent e)
@@ -462,28 +473,20 @@ public class ContextMenuUtils
 		// Separator
 		contextMenu.getItems().add(new SeparatorMenuItem());
 		
+		final Menu view = new Menu("View");
+		contextMenu.getItems().add(view);
+		
 		// View
-		final MenuItem detachMenu = new MenuItem("[View] Detach to a separate window");
+		final MenuItem detachMenu = new MenuItem("Detach to a separate window");
 		detachMenu.setOnAction(TabUtils.createTabDetachEvent(
 				detachMenu, connectionController, 
 				"Connection " + connection.getName(), 0));
-		contextMenu.getItems().add(detachMenu);
+		view.getItems().add(detachMenu);
 		
-		final Menu view = new Menu("[View] Pane visibility");
-		final Menu manualPublications = createConnectionPaneMenu("'Publish message' pane", connectionController, connectionController.getNewPublicationPaneStatus());
-		final Menu scriptedPublications = createConnectionPaneMenu("'Scripted publications' pane", connectionController, connectionController.getPublicationScriptsPaneStatus());
-		final Menu newSubscription = createConnectionPaneMenu("'Define new subscription' pane", connectionController, connectionController.getNewSubscriptionPaneStatus());
-		final Menu messageSummary = createConnectionPaneMenu("'Subscriptions and received messages' pane", connectionController, connectionController.getSubscriptionsStatus());
-		final Menu testCases = createConnectionPaneMenu("'Test cases' pane", connectionController, connectionController.getTestCasesPaneStatus());
+		// Separator
+		view.getItems().add(new SeparatorMenuItem());
 		
 		final MenuItem detailedView = new MenuItem("Toggle between simplified and detailed views (QoS, Retained)");
-		
-		view.getItems().add(manualPublications);
-		view.getItems().add(scriptedPublications);
-		view.getItems().add(newSubscription);
-		view.getItems().add(messageSummary);
-		view.getItems().add(testCases);
-		view.getItems().add(new SeparatorMenuItem());
 		view.getItems().add(detailedView);
 		
 		final CheckMenuItem resizeMessageContent = connectionController.getResizeMessageContentMenu();
@@ -497,6 +500,22 @@ public class ContextMenuUtils
 			}
 		});
 		view.getItems().add(resizeMessageContent);
+		
+		// Separator
+		view.getItems().add(new SeparatorMenuItem());
+		
+		final Menu panes = new Menu("Panes");
+		final Menu manualPublications = createConnectionPaneMenu("'Publish message' pane", connectionController, connectionController.getNewPublicationPaneStatus());
+		final Menu scriptedPublications = createConnectionPaneMenu("'Scripted publications' pane", connectionController, connectionController.getPublicationScriptsPaneStatus());
+		final Menu newSubscription = createConnectionPaneMenu("'Define new subscription' pane", connectionController, connectionController.getNewSubscriptionPaneStatus());
+		final Menu messageSummary = createConnectionPaneMenu("'Subscriptions and received messages' pane", connectionController, connectionController.getSubscriptionsStatus());
+		final Menu testCases = createConnectionPaneMenu("'Test cases' pane", connectionController, connectionController.getTestCasesPaneStatus());
+		
+		panes.getItems().add(manualPublications);
+		panes.getItems().add(scriptedPublications);
+		panes.getItems().add(newSubscription);
+		panes.getItems().add(messageSummary);
+		panes.getItems().add(testCases);
 
 		detailedView.setOnAction(new EventHandler<ActionEvent>()
 		{
@@ -505,7 +524,7 @@ public class ContextMenuUtils
 				connectionController.toggleDetailedViewVisibility();
 			}
 		});
-		contextMenu.getItems().add(view);
+		view.getItems().add(panes);
 		
 		return contextMenu;
 	}
@@ -526,7 +545,7 @@ public class ContextMenuUtils
 		// Context menu
 		ContextMenu contextMenu = new ContextMenu();
 
-		MenuItem closedItem = new MenuItem("[Tab] Close");
+		MenuItem closedItem = new MenuItem("Close");
 		closedItem.setOnAction(new EventHandler<ActionEvent>()
 		{			
 			@Override
@@ -541,14 +560,16 @@ public class ContextMenuUtils
 		// Separator
 		contextMenu.getItems().add(new SeparatorMenuItem());
 		
+		final Menu view = new Menu("View");
+		contextMenu.getItems().add(view);
+		
 		// View
-		final MenuItem detachMenu = new MenuItem("[View] Detach to a separate window");
+		final MenuItem detachMenu = new MenuItem("Detach to a separate window");
 		detachMenu.setOnAction(TabUtils.createTabDetachEvent(
 				detachMenu, connectionController, 
 				"Message log " + tab.getText(), 0));
-		contextMenu.getItems().add(detachMenu);
+		view.getItems().add(detachMenu);
 		
-		final Menu view = new Menu("[View] Pane visibility");	
 		final CheckMenuItem resizeMessageContent = connectionController.getResizeMessageContentMenu();
 		resizeMessageContent.setText("Resizable message pane");	
 		resizeMessageContent.selectedProperty().addListener(new ChangeListener<Boolean>()
@@ -560,8 +581,6 @@ public class ContextMenuUtils
 			}
 		});
 		view.getItems().add(resizeMessageContent);
-		
-		contextMenu.getItems().add(view);
 
 		return contextMenu;
 	}

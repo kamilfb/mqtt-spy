@@ -57,6 +57,8 @@ import javafx.stage.Window;
 import javafx.stage.WindowEvent;
 
 import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.common.generated.FormatterDetails;
 import pl.baczkowicz.mqttspy.common.generated.Formatting;
@@ -88,6 +90,9 @@ import pl.baczkowicz.mqttspy.utils.FormattingUtils;
  */
 public class SubscriptionController implements Initializable, ClearTabObserver, SubscriptionStatusChangeObserver, TabController
 {
+	/** Diagnostic logger. */
+	private final static Logger logger = LoggerFactory.getLogger(SubscriptionController.class);
+	
 	public static final String AVG300_TOPIC = "5 minute average";
 
 	public static final String AVG30_TOPIC = "30 second average";
@@ -262,6 +267,12 @@ public class SubscriptionController implements Initializable, ClearTabObserver, 
 					{
 						final double absoluteSearchBoxX = searchBox.getLayoutX() + topicFilterBox.getLayoutX() + titleBox.getLayoutX();
 						final double titledPaneWidth = updateTitleWidth(summaryTitledPane, paneTitle, 40);
+						
+						if (logger.isTraceEnabled())
+						{
+							logger.trace("New width = " + titledPaneWidth);
+						}
+						
 						searchBox.setPrefWidth(titledPaneWidth - absoluteSearchBoxX - statsLabel.getWidth() - 100);
 					}
 				});
@@ -365,7 +376,7 @@ public class SubscriptionController implements Initializable, ClearTabObserver, 
 		
 		summaryTitledPane.setText(null);
 		summaryTitledPane.setGraphic(paneTitle);
-		
+				
 		if (!replayMode)
 		{
 			statsLabel.setTextAlignment(TextAlignment.RIGHT);

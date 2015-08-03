@@ -40,6 +40,8 @@ import pl.baczkowicz.mqttspy.configuration.generated.TabbedSubscriptionDetails;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.connectivity.MqttConnectionStatus;
 import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
+import pl.baczkowicz.mqttspy.scripts.FormattingManager;
+import pl.baczkowicz.mqttspy.scripts.ScriptManager;
 import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
 import pl.baczkowicz.mqttspy.ui.ConnectionController;
 import pl.baczkowicz.mqttspy.ui.SubscriptionController;
@@ -177,11 +179,17 @@ public class SubscriptionManager
 		subscriptionController.setStore(observableMessageStore);
 		subscriptionController.setEventManager(eventManager);
 		subscriptionController.setConfingurationManager(configurationManager);
-		subscriptionController.setFormattingManager(connection.getStore().getFormattingManager());
+		if (connection != null)
+		{
+			subscriptionController.setFormattingManager(connection.getStore().getFormattingManager());
+			subscriptionController.setConnectionProperties(connection.getProperties());
+		}
+		else
+		{
+			subscriptionController.setFormattingManager(new FormattingManager(new ScriptManager(null, null, null)));
+		}
 		subscriptionController.setTab(tab);
 		subscriptionController.toggleMessagePayloadSize(connectionController.getResizeMessageContentMenu().isSelected());
-		
-		subscriptionController.setConnectionProperties(connection.getProperties());
 				
 		tab.setClosable(false);
 		tab.setContent(subscriptionPane);

@@ -547,17 +547,10 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 		// Ignore any layout requests when in replay mode
 		if (!replayMode)
 		{
-//			subscriptionsController.getTitledPaneStatus().setRequestedVisibility(showReceivedMessagesSummary);
-//			newPublicationPaneController.getTitledPaneStatus().setRequestedVisibility(showManualPublications);
-//			publicationScriptsPaneController.getTitledPaneStatus().setRequestedVisibility(showScriptedPublications);
-//			newSubscriptionPaneController.getTitledPaneStatus().setRequestedVisibility(showNewSubscription);
-			// testCasesPaneController.getTitledPaneStatus().setRequestedVisibility(showNewSubscription);
-			
 			subscriptionsTitledStatus.setRequestedVisibility(showReceivedMessagesSummary);
 			publishMessageTitledStatus.setRequestedVisibility(showManualPublications);
 			scriptedPublicationsTitledStatus.setRequestedVisibility(showScriptedPublications);
 			newSubscriptionTitledStatus.setRequestedVisibility(showNewSubscription);						
-			// testCasesTitledStatus.setRequestedVisibility(testCasesPaneController);
 			
 			updateVisiblePanes();
 			updateMenus();
@@ -573,12 +566,6 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 	{	
 		connectionTab.getStyleClass().add("connection-replay");
 				
-//		subscriptionsController.getTitledPaneStatus().setRequestedVisibility(PaneVisibilityStatus.ATTACHED);
-//		newPublicationPaneController.getTitledPaneStatus().setRequestedVisibility(PaneVisibilityStatus.NOT_VISIBLE);
-//		publicationScriptsPaneController.getTitledPaneStatus().setRequestedVisibility(PaneVisibilityStatus.NOT_VISIBLE);
-//		newSubscriptionPaneController.getTitledPaneStatus().setRequestedVisibility(PaneVisibilityStatus.NOT_VISIBLE);
-//		testCasesPaneController.getTitledPaneStatus().setRequestedVisibility(PaneVisibilityStatus.NOT_VISIBLE);
-		
 		subscriptionsTitledStatus.setRequestedVisibility(PaneVisibilityStatus.ATTACHED);
 		publishMessageTitledStatus.setRequestedVisibility(PaneVisibilityStatus.NOT_VISIBLE);
 		scriptedPublicationsTitledStatus.setRequestedVisibility(PaneVisibilityStatus.NOT_VISIBLE);
@@ -586,8 +573,9 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 		testCasesTitledStatus.setRequestedVisibility(PaneVisibilityStatus.NOT_VISIBLE);
 		
 		updateVisiblePanes();
-		
+				
 		subscriptionsTitledPane.setText("Logged messages");
+		subscriptionsController.init();
 	}
 	
 	private void updateMenus()
