@@ -332,7 +332,7 @@ public class MainController
 		
 		if (createNew)
 		{
-			editConnectionsController.newConnection();
+			editConnectionsController.newMqttConnection();
 		}
 
 		editConnectionsController.updateSelected();

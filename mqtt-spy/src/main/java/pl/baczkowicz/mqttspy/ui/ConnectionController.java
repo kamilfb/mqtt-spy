@@ -40,6 +40,8 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TitledPane;
 import javafx.scene.control.Tooltip;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
@@ -384,8 +386,31 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 			connectionTab.setGraphic(title);
 			connectionTab.setText(null);
 		}
-		else
+		else if (connection.getConnectionStatus().equals(MqttConnectionStatus.CONNECTED))
 		{
+			final HBox icons = new HBox();
+			
+			if (connection.getProperties().getSSL() != null)
+			{
+				final ImageView image = new ImageView(new Image(ConnectionController.class.getResource("/images/lock.png").toString()));
+				image.setFitHeight(16);
+				image.setFitWidth(16);
+				icons.getChildren().add(image);
+			}
+			
+			if (connection.getProperties().getUserCredentials() != null)
+			{
+				final ImageView image = new ImageView(new Image(ConnectionController.class.getResource("/images/checked-user.png").toString()));
+				image.setFitHeight(19);
+				image.setFitWidth(19);
+				icons.getChildren().add(image);
+			}
+						
+			connectionTab.setGraphic(icons);
+			connectionTab.setText(connection.getName());
+		}
+		else
+		{			
 			connectionTab.setGraphic(null);
 			connectionTab.setText(connection.getName());
 		}

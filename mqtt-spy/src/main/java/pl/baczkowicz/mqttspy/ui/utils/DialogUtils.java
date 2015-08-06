@@ -301,6 +301,11 @@ public class DialogUtils
 		if (MqttConnectionStatus.CONNECTED.equals(connection.getConnectionStatus()))
 		{
 			sb.append(" (" + connection.getLastSuccessfulyConnectionAttempt() + ")");
+			
+			sb.append(System.getProperty("line.separator"));
+			final String sslStatus = connection.getProperties().getSSL() != null ? "enabled" : "disabled";
+			final String userAuthStatus = connection.getProperties().getUserCredentials() != null ? "enabled" : "disabled";
+			sb.append("Security: TLS/SSL is " +  sslStatus + "; user authentication is " + userAuthStatus);
 		}
 		
 		if (connection.getConnectionAttempts() > 1)

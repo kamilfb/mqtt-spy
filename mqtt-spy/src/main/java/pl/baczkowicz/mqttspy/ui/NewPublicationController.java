@@ -310,6 +310,21 @@ public class NewPublicationController implements Initializable, ScriptListChange
 		});
 		
 		publishScript.getToggles().get(0).setUserData(null);		
+		publishScript.selectedToggleProperty().addListener(new ChangeListener<Toggle>()
+		{
+			@Override
+			public void changed(ObservableValue<? extends Toggle> observable, Toggle oldValue, Toggle newValue)
+			{
+				if (newValue.getUserData() == null)
+				{
+					publishButton.setText("Publish");					
+				}
+				else
+				{
+					publishButton.setText("Publish" + System.lineSeparator() + "with" + System.lineSeparator() + "script");
+				}
+			}			
+		});
 	}		
 	
 	public static ChangeListener<Number> createPaneTitleWidthListener(final TitledPane pane, final AnchorPane paneTitle)
@@ -558,14 +573,17 @@ public class NewPublicationController implements Initializable, ScriptListChange
 		if (detailedView)
 		{
 			AnchorPane.setRightAnchor(publicationTopicText, 327.0);
+			AnchorPane.setRightAnchor(publicationData, 326.0);
 			AnchorPane.setTopAnchor(dataLabel, 31.0);
 		}
 		else
 		{
 			AnchorPane.setRightAnchor(publicationTopicText, 128.0);
+			AnchorPane.setRightAnchor(publicationData, 127.0);
 			AnchorPane.setTopAnchor(dataLabel, 37.0);
 		}
 		
+		formatMenu.setVisible(detailedView);
 		publicationQosChoice.setVisible(detailedView);
 		publicationQosLabel.setVisible(detailedView);
 		retainedBox.setVisible(detailedView);

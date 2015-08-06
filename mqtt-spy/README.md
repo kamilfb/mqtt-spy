@@ -38,6 +38,14 @@ Oxygen Icons (GNU Lesser General Public License):
     * tab-close.png
     * tab-close-other.png
     
+    * folder-grey.png
+    * folder-yellow.png
+    * folder-new.png
+    
+MQTT.org
+
+	* mqtt-icon.png
+	
 Crystal Clear Icons (GNU Lesser General Public License):
 
     * login.png
@@ -52,8 +60,16 @@ FS Ubuntu Icons (GNU General Public License):
 	 * search.png
 
 Phuzion Icons (CC Attribution-Noncommercial-Share Alike 4.0):
- 
- 	 * stats.png
+
+	 * stats.png
+ 	 
+Flat UI Icons Free (Creative Commons, Attribution 3.0 Unported)
+
+	 * lock.png
+
+Users. Android L (Lollipop) (Creative Commons, Attribution 3.0 Unported)
+
+     * checked-user.png
      
 Authored by Kamil Baczkowicz:
 

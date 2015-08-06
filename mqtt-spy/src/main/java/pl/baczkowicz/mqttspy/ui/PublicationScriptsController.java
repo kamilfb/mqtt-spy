@@ -368,7 +368,7 @@ public class PublicationScriptsController implements Initializable, ScriptStateC
 		if (type.equals(ScriptTypeEnum.PUBLICATION) || type.equals(ScriptTypeEnum.BACKGROUND))
 		{
 			// Start script
-			final MenuItem startScriptItem = new MenuItem("[Script] Start");
+			final MenuItem startScriptItem = new MenuItem("Start");
 			startScriptItem.setOnAction(new EventHandler<ActionEvent>()
 			{
 				public void handle(ActionEvent e)
@@ -379,7 +379,7 @@ public class PublicationScriptsController implements Initializable, ScriptStateC
 			contextMenu.getItems().add(startScriptItem);
 			
 			// Stop script
-			final MenuItem stopScriptItem = new MenuItem("[Script] Stop");
+			final MenuItem stopScriptItem = new MenuItem("Stop");
 			stopScriptItem.setOnAction(new EventHandler<ActionEvent>()
 			{
 				public void handle(ActionEvent e)
@@ -399,7 +399,7 @@ public class PublicationScriptsController implements Initializable, ScriptStateC
 		}
 		
 		// Copy script location
-		final MenuItem copyScriptLocationItem = new MenuItem("[Script] Copy script location to clipboard");
+		final MenuItem copyScriptLocationItem = new MenuItem("Copy script location to clipboard");
 		copyScriptLocationItem.setOnAction(new EventHandler<ActionEvent>()
 		{
 			public void handle(ActionEvent e)
@@ -420,7 +420,7 @@ public class PublicationScriptsController implements Initializable, ScriptStateC
 		if (type.equals(ScriptTypeEnum.PUBLICATION))
 		{
 			// Delete
-			final Menu deleteItem = new Menu("[Script] Delete");
+			final Menu deleteItem = new Menu("Delete");
 			contextMenu.getItems().add(deleteItem);
 			
 			final MenuItem deleteFromListItem = new MenuItem("Delete from list (until next refresh)");
@@ -462,7 +462,7 @@ public class PublicationScriptsController implements Initializable, ScriptStateC
 		}
 
 		// Refresh list
-		final MenuItem refreshListItem = new MenuItem("[Scripts] Refresh list");
+		final MenuItem refreshListItem = new MenuItem("Refresh list");
 		refreshListItem.setOnAction(new EventHandler<ActionEvent>()
 		{
 			public void handle(ActionEvent e)

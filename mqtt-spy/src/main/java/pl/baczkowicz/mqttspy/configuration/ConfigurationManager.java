@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 import pl.baczkowicz.mqttspy.common.generated.FormatterDetails;
 import pl.baczkowicz.mqttspy.common.generated.Formatting;
 import pl.baczkowicz.mqttspy.common.generated.SimpleMqttMessage;
+import pl.baczkowicz.mqttspy.configuration.generated.ConnectionGroup;
 import pl.baczkowicz.mqttspy.configuration.generated.Connectivity;
 import pl.baczkowicz.mqttspy.configuration.generated.MqttSpyConfiguration;
 import pl.baczkowicz.mqttspy.configuration.generated.TabbedSubscriptionDetails;
@@ -201,7 +202,7 @@ public class ConfigurationManager
 				ConfigurationUtils.populateConnectionDefaults(details);
 				connections.add(new ConfiguredConnectionDetails(connectionIdGenerator.getNextAvailableId(), false, false, false, details));
 			}
-			else
+			else if (connectionDetails instanceof UserInterfaceMqttConnectionDetails)
 			{
 				// Put the defaults at the point of loading the config, so we don't need to do it again
 				ConfigurationUtils.populateConnectionDefaults((UserInterfaceMqttConnectionDetails) connectionDetails);
@@ -464,5 +465,16 @@ public class ConfigurationManager
 		{
 			logger.error("Cannot save UI properties", e);
 		}
+	}
+
+	public List<ConnectionGroup> getConnectionGrops()
+	{
+		if (configuration.getConnectionGroups().isEmpty())
+		{
+			final ConnectionGroup defaultGroup = new ConnectionGroup("default", "All connections", null);
+			configuration.getConnectionGroups().add(defaultGroup); 
+		}
+		
+		return configuration.getConnectionGroups();
 	}
 }

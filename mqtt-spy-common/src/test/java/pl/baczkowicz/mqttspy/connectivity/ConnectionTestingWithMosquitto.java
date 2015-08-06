@@ -257,7 +257,7 @@ public class ConnectionTestingWithMosquitto
 		System.out.println("Published...");
 		
 		// Waiting for message to be received now...
-		Thread.sleep(1000);
+		Thread.sleep(11000);
 		
 		connection.disconnect();
 		System.out.println("Disconnected");

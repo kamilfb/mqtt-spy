@@ -386,24 +386,8 @@ public class SubscriptionSummaryTableController implements Initializable
 	{
 		final ContextMenu contextMenu = new ContextMenu();
 		
-		// Copy topic
-		final MenuItem copyTopicItem = new MenuItem("[Topic] Copy to clipboard");
-		copyTopicItem.setOnAction(new EventHandler<ActionEvent>()
-		{
-			public void handle(ActionEvent e)
-			{
-				final SubscriptionTopicSummaryProperties item = filterTable.getSelectionModel()
-						.getSelectedItem();
-				if (item != null)
-				{
-					UiUtils.copyToClipboard(item.topicProperty().getValue());
-				}
-			}
-		});
-		contextMenu.getItems().add(copyTopicItem);
-		
 		// Subscribe to topic
-		final MenuItem subscribeToTopicItem = new MenuItem("[Topic] Subscribe (and create tab)");
+		final MenuItem subscribeToTopicItem = new MenuItem("Subscribe (and create tab)");
 		subscribeToTopicItem.setOnAction(new EventHandler<ActionEvent>()
 		{
 			public void handle(ActionEvent e)
@@ -421,12 +405,29 @@ public class SubscriptionSummaryTableController implements Initializable
 			}
 		});
 		contextMenu.getItems().add(subscribeToTopicItem);
+		
 
 		// Separator
 		contextMenu.getItems().add(new SeparatorMenuItem());
 		
+		// Copy topic
+		final MenuItem copyTopicItem = new MenuItem("Copy topic to clipboard");
+		copyTopicItem.setOnAction(new EventHandler<ActionEvent>()
+		{
+			public void handle(ActionEvent e)
+			{
+				final SubscriptionTopicSummaryProperties item = filterTable.getSelectionModel()
+						.getSelectedItem();
+				if (item != null)
+				{
+					UiUtils.copyToClipboard(item.topicProperty().getValue());
+				}
+			}
+		});
+		contextMenu.getItems().add(copyTopicItem);
+		
 		// Copy content
-		final MenuItem copyContentItem = new MenuItem("[Content] Copy to clipboard");
+		final MenuItem copyContentItem = new MenuItem("Copy message content to clipboard");
 		copyContentItem.setOnAction(new EventHandler<ActionEvent>()
 		{
 			public void handle(ActionEvent e)
@@ -441,12 +442,164 @@ public class SubscriptionSummaryTableController implements Initializable
 		});
 		contextMenu.getItems().add(copyContentItem);
 		
+		
+		// Separator
+		contextMenu.getItems().add(new SeparatorMenuItem());
+		
+		// All filters
+		final Menu allTopicsMenu = new Menu("Browse all topics");
+		
+		// Apply all filters
+		final MenuItem selectAllTopicsItem = new MenuItem("Select all topics");
+		selectAllTopicsItem.setOnAction(new EventHandler<ActionEvent>()
+		{
+			public void handle(ActionEvent e)
+			{
+				final SubscriptionTopicSummaryProperties item = filterTable.getSelectionModel()
+						.getSelectedItem();
+				if (item != null)
+				{
+					store.setAllShowValues(true);
+					eventManager.navigateToFirst(store);
+				}
+			}
+		});
+		
+		allTopicsMenu.getItems().add(selectAllTopicsItem);		
+		
+		// Toggle all filters
+		final MenuItem toggleAllTopicsItem = new MenuItem("Toggle all topics");
+		toggleAllTopicsItem.setOnAction(new EventHandler<ActionEvent>()
+		{
+			public void handle(ActionEvent e)
+			{
+				final SubscriptionTopicSummaryProperties item = filterTable.getSelectionModel()
+						.getSelectedItem();
+				if (item != null)
+				{
+					store.toggleAllShowValues();
+					eventManager.navigateToFirst(store);
+				}
+			}
+		});
+		allTopicsMenu.getItems().add(toggleAllTopicsItem);
+		
+		// Remove all filters
+		final MenuItem removeAllTopicsItem = new MenuItem("Deselect all topics");
+		removeAllTopicsItem.setOnAction(new EventHandler<ActionEvent>()
+		{
+			public void handle(ActionEvent e)
+			{
+				final SubscriptionTopicSummaryProperties item = filterTable.getSelectionModel()
+						.getSelectedItem();
+				if (item != null)
+				{
+					store.setAllShowValues(false);
+					eventManager.navigateToFirst(store);
+				}
+			}
+		});
+		allTopicsMenu.getItems().add(removeAllTopicsItem);
+		contextMenu.getItems().add(allTopicsMenu);	
+		
+		// Filtered topics
+		filteredTopicsMenu = new Menu("Browse filtered topics");
+		
+		// Apply filtered filters
+		final MenuItem selectFilteredTopicsItem = new MenuItem("Add filtered topics to selection");
+		selectFilteredTopicsItem.setOnAction(new EventHandler<ActionEvent>()
+		{
+			public void handle(ActionEvent e)
+			{
+				final SubscriptionTopicSummaryProperties item = filterTable.getSelectionModel()
+						.getSelectedItem();
+				if (item != null)
+				{
+					store.setShowValues(true, shownTopics);
+					eventManager.navigateToFirst(store);
+				}
+			}
+		});		
+		filteredTopicsMenu.getItems().add(selectFilteredTopicsItem);
+		
+		
+		// Clear and add filtered filters
+		final MenuItem removeAllAndAddFilteredTopicsItem = new MenuItem("Deselect all and selected filtered topics");
+		removeAllAndAddFilteredTopicsItem.setOnAction(new EventHandler<ActionEvent>()
+		{
+			public void handle(ActionEvent e)
+			{
+				final SubscriptionTopicSummaryProperties item = filterTable.getSelectionModel().getSelectedItem();
+				if (item != null)
+				{
+					store.setAllShowValues(false);
+					store.setShowValues(true, shownTopics);
+					eventManager.navigateToFirst(store);
+				}
+			}
+		});
+		filteredTopicsMenu.getItems().add(removeAllAndAddFilteredTopicsItem);
+		
+		// Toggle filtered filters
+		final MenuItem toggleFilteredTopicsItem = new MenuItem("Toggle selection for filtered topics");
+		toggleFilteredTopicsItem.setOnAction(new EventHandler<ActionEvent>()
+		{
+			public void handle(ActionEvent e)
+			{
+				final SubscriptionTopicSummaryProperties item = filterTable.getSelectionModel()
+						.getSelectedItem();
+				if (item != null)
+				{
+					store.toggleShowValues(shownTopics);
+					eventManager.navigateToFirst(store);
+				}
+			}
+		});
+		filteredTopicsMenu.getItems().add(toggleFilteredTopicsItem);
+		
+		// Remove filtered filters
+		final MenuItem removeFilteredTopicsItem = new MenuItem("Deselect filtered topics");
+		removeFilteredTopicsItem.setOnAction(new EventHandler<ActionEvent>()
+		{
+			public void handle(ActionEvent e)
+			{
+				final SubscriptionTopicSummaryProperties item = filterTable.getSelectionModel()
+						.getSelectedItem();
+				if (item != null)
+				{
+					store.setShowValues(false, shownTopics);
+					eventManager.navigateToFirst(store);
+				}
+			}
+		});
+		filteredTopicsMenu.getItems().add(removeFilteredTopicsItem);
+		contextMenu.getItems().add(filteredTopicsMenu);	
+		
+		// Only this topic
+		final MenuItem selectOnlyThisItem = new MenuItem("Browse & select only this topic");
+		selectOnlyThisItem.setOnAction(new EventHandler<ActionEvent>()
+		{
+			public void handle(ActionEvent e)
+			{
+				final SubscriptionTopicSummaryProperties item = filterTable.getSelectionModel()
+						.getSelectedItem();
+				if (item != null)
+				{
+					store.setAllShowValues(false);
+					store.setShowValue(item.topicProperty().getValue(), true);
+					eventManager.navigateToFirst(store);
+				}
+			}
+		});
+		contextMenu.getItems().add(selectOnlyThisItem);
+		
+
 		// Separator
 		contextMenu.getItems().add(new SeparatorMenuItem());
 
 				
 		// Charts
-		Menu chartsItem = new Menu("[Graphing] Show content-based charts");
+		Menu chartsItem = new Menu("Charts");
 		
 		MenuItem chartPayloadItem = new MenuItem("Show payload values for this topic");
 		chartPayloadItem.setOnAction(new EventHandler<ActionEvent>()
@@ -540,156 +693,6 @@ public class SubscriptionSummaryTableController implements Initializable
 		});
 		chartsItem.getItems().add(chartSizeForAllSelectedItem);
 		contextMenu.getItems().add(chartsItem);
-		
-		// Separator
-		contextMenu.getItems().add(new SeparatorMenuItem());
-		
-		// All filters
-		final Menu allTopicsMenu = new Menu("[Browse] All topics");
-		
-		// Apply all filters
-		final MenuItem selectAllTopicsItem = new MenuItem("[Browse] Select all topics");
-		selectAllTopicsItem.setOnAction(new EventHandler<ActionEvent>()
-		{
-			public void handle(ActionEvent e)
-			{
-				final SubscriptionTopicSummaryProperties item = filterTable.getSelectionModel()
-						.getSelectedItem();
-				if (item != null)
-				{
-					store.setAllShowValues(true);
-					eventManager.navigateToFirst(store);
-				}
-			}
-		});
-		
-		allTopicsMenu.getItems().add(selectAllTopicsItem);		
-		
-		// Toggle all filters
-		final MenuItem toggleAllTopicsItem = new MenuItem("[Browse] Toggle all topics");
-		toggleAllTopicsItem.setOnAction(new EventHandler<ActionEvent>()
-		{
-			public void handle(ActionEvent e)
-			{
-				final SubscriptionTopicSummaryProperties item = filterTable.getSelectionModel()
-						.getSelectedItem();
-				if (item != null)
-				{
-					store.toggleAllShowValues();
-					eventManager.navigateToFirst(store);
-				}
-			}
-		});
-		allTopicsMenu.getItems().add(toggleAllTopicsItem);
-		
-		// Remove all filters
-		final MenuItem removeAllTopicsItem = new MenuItem("[Browse] Deselect all topics");
-		removeAllTopicsItem.setOnAction(new EventHandler<ActionEvent>()
-		{
-			public void handle(ActionEvent e)
-			{
-				final SubscriptionTopicSummaryProperties item = filterTable.getSelectionModel()
-						.getSelectedItem();
-				if (item != null)
-				{
-					store.setAllShowValues(false);
-					eventManager.navigateToFirst(store);
-				}
-			}
-		});
-		allTopicsMenu.getItems().add(removeAllTopicsItem);
-		contextMenu.getItems().add(allTopicsMenu);	
-		
-		// Filtered topics
-		filteredTopicsMenu = new Menu("[Browse] Filtered topics");
-		
-		// Apply filtered filters
-		final MenuItem selectFilteredTopicsItem = new MenuItem("[Browse] Add filtered topics to selection");
-		selectFilteredTopicsItem.setOnAction(new EventHandler<ActionEvent>()
-		{
-			public void handle(ActionEvent e)
-			{
-				final SubscriptionTopicSummaryProperties item = filterTable.getSelectionModel()
-						.getSelectedItem();
-				if (item != null)
-				{
-					store.setShowValues(true, shownTopics);
-					eventManager.navigateToFirst(store);
-				}
-			}
-		});		
-		filteredTopicsMenu.getItems().add(selectFilteredTopicsItem);
-		
-		
-		// Clear and add filtered filters
-		final MenuItem removeAllAndAddFilteredTopicsItem = new MenuItem("[Browse] Deselect all and selected filtered topics");
-		removeAllAndAddFilteredTopicsItem.setOnAction(new EventHandler<ActionEvent>()
-		{
-			public void handle(ActionEvent e)
-			{
-				final SubscriptionTopicSummaryProperties item = filterTable.getSelectionModel().getSelectedItem();
-				if (item != null)
-				{
-					store.setAllShowValues(false);
-					store.setShowValues(true, shownTopics);
-					eventManager.navigateToFirst(store);
-				}
-			}
-		});
-		filteredTopicsMenu.getItems().add(removeAllAndAddFilteredTopicsItem);
-		
-		// Toggle filtered filters
-		final MenuItem toggleFilteredTopicsItem = new MenuItem("[Browse] Toggle selection for filtered topics");
-		toggleFilteredTopicsItem.setOnAction(new EventHandler<ActionEvent>()
-		{
-			public void handle(ActionEvent e)
-			{
-				final SubscriptionTopicSummaryProperties item = filterTable.getSelectionModel()
-						.getSelectedItem();
-				if (item != null)
-				{
-					store.toggleShowValues(shownTopics);
-					eventManager.navigateToFirst(store);
-				}
-			}
-		});
-		filteredTopicsMenu.getItems().add(toggleFilteredTopicsItem);
-		
-		// Remove filtered filters
-		final MenuItem removeFilteredTopicsItem = new MenuItem("[Browse] Deselect filtered topics");
-		removeFilteredTopicsItem.setOnAction(new EventHandler<ActionEvent>()
-		{
-			public void handle(ActionEvent e)
-			{
-				final SubscriptionTopicSummaryProperties item = filterTable.getSelectionModel()
-						.getSelectedItem();
-				if (item != null)
-				{
-					store.setShowValues(false, shownTopics);
-					eventManager.navigateToFirst(store);
-				}
-			}
-		});
-		filteredTopicsMenu.getItems().add(removeFilteredTopicsItem);
-		contextMenu.getItems().add(filteredTopicsMenu);	
-		
-		// Only this topic
-		final MenuItem selectOnlyThisItem = new MenuItem("[Browse] Select only this");
-		selectOnlyThisItem.setOnAction(new EventHandler<ActionEvent>()
-		{
-			public void handle(ActionEvent e)
-			{
-				final SubscriptionTopicSummaryProperties item = filterTable.getSelectionModel()
-						.getSelectedItem();
-				if (item != null)
-				{
-					store.setAllShowValues(false);
-					store.setShowValue(item.topicProperty().getValue(), true);
-					eventManager.navigateToFirst(store);
-				}
-			}
-		});
-		contextMenu.getItems().add(selectOnlyThisItem);
 
 		return contextMenu;
 	}

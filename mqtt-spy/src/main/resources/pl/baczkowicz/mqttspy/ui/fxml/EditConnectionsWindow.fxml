@@ -28,21 +28,23 @@
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.control.SeparatorMenuItem?>
 
 <AnchorPane fx:id="editConnectionsWindow" prefHeight="356.0" minWidth="800.0" prefWidth="938.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.baczkowicz.mqttspy.ui.EditConnectionsController">
    <children>
-      <ListView fx:id="connectionList" focusTraversable="false" prefHeight="269.0" prefWidth="342.0" AnchorPane.bottomAnchor="87.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="596.0" AnchorPane.topAnchor="0.0" />
+      <TreeView fx:id="connectionList" focusTraversable="false" prefHeight="269.0" prefWidth="342.0" AnchorPane.bottomAnchor="87.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="596.0" AnchorPane.topAnchor="0.0" />
       
-      <AnchorPane prefHeight="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <AnchorPane fx:id="connectionDetailsPane" prefHeight="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
       		<children>
    	      			<fx:include fx:id="editConnectionPane" source="EditConnectionPane.fxml" />
+   	      			<fx:include fx:id="editConnectionGroupPane" visible="false" source="EditConnectionGroupPane.fxml" />
    	    	</children>
       </AnchorPane>
       <AnchorPane fx:id="buttonArea" layoutX="-7.0" layoutY="270.0" prefHeight="86.0" prefWidth="335.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="600.0">
          <children>
-            <Button fx:id="importButton" disable="true" focusTraversable="false" layoutX="14.0" layoutY="47.0" mnemonicParsing="false" onAction="#importConnections" prefHeight="25.0" prefWidth="100.0" text="Import" visible="false" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="230.0" />
+            <Button fx:id="importButton" disable="true" focusTraversable="false" layoutX="14.0" layoutY="47.0" mnemonicParsing="false" onAction="#importConnections" prefHeight="28" prefWidth="100.0" text="Import" visible="false" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="230.0" />
             
-            <Button fx:id="applyAllButton" disable="true" focusTraversable="false" layoutX="122.0" layoutY="47.0" mnemonicParsing="false" onAction="#applyAll" prefHeight="25.0" prefWidth="100.0" text="Apply all" AnchorPane.rightAnchor="14.0">
+            <Button fx:id="applyAllButton" disable="true" focusTraversable="false" layoutX="122.0" layoutY="47.0" mnemonicParsing="false" onAction="#applyAll" prefHeight="28" prefWidth="100.0" text="Apply all" AnchorPane.rightAnchor="14.0">
 	            <padding><Insets bottom="1.0" left="1.0" right="1.0" top="1.0" /></padding>
 		        <graphic>
 		      		<ImageView fitHeight="16" fitWidth="16" pickOnBounds="true">
@@ -53,7 +55,7 @@
 		      	</graphic>
             </Button>
             
-            <Button fx:id="undoAllButton" disable="true" focusTraversable="false" layoutX="122.0" layoutY="47.0" mnemonicParsing="false" onAction="#undoAll" prefHeight="25.0" prefWidth="100.0" text="Undo all" AnchorPane.rightAnchor="122.0">
+            <Button fx:id="undoAllButton" disable="true" focusTraversable="false" layoutX="122.0" layoutY="47.0" mnemonicParsing="false" onAction="#undoAll" prefHeight="28" prefWidth="100.0" text="Undo all" AnchorPane.rightAnchor="122.0">
             	<padding><Insets bottom="1.0" left="1.0" right="1.0" top="1.0" /></padding>
 		        <graphic>
 		      		<ImageView fitHeight="16" fitWidth="16" pickOnBounds="true">
@@ -64,7 +66,7 @@
 		      	</graphic>
             </Button>
             
-            <Button fx:id="deleteConnectionButton" disable="true" focusTraversable="false" layoutX="230.0" layoutY="13.0" mnemonicParsing="false" onAction="#deleteConnection" prefHeight="25.0" prefWidth="100.0" text="Delete" AnchorPane.rightAnchor="14.0">
+            <Button fx:id="deleteConnectionButton" disable="true" focusTraversable="false" layoutX="230.0" layoutY="13.0" mnemonicParsing="false" onAction="#deleteConnection" prefHeight="28" prefWidth="100.0" text="Delete" AnchorPane.rightAnchor="14.0">
             	<padding><Insets bottom="1.0" left="1.0" right="1.0" top="1.0" /></padding>
 		        <graphic>
 		      		<ImageView fitHeight="16" fitWidth="16" pickOnBounds="true">
@@ -75,7 +77,7 @@
 		      	</graphic>
             </Button>
             
-            <Button fx:id="duplicateConnectionButton" disable="true" focusTraversable="false" layoutX="122.0" layoutY="13.0" mnemonicParsing="false" onAction="#duplicateConnection" prefHeight="25.0" prefWidth="100.0" text="Duplicate" AnchorPane.rightAnchor="122.0">
+            <Button fx:id="duplicateConnectionButton" disable="true" focusTraversable="false" layoutX="122.0" layoutY="13.0" mnemonicParsing="false" onAction="#duplicateConnection" prefHeight="28" prefWidth="100.0" text="Duplicate" AnchorPane.rightAnchor="122.0">
             	<padding><Insets bottom="1.0" left="1.0" right="1.0" top="1.0" /></padding>
 		        <graphic>
 		      		<ImageView fitHeight="16" fitWidth="16" pickOnBounds="true">
@@ -85,8 +87,8 @@
 				      </ImageView>
 		      	</graphic>
             </Button>
-            
-            <Button fx:id="newConnectionButton" focusTraversable="false" layoutX="14.0" layoutY="13.0" mnemonicParsing="false" onAction="#newConnection" prefHeight="25.0" prefWidth="100.0" text="New" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="230.0">
+      
+            <MenuButton fx:id="newConnectionButton" focusTraversable="false" layoutX="14.0" layoutY="13.0" mnemonicParsing="false" prefHeight="28" prefWidth="100.0" text="New" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="230.0">
             	<padding><Insets bottom="1.0" left="1.0" right="1.0" top="1.0" /></padding>
 		        <graphic>
 		      		<ImageView fitHeight="16" fitWidth="16" pickOnBounds="true">
@@ -95,7 +97,28 @@
 				         </image>
 				      </ImageView>
 		      	</graphic>
-            </Button>
+		      	 <items>		        	
+        			<MenuItem text="Create new MQTT connection" onAction="#newMqttConnection">
+        				<graphic>
+				      		<ImageView fitHeight="18" fitWidth="18" pickOnBounds="true">
+						         <image>
+						            <Image url="/images/mqtt-icon.png" />
+						         </image>
+						      </ImageView>
+				      	</graphic>
+        			</MenuItem>
+        			<SeparatorMenuItem />
+        			<MenuItem text="Create new connection group" onAction="#newGroup">
+        				<graphic>
+				      		<ImageView fitHeight="18" fitWidth="18" pickOnBounds="true">
+						         <image>
+						            <Image url="/images/folder-new.png" />
+						         </image>
+						      </ImageView>
+				      	</graphic>
+        			</MenuItem>        	               
+		        </items>
+            </MenuButton>
          </children>
       </AnchorPane>
       <Separator layoutX="340.0" layoutY="269.0" orientation="VERTICAL" prefHeight="70.0" prefWidth="5.0" AnchorPane.bottomAnchor="15.0" AnchorPane.rightAnchor="592.0"/>      
