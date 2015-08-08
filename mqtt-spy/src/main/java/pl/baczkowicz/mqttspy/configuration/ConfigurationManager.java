@@ -56,6 +56,8 @@ import pl.baczkowicz.mqttspy.xml.XMLParser;
 @SuppressWarnings({"unchecked", "rawtypes"})
 public class ConfigurationManager
 {
+	public static final String DEFAULT_GROUP = "default_group";
+
 	final static Logger logger = LoggerFactory.getLogger(ConfigurationManager.class);
 	
 	public static final String VERSION_INFO_URL = "application.update.url";
@@ -200,13 +202,13 @@ public class ConfigurationManager
 				
 				// Put the defaults at the point of loading the config, so we don't need to do it again
 				ConfigurationUtils.populateConnectionDefaults(details);
-				connections.add(new ConfiguredConnectionDetails(connectionIdGenerator.getNextAvailableId(), false, false, false, details));
+				connections.add(new ConfiguredConnectionDetails(connectionIdGenerator.getNextAvailableId(), false, false, details));
 			}
 			else if (connectionDetails instanceof UserInterfaceMqttConnectionDetails)
 			{
 				// Put the defaults at the point of loading the config, so we don't need to do it again
 				ConfigurationUtils.populateConnectionDefaults((UserInterfaceMqttConnectionDetails) connectionDetails);
-				connections.add(new ConfiguredConnectionDetails(connectionIdGenerator.getNextAvailableId(), false, false, false, 
+				connections.add(new ConfiguredConnectionDetails(connectionIdGenerator.getNextAvailableId(), false, false, 
 						(UserInterfaceMqttConnectionDetails) connectionDetails));
 			}
 		}		
@@ -467,14 +469,15 @@ public class ConfigurationManager
 		}
 	}
 
-	public List<ConnectionGroup> getConnectionGrops()
+	public List<ConfiguredConnectionGroupDetails> getConnectionGrops()
 	{
-		if (configuration.getConnectionGroups().isEmpty())
+		final List<ConfiguredConnectionGroupDetails> list = new ArrayList<>();
+		
+		for (final ConnectionGroup group : configuration.getConnectionGroups())
 		{
-			final ConnectionGroup defaultGroup = new ConnectionGroup("default", "All connections", null);
-			configuration.getConnectionGroups().add(defaultGroup); 
+			list.add(new ConfiguredConnectionGroupDetails(group, false));
 		}
 		
-		return configuration.getConnectionGroups();
+		return list;
 	}
 }

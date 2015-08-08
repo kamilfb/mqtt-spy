@@ -47,6 +47,7 @@ import org.slf4j.LoggerFactory;
 import pl.baczkowicz.mqttspy.common.generated.ProtocolEnum;
 import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
 import pl.baczkowicz.mqttspy.configuration.ConfiguredConnectionDetails;
+import pl.baczkowicz.mqttspy.configuration.ConfiguredConnectionGroupDetails;
 import pl.baczkowicz.mqttspy.configuration.generated.ConnectionGroup;
 import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnectionDetails;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
@@ -55,7 +56,7 @@ import pl.baczkowicz.mqttspy.ui.connections.ConnectionManager;
 import pl.baczkowicz.mqttspy.ui.controls.DragAndDropTreeViewCell;
 import pl.baczkowicz.mqttspy.ui.events.EventManager;
 import pl.baczkowicz.mqttspy.ui.events.observers.ConnectionStatusChangeObserver;
-import pl.baczkowicz.mqttspy.ui.properties.ConnectionListItemProperties;
+import pl.baczkowicz.mqttspy.ui.properties.ConnectionTreeItemProperties;
 import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
 import pl.baczkowicz.mqttspy.utils.ConnectionUtils;
 import pl.baczkowicz.mqttspy.utils.MqttUtils;
@@ -88,13 +89,8 @@ public class EditConnectionsController extends AnchorPane implements Initializab
 	@FXML
 	private AnchorPane connectionDetailsPane;
 	
-	//private AnchorPane editConnectionPane;
-	
 	@FXML
-	private TreeView<ConnectionListItemProperties> connectionList;
-	
-	//@FXML
-	//private Button newConnectionButton;
+	private TreeView<ConnectionTreeItemProperties> connectionList;
 	
 	@FXML
 	private Button duplicateConnectionButton;
@@ -121,13 +117,13 @@ public class EditConnectionsController extends AnchorPane implements Initializab
 
 	private ConnectionManager connectionManager;
 	
-	int lastUserId = 0;
+	int lastUsedId = 0;
 	
-	final ConnectionListItemProperties rootProperties = new ConnectionListItemProperties(lastUserId++);
+	final ConnectionTreeItemProperties rootProperties = new ConnectionTreeItemProperties(lastUsedId++);
 	
-	final TreeItem<ConnectionListItemProperties> rootItem = new TreeItem<ConnectionListItemProperties>(rootProperties);
+	final TreeItem<ConnectionTreeItemProperties> rootItem = new TreeItem<ConnectionTreeItemProperties>(rootProperties);
 	
-	private List<ConnectionGroup> groups;
+	private List<ConfiguredConnectionGroupDetails> groups;
 
 	@FXML
 	private Node editConnectionPane;
@@ -141,11 +137,10 @@ public class EditConnectionsController extends AnchorPane implements Initializab
 	
 	public void initialize(URL location, ResourceBundle resources)
 	{
-		//editConnectionPane = (AnchorPane) connectionDetailsPane.getChildren().get(0);
-		connectionList.setCellFactory(new Callback<TreeView<ConnectionListItemProperties>, TreeCell<ConnectionListItemProperties>>() 
+		connectionList.setCellFactory(new Callback<TreeView<ConnectionTreeItemProperties>, TreeCell<ConnectionTreeItemProperties>>() 
 		{
             @Override
-            public TreeCell call(TreeView<ConnectionListItemProperties> param) 
+            public TreeCell call(TreeView<ConnectionTreeItemProperties> param) 
             {
                 return new DragAndDropTreeViewCell(param);
             }
@@ -154,8 +149,23 @@ public class EditConnectionsController extends AnchorPane implements Initializab
 		duplicateConnectionButton.setDisable(true);
 		deleteConnectionButton.setDisable(true);
 		
-		connectionList.setShowRoot(false);
-		connectionList.setRoot(rootItem);		
+		connectionList.setShowRoot(true);
+		connectionList.setRoot(rootItem);
+		rootItem.setExpanded(true);
+		rootItem.expandedProperty().addListener(new ChangeListener<Boolean>()
+		{
+			@Override
+			public void changed(ObservableValue<? extends Boolean> observable,
+					Boolean oldValue, Boolean newValue)
+			{				
+				if (!rootItem.isExpanded())
+				{
+					rootItem.setExpanded(true);
+				}				
+			}
+		});
+		rootProperties.setConnectionGroup(new ConfiguredConnectionGroupDetails(
+				new ConnectionGroup(ConfigurationManager.DEFAULT_GROUP, "All connections", null), false));
 		
 		connectionList.getStyleClass().add("connectionList");
 		connectionList.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener()
@@ -177,11 +187,11 @@ public class EditConnectionsController extends AnchorPane implements Initializab
 					{
 						try
 						{
-							if (getSelectedItem() != null)
+							if (getSelectedItem() != null && !getSelectedItem().isGroup())
 							{
 								// Open the connection
 								editConnectionPaneController.createConnection();
-							}
+							}	
 						}
 						catch (ConfigurationException e)
 						{
@@ -194,50 +204,50 @@ public class EditConnectionsController extends AnchorPane implements Initializab
 	}	
 	
 	private void populateConnections(
-			final List<ConnectionGroup> groupList, 
+			final List<ConfiguredConnectionGroupDetails> groups, 
 			final List<ConfiguredConnectionDetails> connectionList)
 	{
 		rootItem.getChildren().clear();
 		rootProperties.getChildren().clear();
 		
-		final List<ConnectionListItemProperties> groupProperties = new ArrayList<>();
-		final List<ConnectionListItemProperties> connectionProperties = new ArrayList<>();
+		final List<ConnectionTreeItemProperties> groupProperties = new ArrayList<>();
+		final List<ConnectionTreeItemProperties> connectionProperties = new ArrayList<>();
 		
-		for (final ConnectionGroup group : groupList)
+		for (final ConfiguredConnectionGroupDetails group : groups)
 		{
-			final ConnectionListItemProperties properties = new ConnectionListItemProperties(lastUserId++);
+			final ConnectionTreeItemProperties properties = new ConnectionTreeItemProperties(lastUsedId++);
 			properties.setConnectionGroup(group);
 			
 			groupProperties.add(properties);
 		}
 		
-		for (final ConnectionListItemProperties item : groupProperties)
+		for (final ConnectionTreeItemProperties item : groupProperties)
 		{
 			findParentForGroup(groupProperties, item, rootProperties);
 		}
 		
 		for (final ConfiguredConnectionDetails connection : connectionList)
 		{
-			final ConnectionListItemProperties properties = new ConnectionListItemProperties(lastUserId++);
+			final ConnectionTreeItemProperties properties = new ConnectionTreeItemProperties(lastUsedId++);
 			properties.setConnection(connection);
 			
 			connectionProperties.add(properties);
 		}
 		
-		for (final ConnectionListItemProperties item : connectionProperties)
+		for (final ConnectionTreeItemProperties item : connectionProperties)
 		{
-			findParentForConnection(connectionProperties, item, groupProperties.get(0));
+			findParentForConnection(connectionProperties, item, rootProperties);
 		}
 		
 		addToTree(rootItem, rootProperties);
 	}
 	
-	private boolean addToTree(TreeItem<ConnectionListItemProperties> treeItem, ConnectionListItemProperties properties)
+	private boolean addToTree(TreeItem<ConnectionTreeItemProperties> treeItem, ConnectionTreeItemProperties properties)
 	{
 		boolean added = false;
-		for (final ConnectionListItemProperties item : properties.getChildren()) 
+		for (final ConnectionTreeItemProperties item : properties.getChildren()) 
 		{
-			final TreeItem<ConnectionListItemProperties> newTreeItem = new TreeItem<ConnectionListItemProperties>(item);						
+			final TreeItem<ConnectionTreeItemProperties> newTreeItem = new TreeItem<ConnectionTreeItemProperties>(item);						
 			
 			if (item.isGroup())
 			{
@@ -255,20 +265,20 @@ public class EditConnectionsController extends AnchorPane implements Initializab
 	}
 	
 	private void findParentForGroup(
-			final List<ConnectionListItemProperties> groupProperties, 
-			final ConnectionListItemProperties group, 
-			final ConnectionListItemProperties defaultParent)
+			final List<ConnectionTreeItemProperties> groupProperties, 
+			final ConnectionTreeItemProperties group, 
+			final ConnectionTreeItemProperties defaultParent)
 	{
-		if (group.getConnectionGroup().getParent() == null)
+		if (group.getConnectionGroup().getGroup().getParent() == null)
 		{
 			group.setParent(defaultParent);
 			defaultParent.addChild(group);
 		}
 		else
 		{		
-			for (final ConnectionListItemProperties item : groupProperties)
+			for (final ConnectionTreeItemProperties item : groupProperties)
 			{
-				if (group.getConnectionGroup().getParent().equals(item.getConnectionGroup()))
+				if (group.getConnectionGroup().getGroup().getParent().equals(item.getConnectionGroup()))
 				{
 					group.setParent(item);
 					item.addChild(group);
@@ -278,9 +288,9 @@ public class EditConnectionsController extends AnchorPane implements Initializab
 	}
 	
 	private void findParentForConnection(
-			final List<ConnectionListItemProperties> connectionProperties, 
-			final ConnectionListItemProperties connection, 
-			final ConnectionListItemProperties defaultParent)
+			final List<ConnectionTreeItemProperties> connectionProperties, 
+			final ConnectionTreeItemProperties connection, 
+			final ConnectionTreeItemProperties defaultParent)
 	{
 		if (connection.getConnection().getConnectionGroup() == null)
 		{
@@ -289,9 +299,9 @@ public class EditConnectionsController extends AnchorPane implements Initializab
 		}
 		else
 		{		
-			for (final ConnectionListItemProperties item : connectionProperties)
+			for (final ConnectionTreeItemProperties item : connectionProperties)
 			{
-				if (connection.getConnection().getConnectionGroup().equals(item.getConnectionGroup()))
+				if (connection.getConnection().getConnectionGroup().equals(item.getConnectionGroup().getGroup()))
 				{
 					connection.setParent(item);
 					item.addChild(connection);
@@ -304,21 +314,24 @@ public class EditConnectionsController extends AnchorPane implements Initializab
 	{
 		synchronized (connections)
 		{
-			updateSelected();
+			updateUIForSelectedItem();
 		}
 	}
 	
-	public void updateSelected()	
+	public void updateUIForSelectedItem()	
 	{
-		if (getSelectedItem() == null)
-		// if (connectionList.getItems().size() > 0 && getSelectedIndex() == -1)
+		updateUIForSelectedItem(getSelectedItem());
+	}
+	
+	public void updateUIForSelectedItem(final ConnectionTreeItemProperties selected)	
+	{
+		if (selected == null)
 		{
 			selectFirst();
 			return;
 		}
 		
-		if (connections.isEmpty())
-		// if (connectionList.getItems().isEmpty())
+		if (connections.isEmpty() && groups.isEmpty())
 		{
 			duplicateConnectionButton.setDisable(true);
 			deleteConnectionButton.setDisable(true);
@@ -326,24 +339,35 @@ public class EditConnectionsController extends AnchorPane implements Initializab
 		}
 		else 
 		{
-			deleteConnectionButton.setDisable(false);
-			duplicateConnectionButton.setDisable(getSelectedItem().isGroup());
+			// This this is not the default group (first one on the list)
+			if (!selected.isGroup() 
+					|| !selected.getConnectionGroup().getGroup().getID().equals(ConfigurationManager.DEFAULT_GROUP))
+			{
+				deleteConnectionButton.setDisable(false);
+			}
+			else
+			{
+				deleteConnectionButton.setDisable(true);
+			}
+						
+			duplicateConnectionButton.setDisable(selected.isGroup());
 			editConnectionPaneController.setEmptyConnectionListMode(false);
 			
-			if (getSelectedItem().isGroup())
+			editConnectionPane.setVisible(!selected.isGroup());
+			editConnectionGroupPane.setVisible(selected.isGroup());
+			
+			if (selected.isGroup())
 			{
-				editConnectionPane.setVisible(false);
-				editConnectionGroupPane.setVisible(true);
+				editConnectionGroupPaneController.setRecordModifications(false);
+				editConnectionGroupPaneController.editConnectionGroup(selected.getConnectionGroup(), selected.getChildren());
+				editConnectionGroupPaneController.setRecordModifications(true);			
 			}
-			else if (!getSelectedItem().isGroup() && !getSelectedItem().getConnection().isBeingCreated())
-			{
-				editConnectionPane.setVisible(true);
-				editConnectionGroupPane.setVisible(false);
-				
-				logger.trace("Editing connection {}", getSelectedItem().getName());
+			else if (!selected.getConnection().isBeingCreated())
+			{			
+				logger.trace("Editing connection {}", selected.getName());
 				
 				editConnectionPaneController.setRecordModifications(false);
-				editConnectionPaneController.editConnection(getSelectedItem().getConnection());
+				editConnectionPaneController.editConnection(selected.getConnection());
 				editConnectionPaneController.setRecordModifications(true);							
 			}
 		}
@@ -354,6 +378,10 @@ public class EditConnectionsController extends AnchorPane implements Initializab
 		connections = configurationManager.getConnections();
 		groups = configurationManager.getConnectionGrops();
 		eventManager.registerConnectionStatusObserver(this, null);
+		
+		editConnectionGroupPaneController.setMainController(mainController);
+		editConnectionGroupPaneController.setEditConnectionsController(this);
+		editConnectionGroupPaneController.init();
 		
 		editConnectionPaneController.setConfigurationManager(configurationManager);
 		editConnectionPaneController.setConnectionManager(connectionManager);
@@ -393,7 +421,7 @@ public class EditConnectionsController extends AnchorPane implements Initializab
 		baseConnection.setAutoConnect(true);
 		
 		final ConfiguredConnectionDetails connection = new ConfiguredConnectionDetails(
-				configurationManager.getConnectionIdGenerator().getNextAvailableId(), true, true, true, baseConnection);
+				configurationManager.getConnectionIdGenerator().getNextAvailableId(), true, true, baseConnection);
 		
 		connections.add(connection);
 		newConnectionMode(connection);
@@ -408,7 +436,16 @@ public class EditConnectionsController extends AnchorPane implements Initializab
 		if (result.isPresent())
 		{
 			// TODO: ID needs to be unique
-			groups.add(new ConnectionGroup("cg", result.get(), null));
+			final ConnectionGroup group = new ConnectionGroup("cg", result.get(), null); 
+			final ConfiguredConnectionGroupDetails groupDetails = new ConfiguredConnectionGroupDetails(group, true);
+			//final ConnectionTreeItemProperties properties = new ConnectionTreeItemProperties(lastUsedId++);
+			//properties.setConnectionGroup(groupDetails);
+			
+			groups.add(groupDetails);
+			
+			//rootItem.getChildren().add(new TreeItem<ConnectionTreeItemProperties>(properties));
+			
+			// TODO: the new group needs to be marked as new
 			populateConnections(groups, connections);
 		}
 	}
@@ -418,7 +455,7 @@ public class EditConnectionsController extends AnchorPane implements Initializab
 	{
 		final ConfiguredConnectionDetails connection = new ConfiguredConnectionDetails(
 				configurationManager.getConnectionIdGenerator().getNextAvailableId(), 
-				true, true, true, getSelectedItem().getConnection());		
+				true, true, getSelectedItem().getConnection());		
 		connections.add(connection);
 		newConnectionMode(connection);
 	}
@@ -426,23 +463,39 @@ public class EditConnectionsController extends AnchorPane implements Initializab
 	@FXML
 	private void deleteConnection()
 	{
-		getSelectedItem().getConnection().setDeleted(true);
-		
-		final String connectionName = getSelectedItem().getConnection().getName();
-		
-		if (DialogUtils.showDeleteQuestion(connectionName) == Dialog.ACTION_YES)
-		{	
-			editConnectionPaneController.setRecordModifications(false);
-			connections.remove(getSelectedItem().getConnection());			
-			listConnections();			
-			selectFirst();
-			editConnectionPaneController.setRecordModifications(true);
-				
-			logger.debug("Saving all connections");
-			if (configurationManager.saveConfiguration())
+		final ConnectionTreeItemProperties selected = getSelectedItem();
+		if (getSelectedItem().isGroup())
+		{
+			final int connectionCount = selected.getChildren().size();
+			
+			if (DialogUtils.showDeleteQuestion("Deleting connection group", 
+					"Are you sure you want to delete connection group '" + selected.getName() + "'"
+					+ (connectionCount == 0 ? "" : " and all subitems")
+					+ "?") == Dialog.ACTION_YES)
 			{
-				// TODO: for some reason, this is not shown
-				DialogUtils.showTooltip(deleteConnectionButton, "Connection " + connectionName + " deleted.");
+				// TODO: delete
+			}
+		}
+		else
+		{
+			getSelectedItem().getConnection().setDeleted(true);
+			
+			final String connectionName = getSelectedItem().getConnection().getName();
+			
+			if (DialogUtils.showDeleteConnectionQuestion(connectionName) == Dialog.ACTION_YES)
+			{	
+				editConnectionPaneController.setRecordModifications(false);
+				connections.remove(getSelectedItem().getConnection());			
+				listConnections();			
+				selectFirst();
+				editConnectionPaneController.setRecordModifications(true);
+					
+				logger.debug("Saving all connections");
+				if (configurationManager.saveConfiguration())
+				{
+					// TODO: for some reason, this is not shown
+					DialogUtils.showTooltip(deleteConnectionButton, "Connection " + connectionName + " deleted.");
+				}
 			}
 		}
 	}
@@ -450,9 +503,14 @@ public class EditConnectionsController extends AnchorPane implements Initializab
 	@FXML
 	private void undoAll()
 	{
+		// TODO: delete new ones?
 		for (final ConfiguredConnectionDetails connection : connections)
 		{
 			connection.undo();
+		}
+		for (final ConfiguredConnectionGroupDetails group : groups)
+		{
+			group.undo();
 		}
 		
 		listConnections();
@@ -465,13 +523,17 @@ public class EditConnectionsController extends AnchorPane implements Initializab
 		{
 			connection.apply();
 		}
+		for (final ConfiguredConnectionGroupDetails group : groups)
+		{
+			group.apply();
+		}
 		
 		listConnections();
 		
-		logger.debug("Saving all connections");
+		logger.debug("Saving all connections & groups");
 		if (configurationManager.saveConfiguration())
 		{
-			DialogUtils.showTooltip(applyAllButton, "Changes for all connections have been saved.");
+			DialogUtils.showTooltip(applyAllButton, "Changes for all connections and groups have been saved.");
 		}
 	}
 	
@@ -487,21 +549,31 @@ public class EditConnectionsController extends AnchorPane implements Initializab
 
 	private void selectFirst()
 	{
+		logger.info("Selecting first item...");
 		// Select the first item if any connections present
 		if (connections.size() > 0)
-		// if (connectionList.getItems().size() > 0)
 		{
 			connectionList.getSelectionModel().select(0);
 		}
 	}
 	
-	private void selectLast()
+	private void selectConnections(final TreeItem<ConnectionTreeItemProperties> parentItem, final ConfiguredConnectionDetails connection)
 	{
-		// TODO: tree
-		// connectionList.getSelectionModel().select(connectionList.getItems().size() - 1);
+		for (final TreeItem<ConnectionTreeItemProperties> treeItem : parentItem.getChildren()) 
+		{
+			final ConnectionTreeItemProperties item = treeItem.getValue();
+			if (!item.isGroup() && item.getConnection().equals(connection))
+			{
+				connectionList.getSelectionModel().select(treeItem);
+				updateUIForSelectedItem(item);
+				return;
+			}
+			
+			selectConnections(treeItem, connection);
+		}
 	}
 	
-	private ConnectionListItemProperties getSelectedItem()
+	private ConnectionTreeItemProperties getSelectedItem()
 	{
 		if (connectionList.getSelectionModel().getSelectedItem() == null)
 		{
@@ -519,25 +591,12 @@ public class EditConnectionsController extends AnchorPane implements Initializab
 	// TODO: pass extra parameter whether to recreate to just update text?
 	public void listConnections()
 	{
-		final TreeItem<ConnectionListItemProperties> selected = connectionList.getSelectionModel().getSelectedItem();
+		final TreeItem<ConnectionTreeItemProperties> selected = connectionList.getSelectionModel().getSelectedItem();
 
 		applyAllButton.setDisable(true);
 		undoAllButton.setDisable(true);
 		
 		populateConnections(groups, connections);
-		// Adjust the list size
-		// TODO: tree
-//		while (ungroupedItem.getChildren().size() > connections.size())
-//		{
-//			ungroupedItem.getChildren().remove(ungroupedItem.getChildren().size() - 1);
-//			//connectionList.getItems().remove(connectionList.getItems().size() - 1);
-//		}
-//		
-//		while (ungroupedItem.getChildren().size() < connections.size())
-//		{
-//			ungroupedItem.getChildren().add(new TreeItem(""));
-//			//connectionList.getItems().add("");
-//		}
 		
 		for (int i = 0; i < connections.size(); i++)
 		{	
@@ -545,41 +604,9 @@ public class EditConnectionsController extends AnchorPane implements Initializab
 			
 			if (connection.isModified())
 			{
-				// TODO:
-				//ungroupedItem.getChildren().set(i, new TreeItem(MODIFIED_ITEM + connection.getName()));
-				// connectionList.getItems().set(i, MODIFIED_ITEM + connection.getName());
 				applyAllButton.setDisable(false);
 				undoAllButton.setDisable(false);
 			}
-			else
-			{
-				// ungroupedItem.getChildren().set(i, new TreeItem(connection.getName()));
-				// connectionList.getItems().set(i, connection.getName());
-			}
-			
-			// Apply styling
-			// MqttConnectionStatus status = null;
-			// boolean opened = false;
-			// for (final MqttConnection openedConnection :
-			// mqttManager.getConnections())
-			// {
-			// if (connection.getId() ==
-			// openedConnection.getProperties().getId())
-			// {
-			// status = openedConnection.getConnectionStatus();
-			// opened = openedConnection.isOpened();
-			// }
-			// }
-			//final S lastItem = connectionLis
-			// if (status != null && opened)
-			// {
-			// .getStyleClass().add(StylingUtils.getStyleForMqttConnectionStatus(status));
-			//
-			// }
-			// else
-			// {
-			// .getStyleClass().add(StylingUtils.getStyleForMqttConnectionStatus(null));
-			// }
 		}
 		
 		// Reselect
@@ -591,18 +618,18 @@ public class EditConnectionsController extends AnchorPane implements Initializab
 		{
 			selectFirst();
 		}
-		updateSelected();
+		updateUIForSelectedItem();
 		
 		// if (connectionList.getItems().size() > 0)
-		if (connections.size() > 0)
-		{			
-			deleteConnectionButton.setDisable(false);
-		}
-		else
-		{
-			deleteConnectionButton.setDisable(true);
-			duplicateConnectionButton.setDisable(true);
-		}
+//		if (connections.size() > 0)
+//		{			
+//			deleteConnectionButton.setDisable(false);
+//		}
+//		else
+//		{
+//			deleteConnectionButton.setDisable(true);
+//			duplicateConnectionButton.setDisable(true);
+//		}
 	}	
 	
 	protected void connectionNameChanged()
@@ -619,7 +646,7 @@ public class EditConnectionsController extends AnchorPane implements Initializab
 	{	
 		editConnectionPaneController.setRecordModifications(false);		
 		listConnections();
-		selectLast();
+		selectConnections(rootItem, createdConnection);
 		editConnectionPaneController.editConnection(createdConnection);
 		editConnectionPaneController.setRecordModifications(true);
 	}

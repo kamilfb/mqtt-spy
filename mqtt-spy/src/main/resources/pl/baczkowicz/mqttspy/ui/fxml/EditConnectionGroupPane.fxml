@@ -39,7 +39,7 @@
       <TextField fx:id="connectionGroupNameText" layoutX="262.0" layoutY="13.0" prefHeight="25.0" prefWidth="302.0" AnchorPane.leftAnchor="278.0" AnchorPane.rightAnchor="14.0" />
       
       <!-- Create -->
- 	  <Button fx:id="connectButton" focusTraversable="false" graphicTextGap="15" layoutY="317.0" mnemonicParsing="false" onAction="#createConnection" prefHeight="28" prefWidth="302.0" text="Open connection" AnchorPane.bottomAnchor="14.0" AnchorPane.rightAnchor="18.0">
+ 	  <Button fx:id="connectButton" focusTraversable="false" graphicTextGap="15" layoutY="317.0" mnemonicParsing="false" onAction="#createConnection" prefHeight="28" prefWidth="302.0" text="Open all connections" AnchorPane.bottomAnchor="14.0" AnchorPane.rightAnchor="18.0">
 	   		<padding><Insets bottom="1.0" left="1.0" right="1.0" top="1.0" /></padding>
 		    <graphic>
 		  		<ImageView fitHeight="22" fitWidth="22" pickOnBounds="true">
@@ -72,7 +72,15 @@
 	      	</graphic>
        </Button>           
       
-      <Separator layoutX="14.0" layoutY="278.0" prefHeight="0.0" prefWidth="618.0" AnchorPane.bottomAnchor="50.0" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="14.0" />          
+      <Separator layoutX="14.0" layoutY="278.0" prefHeight="0.0" prefWidth="618.0" AnchorPane.bottomAnchor="50.0" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="14.0" />
+      <TableView fx:id="connectionList" layoutX="14.0" layoutY="53.0" prefHeight="280.0" prefWidth="566.0" tableMenuButtonVisible="true" AnchorPane.bottomAnchor="65.0" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="14.0" AnchorPane.topAnchor="53.0">
+        <columns>
+          <TableColumn fx:id="nameColumn" maxWidth="1000.0" minWidth="100.0" prefWidth="180.0" text="Name" />
+          <TableColumn fx:id="protocolColumn" maxWidth="150" minWidth="100" prefWidth="120" text="Protocol" />
+            <TableColumn fx:id="detailsColumn" maxWidth="1000.0" minWidth="100.0" prefWidth="250.0" text="Connection details" />
+          <!-- <TableColumn fx:id="securityColumn" maxWidth="90" minWidth="80.0" prefWidth="90" resizable="false" text="Security" /> -->  
+        </columns>
+      </TableView>          
       
    </children>
 </AnchorPane>

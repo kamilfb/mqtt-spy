@@ -27,7 +27,7 @@ public class ConfiguredConnectionDetails extends UserInterfaceMqttConnectionDeta
 	
 	private boolean modified;
 
-	private boolean created;
+	private boolean begingCreated;
 	
 	private boolean deleted;
 
@@ -43,11 +43,11 @@ public class ConfiguredConnectionDetails extends UserInterfaceMqttConnectionDeta
 	}
 	
 	public ConfiguredConnectionDetails(final int id, final boolean created, final boolean newConnection,
-			final boolean modified, final UserInterfaceMqttConnectionDetails connectionDetails)
+			/*final boolean modified, */final UserInterfaceMqttConnectionDetails connectionDetails)
 	{
 		this.id = id;
-		this.modified = modified;
-		this.created = created;
+		this.modified = newConnection;
+		this.begingCreated = created;
 		this.newConnection = newConnection;
 		this.lastSavedValues = connectionDetails;
 
@@ -74,12 +74,12 @@ public class ConfiguredConnectionDetails extends UserInterfaceMqttConnectionDeta
 
 	public boolean isBeingCreated()
 	{
-		return created;
+		return begingCreated;
 	}
 
 	public void setBeingCreated(boolean created)
 	{
-		this.created = created;
+		this.begingCreated = created;
 	}
 
 	public UserInterfaceMqttConnectionDetails getSavedValues()
@@ -92,15 +92,15 @@ public class ConfiguredConnectionDetails extends UserInterfaceMqttConnectionDeta
 		this.lastSavedValues = savedValues;
 	}
 
-	public boolean isNewConnection()
-	{
-		return newConnection;
-	}
-
-	public void setNewConnection(boolean newConnection)
-	{
-		this.newConnection = newConnection;
-	}
+//	public boolean isNewConnection()
+//	{
+//		return newConnection;
+//	}
+//
+//	public void setNewConnection(boolean newConnection)
+//	{
+//		this.newConnection = newConnection;
+//	}
 
 	public boolean isValid()
 	{
@@ -120,8 +120,8 @@ public class ConfiguredConnectionDetails extends UserInterfaceMqttConnectionDeta
 
 	public void apply()
 	{
-		setSavedValues(new ConfiguredConnectionDetails(id, false, false, false, this));
-		created = false;
+		setSavedValues(new ConfiguredConnectionDetails(id, false, false, this));
+		begingCreated = false;
 		newConnection = false;
 		modified = false;
 	}

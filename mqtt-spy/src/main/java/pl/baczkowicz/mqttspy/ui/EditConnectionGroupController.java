@@ -1,6 +1,6 @@
 /***********************************************************************************
  * 
- * Copyright (c) 2014 Kamil Baczkowicz
+ * Copyright (c) 2015 Kamil Baczkowicz
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -20,6 +20,8 @@
 package pl.baczkowicz.mqttspy.ui;
 
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 
 import javafx.beans.value.ChangeListener;
@@ -27,18 +29,23 @@ import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import pl.baczkowicz.mqttspy.common.generated.ProtocolEnum;
 import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
-import pl.baczkowicz.mqttspy.configuration.ConfigurationUtils;
 import pl.baczkowicz.mqttspy.configuration.ConfiguredConnectionDetails;
-import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnectionDetails;
+import pl.baczkowicz.mqttspy.configuration.ConfiguredConnectionGroupDetails;
 import pl.baczkowicz.mqttspy.exceptions.ConfigurationException;
-import pl.baczkowicz.mqttspy.ui.connections.ConnectionManager;
+import pl.baczkowicz.mqttspy.ui.properties.ConnectionListItemProperties;
+import pl.baczkowicz.mqttspy.ui.properties.ConnectionTreeItemProperties;
+import pl.baczkowicz.mqttspy.utils.ConnectionUtils;
 
 /**
  * Controller for editing a single connection.
@@ -62,9 +69,35 @@ public class EditConnectionGroupController extends AnchorPane implements Initial
 	@FXML
 	private Button undoButton;
 	
+	@FXML 
+	private TableView<ConnectionListItemProperties> connectionList;
+	
+	@FXML 
+	private TableColumn<ConnectionListItemProperties, String> nameColumn;
+       
+	@FXML 
+	private TableColumn<ConnectionListItemProperties, String> protocolColumn;
+	
+	@FXML 
+	private TableColumn<ConnectionListItemProperties, String> detailsColumn;
+	
 	// Other fields
 
 	private MainController mainController;
+
+	private ConfiguredConnectionGroupDetails editedConnectionGroupDetails;
+
+	private boolean openNewMode;
+
+	private Object existingConnection;
+
+	private ArrayList<ConfiguredConnectionDetails> connections;
+
+	private boolean recordModifications;
+
+	private int noModificationsLock;
+
+	private EditConnectionsController editConnectionsController;
 	
 	// ===============================
 	// === Initialisation ============
@@ -72,6 +105,11 @@ public class EditConnectionGroupController extends AnchorPane implements Initial
 
 	public void initialize(URL location, ResourceBundle resources)
 	{
+		nameColumn.setCellValueFactory(new PropertyValueFactory<ConnectionListItemProperties, String>("name"));
+		protocolColumn.setCellValueFactory(new PropertyValueFactory<ConnectionListItemProperties, String>("protocol"));
+		detailsColumn.setCellValueFactory(new PropertyValueFactory<ConnectionListItemProperties, String>("details"));
+		//securityColumn.setCellValueFactory(new PropertyValueFactory<ConnectionListItemProperties, String>("security"));
+		
 		connectionGroupNameText.textProperty().addListener(new ChangeListener()
 		{
 			@Override
@@ -93,23 +131,24 @@ public class EditConnectionGroupController extends AnchorPane implements Initial
 	@FXML
 	private void undo()
 	{
-//		editedConnectionDetails.undo();
-//		editConnectionsController.listConnections();
-//		
-//		// Note: listing connections should display the existing one
-//		
-//		updateButtons();
+		editedConnectionGroupDetails.undo();
+		editConnectionsController.listConnections();
+		
+		// Note: listing connections should display the existing one
+		
+		updateButtons();
 	}
 	
 	
 	@FXML
 	private void save()
 	{
-//		editedConnectionDetails.apply();
-//		editConnectionsController.listConnections();
-//				
-//		updateButtons();
-//		
+		editedConnectionGroupDetails.apply();
+		editConnectionsController.listConnections();
+				
+		updateButtons();
+		
+		// TODO
 //		logger.debug("Saving connection " + getConnectionName().getText());
 //		if (configurationManager.saveConfiguration())
 //		{
@@ -185,69 +224,51 @@ public class EditConnectionGroupController extends AnchorPane implements Initial
 	
 	public void onChange()
 	{
-//		if (recordModifications && !emptyConnectionList)
-//		{					
-//			if (readAndDetectChanges())
-//			{
-//				updateButtons();
-//				editConnectionConnectivityController.updateClientId(false);
-//				editConnectionConnectivityController.updateClientIdLength();
-//				updateConnectionName();		
-//				editConnectionConnectivityController.updateReconnection();
-//				editConnectionSecurityController.updateUserAuthentication();
-//				editConnectionsController.listConnections();
-//			}
-//		}				
+		if (recordModifications/* && !emptyConnectionList*/)
+		{					
+			if (readAndDetectChanges())
+			{
+				updateButtons();			
+				editConnectionsController.listConnections();
+			}
+		}				
 	}
-
-	private UserInterfaceMqttConnectionDetails readValues()
+	
+	private boolean readAndDetectChanges()
 	{
-		final UserInterfaceMqttConnectionDetails connection = new UserInterfaceMqttConnectionDetails();
-//		connection.setMessageLog(new MessageLog());
-//		
-//		// Populate the default for the values we don't display / are not used
-//		ConfigurationUtils.populateConnectionDefaults(connection);
-//		
-//		connection.setName(connectionNameText.getText());
-//		connection.setProtocol(protocolCombo.getSelectionModel().getSelectedItem());
-//		
-//		editConnectionConnectivityController.readValues(connection);
-//		editConnectionOtherController.readValues(connection);
-//		editConnectionSecurityController.readValues(connection);
-//		editConnectionMessageLogController.readValues(connection);
-//		editConnectionPublicationsController.readValues(connection);
-//		editConnectionSubscriptionsController.readValues(connection);
-//		editConnectionLastWillController.readValues(connection);			
+		editedConnectionGroupDetails.getGroup().setName(connectionGroupNameText.getText());
 		
-		return connection;
+		boolean changed = !editedConnectionGroupDetails.getGroup().getName().
+				equals(editedConnectionGroupDetails.getLastSavedValues().getName());
+			
+		logger.debug("Values read. Changed = " + changed);
+		editedConnectionGroupDetails.setModified(changed);
+		
+		return changed;
 	}
-//	
-//	private boolean readAndDetectChanges()
-//	{
-//		final UserInterfaceMqttConnectionDetails connection = readValues();
-//		boolean changed = !connection.equals(editedConnectionDetails.getSavedValues());
-//			
-//		logger.debug("Values read. Changed = " + changed);
-//		editedConnectionDetails.setModified(changed);
-//		editedConnectionDetails.setConnectionDetails(connection);
-//		
-//		return changed;
-//	}
 
-	public void editConnection(final ConfiguredConnectionDetails connectionDetails)
+	public void editConnectionGroup(final ConfiguredConnectionGroupDetails connectionGroup, final List<ConnectionTreeItemProperties> list)
 	{	
-//		synchronized (this)
-//		{
-//			this.editedConnectionDetails = connectionDetails;
-//			
-//			// Set 'open connection' button mode
-//			openNewMode = true;
-//			existingConnection = null;
-//			connectButton.setText("Open connection");
-//			
-//			logger.debug("Editing connection id={} name={}", editedConnectionDetails.getId(),
-//					editedConnectionDetails.getName());
-//			for (final MqttAsyncConnection mqttConnection : connectionManager.getConnections())
+		synchronized (this)
+		{
+			this.editedConnectionGroupDetails = connectionGroup;
+			this.connections = new ArrayList<>();
+			for (final ConnectionTreeItemProperties item : list)
+			{
+				if (!item.isGroup() && item.getConnection() != null)
+				{
+					connections.add(item.getConnection());
+				}
+			}			
+			
+			// Set 'open connection' button mode
+			openNewMode = true;
+			existingConnection = null;
+			//connectButton.setText("Open connection");
+			
+//			logger.debug("Editing connection id={} name={}", editedConnectionGroupDetails.getId(),
+//					editedConnectionGroupDetails.getName());
+//			for (final MqttAsyncConnection mqttConnection : connectionManager.getGroups())
 //			{
 //				if (connectionDetails.getId() == mqttConnection.getProperties().getConfiguredProperties().getId() && mqttConnection.isOpened())
 //				{
@@ -257,60 +278,59 @@ public class EditConnectionGroupController extends AnchorPane implements Initial
 //					break;
 //				}				
 //			}
-//			
-//			if (editedConnectionDetails.getName().equals(
-//					ConnectionUtils.composeConnectionName(editedConnectionDetails.getClientID(), editedConnectionDetails.getServerURI())))
-//			{
-//				lastGeneratedConnectionName = editedConnectionDetails.getName();
-//			}
-//			else
-//			{
-//				lastGeneratedConnectionName = "";
-//			}
-//			
-//			displayConnectionDetails(editedConnectionDetails);		
-//			editConnectionConnectivityController.updateClientIdLength();
-//			updateConnectionName();
-//						
-//			updateButtons();
-//		}
+			
+			displayConnectionDetails(editedConnectionGroupDetails);		
+						
+			updateButtons();
+		}
 	}
 	
 	private void updateButtons()
 	{
-//		if (editedConnectionDetails != null && editedConnectionDetails.isModified())
-//		{
-//			saveButton.setDisable(false);
-//			undoButton.setDisable(false);
-//		}
-//		else
-//		{
-//			saveButton.setDisable(true);
-//			undoButton.setDisable(true);
-//		}
+		if (editedConnectionGroupDetails != null && editedConnectionGroupDetails.isModified())
+		{
+			saveButton.setDisable(false);
+			undoButton.setDisable(false);
+		}
+		else
+		{
+			saveButton.setDisable(true);
+			undoButton.setDisable(true);
+		}
 	}
 	
-	private void displayConnectionDetails(final ConfiguredConnectionDetails connection)
-	{
-		ConfigurationUtils.populateConnectionDefaults(connection);
+	private void displayConnectionDetails(final ConfiguredConnectionGroupDetails group)
+	{	
+		connectionGroupNameText.setText(group.getGroup().getName());
+		connectionGroupNameText.setDisable(group.getGroup().getID().equals(ConfigurationManager.DEFAULT_GROUP));
+		connectionList.getItems().clear();
 		
-//		connectionNameText.setText(connection.getName());
-//		protocolCombo.getSelectionModel().select(connection.getProtocol());
-//		
-//		editConnectionConnectivityController.displayConnectionDetails(connection);
-//		editConnectionSecurityController.displayConnectionDetails(connection);
-//		editConnectionMessageLogController.displayConnectionDetails(connection);
-//		editConnectionOtherController.displayConnectionDetails(connection);
-//		editConnectionPublicationsController.displayConnectionDetails(connection);
-//		editConnectionSubscriptionsController.displayConnectionDetails(connection);
-//		editConnectionLastWillController.displayConnectionDetails(connection);
-//		
-		connection.setBeingCreated(false);
+		for (final ConfiguredConnectionDetails connection : connections)
+		{
+			final ProtocolEnum protocol = connection.getProtocol();
+			
+			final ConnectionListItemProperties properties = new ConnectionListItemProperties(
+					connection.getName(), 
+					(protocol == null ? ProtocolEnum.MQTT_DEFAULT.value() : protocol.value()), 
+					connection.getClientID() + "@" + ConnectionUtils.serverURIsToString(connection.getServerURI()), 
+					connection.getSSL() != null, 
+					connection.getUserAuthentication() != null);
+			
+			connectionList.getItems().add(properties);
+		}
+
+		
+		// editedConnectionGroupDetails.setBeingCreated(false);
 	}		
 
 	// ===============================
 	// === Setters and getters =======
 	// ===============================
+	
+	public void setEditConnectionsController(EditConnectionsController editConnectionsController)
+	{
+		this.editConnectionsController = editConnectionsController;		
+	}
 	
 	public void setMainController(MainController mainController)
 	{
@@ -319,38 +339,23 @@ public class EditConnectionGroupController extends AnchorPane implements Initial
 	
 	public void setRecordModifications(boolean recordModifications)
 	{
-//		if (!recordModifications)
-//		{
-//			logger.trace("Modifications suspended...");
-//			noModificationsLock++;
-//			this.recordModifications = recordModifications;
-//		}
-//		else
-//		{ 
-//			noModificationsLock--;
-//			// Only allow modifications once the parent caller removes the lock
-//			if (noModificationsLock == 0)
-//			{
-//				logger.trace("Modifications restored...");
-//				this.recordModifications = recordModifications;
-//			}
-//		}
+		if (!recordModifications)
+		{
+			logger.trace("Modifications suspended...");
+			noModificationsLock++;
+			this.recordModifications = recordModifications;
+		}
+		else
+		{ 
+			noModificationsLock--;
+			// Only allow modifications once the parent caller removes the lock
+			if (noModificationsLock == 0)
+			{
+				logger.trace("Modifications restored...");
+				this.recordModifications = recordModifications;
+			}
+		}
 	}
-	
-//	public boolean isRecordModifications()	
-//	{
-//		return recordModifications;
-//	}
-
-//	public TextField getConnectionName()
-//	{
-//		return connectionNameText;
-//	}
-//	
-//	public ConfiguredConnectionDetails getEditedConnectionDetails()
-//	{
-//		return editedConnectionDetails;
-//	}
 
 	/**
 	 * @return the mainController

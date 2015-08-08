@@ -19,47 +19,25 @@
  */
 package pl.baczkowicz.mqttspy.ui.properties;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import pl.baczkowicz.mqttspy.configuration.ConfiguredConnectionDetails;
-import pl.baczkowicz.mqttspy.configuration.generated.ConnectionGroup;
-
 public class ConnectionListItemProperties
 {
-	private ConnectionListItemProperties parent;
+	private final String name; 
 	
-	private boolean grouping;
-
-	private String name;
+	private final String protocol;
 	
-	private ConnectionGroup connectionGroup; 
+	private final boolean tlsEnabled;
 	
-	private ConfiguredConnectionDetails connection;
-
-	private List<ConnectionListItemProperties> children = new ArrayList<>();
-
-	private int id;
+	private final boolean userAuthenticationEnabled;
 	
-	public ConnectionListItemProperties(final int id)
+	private final String details;
+	
+	public ConnectionListItemProperties(final String name, final String protocol, final String details, final boolean tls, final boolean userAuth)	
 	{
-		this.id = id;
-	}
-	
-	/**
-	 * @return the grouping
-	 */
-	public boolean isGroup()
-	{
-		return grouping;
-	}
-
-	/**
-	 * @param grouping the grouping to set
-	 */
-	public void setGrouping(boolean grouping)
-	{
-		this.grouping = grouping;
+		this.name = name;
+		this.protocol = protocol;
+		this.details = details;
+		this.tlsEnabled = tls;
+		this.userAuthenticationEnabled = userAuth;
 	}
 
 	/**
@@ -71,83 +49,34 @@ public class ConnectionListItemProperties
 	}
 
 	/**
-	 * @param name the name to set
+	 * @return the protocol
 	 */
-	public void setName(String name)
+	public String getProtocol()
 	{
-		this.name = name;
+		return protocol;
 	}
 
 	/**
-	 * @return the connectionGroup
+	 * @return the tlsEnabled
 	 */
-	public ConnectionGroup getConnectionGroup()
+	public boolean isTlsEnabled()
 	{
-		return connectionGroup;
+		return tlsEnabled;
 	}
 
 	/**
-	 * @param connectionGroup the connectionGroup to set
+	 * @return the userAuthenticationEnabled
 	 */
-	public void setConnectionGroup(ConnectionGroup connectionGroup)
+	public boolean isUserAuthenticationEnabled()
 	{
-		this.connectionGroup = connectionGroup;
-		grouping = true;
-		name = connectionGroup.getName();
+		return userAuthenticationEnabled;
 	}
 
 	/**
-	 * @return the connection
+	 * @return the details
 	 */
-	public ConfiguredConnectionDetails getConnection()
+	public String getDetails()
 	{
-		return connection;
-	}
-
-	/**
-	 * @param connection the connection to set
-	 */
-	public void setConnection(ConfiguredConnectionDetails connection)
-	{
-		this.connection = connection;
-		grouping = false;
-		name = connection.getName();
-	}
-	
-	public String toString()
-	{
-		return name;
-	}
-
-	/**
-	 * @return the parent
-	 */
-	public ConnectionListItemProperties getParent()
-	{
-		return parent;
-	}
-
-	/**
-	 * @param parent the parent to set
-	 */
-	public void setParent(ConnectionListItemProperties parent)
-	{
-		this.parent = parent;
-	}
-
-	public void addChild(ConnectionListItemProperties group)
-	{
-		children.add(group);
-		
-	}
-
-	public List<ConnectionListItemProperties> getChildren()
-	{
-		return children;
-	}
-
-	public String getId()
-	{
-		return String.valueOf(id);
+		return details;
 	}
 }

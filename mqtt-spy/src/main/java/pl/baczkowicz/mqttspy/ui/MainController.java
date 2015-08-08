@@ -335,7 +335,7 @@ public class MainController
 			editConnectionsController.newMqttConnection();
 		}
 
-		editConnectionsController.updateSelected();
+		editConnectionsController.updateUIForSelectedItem();
 		editConnectionsStage.showAndWait();		
 		controlPanelPaneController.refreshConnectionsStatus();
 	}

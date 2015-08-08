@@ -36,18 +36,21 @@ import javafx.scene.input.TransferMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
 import pl.baczkowicz.mqttspy.ui.EditConnectionsController;
-import pl.baczkowicz.mqttspy.ui.properties.ConnectionListItemProperties;
+import pl.baczkowicz.mqttspy.ui.properties.ConnectionTreeItemProperties;
 
-public class DragAndDropTreeViewCell extends TreeCell<ConnectionListItemProperties>
+public class DragAndDropTreeViewCell extends TreeCell<ConnectionTreeItemProperties>
 {
 	/** Diagnostic logger. */
 	private final static Logger logger = LoggerFactory.getLogger(DragAndDropTreeViewCell.class);
 
-	private ConnectionListItemProperties item;
+	private ConnectionTreeItemProperties item;
 	
-	public DragAndDropTreeViewCell(final TreeView<ConnectionListItemProperties> treeView)
+	public DragAndDropTreeViewCell(final TreeView<ConnectionTreeItemProperties> treeView)
 	{	
+		DragAndDropTreeViewCell thisCell = this;
+		
 		setOnDragDetected(new EventHandler<MouseEvent>()
 		{
 			@Override
@@ -64,6 +67,24 @@ public class DragAndDropTreeViewCell extends TreeCell<ConnectionListItemProperti
 				content.put(DataFormat.PLAIN_TEXT, item.getId());
 				dragBoard.setContent(content);
 				event.consume();
+			}
+		});
+		
+		setOnDragEntered(event -> 
+		{
+			if (event.getGestureSource() != thisCell
+					&& event.getDragboard().hasString())
+			{
+				setOpacity(0.3);
+			}
+		});
+
+		setOnDragExited(event -> 
+		{
+			if (event.getGestureSource() != thisCell
+					&& event.getDragboard().hasString())
+			{
+				setOpacity(1);
 			}
 		});
 		
@@ -101,36 +122,58 @@ public class DragAndDropTreeViewCell extends TreeCell<ConnectionListItemProperti
 			public void handle(DragEvent dragEvent)
 			{
 				logger.debug("Drag dropped on item = " + item);
+				
+				if (item == null)
+				{
+					return;
+				}
+				
+				// TODO: check if we are not moving to a subitem
+				
 				final String idToMove = dragEvent.getDragboard().getString();
 				
 				// Only move if the new parent is not the current item and the new item is a group
-				if (!idToMove.equals(item.getId()) && item.isGroup())
-				{
-					final TreeItem<ConnectionListItemProperties> treeItemToMove = findNode(treeView.getRoot(), idToMove);
-					final ConnectionListItemProperties itemToMove = treeItemToMove.getValue();
-					final TreeItem<ConnectionListItemProperties> newParent = findNode(treeView.getRoot(), item.getId());
+				if (!idToMove.equals(item.getId()))
+				{					
+					final TreeItem<ConnectionTreeItemProperties> treeItemToMove = findNode(treeView.getRoot(), idToMove);
+					final ConnectionTreeItemProperties itemToMove = treeItemToMove.getValue();
+					TreeItem<ConnectionTreeItemProperties> newParent = findNode(treeView.getRoot(), item.getId());
+					TreeItem<ConnectionTreeItemProperties> newParentRequested = newParent; 
 					
 					// Remove from the old parent
 					treeItemToMove.getParent().getChildren().remove(treeItemToMove);
 					
 					// Re-map helper refs
 					itemToMove.getParent().getChildren().remove(itemToMove);
+					int insertIndex = newParent.getChildren().size();
+					
+					// Regroup
+					if (item.isGroup())
+					{
+						
+					}
+					else
+					{
+						// Reorder
+						newParent = newParent.getParent();
+						insertIndex = newParent.getChildren().indexOf(newParentRequested);
+					}
 					
 					// Add to the new parent
-					newParent.getChildren().add(treeItemToMove);
+					newParent.getChildren().add(insertIndex, treeItemToMove);
 					
 					// Re-map helper refs
-					newParent.getValue().getChildren().add(itemToMove);
+					newParent.getValue().getChildren().add(insertIndex, itemToMove);
 					itemToMove.setParent(newParent.getValue());
 					
 					// Re-map connections and groups
 					if (itemToMove.isGroup())
 					{
-						itemToMove.getConnectionGroup().setParent(item.getConnectionGroup());
+						itemToMove.getConnectionGroup().getGroup().setParent(item.getConnectionGroup().getGroup());
 					}
 					else
 					{
-						itemToMove.getConnection().setConnectionGroup(item.getConnectionGroup());
+						itemToMove.getConnection().setConnectionGroup(item.getConnectionGroup().getGroup());
 					}
 
 					newParent.setExpanded(true);
@@ -140,18 +183,18 @@ public class DragAndDropTreeViewCell extends TreeCell<ConnectionListItemProperti
 		});
 	}
 
-	private TreeItem<ConnectionListItemProperties> findNode(
-			final TreeItem<ConnectionListItemProperties> currentNode,
+	private TreeItem<ConnectionTreeItemProperties> findNode(
+			final TreeItem<ConnectionTreeItemProperties> currentNode,
 			final String idToSearch)
 	{
-		TreeItem<ConnectionListItemProperties> result = null;
+		TreeItem<ConnectionTreeItemProperties> result = null;
 		if (currentNode.getValue().getId().equals(idToSearch))
 		{
 			result = currentNode;
 		}
 		else if (!currentNode.isLeaf())
 		{
-			for (TreeItem<ConnectionListItemProperties> child : currentNode.getChildren())
+			for (TreeItem<ConnectionTreeItemProperties> child : currentNode.getChildren())
 			{
 				result = findNode(child, idToSearch);
 				if (result != null)
@@ -164,7 +207,7 @@ public class DragAndDropTreeViewCell extends TreeCell<ConnectionListItemProperti
 	}
 
 	@Override
-	protected void updateItem(final ConnectionListItemProperties item, final boolean empty)
+	protected void updateItem(final ConnectionTreeItemProperties item, final boolean empty)
 	{
 		super.updateItem(item, empty);
 		this.item = item;
@@ -184,6 +227,11 @@ public class DragAndDropTreeViewCell extends TreeCell<ConnectionListItemProperti
 			}		
 			else
 			{
+				if (item.getConnectionGroup().getGroup().getID().equals(ConfigurationManager.DEFAULT_GROUP))
+				{
+					setDisclosureNode(null);
+				}
+				
 				if (item.getChildren().isEmpty())
 				{
 					image = new ImageView(new Image(EditConnectionsController.class.getResource("/images/folder-grey.png").toString()));

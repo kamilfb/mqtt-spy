@@ -214,11 +214,23 @@ public class DialogUtils
 	 * 
 	 * @return The user's response
 	 */
-	public static Action showDeleteQuestion(final String parameter)
+	public static Action showDeleteConnectionQuestion(final String parameter)
 	{
-		return Dialogs.create().owner(null).title("Deleting connection").masthead(null)
+		return showDeleteQuestion("Deleting connection", "Are you sure you want to delete connection '" + parameter + "'?");		
+	}
+	
+	/**
+	 * Asks the user whether to delete the given element/parameter.
+	 * 
+	 * @param parameter The element to delete
+	 * 
+	 * @return The user's response
+	 */
+	public static Action showDeleteQuestion(final String title, final String question)
+	{
+		return Dialogs.create().owner(null).title(title).masthead(null)
 		.actions(Dialog.ACTION_YES, Dialog.ACTION_CANCEL)
-		.message("Are you sure you want to delete connection '" + parameter + "'? This cannot be undone.").showConfirm();		
+		.message(question + " This cannot be undone.").showConfirm();		
 	}
 
 	/**
@@ -303,8 +315,8 @@ public class DialogUtils
 			sb.append(" (" + connection.getLastSuccessfulyConnectionAttempt() + ")");
 			
 			sb.append(System.getProperty("line.separator"));
-			final String sslStatus = connection.getProperties().getSSL() != null ? "enabled" : "disabled";
-			final String userAuthStatus = connection.getProperties().getUserCredentials() != null ? "enabled" : "disabled";
+			final String sslStatus = connection.getProperties().getSSL() != null ? "on" : "off";
+			final String userAuthStatus = connection.getProperties().getUserCredentials() != null ? "on" : "off";
 			sb.append("Security: TLS/SSL is " +  sslStatus + "; user authentication is " + userAuthStatus);
 		}
 		
