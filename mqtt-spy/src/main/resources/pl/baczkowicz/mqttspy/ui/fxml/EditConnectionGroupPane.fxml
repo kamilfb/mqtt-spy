@@ -31,7 +31,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane prefHeight="398.0" prefWidth="594.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.baczkowicz.mqttspy.ui.EditConnectionGroupController">
+<AnchorPane prefHeight="398.0" prefWidth="594.0" xmlns="http://javafx.com/javafx/8.0.51" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.baczkowicz.mqttspy.ui.EditConnectionGroupController">
    <children>
       
       <!-- Connection name -->
@@ -73,7 +73,7 @@
        </Button>           
       
       <Separator layoutX="14.0" layoutY="278.0" prefHeight="0.0" prefWidth="618.0" AnchorPane.bottomAnchor="50.0" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="14.0" />
-      <TableView fx:id="connectionList" layoutX="14.0" layoutY="53.0" prefHeight="280.0" prefWidth="566.0" tableMenuButtonVisible="true" AnchorPane.bottomAnchor="65.0" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="14.0" AnchorPane.topAnchor="53.0">
+      <TableView fx:id="connectionList" focusTraversable="false" layoutX="14.0" layoutY="53.0" prefHeight="280.0" prefWidth="566.0" tableMenuButtonVisible="true" AnchorPane.bottomAnchor="65.0" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="14.0" AnchorPane.topAnchor="53.0">
         <columns>
           <TableColumn fx:id="nameColumn" maxWidth="1000.0" minWidth="100.0" prefWidth="180.0" text="Name" />
           <TableColumn fx:id="protocolColumn" maxWidth="150" minWidth="100" prefWidth="120" text="Protocol" />

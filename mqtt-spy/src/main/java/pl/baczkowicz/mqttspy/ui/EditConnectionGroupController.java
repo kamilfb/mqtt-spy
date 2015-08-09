@@ -29,11 +29,13 @@ import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
+import javafx.util.Callback;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -108,6 +110,39 @@ public class EditConnectionGroupController extends AnchorPane implements Initial
 		nameColumn.setCellValueFactory(new PropertyValueFactory<ConnectionListItemProperties, String>("name"));
 		protocolColumn.setCellValueFactory(new PropertyValueFactory<ConnectionListItemProperties, String>("protocol"));
 		detailsColumn.setCellValueFactory(new PropertyValueFactory<ConnectionListItemProperties, String>("details"));
+		detailsColumn.setCellFactory(new Callback<TableColumn<ConnectionListItemProperties,String>, TableCell<ConnectionListItemProperties,String>>()
+		{			
+			@Override
+			public TableCell<ConnectionListItemProperties, String> call(
+					TableColumn<ConnectionListItemProperties, String> param)
+			{
+				final TableCell<ConnectionListItemProperties, String> cell = new TableCell<ConnectionListItemProperties, String>()
+				{
+					@Override
+					public void updateItem(final String item, boolean empty)
+					{
+						super.updateItem(item, empty);
+						
+						if (getTableRow().getItem() != null)
+						{
+							final ConnectionListItemProperties row = (ConnectionListItemProperties) getTableRow().getItem();
+							
+							setGraphic(ConnectionController.createSecurityIcons(
+									row.isTlsEnabled(), 
+									row.isUserAuthenticationEnabled(),
+									true));
+							setText(item);
+						}
+						else
+						{
+							setGraphic(null);
+							setText(null);
+						}
+					}
+				};
+				return cell;
+			}
+		});
 		//securityColumn.setCellValueFactory(new PropertyValueFactory<ConnectionListItemProperties, String>("security"));
 		
 		connectionGroupNameText.textProperty().addListener(new ChangeListener()

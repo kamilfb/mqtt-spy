@@ -387,26 +387,11 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 			connectionTab.setText(null);
 		}
 		else if (connection.getConnectionStatus().equals(MqttConnectionStatus.CONNECTED))
-		{
-			final HBox icons = new HBox();
-			
-			if (connection.getProperties().getSSL() != null)
-			{
-				final ImageView image = new ImageView(new Image(ConnectionController.class.getResource("/images/lock.png").toString()));
-				image.setFitHeight(16);
-				image.setFitWidth(16);
-				icons.getChildren().add(image);
-			}
-			
-			if (connection.getProperties().getUserCredentials() != null)
-			{
-				final ImageView image = new ImageView(new Image(ConnectionController.class.getResource("/images/checked-user.png").toString()));
-				image.setFitHeight(19);
-				image.setFitWidth(19);
-				icons.getChildren().add(image);
-			}
-						
-			connectionTab.setGraphic(icons);
+		{								
+			connectionTab.setGraphic(
+					createSecurityIcons(
+							connection.getProperties().getSSL() != null, 
+							connection.getProperties().getUserCredentials() != null, false));
 			connectionTab.setText(connection.getName());
 		}
 		else
@@ -414,6 +399,43 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 			connectionTab.setGraphic(null);
 			connectionTab.setText(connection.getName());
 		}
+	}
+	
+	public static HBox createSecurityIcons(final boolean tlsEnabled, final boolean userAuthEnabled, final boolean showBothStates)
+	{
+		final HBox icons = new HBox();
+		
+		if (tlsEnabled)
+		{
+			final ImageView image = new ImageView(new Image(ConnectionController.class.getResource("/images/lock_yes.png").toString()));
+			image.setFitHeight(16);
+			image.setFitWidth(16);
+			icons.getChildren().add(image);
+		}
+		else if (!tlsEnabled && showBothStates)
+		{
+			final ImageView image = new ImageView(new Image(ConnectionController.class.getResource("/images/lock_no.png").toString()));
+			image.setFitHeight(16);
+			image.setFitWidth(16);
+			icons.getChildren().add(image);
+		}
+		
+		if (userAuthEnabled)
+		{
+			final ImageView image = new ImageView(new Image(ConnectionController.class.getResource("/images/auth-yes.png").toString()));
+			image.setFitHeight(19);
+			image.setFitWidth(19);
+			icons.getChildren().add(image);
+		}
+		else if (!userAuthEnabled && showBothStates)
+		{
+			final ImageView image = new ImageView(new Image(ConnectionController.class.getResource("/images/auth-no.png").toString()));
+			image.setFitHeight(19);
+			image.setFitWidth(19);
+			icons.getChildren().add(image);
+		}
+		
+		return icons;
 	}
 	
 	public void onConnectionStatusChanged(final MqttAsyncConnection changedConnection)

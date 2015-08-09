@@ -63,13 +63,14 @@ Phuzion Icons (CC Attribution-Noncommercial-Share Alike 4.0):
 
 	 * stats.png
  	 
-Flat UI Icons Free (Creative Commons, Attribution 3.0 Unported)
+Font Awesome (Creative Commons, Attribution 3.0 Unported)
 
-	 * lock.png
+	 * lock_yes.png
+	 * lock_no.png
 
 Users. Android L (Lollipop) (Creative Commons, Attribution 3.0 Unported)
 
-     * checked-user.png
+     * auth-yes.png
      
 Authored by Kamil Baczkowicz:
 
@@ -78,3 +79,4 @@ Authored by Kamil Baczkowicz:
     * pause.png (modified Oxygen Icon)
     * play.png (modified Oxygen Icon)  
     * testcase_skipped.png (modified Oxygen Icon)
+    * auth-no.png (modified auth-yes.png)
