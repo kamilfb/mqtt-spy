@@ -21,19 +21,27 @@ package pl.baczkowicz.mqttspy.ui;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.util.Callback;
 
@@ -93,7 +101,9 @@ public class EditConnectionGroupController extends AnchorPane implements Initial
 
 	private Object existingConnection;
 
-	private ArrayList<ConfiguredConnectionDetails> connections;
+	private List<ConfiguredConnectionDetails> connections;
+	
+	private Map<ConnectionListItemProperties, ConfiguredConnectionDetails> connectionMapping;
 
 	private boolean recordModifications;
 
@@ -108,7 +118,48 @@ public class EditConnectionGroupController extends AnchorPane implements Initial
 	public void initialize(URL location, ResourceBundle resources)
 	{
 		nameColumn.setCellValueFactory(new PropertyValueFactory<ConnectionListItemProperties, String>("name"));
+		
 		protocolColumn.setCellValueFactory(new PropertyValueFactory<ConnectionListItemProperties, String>("protocol"));
+		protocolColumn.setCellFactory(new Callback<TableColumn<ConnectionListItemProperties,String>, TableCell<ConnectionListItemProperties,String>>()
+		{			
+			@Override
+			public TableCell<ConnectionListItemProperties, String> call(
+					TableColumn<ConnectionListItemProperties, String> param)
+			{
+				final TableCell<ConnectionListItemProperties, String> cell = new TableCell<ConnectionListItemProperties, String>()
+				{
+					@Override
+					public void updateItem(final String item, boolean empty)
+					{
+						super.updateItem(item, empty);
+						
+						if (getTableRow().getItem() != null)
+						{
+							if (item.contains("MQTT"))
+							{
+								final ImageView image = new ImageView(new Image(EditConnectionsController.class.getResource("/images/mqtt-icon.png").toString()));
+								image.setFitHeight(18);
+								image.setFitWidth(18);
+								setGraphic(image);
+								setText(item.replace("Default", ""));
+							}									
+							else
+							{
+								setText(item);
+							}							
+						}
+						else
+						{
+							setGraphic(null);
+							setText(null);
+						}
+					}
+				};
+				cell.setAlignment(Pos.TOP_CENTER);
+				return cell;
+			}
+		});
+		
 		detailsColumn.setCellValueFactory(new PropertyValueFactory<ConnectionListItemProperties, String>("details"));
 		detailsColumn.setCellFactory(new Callback<TableColumn<ConnectionListItemProperties,String>, TableCell<ConnectionListItemProperties,String>>()
 		{			
@@ -143,7 +194,25 @@ public class EditConnectionGroupController extends AnchorPane implements Initial
 				return cell;
 			}
 		});
-		//securityColumn.setCellValueFactory(new PropertyValueFactory<ConnectionListItemProperties, String>("security"));
+		
+		connectionList.setOnMouseClicked(new EventHandler<MouseEvent>()
+		{
+			@Override
+			public void handle(MouseEvent mouseEvent)
+			{
+				if (mouseEvent.getButton().equals(MouseButton.PRIMARY))
+				{
+					if (mouseEvent.getClickCount() == 2)
+					{
+						final ConnectionListItemProperties selected = connectionList.getSelectionModel().getSelectedItem(); 
+						if (selected != null)
+						{
+							editConnectionsController.selectConnection(connectionMapping.get(selected));
+						}	
+					}
+				}
+			}
+		});
 		
 		connectionGroupNameText.textProperty().addListener(new ChangeListener()
 		{
@@ -339,6 +408,7 @@ public class EditConnectionGroupController extends AnchorPane implements Initial
 		connectionGroupNameText.setText(group.getGroup().getName());
 		connectionGroupNameText.setDisable(group.getGroup().getID().equals(ConfigurationManager.DEFAULT_GROUP));
 		connectionList.getItems().clear();
+		connectionMapping = new HashMap<>();
 		
 		for (final ConfiguredConnectionDetails connection : connections)
 		{
@@ -352,6 +422,7 @@ public class EditConnectionGroupController extends AnchorPane implements Initial
 					connection.getUserAuthentication() != null);
 			
 			connectionList.getItems().add(properties);
+			connectionMapping.put(properties, connection);
 		}
 
 		

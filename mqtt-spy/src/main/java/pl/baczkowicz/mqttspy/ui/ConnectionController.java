@@ -429,7 +429,7 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 		}
 		else if (!userAuthEnabled && showBothStates)
 		{
-			final ImageView image = new ImageView(new Image(ConnectionController.class.getResource("/images/auth-no.png").toString()));
+			final ImageView image = new ImageView(new Image(ConnectionController.class.getResource("/images/auth-none.png").toString()));
 			image.setFitHeight(19);
 			image.setFitWidth(19);
 			icons.getChildren().add(image);

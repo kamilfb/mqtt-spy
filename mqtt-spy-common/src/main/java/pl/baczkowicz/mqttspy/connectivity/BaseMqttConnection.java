@@ -228,7 +228,7 @@ public abstract class BaseMqttConnection implements IMqttConnection
 		{
 			client.subscribe(topic, qos);
 			
-			topicMatcher.addSubscriptionToStore(topic);
+			topicMatcher.addSubscriptionToStore(topic, "subscription");
 		}
 		catch (MqttException e)
 		{
@@ -242,7 +242,7 @@ public abstract class BaseMqttConnection implements IMqttConnection
 	 * @param topic Subscription topic
 	 * @param qos Subscription QoS
 	 */
-	// TODO: deprecate?
+	// TODO: deprecate? only used for testing
 	public boolean subscribe(final String topic, final int qos)
 	{
 		try
@@ -327,13 +327,14 @@ public abstract class BaseMqttConnection implements IMqttConnection
 			subscription.setId(lastUsedSubscriptionId++);				
 		}
 		
-		getTopicMatcher().addSubscriptionToStore(subscription.getTopic());
+		logger.debug("Adding topic " + subscription.getTopic() + " to the subsciption store");
+		getTopicMatcher().addSubscriptionToStore(subscription.getTopic(), "subscription" + subscription.getId());
 	}	
 
 	public void removeSubscription(final BaseMqttSubscription subscription)
 	{
 		subscriptions.remove(subscription.getTopic());
-		getTopicMatcher().removeSubscriptionFromStore(subscription.getTopic());
+		getTopicMatcher().removeSubscriptionFromStore(subscription.getTopic(), "subscription" + subscription.getId());
 	}
 	
 	public int getLastUsedSubscriptionId()
@@ -354,7 +355,7 @@ public abstract class BaseMqttConnection implements IMqttConnection
 		{
 			client.unsubscribe(topic);
 			
-			topicMatcher.removeSubscriptionFromStore(topic);
+			// topicMatcher.removeSubscriptionFromStore(topic);
 		}
 		catch (MqttException e)
 		{

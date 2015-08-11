@@ -79,4 +79,4 @@ Authored by Kamil Baczkowicz:
     * pause.png (modified Oxygen Icon)
     * play.png (modified Oxygen Icon)  
     * testcase_skipped.png (modified Oxygen Icon)
-    * auth-no.png (modified auth-yes.png)
+    * auth-none.png (modified auth-yes.png)

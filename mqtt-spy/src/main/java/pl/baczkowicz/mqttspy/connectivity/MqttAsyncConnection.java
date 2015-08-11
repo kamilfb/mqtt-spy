@@ -21,8 +21,10 @@ package pl.baczkowicz.mqttspy.connectivity;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.slf4j.Logger;
@@ -97,7 +99,8 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection
 	{		
 		// TODO: we should only delete from the topic matcher when a subscription is closed for good, not when just unsubscribed
 		final List<String> matchingSubscriptionTopics = getTopicMatcher().getMatchingSubscriptions(receivedMessage.getTopic());
-					
+		logger.trace("Matching subscriptions = " + matchingSubscriptionTopics);
+		
 		final FormattedMqttMessage message = new FormattedMqttMessage(receivedMessage);		
 		
 		final List<String> matchingActiveSubscriptions = new ArrayList<String>();
@@ -152,6 +155,7 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection
 		// For all found subscriptions
 		for (final String matchingSubscriptionTopic : matchingSubscriptionTopics)
 		{					
+			logger.trace("Message on topic " + receivedMessage.getTopic() + " matched to " + matchingSubscriptionTopic);
 			// Get the mqtt-spy's subscription object
 			final BaseMqttSubscription mqttSubscription = getMqttSubscriptionForTopic(matchingSubscriptionTopic);
 
@@ -178,6 +182,7 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection
 				// Find only one matching subscription if checking non-active ones
 				if (anySubscription)
 				{
+					logger.trace("Found one match - exiting...");
 					break;
 				}
 			}
@@ -283,7 +288,10 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection
 
 	public boolean unsubscribeAll(final boolean manualOverride)
 	{
-		for (final BaseMqttSubscription subscription : subscriptions.values())
+		// Copy the set of values so that we can start removing them from the 'subscriptions' map
+		final Set<BaseMqttSubscription> allSubscriptions = new HashSet<>(subscriptions.values()); 
+		
+		for (final BaseMqttSubscription subscription : allSubscriptions)
 		{
 			unsubscribe(subscription, manualOverride);
 		}
@@ -306,6 +314,7 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection
 		}
 
 		logger.debug("Unsubscribing from " + subscription.getTopic());
+		removeSubscription(subscription);
 		final boolean unsubscribed = unsubscribe(subscription.getTopic());
 
 		// Run 'after' for script - TODO: move to BaseMqttConnection?
