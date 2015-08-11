@@ -434,9 +434,9 @@ public class LineChartPaneController implements Initializable, MessageAddedObser
     		if (!warningShown && ChartMode.USER_DRIVEN_MSG_PAYLOAD.equals(chartMode))
     		{
     			String payload = message.getFormattedPayload();
-    			if (payload.length() > 50)
+    			if (payload.length() > 25)
     			{
-    				payload = payload.substring(0, 50) + "...";
+    				payload = payload.substring(0, 25) + "...";
     			}
     			
     			DialogUtils.showWarning(
