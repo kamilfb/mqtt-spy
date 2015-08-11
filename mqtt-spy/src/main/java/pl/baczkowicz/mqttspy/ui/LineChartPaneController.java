@@ -209,28 +209,28 @@ public class LineChartPaneController implements Initializable, MessageAddedObser
 	public void init()
 	{		
 		showRangeBox.setCellFactory(new Callback<ListView<MessageLimitProperties>, ListCell<MessageLimitProperties>>()
+		{
+			@Override
+			public ListCell<MessageLimitProperties> call(ListView<MessageLimitProperties> l)
+			{
+				return new ListCell<MessageLimitProperties>()
 				{
 					@Override
-					public ListCell<MessageLimitProperties> call(ListView<MessageLimitProperties> l)
+					protected void updateItem(MessageLimitProperties item, boolean empty)
 					{
-						return new ListCell<MessageLimitProperties>()
+						super.updateItem(item, empty);
+						if (item == null || empty)
 						{
-							@Override
-							protected void updateItem(MessageLimitProperties item, boolean empty)
-							{
-								super.updateItem(item, empty);
-								if (item == null || empty)
-								{
-									setText(null);
-								}
-								else
-								{									
-									setText(item.getName());
-								}
-							}
-						};
+							setText(null);
+						}
+						else
+						{									
+							setText(item.getName());
+						}
 					}
-				});
+				};
+			}
+		});
 		showRangeBox.setConverter(new StringConverter<MessageLimitProperties>()
 		{
 			@Override
@@ -433,9 +433,15 @@ public class LineChartPaneController implements Initializable, MessageAddedObser
     	{
     		if (!warningShown && ChartMode.USER_DRIVEN_MSG_PAYLOAD.equals(chartMode))
     		{
+    			String payload = message.getFormattedPayload();
+    			if (payload.length() > 50)
+    			{
+    				payload = payload.substring(0, 50) + "...";
+    			}
+    			
     			DialogUtils.showWarning(
     					"Invalid content",
-    					"Payload \"" + message.getFormattedPayload() 
+    					"Payload \"" + payload 
     					+ "\" on \"" + message.getTopic() 
     					+ "\" cannot be converted to a number - ignoring all invalid values.");
     					
