@@ -51,13 +51,13 @@ import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.scripts.InteractiveScriptManager;
-import pl.baczkowicz.mqttspy.testcases.TestCase;
 import pl.baczkowicz.mqttspy.testcases.TestCaseManager;
 import pl.baczkowicz.mqttspy.testcases.TestCaseStatus;
 import pl.baczkowicz.mqttspy.ui.events.EventManager;
 import pl.baczkowicz.mqttspy.ui.panes.PaneVisibilityStatus;
 import pl.baczkowicz.mqttspy.ui.panes.TitledPaneController;
 import pl.baczkowicz.mqttspy.ui.properties.TestCaseProperties;
+import pl.baczkowicz.mqttspy.ui.testcases.InteractiveTestCase;
 
 /**
  * Controller for the test cases execution window.
@@ -401,7 +401,7 @@ public class TestCasesExecutionController extends AnchorPane implements Initiali
 		{					
 			final TestCaseProperties testCaseProperties = selected.getValue();
 			logger.info("About to display selected test case - " + testCaseProperties.getName());
-			testCaseExecutionPaneController.display(testCaseProperties, ((TestCase) testCaseProperties.getScript()).getSteps());
+			testCaseExecutionPaneController.display(testCaseProperties, ((InteractiveTestCase) testCaseProperties.getScript()).getSteps());
 		}
 		else
 		{

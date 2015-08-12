@@ -17,18 +17,22 @@
  *    Kamil Baczkowicz - initial API and implementation and/or initial documentation
  *    
  */
-package pl.baczkowicz.mqttspy.testcases;
+package pl.baczkowicz.mqttspy.ui.testcases;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import pl.baczkowicz.mqttspy.scripts.Script;
+import pl.baczkowicz.mqttspy.testcases.TestCaseInfo;
+import pl.baczkowicz.mqttspy.testcases.TestCaseStatus;
 import pl.baczkowicz.mqttspy.ui.properties.TestCaseStepProperties;
 
-public class TestCase extends Script
+public class InteractiveTestCase extends Script
 {
 	private TestCaseInfo info;
 	
 	private int currentStep;
+	
+	private String lastUpdated = "";
 	
 	private ObservableList<TestCaseStepProperties> steps = FXCollections.observableArrayList();
 	
@@ -85,5 +89,15 @@ public class TestCase extends Script
 	public void setCurrentStep(int currentStep)
 	{
 		this.currentStep = currentStep;
+	}
+
+	public String getLastUpdated()
+	{
+		return lastUpdated;
+	}
+
+	public void setLastUpdated(String lastUpdated)
+	{
+		this.lastUpdated = lastUpdated;
 	}
 }

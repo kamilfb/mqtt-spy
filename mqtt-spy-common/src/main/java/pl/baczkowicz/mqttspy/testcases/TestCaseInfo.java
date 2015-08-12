@@ -62,5 +62,11 @@ public class TestCaseInfo
 	public void setSteps(List<String> steps)
 	{
 		this.steps = steps;
+	}
+
+	@Override
+	public String toString()
+	{
+		return "TestCaseInfo [name=" + name + ", steps=" + steps + "]";
 	}	
 }

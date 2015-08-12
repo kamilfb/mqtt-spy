@@ -17,7 +17,7 @@
  *    Kamil Baczkowicz - initial API and implementation and/or initial documentation
  *    
  */
-package pl.baczkowicz.mqttspy.testcases;
+package pl.baczkowicz.mqttspy.ui.testcases;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -39,6 +39,10 @@ import org.slf4j.LoggerFactory;
 import pl.baczkowicz.mqttspy.common.generated.ScriptDetails;
 import pl.baczkowicz.mqttspy.scripts.ScriptManager;
 import pl.baczkowicz.mqttspy.scripts.ScriptRunningState;
+import pl.baczkowicz.mqttspy.testcases.TestCaseInfo;
+import pl.baczkowicz.mqttspy.testcases.TestCaseStatus;
+import pl.baczkowicz.mqttspy.testcases.TestCaseStep;
+import pl.baczkowicz.mqttspy.testcases.TestCaseStepResult;
 import pl.baczkowicz.mqttspy.ui.TestCaseExecutionController;
 import pl.baczkowicz.mqttspy.ui.TestCasesExecutionController;
 import pl.baczkowicz.mqttspy.ui.properties.TestCaseProperties;
@@ -46,7 +50,7 @@ import pl.baczkowicz.mqttspy.ui.properties.TestCaseStepProperties;
 import pl.baczkowicz.mqttspy.utils.FileUtils;
 import pl.baczkowicz.mqttspy.utils.TimeUtils;
 
-public class TestCaseManager
+public class InteractiveTestCaseManager
 {	
 	public static String GET_INFO_METHOD = "getInfo";
 	
@@ -54,7 +58,7 @@ public class TestCaseManager
 	
 	public static SimpleDateFormat testCasesFileSdf = new SimpleDateFormat("yyyyMMdd");
 
-	private final static Logger logger = LoggerFactory.getLogger(TestCaseManager.class);
+	private final static Logger logger = LoggerFactory.getLogger(InteractiveTestCaseManager.class);
 	
 	private final ScriptManager scriptManager;
 
@@ -68,11 +72,58 @@ public class TestCaseManager
 		
 	private int running = 0;
 
-	public TestCaseManager(final ScriptManager scriptManager, final TestCasesExecutionController testCasesExecutionController, final TestCaseExecutionController testCaseExecutionController)	
+	public InteractiveTestCaseManager(final ScriptManager scriptManager, final TestCasesExecutionController testCasesExecutionController, final TestCaseExecutionController testCaseExecutionController)	
 	{
 		this.scriptManager = scriptManager;
 		this.testCaseExecutionController = testCaseExecutionController;
 		this.testCasesExecutionController = testCasesExecutionController;
+	}
+	
+	public void addScript(final File scriptFile, List<TestCaseProperties> properties)
+	{
+		logger.info("Adding " + scriptFile.getName() + " with parent " + scriptFile.getParent());
+		
+		final ScriptDetails scriptDetails = new ScriptDetails();					
+		scriptDetails.setFile(scriptFile.getAbsolutePath());
+		scriptDetails.setRepeat(false);
+							
+		final String scriptName = ScriptManager.getScriptName(scriptFile);
+		
+		final InteractiveTestCase testCase = new InteractiveTestCase();
+				
+		scriptManager.createFileBasedScript(testCase, scriptName, scriptFile, scriptManager.getConnection(), scriptDetails);
+		
+		try
+		{	
+			scriptManager.runScript(testCase, false);
+			testCase.setInfo((TestCaseInfo) scriptManager.invokeFunction(testCase, GET_INFO_METHOD));
+			
+			int stepNumber = 1;
+			for (final String step : testCase.getInfo().getSteps())
+			{
+				testCase.getSteps().add(new TestCaseStepProperties(
+						String.valueOf(stepNumber), step, TestCaseStatus.NOT_RUN, ""));
+				stepNumber++;
+			}
+			
+			logger.info(testCase.getInfo().getName() + " " + Arrays.asList(testCase.getInfo().getSteps()));
+		}
+		catch (ScriptException | NoSuchMethodException e)
+		{
+			logger.error("Cannot read test case", e);
+		}
+		
+		// Override name
+		if (testCase.getInfo() != null && testCase.getInfo().getName() != null)
+		{
+			testCase.setName(testCase.getInfo().getName());
+		}
+		else
+		{
+			testCase.setName(scriptFile.getParentFile().getName());
+		}
+		
+		properties.add(new TestCaseProperties(testCase));
 	}
 	
 	public void loadTestCases(final String testCaseLocation)
@@ -83,49 +134,7 @@ public class TestCaseManager
 
 		for (final File scriptFile : scripts)
 		{
-			logger.info("Adding " + scriptFile.getName() + " with parent " + scriptFile.getParent());
-			
-			final ScriptDetails scriptDetails = new ScriptDetails();					
-			scriptDetails.setFile(scriptFile.getAbsolutePath());
-			scriptDetails.setRepeat(false);
-								
-			final String scriptName = ScriptManager.getScriptName(scriptFile);
-			
-			final TestCase testCase = new TestCase();
-					
-			scriptManager.createFileBasedScript(testCase, scriptName, scriptFile, scriptManager.getConnection(), scriptDetails);
-			
-			try
-			{	
-				scriptManager.runScript(testCase, false);
-				testCase.setInfo((TestCaseInfo) scriptManager.invokeFunction(testCase, GET_INFO_METHOD));
-				
-				int stepNumber = 1;
-				for (final String step : testCase.getInfo().getSteps())
-				{
-					testCase.getSteps().add(new TestCaseStepProperties(
-							String.valueOf(stepNumber), step, TestCaseStatus.NOT_RUN, ""));
-					stepNumber++;
-				}
-				
-				logger.info(testCase.getInfo().getName() + " " + Arrays.asList(testCase.getInfo().getSteps()));
-			}
-			catch (ScriptException | NoSuchMethodException e)
-			{
-				logger.error("Cannot read test case", e);
-			}
-			
-			// Override name
-			if (testCase.getInfo() != null && testCase.getInfo().getName() != null)
-			{
-				testCase.setName(testCase.getInfo().getName());
-			}
-			else
-			{
-				testCase.setName(scriptFile.getParentFile().getName());
-			}
-			
-			properties.add(new TestCaseProperties(testCase));
+			addScript(scriptFile, properties);
 		}
 		
 		testCases = properties;
@@ -158,7 +167,7 @@ public class TestCaseManager
 	
 	public void runTestCase(final TestCaseProperties selectedTestCase)
 	{			
-		final TestCase testCase = selectedTestCase.getScript();
+		final InteractiveTestCase testCase = selectedTestCase.getScript();
 		
 		testCase.setStatus(ScriptRunningState.RUNNING);
 		selectedTestCase.statusProperty().setValue(TestCaseStatus.IN_PROGRESS);
@@ -166,8 +175,10 @@ public class TestCaseManager
 		// Clear last run for this test case
 		for (final TestCaseStepProperties properties : testCase.getSteps())
 		{
-			properties.statusProperty().setValue(TestCaseStatus.NOT_RUN);
-			properties.executionInfoProperty().setValue("");
+			properties.setStatus(TestCaseStatus.NOT_RUN);
+			// properties.statusProperty().setValue(TestCaseStatus.NOT_RUN);
+			properties.setExecutionInfo("");
+			//properties.executionInfoProperty().setValue("");
 		}
 		
 		new Thread(new Runnable()
@@ -186,7 +197,7 @@ public class TestCaseManager
 				
 				while (testCase.getCurrentStep() < testCase.getSteps().size() && testCase.getStatus().equals(ScriptRunningState.RUNNING))
 				{
-					final TestCaseStepProperties stepProperties = testCase.getSteps().get(testCase.getCurrentStep());
+					final TestCaseStep stepProperties = testCase.getSteps().get(testCase.getCurrentStep());
 					
 					Platform.runLater(new Runnable()
 					{							
@@ -194,14 +205,15 @@ public class TestCaseManager
 						public void run()
 						{
 							selectedTestCase.lastUpdatedProperty().setValue(TimeUtils.DATE_WITH_SECONDS_SDF.format(new Date()));
-							stepProperties.statusProperty().setValue(TestCaseStatus.IN_PROGRESS);
+							stepProperties.setStatus(TestCaseStatus.IN_PROGRESS);
+							// stepProperties.statusProperty().setValue(TestCaseStatus.IN_PROGRESS);
 						}
 					});										
 					
 					try
 					{
 						final TestCaseStepResult result = (TestCaseStepResult) scriptManager.invokeFunction(
-								testCase, "step" + stepProperties.stepNumberProperty().getValue());
+								testCase, "step" + stepProperties.getStepNumber());
 						lastResult = result;
 						
 						if (result == null)
@@ -214,8 +226,10 @@ public class TestCaseManager
 							@Override
 							public void run()
 							{
-								stepProperties.statusProperty().setValue(result.getStatus());
-								stepProperties.executionInfoProperty().setValue(result.getInfo());
+								//stepProperties.statusProperty().setValue(result.getStatus());
+								stepProperties.setStatus(result.getStatus());
+								//stepProperties.executionInfoProperty().setValue(result.getInfo());
+								stepProperties.setExecutionInfo(result.getInfo());								
 							}
 						});
 						
@@ -227,12 +241,14 @@ public class TestCaseManager
 					}
 					catch (NoSuchMethodException e)
 					{
-						stepProperties.statusProperty().setValue(TestCaseStatus.ERROR);
+						stepProperties.setStatus(TestCaseStatus.ERROR);
+						// stepProperties.statusProperty().setValue(TestCaseStatus.ERROR);
 						logger.error("Step execution error", e);
 					}
 					catch (ScriptException e)
 					{
-						stepProperties.statusProperty().setValue(TestCaseStatus.FAILED);
+						stepProperties.setStatus(TestCaseStatus.FAILED);
+						// stepProperties.statusProperty().setValue(TestCaseStatus.FAILED);
 						logger.error("Step execution failure", e);
 					}
 					
@@ -284,17 +300,18 @@ public class TestCaseManager
 
 	public void stopTestCase(TestCaseProperties testCaseProperties)
 	{
-		final TestCase testCase = testCaseProperties.getScript();
+		final InteractiveTestCase testCase = testCaseProperties.getScript();
 		testCase.setStatus(ScriptRunningState.STOPPED);		
 		
-		final TestCaseStepProperties stepProperties = testCase.getSteps().get(testCase.getCurrentStep());
+		final TestCaseStep stepProperties = testCase.getSteps().get(testCase.getCurrentStep());
 		
 		Platform.runLater(new Runnable()
 		{							
 			@Override
 			public void run()
 			{
-				stepProperties.statusProperty().setValue(TestCaseStatus.SKIPPED);
+				stepProperties.setStatus(TestCaseStatus.SKIPPED);
+				// stepProperties.statusProperty().setValue(TestCaseStatus.SKIPPED);
 			}
 		});
 	}
@@ -367,14 +384,14 @@ public class TestCaseManager
 					"Info" + "\"");
 			out.newLine();
 			
-			for (TestCaseStepProperties step : testCaseProperties.getScript().getSteps())
+			for (TestCaseStep step : testCaseProperties.getScript().getSteps())
 			{
 				out.write(
 						//step.
-						step.stepNumberProperty().getValue() + ", " + "\"" + 
-						step.descriptionProperty().getValue() + "\"" + ", " + 
-						step.statusProperty().getValue() + ", " + "\"" + 
-						step.executionInfoProperty().getValue() + "\"");
+						step.getStepNumber() + ", " + "\"" + 
+						step.getDescription() + "\"" + ", " + 
+						step.getStatus() + ", " + "\"" + 
+						step.getExecutionInfo() + "\"");
 				out.newLine();
 			}
 						

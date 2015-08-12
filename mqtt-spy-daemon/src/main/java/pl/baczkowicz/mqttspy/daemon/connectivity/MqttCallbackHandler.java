@@ -31,6 +31,7 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import pl.baczkowicz.mqttspy.common.generated.FormatterDetails;
 import pl.baczkowicz.mqttspy.common.generated.MessageLogEnum;
 import pl.baczkowicz.mqttspy.common.generated.SubscriptionDetails;
 import pl.baczkowicz.mqttspy.connectivity.BaseMqttConnection;
@@ -38,7 +39,9 @@ import pl.baczkowicz.mqttspy.connectivity.BaseMqttSubscription;
 import pl.baczkowicz.mqttspy.daemon.configuration.generated.DaemonMqttConnectionDetails;
 import pl.baczkowicz.mqttspy.logger.MqttMessageLogger;
 import pl.baczkowicz.mqttspy.messages.BaseMqttMessageWithSubscriptions;
+import pl.baczkowicz.mqttspy.scripts.FormattingManager;
 import pl.baczkowicz.mqttspy.scripts.ScriptManager;
+import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
 
 /**
  * Callback handler for the MQTT connection.
@@ -66,6 +69,7 @@ public class MqttCallbackHandler implements MqttCallback
 	/** Script manager - for running subscription scripts. */
 	private final ScriptManager scriptManager;
 	
+	private final FormattingManager formattingManager;
 	/** Message ID. */
 	private long currentId = 1;
 
@@ -81,6 +85,7 @@ public class MqttCallbackHandler implements MqttCallback
 		this.connection = connection;
 		this.connectionSettings = connectionSettings;
 		this.scriptManager = scriptManager;
+		this.formattingManager = new FormattingManager(scriptManager);
 		this.messageLogger = new MqttMessageLogger(0, messageQueue, connectionSettings.getMessageLog(), false, 10);
 		
 		for (final SubscriptionDetails subscriptionDetails : connectionSettings.getSubscription())
@@ -121,6 +126,11 @@ public class MqttCallbackHandler implements MqttCallback
 		final List<String> matchingSubscriptions = connection.getTopicMatcher().getMatchingSubscriptions(receivedMessage.getTopic());
 		receivedMessage.setMatchingSubscriptionTopics(matchingSubscriptions);
 		
+		if (logger.isDebugEnabled())
+		{
+			logger.debug("Matching subscriptions for message on " + receivedMessage.getTopic() + " = " + matchingSubscriptions);
+		}
+		
 		// Before scripts
 		if (connectionSettings.getMessageLog().isLogBeforeScripts())
 		{
@@ -128,16 +138,26 @@ public class MqttCallbackHandler implements MqttCallback
 			logMessage(new BaseMqttMessageWithSubscriptions(receivedMessage));
 		}
 		
-		// If configured, run scripts for the matching subscriptions
+		// Format the message if configured
+		final FormattedMqttMessage formattedMessage = new FormattedMqttMessage(currentId, topic, message, connection);
+		if (connectionSettings.getFormatter() != null)
+		{
+			formattingManager.formatMessage(formattedMessage, (FormatterDetails) connectionSettings.getFormatter());
+		}
+		
 		for (final String matchingSubscriptionTopic : matchingSubscriptions)
 		{
+			// If configured, run scripts for the matching subscriptions
 			final BaseMqttSubscription subscription = connection.getMqttSubscriptionForTopic(matchingSubscriptionTopic);
 			if (subscription.isScriptActive())
 			{
 				scriptManager.runScriptWithReceivedMessage(subscription.getScript(), receivedMessage);
-			}		
+			}
+			
+			// Store the message (e.g. to be used by scripts and test cases)
+			subscription.getStore().messageReceived(formattedMessage);
 		}
-		
+				
 		// After scripts
 		if (!connectionSettings.getMessageLog().isLogBeforeScripts())
 		{

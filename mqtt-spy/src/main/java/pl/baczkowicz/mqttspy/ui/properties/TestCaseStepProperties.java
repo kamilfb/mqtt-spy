@@ -22,23 +22,24 @@ package pl.baczkowicz.mqttspy.ui.properties;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import pl.baczkowicz.mqttspy.testcases.TestCaseStatus;
+import pl.baczkowicz.mqttspy.testcases.TestCaseStep;
 
 /**
  * This represents a single row displayed in the test case table.
  */
-public class TestCaseStepProperties
+public class TestCaseStepProperties extends TestCaseStep
 {
 	/** The step number. */
-	private SimpleStringProperty stepNumber;
+	private SimpleStringProperty stepNumberProperty;
 	
 	/** Description of the step. */	
-	private SimpleStringProperty description;
+	private SimpleStringProperty descriptionProperty;
 	
 	/** Step status. */	
-	private SimpleObjectProperty<TestCaseStatus> status;
+	private SimpleObjectProperty<TestCaseStatus> statusProperty;
 	
 	/** Information about the execution. */	
-	private SimpleStringProperty executionInfo;
+	private SimpleStringProperty executionInfoProperty;
 		
 	/**
 	 * Creates a TestCaseStepProperties with the given parameters.
@@ -50,10 +51,11 @@ public class TestCaseStepProperties
 	 */
 	public TestCaseStepProperties(final String stepNumber, final String description, final TestCaseStatus status, final String info)
 	{
-		this.stepNumber = new SimpleStringProperty(stepNumber);
-		this.description = new SimpleStringProperty(description);
-		this.status = new SimpleObjectProperty<>(status);
-		this.executionInfo = new SimpleStringProperty(info);
+		super(stepNumber, description, status, info);
+		this.stepNumberProperty = new SimpleStringProperty(stepNumber);
+		this.descriptionProperty = new SimpleStringProperty(description);
+		this.statusProperty = new SimpleObjectProperty<>(status);
+		this.executionInfoProperty = new SimpleStringProperty(info);
 	}	
 
 	/**
@@ -63,7 +65,7 @@ public class TestCaseStepProperties
 	 */
 	public SimpleStringProperty descriptionProperty()
 	{
-		return this.description;
+		return this.descriptionProperty;
 	}
 	
 	/**
@@ -73,7 +75,7 @@ public class TestCaseStepProperties
 	 */
 	public SimpleStringProperty stepNumberProperty()
 	{
-		return this.stepNumber;
+		return this.stepNumberProperty;
 	}
 	
 	/**
@@ -83,7 +85,7 @@ public class TestCaseStepProperties
 	 */
 	public SimpleStringProperty executionInfoProperty()
 	{
-		return this.executionInfo;
+		return this.executionInfoProperty;
 	}
 	
 	/**
@@ -93,6 +95,22 @@ public class TestCaseStepProperties
 	 */
 	public SimpleObjectProperty<TestCaseStatus> statusProperty()
 	{
-		return this.status;
+		return this.statusProperty;
+	}
+	
+	// *** Overrides ***
+	
+	@Override
+	public void setExecutionInfo(final String info)
+	{
+		super.setExecutionInfo(info);		
+		executionInfoProperty().setValue(info);
+	}
+	
+	@Override
+	public void setStatus(final TestCaseStatus status)
+	{
+		super.setStatus(status);
+		statusProperty().setValue(status);	
 	}
 }

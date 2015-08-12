@@ -24,8 +24,8 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import pl.baczkowicz.mqttspy.scripts.ScriptChangeObserver;
 import pl.baczkowicz.mqttspy.scripts.ScriptTypeEnum;
-import pl.baczkowicz.mqttspy.testcases.TestCase;
 import pl.baczkowicz.mqttspy.testcases.TestCaseStatus;
+import pl.baczkowicz.mqttspy.ui.testcases.InteractiveTestCase;
 
 /**
  * This represents a single row displayed in the test cases table.
@@ -40,9 +40,9 @@ public class TestCaseProperties implements ScriptChangeObserver
 
 	private SimpleLongProperty countProperty;
 		
-	private TestCase script;
+	private InteractiveTestCase script;
 	
-	public TestCaseProperties(final TestCase script)
+	public TestCaseProperties(final InteractiveTestCase script)
 	{
 		this.script = script;
 		
@@ -89,7 +89,7 @@ public class TestCaseProperties implements ScriptChangeObserver
 		return script.getName();
 	}
 	
-	public TestCase getScript()
+	public InteractiveTestCase getScript()
 	{
 		return script;
 	}
