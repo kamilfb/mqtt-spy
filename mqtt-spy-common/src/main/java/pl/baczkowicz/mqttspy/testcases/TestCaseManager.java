@@ -50,15 +50,22 @@ public class TestCaseManager
 
 	private final static Logger logger = LoggerFactory.getLogger(TestCaseManager.class);
 	
-	private final ScriptManager scriptManager;
+	protected final ScriptManager scriptManager;
 	
-	private List<TestCase> testCases = new ArrayList<>();
+	protected List<TestCase> testCases = new ArrayList<>();
 			
-	private int running = 0;
+	protected int running = 0;
+
+	private boolean autoExport;
 
 	public TestCaseManager(final ScriptManager scriptManager)	
 	{
 		this.scriptManager = scriptManager;
+	}
+	
+	public void setAutoExport(final boolean autoExport)
+	{
+		this.autoExport = autoExport;
 	}
 	
 	public TestCase addTestCase(final File scriptFile)
@@ -174,7 +181,7 @@ public class TestCaseManager
 		return lastResult;
 	}
 	
-	private void runAllTestCaseMethods(final TestCase testCase)
+	public void runAllTestCaseMethods(final TestCase testCase)
 	{
 		running++;				
 		testCase.setCurrentStep(0);		
@@ -212,11 +219,11 @@ public class TestCaseManager
 		
 		running--;
 		
-//		if (testCaseExecutionController.isAutoExportEnabled())
-//		{
-//			final String parentDir = selectedTestCase.getScript().getScriptFile().getParent() + System.getProperty("file.separator");
-//			exportTestCaseResult(selectedTestCase, new File(parentDir + "result_" + testCaseFileSdf.format(new Date()) + "_" + testCaseStatus.getStatus() + ".csv"));
-//		}
+		if (autoExport)
+		{
+			final String parentDir = testCase.getScriptFile().getParent() + System.getProperty("file.separator");
+			exportTestCaseResultAsCSV(testCase, new File(parentDir + "result_" + testCaseFileSdf.format(new Date()) + "_" + testCaseStatus.getStatus() + ".csv"));
+		}
 	}
 	
 	public void runTestCase(final TestCase testCase)

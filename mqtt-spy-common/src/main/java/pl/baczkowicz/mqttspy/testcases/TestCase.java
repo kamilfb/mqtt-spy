@@ -34,7 +34,7 @@ public class TestCase extends Script
 	
 	private List<TestCaseStep> steps = new ArrayList<>();
 	
-	private TestCaseStatus testCaseStatus;
+	private TestCaseStatus testCaseStatus = TestCaseStatus.NOT_RUN;
 	
 	private TestCaseResult testCaseResult = new TestCaseResult(); 
 
@@ -52,6 +52,7 @@ public class TestCase extends Script
 	public void setInfo(TestCaseInfo info)
 	{
 		this.info = info;
+		// nofityChange();
 	}
 	
 	public List<TestCaseStep> getSteps()
@@ -73,6 +74,7 @@ public class TestCase extends Script
 	public void setTestCaseStatus(TestCaseStatus status)
 	{
 		this.testCaseStatus = status;
+		nofityChange();
 	}
 
 	/**
@@ -89,6 +91,7 @@ public class TestCase extends Script
 	public void setCurrentStep(int currentStep)
 	{
 		this.currentStep = currentStep;
+		nofityChange();
 	}
 
 	public String getLastUpdated()
@@ -99,6 +102,7 @@ public class TestCase extends Script
 	public void setLastUpdated(String lastUpdated)
 	{
 		this.lastUpdated = lastUpdated;
+		nofityChange();
 	}
 
 	public TestCaseResult getTestCaseResult()

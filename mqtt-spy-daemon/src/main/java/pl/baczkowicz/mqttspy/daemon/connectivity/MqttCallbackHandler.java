@@ -115,9 +115,9 @@ public class MqttCallbackHandler implements MqttCallback
 	 */
 	public void messageArrived(final String topic, final MqttMessage message)
 	{
-		if (logger.isDebugEnabled())
+		if (logger.isTraceEnabled())
 		{
-			logger.debug("[{}] Received message on topic \"{}\". Payload = \"{}\"", messageQueue.size(), topic, new String(message.getPayload()));
+			logger.trace("[{}] Received message on topic \"{}\". Payload = \"{}\"", messageQueue.size(), topic, new String(message.getPayload()));
 		}
 		
 		final BaseMqttMessageWithSubscriptions receivedMessage = new BaseMqttMessageWithSubscriptions(currentId, topic, message, connection);
@@ -126,9 +126,9 @@ public class MqttCallbackHandler implements MqttCallback
 		final List<String> matchingSubscriptions = connection.getTopicMatcher().getMatchingSubscriptions(receivedMessage.getTopic());
 		receivedMessage.setMatchingSubscriptionTopics(matchingSubscriptions);
 		
-		if (logger.isDebugEnabled())
+		if (logger.isTraceEnabled())
 		{
-			logger.debug("Matching subscriptions for message on " + receivedMessage.getTopic() + " = " + matchingSubscriptions);
+			logger.trace("Matching subscriptions for message on " + receivedMessage.getTopic() + " = " + matchingSubscriptions);
 		}
 		
 		// Before scripts

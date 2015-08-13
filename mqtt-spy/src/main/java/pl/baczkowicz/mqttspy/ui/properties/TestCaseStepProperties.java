@@ -21,13 +21,14 @@ package pl.baczkowicz.mqttspy.ui.properties;
 
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
+import pl.baczkowicz.mqttspy.scripts.ScriptChangeObserver;
 import pl.baczkowicz.mqttspy.testcases.TestCaseStatus;
 import pl.baczkowicz.mqttspy.testcases.TestCaseStep;
 
 /**
  * This represents a single row displayed in the test case table.
  */
-public class TestCaseStepProperties extends TestCaseStep
+public class TestCaseStepProperties implements ScriptChangeObserver
 {
 	/** The step number. */
 	private SimpleStringProperty stepNumberProperty;
@@ -40,23 +41,24 @@ public class TestCaseStepProperties extends TestCaseStep
 	
 	/** Information about the execution. */	
 	private SimpleStringProperty executionInfoProperty;
-		
-	/**
-	 * Creates a TestCaseStepProperties with the given parameters.
-	 * 
-	 * @param stepNumber
-	 * @param description
-	 * @param status
-	 * @param info
-	 */
-	public TestCaseStepProperties(final String stepNumber, final String description, final TestCaseStatus status, final String info)
+	
+	private TestCaseStep step;
+
+	public TestCaseStepProperties(final TestCaseStep step)
 	{
-		super(stepNumber, description, status, info);
-		this.stepNumberProperty = new SimpleStringProperty(stepNumber);
-		this.descriptionProperty = new SimpleStringProperty(description);
-		this.statusProperty = new SimpleObjectProperty<>(status);
-		this.executionInfoProperty = new SimpleStringProperty(info);
-	}	
+		this.step = step;
+		
+		this.stepNumberProperty = new SimpleStringProperty(step.getStepNumber());
+		this.descriptionProperty = new SimpleStringProperty(step.getDescription());
+		this.statusProperty = new SimpleObjectProperty<>(step.getStatus());
+		this.executionInfoProperty = new SimpleStringProperty(step.getExecutionInfo());
+	}
+
+	public void update()
+	{
+		executionInfoProperty().setValue(step.getExecutionInfo());
+		statusProperty().setValue(step.getStatus());
+	}
 
 	/**
 	 * The description property.
@@ -97,20 +99,10 @@ public class TestCaseStepProperties extends TestCaseStep
 	{
 		return this.statusProperty;
 	}
-	
-	// *** Overrides ***
-	
+
 	@Override
-	public void setExecutionInfo(final String info)
+	public void onChange()
 	{
-		super.setExecutionInfo(info);		
-		executionInfoProperty().setValue(info);
-	}
-	
-	@Override
-	public void setStatus(final TestCaseStatus status)
-	{
-		super.setStatus(status);
-		statusProperty().setValue(status);	
+		update();		
 	}
 }

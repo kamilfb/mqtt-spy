@@ -19,6 +19,7 @@
  */
 package pl.baczkowicz.mqttspy.testcases;
 
+import pl.baczkowicz.mqttspy.scripts.ScriptChangeObserver;
 import pl.baczkowicz.mqttspy.testcases.TestCaseStatus;
 
 /**
@@ -37,6 +38,8 @@ public class TestCaseStep
 	
 	/** Information about the execution. */	
 	private String executionInfo;
+
+	private ScriptChangeObserver observer;
 		
 	/**
 	 * Creates a TestCaseStepProperties with the given parameters.
@@ -82,6 +85,7 @@ public class TestCaseStep
 	public void setStatus(TestCaseStatus status)
 	{
 		this.status = status;
+		nofityChange();
 	}
 
 	public String getExecutionInfo()
@@ -92,6 +96,28 @@ public class TestCaseStep
 	public void setExecutionInfo(String executionInfo)
 	{
 		this.executionInfo = executionInfo;
+		nofityChange();
+	}
+	
+	/**
+	 * Notifies an observer a change has occurred.
+	 */
+	protected void nofityChange()
+	{
+		if (observer != null)
+		{
+			observer.onChange();
+		}
+	}
+	
+	/**
+	 * Sets the observer of the object.
+	 * 
+	 * @param observer the observer to set
+	 */
+	public void setObserver(final ScriptChangeObserver observer)
+	{
+		this.observer = observer;
 	}
 
 	@Override

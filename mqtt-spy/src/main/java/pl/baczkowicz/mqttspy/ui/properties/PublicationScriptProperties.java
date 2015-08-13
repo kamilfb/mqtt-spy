@@ -26,7 +26,7 @@ import javafx.beans.property.SimpleStringProperty;
 import pl.baczkowicz.mqttspy.scripts.Script;
 import pl.baczkowicz.mqttspy.scripts.ScriptChangeObserver;
 import pl.baczkowicz.mqttspy.scripts.ScriptRunningState;
-import pl.baczkowicz.mqttspy.scripts.ScriptTypeEnum;
+import pl.baczkowicz.mqttspy.ui.scripts.ScriptTypeEnum;
 import pl.baczkowicz.mqttspy.utils.TimeUtils;
 
 /**
