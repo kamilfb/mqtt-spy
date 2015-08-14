@@ -127,6 +127,11 @@ public class ScriptManager
 		return script;
 	}
 	
+	public Script addScript(final String scriptLocation)
+	{
+		return addScript(new ScriptDetails(false, false, scriptLocation));
+	}
+	
 	/**
 	 * Creates and records a script with the given details.
 	 * 

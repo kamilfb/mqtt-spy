@@ -8,7 +8,7 @@
 	<packaging>jar</packaging>
 
 	<name>mqtt-spy</name>
-	<url>https://code.google.com/p/mqtt-spy/</url>
+	<url>http://kamilfb.github.io/mqtt-spy/</url>
 
 	<scm>
     	<connection>scm:git:/home/kamil/Programming/Git/mqtt-spy/.git</connection>
@@ -38,7 +38,7 @@
 		<dependency>
 			<groupId>pl.baczkowicz.mqttspy</groupId>
 			<artifactId>mqtt-spy-common</artifactId>
-			<version>0.0.10</version>			 
+			<version>0.0.11</version>			 
 			<exclusions>
 				<exclusion>
 					<artifactId>maven-jaxb2-plugin</artifactId>

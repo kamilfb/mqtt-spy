@@ -39,6 +39,7 @@ import pl.baczkowicz.mqttspy.exceptions.MqttSpyException;
 import pl.baczkowicz.mqttspy.exceptions.XMLException;
 import pl.baczkowicz.mqttspy.scripts.Script;
 import pl.baczkowicz.mqttspy.scripts.ScriptManager;
+import pl.baczkowicz.mqttspy.scripts.io.ScriptIO;
 import pl.baczkowicz.mqttspy.testcases.TestCase;
 import pl.baczkowicz.mqttspy.testcases.TestCaseManager;
 import pl.baczkowicz.mqttspy.testcases.TestCaseResult;
@@ -63,10 +64,18 @@ public class MqttSpyDaemon
 	private SimpleMqttConnection connection;
 
 	private MqttCallbackHandler callback;
+
+	private ScriptIO scriptIO;
 	
+	/**
+	 * This is an internal method - initialises the daemon class.
+	 * 
+	 * @throws XMLException Thrown if cannot instantiate itself
+	 */
 	public void initialise() throws XMLException
 	{
 		loader = new ConfigurationLoader();
+		showInfo();
 	}
 		
 	public boolean start(final String configurationFile)
@@ -74,8 +83,6 @@ public class MqttSpyDaemon
 		try
 		{		
 			initialise();
-			
-			showInfo();		
 									
 			loadAndRun(configurationFile);
 			
@@ -93,15 +100,21 @@ public class MqttSpyDaemon
 		return false;
 	}
 	
-	public void showInfo()
+	private void showInfo()
 	{
 		logger.info("#######################################################");
 		logger.info("### Starting mqtt-spy-daemon v{}", loader.getFullVersionName());
 		logger.info("### If you find it useful, see how you can help at {}", loader.getProperty(PropertyFileLoader.DOWNLOAD_URL));
-		logger.info("### To get release updates follow @mqtt_spy on Twitter");
+		logger.info("### To get release updates follow @mqtt_spy on Twitter ");
 		logger.info("#######################################################");
 	}
 	
+	/**
+	 * This is an internal method - requires "initialise" to be called first.
+	 * 
+	 * @param configurationFile Location of the configuration file
+	 * @throws MqttSpyException Thrown if cannot initialise
+	 */
 	public void loadAndRun(final String configurationFile) throws MqttSpyException
 	{
 		// Load the configuration
@@ -122,6 +135,7 @@ public class MqttSpyDaemon
 		final Runnable connectionRunnable = new SimpleMqttConnectionRunnable(scriptManager, connection, connectionSettings);
 		
 		connection.connect(callback, connectionRunnable);
+		scriptIO = new ScriptIO(connection, null, null, null);
 		if (reconnectionSettings != null)
 		{
 			new Thread(reconnectionManager).start();
@@ -141,15 +155,6 @@ public class MqttSpyDaemon
 			stop();
 		}
 	}
-	
-	// TODO: expose script IO
-	
-	public TestCaseResult runTestCase(final String testCaseLocation, final Map<String, String> args)	
-	{
-		final TestCase testCase = testCaseManager.addTestCase(new File(testCaseLocation));
-		testCaseManager.runTestCase(testCase);
-		return testCase.getTestCaseResult();
-	}	
 	
 	/**
 	 * Tries to stop all running threads.
@@ -182,5 +187,30 @@ public class MqttSpyDaemon
 			logger.trace("Thread {} is still running", thread.getName());
 		}
 		logger.info("All tasks completed - bye bye...");
+	}
+	
+	
+	public TestCaseResult runTestCase(final String testCaseLocation, final Map<String, String> args)	
+	{
+		final TestCase testCase = testCaseManager.addTestCase(new File(testCaseLocation));
+		// TODO: pass the args
+		testCaseManager.runTestCase(testCase);
+		return testCase.getTestCaseResult();
+	}	
+	
+	public void runScript(final String scriptLocation)
+	{
+		final Script script = scriptManager.addScript(scriptLocation);
+		scriptManager.runScript(script, false);
+	}
+	
+	/**
+	 * This exposes additional methods, e.g. publish, subscribe, unsubscribe.
+	 *  
+	 * @return The Script IO with the extra methods
+	 */
+	public ScriptIO more()
+	{
+		return scriptIO;
 	}
 }

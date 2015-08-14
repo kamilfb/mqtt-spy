@@ -141,9 +141,9 @@ public class Script extends BasicScriptProperties
 		return status;
 	}
 
-	public void setPublicationScriptIO(ScriptIO publicationScriptIO)
+	public void setPublicationScriptIO(ScriptIO scriptIO)
 	{
-		this.scriptIO = publicationScriptIO;
+		this.scriptIO = scriptIO;
 	}
 	
 	public ScriptIO getPublicationScriptIO()

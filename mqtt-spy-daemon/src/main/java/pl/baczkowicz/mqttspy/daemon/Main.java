@@ -46,8 +46,6 @@ public class Main
 		{		
 			daemon.initialise();
 			
-			daemon.showInfo();		
-			
 			if (args.length != 1)
 			{
 				logger.error("Expecting only 1 parameter with the configuration file location");
