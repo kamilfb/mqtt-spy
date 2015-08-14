@@ -23,7 +23,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
@@ -35,6 +37,8 @@ import pl.baczkowicz.mqttspy.common.generated.FormatterDetails;
 import pl.baczkowicz.mqttspy.common.generated.Formatting;
 import pl.baczkowicz.mqttspy.common.generated.SimpleMqttMessage;
 import pl.baczkowicz.mqttspy.configuration.generated.ConnectionGroup;
+import pl.baczkowicz.mqttspy.configuration.generated.ConnectionGroupReference;
+import pl.baczkowicz.mqttspy.configuration.generated.ConnectionReference;
 import pl.baczkowicz.mqttspy.configuration.generated.Connectivity;
 import pl.baczkowicz.mqttspy.configuration.generated.MqttSpyConfiguration;
 import pl.baczkowicz.mqttspy.configuration.generated.TabbedSubscriptionDetails;
@@ -48,6 +52,7 @@ import pl.baczkowicz.mqttspy.ui.MqttSpyPerspective;
 import pl.baczkowicz.mqttspy.ui.events.EventManager;
 import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
 import pl.baczkowicz.mqttspy.utils.IdGenerator;
+import pl.baczkowicz.mqttspy.utils.TimeUtils;
 import pl.baczkowicz.mqttspy.xml.XMLParser;
 
 /**
@@ -80,7 +85,11 @@ public class ConfigurationManager
 	
 	private MqttSpyConfiguration configuration;
 	
-	private List<ConfiguredConnectionDetails> connections = new ArrayList<ConfiguredConnectionDetails>();	
+	private List<ConfiguredConnectionDetails> connections = new ArrayList<>();	
+	
+	private List<ConfiguredConnectionGroupDetails> connectionGroups = new ArrayList<>();
+	
+	private ConfiguredConnectionGroupDetails rootGroup;
 
 	private File loadedConfigurationFile;
 
@@ -129,6 +138,7 @@ public class ConfigurationManager
 			clear();
 			configuration = (MqttSpyConfiguration) parser.loadFromFile(file);
 			createConnections();
+			createConnectionGroups();
 			createConfigurationDefaults();
 			loadedConfigurationFile = file;
 			return true;
@@ -163,8 +173,10 @@ public class ConfigurationManager
 	{
 		for (final Object connectionDetails : getConfiguration().getConnectivity().getConnectionOrConnectionV2())
 		{
+			ConfiguredConnectionDetails configuredConnectionDetails = null;
+			
 			if (connectionDetails instanceof UserInterfaceMqttConnectionDetailsV010)
-			{
+			{			
 				final UserInterfaceMqttConnectionDetailsV010 connectionDetailsV010 = (UserInterfaceMqttConnectionDetailsV010) connectionDetails;
 				
 				final UserInterfaceMqttConnectionDetails details = new UserInterfaceMqttConnectionDetails();
@@ -202,14 +214,22 @@ public class ConfigurationManager
 				
 				// Put the defaults at the point of loading the config, so we don't need to do it again
 				ConfigurationUtils.populateConnectionDefaults(details);
-				connections.add(new ConfiguredConnectionDetails(connectionIdGenerator.getNextAvailableId(), false, false, details));
+				configuredConnectionDetails = new ConfiguredConnectionDetails(connectionIdGenerator.getNextAvailableId(), false, false, details);
 			}
 			else if (connectionDetails instanceof UserInterfaceMqttConnectionDetails)
 			{
 				// Put the defaults at the point of loading the config, so we don't need to do it again
 				ConfigurationUtils.populateConnectionDefaults((UserInterfaceMqttConnectionDetails) connectionDetails);
-				connections.add(new ConfiguredConnectionDetails(connectionIdGenerator.getNextAvailableId(), false, false, 
-						(UserInterfaceMqttConnectionDetails) connectionDetails));
+				configuredConnectionDetails = new ConfiguredConnectionDetails(connectionIdGenerator.getNextAvailableId(), false, false, 
+						(UserInterfaceMqttConnectionDetails) connectionDetails);
+			}
+			
+			connections.add(configuredConnectionDetails);
+			
+			// Populate the connection ID for referencing in XML
+			if (configuredConnectionDetails.getID() == null)
+			{
+				configuredConnectionDetails.setID(generateConnectionId());
 			}
 		}		
 	}
@@ -468,16 +488,59 @@ public class ConfigurationManager
 			logger.error("Cannot save UI properties", e);
 		}
 	}
+	
+	public static String generateConnectionGroupId()
+	{
+		return "cg" + TimeUtils.getMonotonicTime();
+	}
+	
+	public static String generateConnectionId()
+	{
+		return "conn" + TimeUtils.getMonotonicTime();
+	}
+	
+	public void createConnectionGroups()
+	{						
+		// This is expected from v0.3.0
+		for (final ConnectionGroup group : configuration.getConnectionGroups())
+		{			
+			final ConfiguredConnectionGroupDetails details = new ConfiguredConnectionGroupDetails(group, false); 
+			if (group.getParent() == null)
+			{
+				rootGroup = details;
+			}
+			
+			connectionGroups.add(details);						
+		}
+		
+		// Create the root if no groups present (pre v0.3.0)
+		if (connectionGroups.isEmpty())
+		{
+			rootGroup = new ConfiguredConnectionGroupDetails(new ConnectionGroup(
+					ConfigurationManager.DEFAULT_GROUP, "All connections", null, new ArrayList(), new ArrayList()), false);
+			
+			connectionGroups.add(rootGroup);
+			
+			// Assign all connections to the new root
+			for (final ConfiguredConnectionDetails connection : getConnections())
+			{
+				connection.setConnectionGroup(new ConnectionGroupReference(rootGroup));
+				rootGroup.getConnections().add(new ConnectionReference(connection));
+			}
+		}
+		else
+		{
+			// TODO: rewire all references between groups and connections?
+		}
+	}
 
 	public List<ConfiguredConnectionGroupDetails> getConnectionGrops()
 	{
-		final List<ConfiguredConnectionGroupDetails> list = new ArrayList<>();
-		
-		for (final ConnectionGroup group : configuration.getConnectionGroups())
-		{
-			list.add(new ConfiguredConnectionGroupDetails(group, false));
-		}
-		
-		return list;
+		return connectionGroups;
+	}
+	
+	public ConfiguredConnectionGroupDetails getRootGroup()
+	{
+		return rootGroup;
 	}
 }

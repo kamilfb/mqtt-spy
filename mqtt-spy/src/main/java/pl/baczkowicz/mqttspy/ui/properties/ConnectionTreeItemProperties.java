@@ -99,7 +99,7 @@ public class ConnectionTreeItemProperties
 	{
 		this.connectionGroup = connectionGroup;
 		grouping = true;
-		name = connectionGroup.getGroup().getName();
+		name = connectionGroup.getName();
 	}
 
 	/**

@@ -37,6 +37,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
+import pl.baczkowicz.mqttspy.configuration.ConfiguredConnectionDetails;
+import pl.baczkowicz.mqttspy.configuration.ConfiguredConnectionGroupDetails;
+import pl.baczkowicz.mqttspy.configuration.generated.ConnectionGroupReference;
 import pl.baczkowicz.mqttspy.ui.EditConnectionsController;
 import pl.baczkowicz.mqttspy.ui.properties.ConnectionTreeItemProperties;
 
@@ -136,16 +139,22 @@ public class DragAndDropTreeViewCell extends TreeCell<ConnectionTreeItemProperti
 				if (!idToMove.equals(item.getId()))
 				{					
 					final TreeItem<ConnectionTreeItemProperties> treeItemToMove = findNode(treeView.getRoot(), idToMove);
-					final ConnectionTreeItemProperties itemToMove = treeItemToMove.getValue();
-					TreeItem<ConnectionTreeItemProperties> newParent = findNode(treeView.getRoot(), item.getId());
-					TreeItem<ConnectionTreeItemProperties> newParentRequested = newParent; 
+					final ConnectionTreeItemProperties treeItemPropertiesToMove = treeItemToMove.getValue();
+					
+					TreeItem<ConnectionTreeItemProperties> newParentTreeItem = findNode(treeView.getRoot(), item.getId());
+					TreeItem<ConnectionTreeItemProperties> requestedNewParentTreeItem = newParentTreeItem; 
+					
+					if (checkIfParentIsSubitem(newParentTreeItem, treeItemToMove))						
+					{
+						return;
+					}
 					
 					// Remove from the old parent
 					treeItemToMove.getParent().getChildren().remove(treeItemToMove);
 					
 					// Re-map helper refs
-					itemToMove.getParent().getChildren().remove(itemToMove);
-					int insertIndex = newParent.getChildren().size();
+					treeItemPropertiesToMove.getParent().getChildren().remove(treeItemPropertiesToMove);
+					int insertIndex = newParentTreeItem.getChildren().size();
 					
 					// Regroup
 					if (item.isGroup())
@@ -155,32 +164,87 @@ public class DragAndDropTreeViewCell extends TreeCell<ConnectionTreeItemProperti
 					else
 					{
 						// Reorder
-						newParent = newParent.getParent();
-						insertIndex = newParent.getChildren().indexOf(newParentRequested);
+						newParentTreeItem = newParentTreeItem.getParent();
+						insertIndex = newParentTreeItem.getChildren().indexOf(requestedNewParentTreeItem);
 					}
 					
 					// Add to the new parent
-					newParent.getChildren().add(insertIndex, treeItemToMove);
+					newParentTreeItem.getChildren().add(insertIndex, treeItemToMove);
 					
 					// Re-map helper refs
-					newParent.getValue().getChildren().add(insertIndex, itemToMove);
-					itemToMove.setParent(newParent.getValue());
+					newParentTreeItem.getValue().getChildren().add(insertIndex, treeItemPropertiesToMove);
+					treeItemPropertiesToMove.setParent(newParentTreeItem.getValue());
 					
 					// Re-map connections and groups
-					if (itemToMove.isGroup())
+					if (treeItemPropertiesToMove.isGroup())
 					{
-						itemToMove.getConnectionGroup().getGroup().setParent(item.getConnectionGroup().getGroup());
+						// Set new parent
+						treeItemPropertiesToMove.getConnectionGroup().setParent(new ConnectionGroupReference(item.getConnectionGroup()));
+						
+						// Remove old child
+						// TODO:
+						
+						// Add new child
+						// TODO:
+						
+						checkGroupForParentChanges(treeItemPropertiesToMove.getConnectionGroup());						
 					}
 					else
 					{
-						itemToMove.getConnection().setConnectionGroup(item.getConnectionGroup().getGroup());
+						// Set new parent
+						treeItemPropertiesToMove.getConnection().setConnectionGroup(new ConnectionGroupReference(item.getConnectionGroup()));
+						
+						// Remove old child
+						// TODO:
+						
+						// Add new child
+						// TODO:
+
+						checkConnectionForParentChanges(treeItemPropertiesToMove.getConnection());
 					}
 
-					newParent.setExpanded(true);
+					newParentTreeItem.setExpanded(true);
 				}
 				dragEvent.consume();
 			}
+
+
 		});
+	}
+	
+	private boolean checkIfParentIsSubitem(
+			TreeItem<ConnectionTreeItemProperties> newParent,
+			TreeItem<ConnectionTreeItemProperties> treeItemToMove)
+	{
+		newParent = newParent.getParent();
+		while (newParent != null)
+		{
+			if (newParent.equals(treeItemToMove))
+			{
+				logger.warn("Cannot move the object it its child!");
+				return true;
+			}
+			
+			newParent = newParent.getParent();
+		}
+		
+		return false;
+	}
+	
+	private void checkGroupForParentChanges(final ConfiguredConnectionGroupDetails group)
+	{
+		boolean changed = !group.equals(group.getLastSavedValues());
+		
+		logger.debug("Parent changed = " + changed);
+		group.setModified(changed);
+	}
+	
+	private void checkConnectionForParentChanges(final ConfiguredConnectionDetails connection)
+	{
+		boolean changed = !connection.equals(connection.getSavedValues());
+		
+		logger.debug("Parent changed = " + changed);
+		connection.setModified(changed);
 	}
 
 	private TreeItem<ConnectionTreeItemProperties> findNode(
@@ -227,7 +291,7 @@ public class DragAndDropTreeViewCell extends TreeCell<ConnectionTreeItemProperti
 			}		
 			else
 			{
-				if (item.getConnectionGroup().getGroup().getID().equals(ConfigurationManager.DEFAULT_GROUP))
+				if (item.getConnectionGroup().getID().equals(ConfigurationManager.DEFAULT_GROUP))
 				{
 					setDisclosureNode(null);
 				}

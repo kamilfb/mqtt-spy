@@ -43,7 +43,7 @@ public class ConfiguredConnectionDetails extends UserInterfaceMqttConnectionDeta
 	}
 	
 	public ConfiguredConnectionDetails(final int id, final boolean created, final boolean newConnection,
-			/*final boolean modified, */final UserInterfaceMqttConnectionDetails connectionDetails)
+			final UserInterfaceMqttConnectionDetails connectionDetails)
 	{
 		this.id = id;
 		this.modified = newConnection;

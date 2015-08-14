@@ -281,11 +281,9 @@ public class EditConnectionController extends AnchorPane implements Initializabl
 		stage.close();
 	}
 	
-	@FXML
-	public void createConnection() throws ConfigurationException
+	public void openConnection(final ConfiguredConnectionDetails connectionDetails)
 	{
-		readAndDetectChanges();
-		final String validationResult = ConnectivityUtils.validateConnectionDetails(editedConnectionDetails, false);
+		final String validationResult = ConnectivityUtils.validateConnectionDetails(connectionDetails, false);
 		
 		if (validationResult != null)
 		{
@@ -293,9 +291,9 @@ public class EditConnectionController extends AnchorPane implements Initializabl
 		}
 		else
 		{					
-			if (editedConnectionDetails.isModified())
+			if (connectionDetails.isModified())
 			{	
-				Action response = DialogUtils.showApplyChangesQuestion("connection " + editedConnectionDetails.getName()); 
+				Action response = DialogUtils.showApplyChangesQuestion("connection " + connectionDetails.getName()); 
 				if (response == Dialog.ACTION_YES)
 				{
 					save();
@@ -310,6 +308,7 @@ public class EditConnectionController extends AnchorPane implements Initializabl
 				}
 			}
 			
+			checkIfOpened(connectionDetails.getId());
 			if (!openNewMode)
 			{
 				connectionManager.disconnectAndCloseTab(existingConnection);
@@ -330,17 +329,23 @@ public class EditConnectionController extends AnchorPane implements Initializabl
 				{
 					try
 					{						
-						connectionManager.openConnection(editedConnectionDetails, getMainController());
+						connectionManager.openConnection(connectionDetails, getMainController());
 					}
 					catch (ConfigurationException e)
 					{
 						// TODO: show warning dialog for invalid
-						logger.error("Cannot open conection {}", editedConnectionDetails.getName(), e);
+						logger.error("Cannot open conection {}", connectionDetails.getName(), e);
 					}					
 				}				
-			});
-			
+			});			
 		}
+	}
+	
+	@FXML
+	public void createConnection() throws ConfigurationException
+	{
+		readAndDetectChanges();
+		openConnection(editedConnectionDetails);
 	}
 
 	// ===============================
@@ -411,6 +416,21 @@ public class EditConnectionController extends AnchorPane implements Initializabl
 		
 		return changed;
 	}
+	
+	public void checkIfOpened(final int id)
+	{
+		openNewMode = true;
+		for (final MqttAsyncConnection mqttConnection : connectionManager.getConnections())
+		{
+			if (id == mqttConnection.getProperties().getConfiguredProperties().getId() && mqttConnection.isOpened())
+			{
+				openNewMode = false;
+				existingConnection = mqttConnection;
+				connectButton.setText("Close and re-open existing connection");
+				break;
+			}				
+		}
+	}
 
 	public void editConnection(final ConfiguredConnectionDetails connectionDetails)
 	{	
@@ -423,18 +443,8 @@ public class EditConnectionController extends AnchorPane implements Initializabl
 			existingConnection = null;
 			connectButton.setText("Open connection");
 			
-			logger.debug("Editing connection id={} name={}", editedConnectionDetails.getId(),
-					editedConnectionDetails.getName());
-			for (final MqttAsyncConnection mqttConnection : connectionManager.getConnections())
-			{
-				if (connectionDetails.getId() == mqttConnection.getProperties().getConfiguredProperties().getId() && mqttConnection.isOpened())
-				{
-					openNewMode = false;
-					existingConnection = mqttConnection;
-					connectButton.setText("Close and re-open existing connection");
-					break;
-				}				
-			}
+			logger.debug("Editing connection id={} name={}", editedConnectionDetails.getId(), editedConnectionDetails.getName());
+			checkIfOpened(connectionDetails.getId());
 			
 			if (editedConnectionDetails.getName().equals(
 					ConnectionUtils.composeConnectionName(editedConnectionDetails.getClientID(), editedConnectionDetails.getServerURI())))

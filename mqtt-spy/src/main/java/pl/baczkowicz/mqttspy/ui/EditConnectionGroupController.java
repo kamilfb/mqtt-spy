@@ -263,63 +263,10 @@ public class EditConnectionGroupController extends AnchorPane implements Initial
 	@FXML
 	public void createConnection() throws ConfigurationException
 	{
-//		readAndDetectChanges();
-//		final String validationResult = ConnectivityUtils.validateConnectionDetails(editedConnectionDetails, false);
-//		
-//		if (validationResult != null)
-//		{
-//			DialogUtils.showValidationWarning(validationResult);
-//		}
-//		else
-//		{					
-//			if (editedConnectionDetails.isModified())
-//			{	
-//				Action response = DialogUtils.showApplyChangesQuestion("connection " + editedConnectionDetails.getName()); 
-//				if (response == Dialog.ACTION_YES)
-//				{
-//					save();
-//				}
-//				else if (response == Dialog.ACTION_NO)
-//				{
-//					// Do nothing
-//				}
-//				else
-//				{
-//					return;
-//				}
-//			}
-//			
-//			if (!openNewMode)
-//			{
-//				connectionManager.disconnectAndCloseTab(existingConnection);
-//			}
-//			
-//			logger.info("Opening connection " + getConnectionName().getText());
-//	
-//			// Get a handle to the stage
-//			Stage stage = (Stage) connectButton.getScene().getWindow();
-//	
-//			// Close the window
-//			stage.close();
-//	 
-//			Platform.runLater(new Runnable()
-//			{
-//				@Override
-//				public void run()
-//				{
-//					try
-//					{						
-//						connectionManager.openConnection(editedConnectionDetails, getMainController());
-//					}
-//					catch (ConfigurationException e)
-//					{
-//						// TODO: show warning dialog for invalid
-//						logger.error("Cannot open conection {}", editedConnectionDetails.getName(), e);
-//					}					
-//				}				
-//			});
-//			
-//		}
+		for (final ConfiguredConnectionDetails connection : connections)
+		{
+			editConnectionsController.openConnection(connection);
+		}
 	}
 
 	// ===============================
@@ -340,9 +287,9 @@ public class EditConnectionGroupController extends AnchorPane implements Initial
 	
 	private boolean readAndDetectChanges()
 	{
-		editedConnectionGroupDetails.getGroup().setName(connectionGroupNameText.getText());
+		editedConnectionGroupDetails.setName(connectionGroupNameText.getText());
 		
-		boolean changed = !editedConnectionGroupDetails.getGroup().getName().
+		boolean changed = !editedConnectionGroupDetails.getName().
 				equals(editedConnectionGroupDetails.getLastSavedValues().getName());
 			
 		logger.debug("Values read. Changed = " + changed);
@@ -405,8 +352,8 @@ public class EditConnectionGroupController extends AnchorPane implements Initial
 	
 	private void displayConnectionDetails(final ConfiguredConnectionGroupDetails group)
 	{	
-		connectionGroupNameText.setText(group.getGroup().getName());
-		connectionGroupNameText.setDisable(group.getGroup().getID().equals(ConfigurationManager.DEFAULT_GROUP));
+		connectionGroupNameText.setText(group.getName());
+		connectionGroupNameText.setDisable(group.getID().equals(ConfigurationManager.DEFAULT_GROUP));
 		connectionList.getItems().clear();
 		connectionMapping = new HashMap<>();
 		

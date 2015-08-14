@@ -69,17 +69,31 @@
 	
 	<xs:complexType name="ConnectionGroup">
 		<xs:sequence>			
-			<xs:element name="ID" 		type="xs:ID" />
-			<xs:element name="Name" 	type="xs:string" />
-			<xs:element name="Parent" 	type="xs:IDREF" minOccurs="0" maxOccurs="1" />
+			<xs:element name="ID" 			type="xs:ID" />
+			<xs:element name="Name" 		type="xs:string" />
+			<xs:element name="Parent" 		type="config:ConnectionGroupReference" minOccurs="0" maxOccurs="1" />
+			<xs:element name="Subgroups" 	type="config:ConnectionGroupReference" minOccurs="0" maxOccurs="unbounded" />
+			<xs:element name="Connections" 	type="config:ConnectionReference" minOccurs="0" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>	
+	
+	<xs:complexType name="ConnectionGroupReference">
+		<xs:sequence>			
+			<xs:element name="Reference" 			type="xs:IDREF" />
+		</xs:sequence>
+	</xs:complexType>	
+	
+	<xs:complexType name="ConnectionReference">
+		<xs:sequence>			
+			<xs:element name="Reference" 			type="xs:IDREF" />
 		</xs:sequence>
 	</xs:complexType>	
 		
 	<xs:complexType name="UserInterfaceMqttConnectionDetails">
 		<xs:complexContent>
 			<xs:extension base="mqttspycommon:MqttConnectionDetails">
-				<xs:sequence>		
-					<xs:element name="ConnectionGroup" 		type="xs:IDREF" 							minOccurs="0" maxOccurs="1" />			
+				<xs:sequence>							
+					<xs:element name="ConnectionGroup" 		type="config:ConnectionGroupReference" 		minOccurs="0" maxOccurs="1" />			
 		        	<xs:element name="Publication" 			type="mqttspycommon:PublicationDetails" 	minOccurs="0" maxOccurs="unbounded" />
 		        	<xs:element name="Subscription"			type="config:TabbedSubscriptionDetails" 	minOccurs="0" maxOccurs="unbounded" />
 		        	

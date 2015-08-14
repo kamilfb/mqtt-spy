@@ -21,22 +21,29 @@ package pl.baczkowicz.mqttspy.configuration;
 
 import pl.baczkowicz.mqttspy.configuration.generated.ConnectionGroup;
 
-public class ConfiguredConnectionGroupDetails
+public class ConfiguredConnectionGroupDetails extends ConnectionGroup
 {
 	private boolean modified;
 	
 	private boolean newConnection;
-
-	private ConnectionGroup group;
 	
 	private ConnectionGroup lastSavedValues;
 
 	public ConfiguredConnectionGroupDetails(final ConnectionGroup group, final boolean newConnection)
 	{
-		this.group = group;
 		this.modified = newConnection;
 		this.newConnection = newConnection;
-		setLastSavedValues(new ConnectionGroup(group.getID(), group.getName(), group.getParent()));
+		setGroupDetails(group);
+		setLastSavedValues(new ConnectionGroup(group.getID(), group.getName(), 
+				group.getParent(), group.getSubgroups(), group.getConnections()));
+	}
+	
+	public void setGroupDetails(final ConnectionGroup groupDetails)
+	{
+		if (groupDetails != null)
+		{
+			groupDetails.copyTo(this);
+		}
 	}
 	
 	/**
@@ -53,22 +60,6 @@ public class ConfiguredConnectionGroupDetails
 	public void setModified(boolean modified)
 	{
 		this.modified = modified;
-	}
-
-	/**
-	 * @return the group
-	 */
-	public ConnectionGroup getGroup()
-	{
-		return group;
-	}
-
-	/**
-	 * @param group the group to set
-	 */
-	public void setGroup(ConnectionGroup group)
-	{
-		this.group = group;
 	}
 
 	/**
@@ -89,15 +80,15 @@ public class ConfiguredConnectionGroupDetails
 	
 	public void undo()
 	{
-		group.setID(lastSavedValues.getID());
-		group.setName(lastSavedValues.getName());
-		group.setParent(lastSavedValues.getParent());
+		setID(lastSavedValues.getID());
+		setName(lastSavedValues.getName());
+		setParent(lastSavedValues.getParent());
 		modified = newConnection;
 	}
 
 	public void apply()
 	{
-		setLastSavedValues(new ConnectionGroup(group.getID(), group.getName(), group.getParent()));
+		setLastSavedValues(new ConnectionGroup(getID(), getName(), getParent(), getSubgroups(), getConnections()));
 		modified = false;
 		newConnection = false;
 	}

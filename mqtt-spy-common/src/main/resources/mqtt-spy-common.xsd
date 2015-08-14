@@ -44,6 +44,7 @@
 	
 	<xs:complexType name="ConnectionDetails">
 		<xs:sequence>
+				<xs:element name="ID" 					type="xs:ID" 						minOccurs="0" maxOccurs="1" />
 				<xs:element name="Name" 				type="xs:string" 					minOccurs="0" maxOccurs="1" />
 				<xs:element name="Protocol" 			type="mqttspycommon:ProtocolEnum" 	minOccurs="0" maxOccurs="1" />
    		</xs:sequence>
