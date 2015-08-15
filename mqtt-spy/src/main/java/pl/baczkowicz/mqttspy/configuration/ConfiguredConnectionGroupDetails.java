@@ -35,7 +35,7 @@ public class ConfiguredConnectionGroupDetails extends ConnectionGroup
 		this.newConnection = newConnection;
 		setGroupDetails(group);
 		setLastSavedValues(new ConnectionGroup(group.getID(), group.getName(), 
-				group.getParent(), group.getSubgroups(), group.getConnections()));
+				group.getGroup(), group.getSubgroups(), group.getConnections()));
 	}
 	
 	public void setGroupDetails(final ConnectionGroup groupDetails)
@@ -82,13 +82,13 @@ public class ConfiguredConnectionGroupDetails extends ConnectionGroup
 	{
 		setID(lastSavedValues.getID());
 		setName(lastSavedValues.getName());
-		setParent(lastSavedValues.getParent());
+		setGroup(lastSavedValues.getGroup());
 		modified = newConnection;
 	}
 
 	public void apply()
 	{
-		setLastSavedValues(new ConnectionGroup(getID(), getName(), getParent(), getSubgroups(), getConnections()));
+		setLastSavedValues(new ConnectionGroup(getID(), getName(), getGroup(), getSubgroups(), getConnections()));
 		modified = false;
 		newConnection = false;
 	}

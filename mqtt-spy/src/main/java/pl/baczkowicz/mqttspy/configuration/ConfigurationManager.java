@@ -505,7 +505,7 @@ public class ConfigurationManager
 		for (final ConnectionGroup group : configuration.getConnectionGroups())
 		{			
 			final ConfiguredConnectionGroupDetails details = new ConfiguredConnectionGroupDetails(group, false); 
-			if (group.getParent() == null)
+			if (group.getGroup() == null)
 			{
 				rootGroup = details;
 			}
@@ -524,7 +524,7 @@ public class ConfigurationManager
 			// Assign all connections to the new root
 			for (final ConfiguredConnectionDetails connection : getConnections())
 			{
-				connection.setConnectionGroup(new ConnectionGroupReference(rootGroup));
+				connection.setGroup(new ConnectionGroupReference(rootGroup));
 				rootGroup.getConnections().add(new ConnectionReference(connection));
 			}
 		}

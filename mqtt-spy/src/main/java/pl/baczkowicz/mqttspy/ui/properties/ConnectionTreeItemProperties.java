@@ -87,7 +87,7 @@ public class ConnectionTreeItemProperties
 	/**
 	 * @return the connectionGroup
 	 */
-	public ConfiguredConnectionGroupDetails getConnectionGroup()
+	public ConfiguredConnectionGroupDetails getGroup()
 	{
 		return connectionGroup;
 	}
@@ -95,7 +95,7 @@ public class ConnectionTreeItemProperties
 	/**
 	 * @param connectionGroup the connectionGroup to set
 	 */
-	public void setConnectionGroup(ConfiguredConnectionGroupDetails connectionGroup)
+	public void setGroup(ConfiguredConnectionGroupDetails connectionGroup)
 	{
 		this.connectionGroup = connectionGroup;
 		grouping = true;

@@ -20,6 +20,8 @@
 
 package pl.baczkowicz.mqttspy.ui.controls;
 
+import java.util.List;
+
 import javafx.event.EventHandler;
 import javafx.scene.control.TreeCell;
 import javafx.scene.control.TreeItem;
@@ -40,6 +42,7 @@ import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
 import pl.baczkowicz.mqttspy.configuration.ConfiguredConnectionDetails;
 import pl.baczkowicz.mqttspy.configuration.ConfiguredConnectionGroupDetails;
 import pl.baczkowicz.mqttspy.configuration.generated.ConnectionGroupReference;
+import pl.baczkowicz.mqttspy.configuration.generated.ConnectionReference;
 import pl.baczkowicz.mqttspy.ui.EditConnectionsController;
 import pl.baczkowicz.mqttspy.ui.properties.ConnectionTreeItemProperties;
 
@@ -131,8 +134,6 @@ public class DragAndDropTreeViewCell extends TreeCell<ConnectionTreeItemProperti
 					return;
 				}
 				
-				// TODO: check if we are not moving to a subitem
-				
 				final String idToMove = dragEvent.getDragboard().getString();
 				
 				// Only move if the new parent is not the current item and the new item is a group
@@ -168,47 +169,78 @@ public class DragAndDropTreeViewCell extends TreeCell<ConnectionTreeItemProperti
 						insertIndex = newParentTreeItem.getChildren().indexOf(requestedNewParentTreeItem);
 					}
 					
+					final ConnectionTreeItemProperties newParentTreeItemProperties = newParentTreeItem.getValue();
+					final ConnectionTreeItemProperties oldParentTreeItemProperties = treeItemPropertiesToMove.getParent();
+					final ConfiguredConnectionGroupDetails newParentGroup = newParentTreeItemProperties.getGroup();
+					final ConfiguredConnectionGroupDetails oldParentGroup = oldParentTreeItemProperties.getGroup();
+					
 					// Add to the new parent
 					newParentTreeItem.getChildren().add(insertIndex, treeItemToMove);
 					
 					// Re-map helper refs
-					newParentTreeItem.getValue().getChildren().add(insertIndex, treeItemPropertiesToMove);
-					treeItemPropertiesToMove.setParent(newParentTreeItem.getValue());
+					newParentTreeItemProperties.getChildren().add(insertIndex, treeItemPropertiesToMove);
+					treeItemPropertiesToMove.setParent(newParentTreeItemProperties);
+					
 					
 					// Re-map connections and groups
 					if (treeItemPropertiesToMove.isGroup())
 					{
-						// Set new parent
-						treeItemPropertiesToMove.getConnectionGroup().setParent(new ConnectionGroupReference(item.getConnectionGroup()));
+						final ConfiguredConnectionGroupDetails groupToMove = treeItemPropertiesToMove.getGroup();
 						
 						// Remove old child
-						// TODO:
+						ConnectionGroupReference refToDelete = null;
+						final List<ConnectionGroupReference> subgroups = oldParentGroup.getSubgroups(); 
+						for (ConnectionGroupReference subgroupRef : subgroups)
+						{
+							if (subgroupRef.getReference().equals(groupToMove))
+							{
+								refToDelete = subgroupRef;
+								break;
+							}
+						}
+						subgroups.remove(refToDelete);				
+											
+						// Set new parent
+						groupToMove.setGroup(new ConnectionGroupReference(item.getGroup()));
 						
 						// Add new child
-						// TODO:
+						newParentGroup.getSubgroups().add(new ConnectionGroupReference(groupToMove));
 						
-						checkGroupForParentChanges(treeItemPropertiesToMove.getConnectionGroup());						
+						//checkGroupForParentChanges(groupToMove);						
 					}
 					else
 					{
-						// Set new parent
-						treeItemPropertiesToMove.getConnection().setConnectionGroup(new ConnectionGroupReference(item.getConnectionGroup()));
+						final ConfiguredConnectionDetails connectionToMove = treeItemPropertiesToMove.getConnection();
 						
 						// Remove old child
-						// TODO:
+						ConnectionReference refToDelete = null;
+						final List<ConnectionReference> connections = oldParentGroup.getConnections(); 
+						for (ConnectionReference connectionRef : connections)
+						{
+							if (connectionRef.getReference().equals(connectionToMove))
+							{
+								refToDelete = connectionRef;
+								break;
+							}
+						}
+						connections.remove(refToDelete);
+						
+						// Set new parent
+						connectionToMove.setGroup(new ConnectionGroupReference(item.getGroup()));
 						
 						// Add new child
-						// TODO:
+						newParentGroup.getConnections().add(new ConnectionReference(connectionToMove));						
 
-						checkConnectionForParentChanges(treeItemPropertiesToMove.getConnection());
+						//checkConnectionForParentChanges(connectionToMove);
 					}
 
 					newParentTreeItem.setExpanded(true);
+					
+					// Select the current item
+					getTreeView().getSelectionModel().select(treeItemToMove);
 				}
-				dragEvent.consume();
+				dragEvent.consume();				
 			}
-
-
 		});
 	}
 	
@@ -291,7 +323,7 @@ public class DragAndDropTreeViewCell extends TreeCell<ConnectionTreeItemProperti
 			}		
 			else
 			{
-				if (item.getConnectionGroup().getID().equals(ConfigurationManager.DEFAULT_GROUP))
+				if (item.getGroup().getID().equals(ConfigurationManager.DEFAULT_GROUP))
 				{
 					setDisclosureNode(null);
 				}

@@ -215,7 +215,7 @@ public class EditConnectionsController extends AnchorPane implements Initializab
 	{
 		connections = configurationManager.getConnections();
 		groups = configurationManager.getConnectionGrops();
-		rootItemProperties.setConnectionGroup(configurationManager.getRootGroup());
+		rootItemProperties.setGroup(configurationManager.getRootGroup());
 		
 		eventManager.registerConnectionStatusObserver(this, null);
 
@@ -286,7 +286,7 @@ public class EditConnectionsController extends AnchorPane implements Initializab
 	{
 		// This is always called for a group
 		
-		final ConfiguredConnectionGroupDetails group = treeItem.getConnectionGroup();
+		final ConfiguredConnectionGroupDetails group = treeItem.getGroup();
 
 		for (final ConnectionGroupReference reference : group.getSubgroups()) 
 		{
@@ -294,7 +294,7 @@ public class EditConnectionsController extends AnchorPane implements Initializab
 			
 			// Create new tree item for the subgroup
 			final ConnectionTreeItemProperties subgroupTreeItemProperties = new ConnectionTreeItemProperties(lastUsedId++);
-			subgroupTreeItemProperties.setConnectionGroup(subgroup);
+			subgroupTreeItemProperties.setGroup(subgroup);
 			
 			// Add the tree item subgroup to the parent tree item
 			treeItemGroupProperties.add(subgroupTreeItemProperties);
@@ -377,7 +377,7 @@ public class EditConnectionsController extends AnchorPane implements Initializab
 		else 
 		{
 			// This this is not the default group (first one on the list)
-			if (!selected.isGroup() || !selected.getConnectionGroup().getID().equals(ConfigurationManager.DEFAULT_GROUP))
+			if (!selected.isGroup() || !selected.getGroup().getID().equals(ConfigurationManager.DEFAULT_GROUP))
 			{
 				deleteConnectionButton.setDisable(false);
 			}
@@ -395,7 +395,7 @@ public class EditConnectionsController extends AnchorPane implements Initializab
 			if (selected.isGroup())
 			{
 				editConnectionGroupPaneController.setRecordModifications(false);
-				editConnectionGroupPaneController.editConnectionGroup(selected.getConnectionGroup(), selected.getChildren());
+				editConnectionGroupPaneController.editConnectionGroup(selected.getGroup(), selected.getChildren());
 				editConnectionGroupPaneController.setRecordModifications(true);			
 			}
 			else if (!selected.getConnection().isBeingCreated())
@@ -417,7 +417,7 @@ public class EditConnectionsController extends AnchorPane implements Initializab
 	 */
 	private void addToParentGroup(final ConfiguredConnectionGroupDetails groupDetails, final ConfiguredConnectionGroupDetails parent)
 	{
-		groupDetails.setParent(new ConnectionGroupReference(parent));
+		groupDetails.setGroup(new ConnectionGroupReference(parent));
 		parent.getSubgroups().add(new ConnectionGroupReference(groupDetails));
 	}
 	
@@ -429,7 +429,7 @@ public class EditConnectionsController extends AnchorPane implements Initializab
 	 */
 	private void addToParentGroup(final ConfiguredConnectionDetails connectionDetails, final ConfiguredConnectionGroupDetails parent)
 	{
-		connectionDetails.setConnectionGroup(new ConnectionGroupReference(parent));
+		connectionDetails.setGroup(new ConnectionGroupReference(parent));
 		parent.getConnections().add(new ConnectionReference(connectionDetails));
 	}
 		
@@ -459,15 +459,15 @@ public class EditConnectionsController extends AnchorPane implements Initializab
 	@FXML
 	private void duplicateConnection()
 	{
-		final ConnectionGroupReference parent = getSelectedItem().getConnection().getConnectionGroup();
-		getSelectedItem().getConnection().setConnectionGroup(null);
+		final ConnectionGroupReference parent = getSelectedItem().getConnection().getGroup();
+		getSelectedItem().getConnection().setGroup(null);
 		
 		final ConfiguredConnectionDetails connectionDetails = new ConfiguredConnectionDetails(
 				configurationManager.getConnectionIdGenerator().getNextAvailableId(), 
 				true, true, getSelectedItem().getConnection());		
 		connectionDetails.setID(ConfigurationManager.generateConnectionId());
 		
-		getSelectedItem().getConnection().setConnectionGroup(parent);
+		getSelectedItem().getConnection().setGroup(parent);
 		addToParentGroup(connectionDetails, (ConfiguredConnectionGroupDetails) parent.getReference());
 		
 		connections.add(connectionDetails);
@@ -490,8 +490,9 @@ public class EditConnectionsController extends AnchorPane implements Initializab
 			
 			groups.add(groupDetails);
 			
-			populateConnections(groups, connections);
-			selectGroup(groupDetails);
+			//populateConnections(groups, connections);
+			listConnections();
+			selectGroup(groupDetails);			
 		}
 	}
 	
@@ -623,7 +624,7 @@ public class EditConnectionsController extends AnchorPane implements Initializab
 		for (final TreeItem<ConnectionTreeItemProperties> treeItem : parentItem.getChildren()) 
 		{
 			final ConnectionTreeItemProperties item = treeItem.getValue();
-			if (item.isGroup() && item.getConnectionGroup().equals(group))
+			if (item.isGroup() && item.getGroup().equals(group))
 			{
 				connectionList.getSelectionModel().select(treeItem);
 				updateUIForSelectedItem(item);
@@ -662,9 +663,15 @@ public class EditConnectionsController extends AnchorPane implements Initializab
 		
 		for (int i = 0; i < connections.size(); i++)
 		{	
-			final ConfiguredConnectionDetails connection = connections.get(i);
-			
-			if (connection.isModified())
+			if (connections.get(i).isModified())
+			{
+				applyAllButton.setDisable(false);
+				undoAllButton.setDisable(false);
+			}
+		}
+		for (int i = 0; i < groups.size(); i++)
+		{	
+			if (groups.get(i).isModified())
 			{
 				applyAllButton.setDisable(false);
 				undoAllButton.setDisable(false);
@@ -676,7 +683,7 @@ public class EditConnectionsController extends AnchorPane implements Initializab
 		{
 			if (selected.isGroup())
 			{
-				selectGroup(selected.getConnectionGroup());
+				selectGroup(selected.getGroup());
 			}
 			else
 			{
