@@ -23,9 +23,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
@@ -52,6 +50,7 @@ import pl.baczkowicz.mqttspy.ui.MqttSpyPerspective;
 import pl.baczkowicz.mqttspy.ui.events.EventManager;
 import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
 import pl.baczkowicz.mqttspy.utils.IdGenerator;
+import pl.baczkowicz.mqttspy.utils.ThreadingUtils;
 import pl.baczkowicz.mqttspy.utils.TimeUtils;
 import pl.baczkowicz.mqttspy.xml.XMLParser;
 
@@ -229,7 +228,7 @@ public class ConfigurationManager
 			// Populate the connection ID for referencing in XML
 			if (configuredConnectionDetails.getID() == null)
 			{
-				configuredConnectionDetails.setID(generateConnectionId());
+				configuredConnectionDetails.setID(generateConnectionId());				
 			}
 		}		
 	}
@@ -269,8 +268,19 @@ public class ConfigurationManager
 			try
 			{
 				configuration.getConnectivity().getConnectionOrConnectionV2().clear();
-				configuration.getConnectivity().getConnectionOrConnectionV2().addAll(connections);				
+				configuration.getConnectivity().getConnectionOrConnectionV2().addAll(connections);
+				
+				configuration.getConnectionGroups().clear();
+				configuration.getConnectionGroups().addAll(connectionGroups);
+				
 				populateMissingFormatters(configuration.getFormatting().getFormatter(), connections);
+				for (final ConnectionGroup group : connectionGroups)
+				{
+					if (group.getGroup() != null && group.getGroup().getReference() == null)
+					{
+						group.setGroup(null);
+					}
+				}
 				
 				parser.saveToFile(loadedConfigurationFile, 
 						new JAXBElement(new QName("http://baczkowicz.pl/mqtt-spy-configuration", "MqttSpyConfiguration"), MqttSpyConfiguration.class, configuration));
@@ -491,12 +501,14 @@ public class ConfigurationManager
 	
 	public static String generateConnectionGroupId()
 	{
+		ThreadingUtils.sleep(1);
 		return "cg" + TimeUtils.getMonotonicTime();
 	}
 	
 	public static String generateConnectionId()
 	{
-		return "conn" + TimeUtils.getMonotonicTime();
+		ThreadingUtils.sleep(1);
+		return "conn" + TimeUtils.getMonotonicTime();		
 	}
 	
 	public void createConnectionGroups()
@@ -505,7 +517,7 @@ public class ConfigurationManager
 		for (final ConnectionGroup group : configuration.getConnectionGroups())
 		{			
 			final ConfiguredConnectionGroupDetails details = new ConfiguredConnectionGroupDetails(group, false); 
-			if (group.getGroup() == null)
+			if (group.getGroup() == null || group.getGroup().getReference() == null)
 			{
 				rootGroup = details;
 			}
@@ -527,11 +539,74 @@ public class ConfigurationManager
 				connection.setGroup(new ConnectionGroupReference(rootGroup));
 				rootGroup.getConnections().add(new ConnectionReference(connection));
 			}
+			
+			rootGroup.apply();
 		}
 		else
 		{
-			// TODO: rewire all references between groups and connections?
+			// At this point, new groups link to old connection and group objects, and old connection objects to old groups
+			
+			// Re-wire all connections
+			updateTree(rootGroup);
 		}
+	}
+	
+	private ConfiguredConnectionGroupDetails findMatchingGroup(final ConnectionGroup group)
+	{
+		for (final ConfiguredConnectionGroupDetails groupDetails : connectionGroups)
+		{
+			if (group.getID().equals(groupDetails.getID()))
+			{
+				return groupDetails;
+			}
+		}
+		
+		return null;
+	}
+	
+	private ConfiguredConnectionDetails findMatchingConnection(final UserInterfaceMqttConnectionDetails connection)
+	{
+		for (final ConfiguredConnectionDetails connectionDetails : connections)
+		{
+			if (connection.getID().equals(connectionDetails.getID()))
+			{
+				return connectionDetails;
+			}
+		}
+		
+		return null;
+	}
+	
+	private void updateTree(final ConfiguredConnectionGroupDetails parentGroup)
+	{
+		final List<ConnectionGroupReference> subgroups = new ArrayList<>(parentGroup.getSubgroups());
+		parentGroup.getSubgroups().clear();
+		
+		for (final ConnectionGroupReference reference : subgroups)			
+		{
+			final ConnectionGroup group = (ConnectionGroup) reference.getReference();
+			final ConfiguredConnectionGroupDetails groupDetails = findMatchingGroup(group);
+			parentGroup.getSubgroups().add(new ConnectionGroupReference(groupDetails));
+			groupDetails.setGroup(new ConnectionGroupReference(parentGroup));
+			groupDetails.apply();
+			
+			// Recursive
+			updateTree(groupDetails);
+		}
+		
+		final List<ConnectionReference> connections = new ArrayList<>(parentGroup.getConnections());
+		parentGroup.getConnections().clear();
+		
+		for (final ConnectionReference reference : connections)			
+		{
+			final UserInterfaceMqttConnectionDetails connection = (UserInterfaceMqttConnectionDetails) reference.getReference();
+			final ConfiguredConnectionDetails connectionDetails = findMatchingConnection(connection);
+			parentGroup.getConnections().add(new ConnectionReference(connectionDetails));
+			connectionDetails.setGroup(new ConnectionGroupReference(parentGroup));	
+			connectionDetails.apply();
+		}
+		
+		parentGroup.apply();
 	}
 
 	public List<ConfiguredConnectionGroupDetails> getConnectionGrops()

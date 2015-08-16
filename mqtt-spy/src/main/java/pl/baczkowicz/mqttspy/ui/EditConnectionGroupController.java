@@ -97,9 +97,9 @@ public class EditConnectionGroupController extends AnchorPane implements Initial
 
 	private ConfiguredConnectionGroupDetails editedConnectionGroupDetails;
 
-	private boolean openNewMode;
-
-	private Object existingConnection;
+	// private boolean openNewMode;
+	//
+	// private Object existingConnection;
 
 	private List<ConfiguredConnectionDetails> connections;
 	
@@ -313,8 +313,8 @@ public class EditConnectionGroupController extends AnchorPane implements Initial
 			}			
 			
 			// Set 'open connection' button mode
-			openNewMode = true;
-			existingConnection = null;
+			// openNewMode = true;
+			// existingConnection = null;
 			//connectButton.setText("Open connection");
 			
 //			logger.debug("Editing connection id={} name={}", editedConnectionGroupDetails.getId(),

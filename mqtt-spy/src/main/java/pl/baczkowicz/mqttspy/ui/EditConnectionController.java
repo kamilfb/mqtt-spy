@@ -47,6 +47,7 @@ import pl.baczkowicz.mqttspy.common.generated.ProtocolEnum;
 import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
 import pl.baczkowicz.mqttspy.configuration.ConfigurationUtils;
 import pl.baczkowicz.mqttspy.configuration.ConfiguredConnectionDetails;
+import pl.baczkowicz.mqttspy.configuration.generated.ConnectionGroupReference;
 import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnectionDetails;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.exceptions.ConfigurationException;
@@ -408,11 +409,18 @@ public class EditConnectionController extends AnchorPane implements Initializabl
 	private boolean readAndDetectChanges()
 	{
 		final UserInterfaceMqttConnectionDetails connection = readValues();
+
+		// Copy...
+		final ConnectionGroupReference group = editedConnectionDetails.getGroup();
+		
 		boolean changed = !connection.equals(editedConnectionDetails.getSavedValues());
 			
 		logger.debug("Values read. Changed = " + changed);
 		editedConnectionDetails.setModified(changed);
 		editedConnectionDetails.setConnectionDetails(connection);
+		
+		// ... and override the group because this is not read from this pane
+		editedConnectionDetails.setGroup(group);
 		
 		return changed;
 	}

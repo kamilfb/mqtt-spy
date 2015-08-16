@@ -32,6 +32,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.TreeCell;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
@@ -109,6 +110,9 @@ public class EditConnectionsController extends AnchorPane implements Initializab
 	@FXML
 	private Button undoAllButton;
 	
+	@FXML
+	private Label changesDetectedLabel;
+	
 	private MainController mainController;
 
 	private ConfigurationManager configurationManager;
@@ -139,12 +143,15 @@ public class EditConnectionsController extends AnchorPane implements Initializab
 	
 	public void initialize(URL location, ResourceBundle resources)
 	{
+		final EditConnectionsController controller = this;
+		
 		connectionList.setCellFactory(new Callback<TreeView<ConnectionTreeItemProperties>, TreeCell<ConnectionTreeItemProperties>>() 
 		{
             @Override
-            public TreeCell call(TreeView<ConnectionTreeItemProperties> param) 
+            public TreeCell call(TreeView<ConnectionTreeItemProperties> treeView) 
             {
-                return new DragAndDropTreeViewCell(param);
+            	
+                return new DragAndDropTreeViewCell(treeView, controller);
             }
         });
 		
@@ -477,22 +484,29 @@ public class EditConnectionsController extends AnchorPane implements Initializab
 	@FXML
 	private void newGroup()
 	{
-		final Optional<String> result = DialogUtils.askForInput(
-				connectionList.getScene().getWindow(), "New connection group", "Please enter the connection group name: ");
-		
-		if (result.isPresent())
+		try
 		{
-			final ConnectionGroup group = new ConnectionGroup(ConfigurationManager.generateConnectionGroupId(), 
-					result.get(), null, new ArrayList(), new ArrayList()); 
-			final ConfiguredConnectionGroupDetails groupDetails = new ConfiguredConnectionGroupDetails(group, true);
+			final Optional<String> result = DialogUtils.askForInput(
+					connectionList.getScene().getWindow(), "New connection group", "Please enter the connection group name: ");
 			
-			addToParentGroup(groupDetails, configurationManager.getRootGroup());
-			
-			groups.add(groupDetails);
-			
-			//populateConnections(groups, connections);
-			listConnections();
-			selectGroup(groupDetails);			
+			if (result.isPresent())
+			{
+				final ConnectionGroup group = new ConnectionGroup(ConfigurationManager.generateConnectionGroupId(), 
+						result.get(), null, new ArrayList(), new ArrayList()); 
+				final ConfiguredConnectionGroupDetails groupDetails = new ConfiguredConnectionGroupDetails(group, true);
+				
+				addToParentGroup(groupDetails, configurationManager.getRootGroup());
+				
+				groups.add(groupDetails);
+				
+				//populateConnections(groups, connections);
+				listConnections();
+				selectGroup(groupDetails);			
+			}
+		}
+		catch (Exception e)
+		{
+			logger.error("Cannot create a new group", e);
 		}
 	}
 	
@@ -502,26 +516,44 @@ public class EditConnectionsController extends AnchorPane implements Initializab
 		final ConnectionTreeItemProperties selected = getSelectedItem();
 		if (getSelectedItem().isGroup())
 		{
+			final ConfiguredConnectionGroupDetails group = getSelectedItem().getGroup(); 
+			
+			final String groupName = group.getName();
 			final int connectionCount = selected.getChildren().size();
 			
 			if (DialogUtils.showDeleteQuestion("Deleting connection group", 
-					"Are you sure you want to delete connection group '" + selected.getName() + "'"
+					"Are you sure you want to delete connection group '" + groupName + "'"
 					+ (connectionCount == 0 ? "" : " and all subitems")
 					+ "?") == Dialog.ACTION_YES)
 			{
-				// TODO: delete
+				group.removeFromGroup();
+				groups.remove(group);
+				
+				listConnections();			
+				selectFirst();
+				
+				logger.debug("Saving all connections");
+				if (configurationManager.saveConfiguration())
+				{
+					// TODO: for some reason, this is not shown
+					DialogUtils.showTooltip(deleteConnectionButton, "Connection group " + groupName + " deleted.");
+				}
 			}
 		}
 		else
 		{
-			getSelectedItem().getConnection().setDeleted(true);
+			final ConfiguredConnectionDetails connection = getSelectedItem().getConnection(); 
+			connection.setDeleted(true);
 			
-			final String connectionName = getSelectedItem().getConnection().getName();
+			final String connectionName = connection.getName();
 			
 			if (DialogUtils.showDeleteConnectionQuestion(connectionName) == Dialog.ACTION_YES)
 			{	
 				editConnectionPaneController.setRecordModifications(false);
-				connections.remove(getSelectedItem().getConnection());			
+				
+				connection.removeFromGroup();
+				connections.remove(connection);
+				
 				listConnections();			
 				selectFirst();
 				editConnectionPaneController.setRecordModifications(true);
@@ -539,14 +571,38 @@ public class EditConnectionsController extends AnchorPane implements Initializab
 	@FXML
 	private void undoAll()
 	{
-		// TODO: delete new ones?
-		for (final ConfiguredConnectionDetails connection : connections)
+		// TODO: how to restore all parent-child relationships?
+		
+		final List<ConfiguredConnectionDetails> allConnections = new ArrayList<>();
+		allConnections.addAll(connections);
+		
+		for (final ConfiguredConnectionDetails connection : allConnections)
 		{
-			connection.undo();
+			if (connection.isNew())
+			{
+				connection.removeFromGroup();
+				connections.remove(connection);
+			}
+			else
+			{
+				connection.undoAll();
+			}
 		}
-		for (final ConfiguredConnectionGroupDetails group : groups)
-		{
-			group.undo();
+		
+		final List<ConfiguredConnectionGroupDetails> allGroups = new ArrayList<>();
+		allGroups.addAll(groups);
+		
+		for (final ConfiguredConnectionGroupDetails group : allGroups)
+		{			
+			if (group.isNew())
+			{
+				group.removeFromGroup();
+				groups.remove(group);
+			}
+			else
+			{
+				group.undoAll();
+			}
 		}
 		
 		listConnections();
@@ -645,7 +701,6 @@ public class EditConnectionsController extends AnchorPane implements Initializab
 		return connectionList.getSelectionModel().getSelectedItem().getValue();
 	}
 	
-	// TODO: pass extra parameter whether to recreate to just update text?
 	public void listConnections()
 	{
 		final TreeItem<ConnectionTreeItemProperties> selectedItem = connectionList.getSelectionModel().getSelectedItem();
@@ -658,23 +713,28 @@ public class EditConnectionsController extends AnchorPane implements Initializab
 
 		applyAllButton.setDisable(true);
 		undoAllButton.setDisable(true);
+		setChangesInfoLabelVisibility(false);
 		
 		populateConnections(groups, connections);
 		
 		for (int i = 0; i < connections.size(); i++)
 		{	
-			if (connections.get(i).isModified())
+			if (connections.get(i).isModified() || connections.get(i).isGroupingModified())
 			{
 				applyAllButton.setDisable(false);
 				undoAllButton.setDisable(false);
+				setChangesInfoLabelVisibility(true);
+				break;
 			}
 		}
 		for (int i = 0; i < groups.size(); i++)
 		{	
-			if (groups.get(i).isModified())
+			if (groups.get(i).isModified() || groups.get(i).isGroupingModified())
 			{
 				applyAllButton.setDisable(false);
 				undoAllButton.setDisable(false);
+				setChangesInfoLabelVisibility(true);
+				break;
 			}
 		}
 		
@@ -698,6 +758,19 @@ public class EditConnectionsController extends AnchorPane implements Initializab
 		}
 		updateUIForSelectedItem();
 	}	
+	
+	public void setChangesInfoLabelVisibility(final boolean visible)
+	{
+		if (visible)
+		{
+			AnchorPane.setBottomAnchor(connectionList, 98.0);			
+		}
+		else
+		{
+			AnchorPane.setBottomAnchor(connectionList, 85.0);
+		}
+		changesDetectedLabel.setVisible(visible);
+	}
 	
 	protected void connectionNameChanged()
 	{

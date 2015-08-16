@@ -32,15 +32,14 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.control.SeparatorMenuItem?>
 
-<AnchorPane fx:id="editConnectionsWindow" minWidth="800.0" prefHeight="356.0" prefWidth="945.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.baczkowicz.mqttspy.ui.EditConnectionsController">
+<AnchorPane fx:id="editConnectionsWindow" minWidth="800.0" prefHeight="356.0" prefWidth="945.0" xmlns="http://javafx.com/javafx/8.0.51" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.baczkowicz.mqttspy.ui.EditConnectionsController">
    <children>
-      <TreeView fx:id="connectionList" focusTraversable="false" prefHeight="269.0" prefWidth="342.0" AnchorPane.bottomAnchor="87.0" AnchorPane.leftAnchor="-15" AnchorPane.rightAnchor="596.0" AnchorPane.topAnchor="0.0" />
+      <TreeView fx:id="connectionList" focusTraversable="false" AnchorPane.bottomAnchor="98.0" AnchorPane.leftAnchor="-15" AnchorPane.rightAnchor="596.0" AnchorPane.topAnchor="0.0" />
       
       <AnchorPane fx:id="connectionDetailsPane" prefHeight="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
       		<children>
    	      			<fx:include fx:id="editConnectionPane" source="EditConnectionPane.fxml" />
-   	      			<fx:include fx:id="editConnectionGroupPane" source="EditConnectionGroupPane.fxml" visible="false" />
-   	      			
+   	      			<fx:include fx:id="editConnectionGroupPane" source="EditConnectionGroupPane.fxml" visible="false" />   	      			
    	    	</children>
       </AnchorPane>
       <AnchorPane fx:id="buttonArea" layoutX="-7.0" layoutY="270.0" prefHeight="86.0" prefWidth="335.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="600.0">
@@ -124,7 +123,12 @@
             </MenuButton>
          </children>
       </AnchorPane>
-      <Separator layoutX="340.0" layoutY="269.0" orientation="VERTICAL" prefHeight="70.0" prefWidth="5.0" AnchorPane.bottomAnchor="15.0" AnchorPane.rightAnchor="592.0" />      
+      <Separator layoutX="340.0" layoutY="269.0" orientation="VERTICAL" prefHeight="90.0" prefWidth="5.0" AnchorPane.bottomAnchor="15.0" AnchorPane.rightAnchor="592.0" />
+      <Label fx:id="changesDetectedLabel" layoutX="14.0" layoutY="304.0" text="Note: to save the changes, click the &quot;Apply all&quot; button" textFill="#f20303" AnchorPane.bottomAnchor="80.0">
+         <font>
+            <Font size="10.0" />
+         </font>
+      </Label>      
       
    </children>
 </AnchorPane>

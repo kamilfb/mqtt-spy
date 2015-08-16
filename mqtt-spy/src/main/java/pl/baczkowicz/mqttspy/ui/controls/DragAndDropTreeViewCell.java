@@ -20,8 +20,6 @@
 
 package pl.baczkowicz.mqttspy.ui.controls;
 
-import java.util.List;
-
 import javafx.event.EventHandler;
 import javafx.scene.control.TreeCell;
 import javafx.scene.control.TreeItem;
@@ -53,7 +51,7 @@ public class DragAndDropTreeViewCell extends TreeCell<ConnectionTreeItemProperti
 
 	private ConnectionTreeItemProperties item;
 	
-	public DragAndDropTreeViewCell(final TreeView<ConnectionTreeItemProperties> treeView)
+	public DragAndDropTreeViewCell(final TreeView<ConnectionTreeItemProperties> treeView, final EditConnectionsController controller)
 	{	
 		DragAndDropTreeViewCell thisCell = this;
 		
@@ -179,8 +177,7 @@ public class DragAndDropTreeViewCell extends TreeCell<ConnectionTreeItemProperti
 					
 					// Re-map helper refs
 					newParentTreeItemProperties.getChildren().add(insertIndex, treeItemPropertiesToMove);
-					treeItemPropertiesToMove.setParent(newParentTreeItemProperties);
-					
+					treeItemPropertiesToMove.setParent(newParentTreeItemProperties);					
 					
 					// Re-map connections and groups
 					if (treeItemPropertiesToMove.isGroup())
@@ -188,49 +185,35 @@ public class DragAndDropTreeViewCell extends TreeCell<ConnectionTreeItemProperti
 						final ConfiguredConnectionGroupDetails groupToMove = treeItemPropertiesToMove.getGroup();
 						
 						// Remove old child
-						ConnectionGroupReference refToDelete = null;
-						final List<ConnectionGroupReference> subgroups = oldParentGroup.getSubgroups(); 
-						for (ConnectionGroupReference subgroupRef : subgroups)
-						{
-							if (subgroupRef.getReference().equals(groupToMove))
-							{
-								refToDelete = subgroupRef;
-								break;
-							}
-						}
-						subgroups.remove(refToDelete);				
+						ConfiguredConnectionGroupDetails.removeFromGroup(groupToMove, oldParentGroup);			
 											
 						// Set new parent
-						groupToMove.setGroup(new ConnectionGroupReference(item.getGroup()));
+						groupToMove.setGroup(new ConnectionGroupReference(newParentTreeItemProperties.getGroup()));
 						
 						// Add new child
 						newParentGroup.getSubgroups().add(new ConnectionGroupReference(groupToMove));
 						
-						//checkGroupForParentChanges(groupToMove);						
+						// checkGroupForParentChanges(groupToMove);
+						groupToMove.setGroupingModified(true);
+						oldParentGroup.setGroupingModified(true);
+						newParentGroup.setGroupingModified(true);
 					}
 					else
 					{
 						final ConfiguredConnectionDetails connectionToMove = treeItemPropertiesToMove.getConnection();
 						
 						// Remove old child
-						ConnectionReference refToDelete = null;
-						final List<ConnectionReference> connections = oldParentGroup.getConnections(); 
-						for (ConnectionReference connectionRef : connections)
-						{
-							if (connectionRef.getReference().equals(connectionToMove))
-							{
-								refToDelete = connectionRef;
-								break;
-							}
-						}
-						connections.remove(refToDelete);
+						ConfiguredConnectionDetails.removeFromGroup(connectionToMove, oldParentGroup);
 						
 						// Set new parent
-						connectionToMove.setGroup(new ConnectionGroupReference(item.getGroup()));
+						connectionToMove.setGroup(new ConnectionGroupReference(newParentTreeItemProperties.getGroup()));
 						
 						// Add new child
-						newParentGroup.getConnections().add(new ConnectionReference(connectionToMove));						
+						newParentGroup.getConnections().add(insertIndex, new ConnectionReference(connectionToMove));						
 
+						connectionToMove.setGroupingModified(true);
+						oldParentGroup.setGroupingModified(true);
+						newParentGroup.setGroupingModified(true);
 						//checkConnectionForParentChanges(connectionToMove);
 					}
 
@@ -240,6 +223,7 @@ public class DragAndDropTreeViewCell extends TreeCell<ConnectionTreeItemProperti
 					getTreeView().getSelectionModel().select(treeItemToMove);
 				}
 				dragEvent.consume();				
+				controller.listConnections();
 			}
 		});
 	}
@@ -263,21 +247,27 @@ public class DragAndDropTreeViewCell extends TreeCell<ConnectionTreeItemProperti
 		return false;
 	}
 	
-	private void checkGroupForParentChanges(final ConfiguredConnectionGroupDetails group)
-	{
-		boolean changed = !group.equals(group.getLastSavedValues());
-		
-		logger.debug("Parent changed = " + changed);
-		group.setModified(changed);
-	}
+//	private void checkGroupForParentChanges(final ConfiguredConnectionGroupDetails group)
+//	{
+//		boolean changed = !group.equals(group.getLastSavedValues());
+//		
+//		if (changed)
+//		{
+//			logger.debug("Parent changed = " + changed);
+//			group.setGroupingModified(true);
+//		}
+//	}
 	
-	private void checkConnectionForParentChanges(final ConfiguredConnectionDetails connection)
-	{
-		boolean changed = !connection.equals(connection.getSavedValues());
-		
-		logger.debug("Parent changed = " + changed);
-		connection.setModified(changed);
-	}
+//	private void checkConnectionForParentChanges(final ConfiguredConnectionDetails connection)
+//	{
+//		boolean changed = !connection.equals(connection.getSavedValues());
+//		
+//		if (changed)
+//		{
+//			logger.debug("Parent changed = " + changed);
+//			connection.setGroupingModified(true);
+//		}		
+//	}
 
 	private TreeItem<ConnectionTreeItemProperties> findNode(
 			final TreeItem<ConnectionTreeItemProperties> currentNode,
