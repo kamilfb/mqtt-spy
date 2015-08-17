@@ -259,16 +259,23 @@ public class EditConnectionController extends AnchorPane implements Initializabl
 	
 	@FXML
 	private void save()
-	{
-		editedConnectionDetails.apply();
-		editConnectionsController.listConnections();
-				
-		updateButtons();
-		
+	{		
 		logger.debug("Saving connection " + getConnectionName().getText());
 		if (configurationManager.saveConfiguration())
 		{
+			editedConnectionDetails.apply();
+			editConnectionsController.listConnections();
+					
+			updateButtons();
+			
 			DialogUtils.showTooltip(saveButton, "Changes for connection " + editedConnectionDetails.getName() + " have been saved.");
+		}
+		else
+		{
+			DialogUtils.showError(
+					"Cannot save the configuration file", 
+					"Oops... an error has occurred while trying to save your configuration. "
+					+ "Please check the log file for more information. Your changes were not saved.");
 		}
 	}	
 	
@@ -412,6 +419,11 @@ public class EditConnectionController extends AnchorPane implements Initializabl
 
 		// Copy...
 		final ConnectionGroupReference group = editedConnectionDetails.getGroup();
+		final String id = editedConnectionDetails.getID();
+		
+		// Set it.. so that comparison is correct...
+		connection.setGroup(group);
+		connection.setID(id);
 		
 		boolean changed = !connection.equals(editedConnectionDetails.getSavedValues());
 			
@@ -421,6 +433,7 @@ public class EditConnectionController extends AnchorPane implements Initializabl
 		
 		// ... and override the group because this is not read from this pane
 		editedConnectionDetails.setGroup(group);
+		editedConnectionDetails.setID(id);
 		
 		return changed;
 	}

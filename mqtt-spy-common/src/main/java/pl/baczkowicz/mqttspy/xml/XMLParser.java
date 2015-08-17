@@ -24,6 +24,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
+import java.io.StringWriter;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
@@ -343,10 +344,14 @@ public class XMLParser
 			// Format the output
 			marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
 			
+			// Test write - if we cannot marshal, we won't destroy the config file
+			StringWriter writer = new StringWriter();
+			marshaller.marshal(objectToSave, writer);
+			
 			// Convert the object to XML, and save to given file
 			marshaller.marshal(objectToSave, file);
 		}
-		catch (JAXBException e)
+		catch (Exception e)
 		{
 			throw new XMLException("Cannot save to " + file.getAbsolutePath(), e);
 		}

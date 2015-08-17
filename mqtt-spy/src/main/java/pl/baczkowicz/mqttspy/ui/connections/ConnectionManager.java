@@ -138,7 +138,8 @@ public class ConnectionManager
 	{
 		// Note: this is not a complete ConfiguredConnectionDetails copy but ConnectionDetails copy - any user credentials entered won't be stored in config
 		final ConfiguredConnectionDetails connectionDetails = new ConfiguredConnectionDetails();
-		configuredConnectionDetails.copyTo(connectionDetails);
+		//configuredConnectionDetails.copyTo(connectionDetails);
+		connectionDetails.setConnectionDetails(configuredConnectionDetails);
 		connectionDetails.setId(configuredConnectionDetails.getId());			
 		
 		final boolean cancelled = completeUserAuthenticationCredentials(connectionDetails, mainController.getStage());		
