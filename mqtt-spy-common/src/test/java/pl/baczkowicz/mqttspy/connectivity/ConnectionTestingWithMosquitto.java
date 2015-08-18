@@ -119,7 +119,7 @@ public class ConnectionTestingWithMosquitto
 		
 		final MqttConnectionDetails connectionDetails = createMqttConnectionDetails("tcp://localhost:10001", null, null);
 		
-		final SimpleMqttConnection connection = new SimpleMqttConnection(reconnectionManager, 0, connectionDetails);
+		final SimpleMqttConnection connection = new SimpleMqttConnection(reconnectionManager, "0", connectionDetails);
 		connection.createClient(createTestCallback("tcp://localhost:10001"));
 		assertTrue(connection.connect());
 		System.out.println("Connected...");
@@ -147,7 +147,7 @@ public class ConnectionTestingWithMosquitto
 		
 		final MqttConnectionDetails connectionDetails = createMqttConnectionDetails("tcp://localhost:10002", null, null);
 		
-		final SimpleMqttConnection connection = new SimpleMqttConnection(reconnectionManager, 0, connectionDetails);
+		final SimpleMqttConnection connection = new SimpleMqttConnection(reconnectionManager, "0", connectionDetails);
 		connection.createClient(createTestCallback("tcp://localhost:10002"));
 		assertFalse(connection.connect());
 		Thread.sleep(1000);
@@ -166,7 +166,7 @@ public class ConnectionTestingWithMosquitto
 				new UserCredentials("nopassword", ""), 
 				null);
 		
-		final SimpleMqttConnection connection = new SimpleMqttConnection(reconnectionManager, 0, connectionDetails);
+		final SimpleMqttConnection connection = new SimpleMqttConnection(reconnectionManager, "0", connectionDetails);
 		connection.createClient(createTestCallback("tcp://localhost:10002"));
 		assertTrue(connection.connect());
 		System.out.println("Connected...");
@@ -197,7 +197,7 @@ public class ConnectionTestingWithMosquitto
 				new UserCredentials("test1", ConversionUtils.stringToBase64("t1")), 
 				null);
 		
-		final SimpleMqttConnection connection = new SimpleMqttConnection(reconnectionManager, 0, connectionDetails);
+		final SimpleMqttConnection connection = new SimpleMqttConnection(reconnectionManager, "0", connectionDetails);
 		connection.createClient(createTestCallback("tcp://localhost:10002"));
 		assertTrue(connection.connect());
 		System.out.println("Connected...");
@@ -225,7 +225,7 @@ public class ConnectionTestingWithMosquitto
 		
 		final MqttConnectionDetails connectionDetails = createMqttConnectionDetails("tcp://localhost:10002", new UserCredentials("test1", "blabla"), null);
 		
-		final SimpleMqttConnection connection = new SimpleMqttConnection(reconnectionManager, 0, connectionDetails);
+		final SimpleMqttConnection connection = new SimpleMqttConnection(reconnectionManager, "0", connectionDetails);
 		connection.createClient(createTestCallback("tcp://localhost:10002"));
 		assertFalse(connection.connect());	
 		Thread.sleep(1000);
@@ -246,7 +246,7 @@ public class ConnectionTestingWithMosquitto
 						"/home/kamil/Programming/Git/mqtt-spy-common/src/test/resources/mosquitto/ssl/ca.crt", 
 						null, null, null, null));
 		
-		final SimpleMqttConnection connection = new SimpleMqttConnection(reconnectionManager, 0, connectionDetails);
+		final SimpleMqttConnection connection = new SimpleMqttConnection(reconnectionManager, "0", connectionDetails);
 		connection.createClient(createTestCallback("ssl://localhost:10010"));
 		assertTrue(connection.connect());
 		System.out.println("Connected...");
@@ -281,7 +281,7 @@ public class ConnectionTestingWithMosquitto
 						"/home/kamil/Programming/Git/mqtt-spy-common/src/test/resources/mosquitto/ssl/bouncy_castle/client.key", 
 						"", null));
 		
-		final SimpleMqttConnection connection = new SimpleMqttConnection(reconnectionManager, 0, connectionDetails);
+		final SimpleMqttConnection connection = new SimpleMqttConnection(reconnectionManager, "0", connectionDetails);
 		connection.createClient(createTestCallback("ssl://localhost:10011"));
 		assertTrue(connection.connect());
 		System.out.println("Connected...");
@@ -310,7 +310,7 @@ public class ConnectionTestingWithMosquitto
 						"/home/kamil/Programming/Git/mqtt-spy-common/src/test/resources/test_mosquitto_org/mosquitto.org.crt", 
 						null, null, null, null));
 		
-		final SimpleMqttConnection connection = new SimpleMqttConnection(reconnectionManager, 0, connectionDetails);
+		final SimpleMqttConnection connection = new SimpleMqttConnection(reconnectionManager, "0", connectionDetails);
 		connection.createClient(createTestCallback("ssl://test.mosquitto.org"));
 		assertTrue(connection.connect());
 		System.out.println("Connected...");

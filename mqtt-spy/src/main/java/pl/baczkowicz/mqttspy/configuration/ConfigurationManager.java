@@ -213,13 +213,13 @@ public class ConfigurationManager
 				
 				// Put the defaults at the point of loading the config, so we don't need to do it again
 				ConfigurationUtils.populateConnectionDefaults(details);
-				configuredConnectionDetails = new ConfiguredConnectionDetails(connectionIdGenerator.getNextAvailableId(), false, false, details);
+				configuredConnectionDetails = new ConfiguredConnectionDetails(false, false, details);
 			}
 			else if (connectionDetails instanceof UserInterfaceMqttConnectionDetails)
 			{
 				// Put the defaults at the point of loading the config, so we don't need to do it again
 				ConfigurationUtils.populateConnectionDefaults((UserInterfaceMqttConnectionDetails) connectionDetails);
-				configuredConnectionDetails = new ConfiguredConnectionDetails(connectionIdGenerator.getNextAvailableId(), false, false, 
+				configuredConnectionDetails = new ConfiguredConnectionDetails(false, false, 
 						(UserInterfaceMqttConnectionDetails) connectionDetails);
 			}
 			
@@ -332,11 +332,11 @@ public class ConfigurationManager
 		connectionIdGenerator.resetLastUsedId();
 	}
 	
-	public ConfiguredConnectionDetails getMatchingConnection(final int id)
+	public ConfiguredConnectionDetails getMatchingConnection(final String id)
 	{
 		for (final ConfiguredConnectionDetails details : getConnections())
 		{
-			if (details.getId() == id)
+			if (id.equals(details.getID()))
 			{
 				return details;
 			}
@@ -447,16 +447,65 @@ public class ConfigurationManager
 		return connections;
 	}
 	
+	public List<ConfiguredConnectionDetails> getConnections(final ConfiguredConnectionGroupDetails group)
+	{
+		List<ConfiguredConnectionDetails> orderedConnections = new ArrayList<>();
+		for (final ConnectionReference connetionRef : group.getConnections())
+		{
+			orderedConnections.add((ConfiguredConnectionDetails) connetionRef.getReference());
+		}
+		return orderedConnections;
+	}
+	
+	public List<ConfiguredConnectionDetails> getOrderedConnections()
+	{
+		List<ConfiguredConnectionDetails> orderedConnections = new ArrayList<>();		
+		List<ConfiguredConnectionGroupDetails> orderedGroups = new ArrayList<>();
+		
+		sortConnections(getRootGroup(), orderedGroups, orderedConnections);
+		
+		return orderedConnections;
+	}
+	
+	public List<ConfiguredConnectionGroupDetails> getOrderedGroups()
+	{
+		List<ConfiguredConnectionDetails> orderedConnections = new ArrayList<>();		
+		List<ConfiguredConnectionGroupDetails> orderedGroups = new ArrayList<>();
+		
+		orderedGroups.add(getRootGroup());
+		sortConnections(getRootGroup(), orderedGroups, orderedConnections);
+		
+		return orderedGroups;
+	}
+	
+	private void sortConnections(final ConfiguredConnectionGroupDetails parentGroup, 
+			final List<ConfiguredConnectionGroupDetails> orderedGroups, List<ConfiguredConnectionDetails> orderedConnections)
+	{		
+		for (final ConnectionGroupReference reference : parentGroup.getSubgroups())		
+		{
+			final ConfiguredConnectionGroupDetails group = (ConfiguredConnectionGroupDetails) reference.getReference();						
+			orderedGroups.add(group);
+			
+			// Recursive
+			sortConnections(group, orderedGroups, orderedConnections);
+		}
+		
+		for (final ConnectionReference reference : parentGroup.getConnections())			
+		{
+			final ConfiguredConnectionDetails connection = (ConfiguredConnectionDetails) reference.getReference();
+			orderedConnections.add(connection);
+		}				
+	}
 
 	/** 
 	 * Gets the connection ID generator.
 	 * 
 	 * @return the connectionIdGenerator
 	 */
-	public IdGenerator getConnectionIdGenerator()
-	{
-		return connectionIdGenerator;
-	}
+//	public IdGenerator getConnectionIdGenerator()
+//	{
+//		return connectionIdGenerator;
+//	}
 
 	/**
 	 * Gets the default property file.

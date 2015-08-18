@@ -53,6 +53,9 @@ public class ConfiguredConnectionGroupDetails extends ConnectionGroup
 		
 		final List<ConnectionReference> connections = new ArrayList<>(groupDetails.getConnections());
 		groupDetails.getConnections().clear();
+		
+		final List<ConnectionGroupReference> subgroups = new ArrayList<>(groupDetails.getSubgroups());
+		groupDetails.getSubgroups().clear();
 				
 		if (groupDetails != null)
 		{
@@ -65,6 +68,36 @@ public class ConfiguredConnectionGroupDetails extends ConnectionGroup
 		
 		groupDetails.getConnections().addAll(connections);
 		getConnections().addAll(connections);
+		
+		groupDetails.getSubgroups().addAll(subgroups);
+		getSubgroups().addAll(subgroups);
+	}
+	
+	public String getFullName()
+	{
+		String fullName = getName();
+		
+		ConfiguredConnectionGroupDetails parentGroup = ConfiguredConnectionGroupDetails.getGroup(getGroup());
+		
+		// This both the parent group and its parent are not null (so ignore the top level group as well)
+		while (parentGroup != null && ConfiguredConnectionGroupDetails.getGroup(parentGroup.getGroup()) != null)
+		{
+			fullName = parentGroup.getName() + " / " + fullName;
+			
+			parentGroup = ConfiguredConnectionGroupDetails.getGroup(parentGroup.getGroup());
+		}
+		
+		return fullName;
+	}
+	
+	public static ConfiguredConnectionGroupDetails getGroup(final ConnectionGroupReference group)
+	{
+		if (group == null)
+		{
+			return null;
+		}
+		
+		return (ConfiguredConnectionGroupDetails) group.getReference();
 	}
 	
 	/**

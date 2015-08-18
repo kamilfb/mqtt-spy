@@ -101,7 +101,7 @@ public class ConnectionManager
 	
 	// TODO: not sure this is needed
 	/** Map of connections and their IDs. */
-	private Map<Integer, MqttAsyncConnection> connections = new HashMap<Integer, MqttAsyncConnection>();
+	private Map<String, MqttAsyncConnection> connections = new HashMap<>();
 	
 	/** Map of connections and their connection controllers. */
 	private final Map<MqttAsyncConnection, ConnectionController> connectionControllers = new HashMap<>();
@@ -140,7 +140,7 @@ public class ConnectionManager
 		final ConfiguredConnectionDetails connectionDetails = new ConfiguredConnectionDetails();
 		//configuredConnectionDetails.copyTo(connectionDetails);
 		connectionDetails.setConnectionDetails(configuredConnectionDetails);
-		connectionDetails.setId(configuredConnectionDetails.getId());			
+		connectionDetails.setID(configuredConnectionDetails.getID());			
 		
 		final boolean cancelled = completeUserAuthenticationCredentials(connectionDetails, mainController.getStage());		
 		
@@ -477,7 +477,7 @@ public class ConnectionManager
 		//connection.getStore().setFormattingManager(new FormattingManager(scriptManager));
 	
 		// Store the created connection
-		connections.put(connectionProperties.getConfiguredProperties().getId(), connection);
+		connections.put(connectionProperties.getConfiguredProperties().getID(), connection);
 
 		return connection;
 	}

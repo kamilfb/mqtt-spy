@@ -454,7 +454,7 @@ public class EditConnectionsController extends AnchorPane implements Initializab
 		baseConnection.setAutoConnect(true);
 		
 		final ConfiguredConnectionDetails connectionDetails = new ConfiguredConnectionDetails(
-				configurationManager.getConnectionIdGenerator().getNextAvailableId(), true, true, baseConnection);
+				true, true, baseConnection);
 		connectionDetails.setID(ConfigurationManager.generateConnectionId());
 		
 		addToParentGroup(connectionDetails, configurationManager.getRootGroup());
@@ -469,8 +469,7 @@ public class EditConnectionsController extends AnchorPane implements Initializab
 		final ConnectionGroupReference parent = getSelectedItem().getConnection().getGroup();
 		getSelectedItem().getConnection().setGroup(null);
 		
-		final ConfiguredConnectionDetails connectionDetails = new ConfiguredConnectionDetails(
-				configurationManager.getConnectionIdGenerator().getNextAvailableId(), 
+		final ConfiguredConnectionDetails connectionDetails = new ConfiguredConnectionDetails(				
 				true, true, getSelectedItem().getConnection());		
 		connectionDetails.setID(ConfigurationManager.generateConnectionId());
 		

@@ -29,7 +29,7 @@ public class RuntimeConnectionProperties extends MqttConnectionDetailsWithOption
 
 	public RuntimeConnectionProperties(final ConfiguredConnectionDetails configuredProperties) throws ConfigurationException
 	{	
-		super(configuredProperties.getId(), configuredProperties);
+		super(configuredProperties.getID(), configuredProperties);
 		this.configuredProperties = configuredProperties;		
 	}
 	
@@ -53,8 +53,8 @@ public class RuntimeConnectionProperties extends MqttConnectionDetailsWithOption
 		return this.configuredProperties;
 	}
 	
-	public int getId()
+	public String getId()
 	{
-		return this.configuredProperties.getId();
+		return this.configuredProperties.getID();
 	}
 }

@@ -62,7 +62,7 @@ public class MqttMessageLogger implements Runnable
 	 * @param connectionSettings The connection details
 	 */
 	public MqttMessageLogger(
-			final int connectionId, final Queue<BaseMqttMessageWithSubscriptions> queue, 
+			final String connectionId, final Queue<BaseMqttMessageWithSubscriptions> queue, 
 			final MessageLog messageLogSettings, 
 			final boolean useAsTemplate, final int sleepWhenNoMessages)
 	{

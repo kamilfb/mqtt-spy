@@ -39,7 +39,7 @@ import pl.baczkowicz.mqttspy.utils.ConversionUtils;
 public class MqttConnectionDetailsWithOptions extends MqttConnectionDetails
 {
 	/** Unique ID for this connection - populated when loading configuration. */
-	private final int id;
+	private final String id;
 	
 	/** Paho's MQTT connection options. */
 	private MqttConnectOptions options;
@@ -51,7 +51,7 @@ public class MqttConnectionDetailsWithOptions extends MqttConnectionDetails
 	 * 
 	 * @throws ConfigurationException Thrown when errors detected
 	 */
-	public MqttConnectionDetailsWithOptions(final int id, final MqttConnectionDetails details) throws ConfigurationException
+	public MqttConnectionDetailsWithOptions(final String id, final MqttConnectionDetails details) throws ConfigurationException
 	{
 		this.id = id;
 		this.setProtocol(details.getProtocol());
@@ -176,7 +176,7 @@ public class MqttConnectionDetailsWithOptions extends MqttConnectionDetails
 		return options;
 	}
 
-	public int getId()
+	public String getId()
 	{
 		return id;
 	}

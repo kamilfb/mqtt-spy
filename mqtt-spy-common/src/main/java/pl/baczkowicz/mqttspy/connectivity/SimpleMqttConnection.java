@@ -46,7 +46,7 @@ public class SimpleMqttConnection extends MqttConnectionWithReconnection
 	 *  
 	 * @throws ConfigurationException Thrown in case of an error
 	 */
-	public SimpleMqttConnection(final ReconnectionManager reconnectionManager, final int id, final MqttConnectionDetails connectionDetails) 
+	public SimpleMqttConnection(final ReconnectionManager reconnectionManager, final String id, final MqttConnectionDetails connectionDetails) 
 		throws ConfigurationException
 	{
 		super(reconnectionManager, new MqttConnectionDetailsWithOptions(id, connectionDetails));	

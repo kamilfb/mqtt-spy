@@ -405,6 +405,14 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 	{
 		final HBox icons = new HBox();
 		
+		createTlsIcon(icons, tlsEnabled, showBothStates);
+		createAuthIcon(icons, userAuthEnabled, showBothStates);
+		
+		return icons;
+	}
+	
+	public static void createTlsIcon(final HBox icons, final boolean tlsEnabled, final boolean showBothStates)
+	{
 		if (tlsEnabled)
 		{
 			final ImageView image = new ImageView(new Image(ConnectionController.class.getResource("/images/lock_yes.png").toString()));
@@ -418,8 +426,11 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 			image.setFitHeight(16);
 			image.setFitWidth(16);
 			icons.getChildren().add(image);
-		}
-		
+		}		
+	}
+	
+	public static void createAuthIcon(final HBox icons, final boolean userAuthEnabled, final boolean showBothStates)
+	{
 		if (userAuthEnabled)
 		{
 			final ImageView image = new ImageView(new Image(ConnectionController.class.getResource("/images/auth-yes.png").toString()));
@@ -434,8 +445,6 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 			image.setFitWidth(19);
 			icons.getChildren().add(image);
 		}
-		
-		return icons;
 	}
 	
 	public void onConnectionStatusChanged(final MqttAsyncConnection changedConnection)

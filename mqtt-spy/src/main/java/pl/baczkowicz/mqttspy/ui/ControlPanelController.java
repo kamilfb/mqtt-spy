@@ -20,12 +20,16 @@
 package pl.baczkowicz.mqttspy.ui;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
 
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -37,14 +41,13 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.VBox;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
 import pl.baczkowicz.mqttspy.configuration.ConfiguredConnectionDetails;
+import pl.baczkowicz.mqttspy.configuration.ConfiguredConnectionGroupDetails;
 import pl.baczkowicz.mqttspy.configuration.PropertyFileLoader;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.connectivity.MqttConnectionStatus;
@@ -52,8 +55,8 @@ import pl.baczkowicz.mqttspy.exceptions.ConfigurationException;
 import pl.baczkowicz.mqttspy.exceptions.XMLException;
 import pl.baczkowicz.mqttspy.ui.connections.ConnectionManager;
 import pl.baczkowicz.mqttspy.ui.controlpanel.ControlPanelStatsUpdater;
-import pl.baczkowicz.mqttspy.ui.controlpanel.ItemStatus;
 import pl.baczkowicz.mqttspy.ui.controlpanel.GettingInvolvedTooltip;
+import pl.baczkowicz.mqttspy.ui.controlpanel.ItemStatus;
 import pl.baczkowicz.mqttspy.ui.events.EventManager;
 import pl.baczkowicz.mqttspy.ui.events.observers.ConnectionStatusChangeObserver;
 import pl.baczkowicz.mqttspy.ui.utils.ActionUtils;
@@ -71,7 +74,7 @@ public class ControlPanelController extends AnchorPane implements Initializable,
 {
 	private final static Logger logger = LoggerFactory.getLogger(ControlPanelController.class);
 
-	private static final double MAX_CONNECTIONS_HEIGHT = 250;
+	private static final double MAX_CONNECTIONS_HEIGHT = 350;
 	
 	/**
 	 * The name of this field needs to be set to the name of the pane +
@@ -255,7 +258,8 @@ public class ControlPanelController extends AnchorPane implements Initializable,
 	}	
 	
 	private void showPending(final String statusText, final MqttConnectionStatus status, 
-			final MqttAsyncConnection connection, final ConfiguredConnectionDetails connectionDetails, final Button connectionButton)
+			final MqttAsyncConnection connection, final ConfiguredConnectionDetails connectionDetails, 
+			final Button connectionButton, final String connectionName)
 	{			
 		connectionButton.getStyleClass().add(StylingUtils.getStyleForMqttConnectionStatus(status));	
 		connectionButton.setOnAction(ActionUtils.createNextAction(status, connection, connectionManager));
@@ -265,7 +269,7 @@ public class ControlPanelController extends AnchorPane implements Initializable,
 		buttonProgress.setMaxSize(15, 15);
 					
 		buttonBox.getChildren().add(buttonProgress);
-		buttonBox.getChildren().add(new Label(" " + statusText + " " + connectionDetails.getName()));
+		buttonBox.getChildren().add(new Label(" " + statusText + " " + connectionName));
 
 		connectionButton.setGraphic(buttonBox);
 		connectionButton.setText(null);
@@ -276,7 +280,7 @@ public class ControlPanelController extends AnchorPane implements Initializable,
 		MqttAsyncConnection connection = null; 
 		for (final MqttAsyncConnection openedConnection : connectionManager.getConnections())
 		{					
-			if (connectionDetails.getId() == openedConnection.getId())
+			if (connectionDetails.getID().equals(openedConnection.getId()))
 			{
 				connection = openedConnection;
 			}
@@ -285,15 +289,18 @@ public class ControlPanelController extends AnchorPane implements Initializable,
 		final Button connectionButton = new Button();
 		connectionButton.setFocusTraversable(false);
 		
+		// final String connectionName = connectionDetails.getFullName();
+		final String connectionName = connectionDetails.getName();
+		
 		if (connection != null)
 		{
-			logger.trace("Button for " + connectionDetails.getName() + " " 
+			logger.trace("Button for " + connectionName + " " 
 				+ connection.getConnectionStatus() + "/" + connection.isOpening() + "/" + connection.isOpened());
 		}
 		
 		if (connection == null || (!connection.isOpened() && !connection.isOpening()))
 		{
-			final String buttonText = "Open " + connectionDetails.getName(); 
+			final String buttonText = "Open " + connectionName; 
 			connectionButton.getStyleClass().add(StylingUtils.getStyleForMqttConnectionStatus(null));	
 			connectionButton.setOnAction(new EventHandler<ActionEvent>()
 			{						
@@ -316,15 +323,15 @@ public class ControlPanelController extends AnchorPane implements Initializable,
 		}		
 		else if (connection.isOpening())
 		{
-			showPending("Opening", null, connection, connectionDetails, connectionButton);
+			showPending("Opening", null, connection, connectionDetails, connectionButton, connectionName);
 		}
 		else if (connection.getConnectionStatus() == MqttConnectionStatus.CONNECTING)
 		{
-			showPending("Connecting to", connection.getConnectionStatus(), connection, connectionDetails, connectionButton);
+			showPending("Connecting to", connection.getConnectionStatus(), connection, connectionDetails, connectionButton, connectionName);
 		}
 		else if (connection.getConnectionStatus() != null)
 		{
-			final String buttonText = nextActionTitle.get(connection.getConnectionStatus()) + " " + connectionDetails.getName(); 
+			final String buttonText = nextActionTitle.get(connection.getConnectionStatus()) + " " + connectionName; 
 			connectionButton.getStyleClass().add(StylingUtils.getStyleForMqttConnectionStatus(connection.getConnectionStatus()));	
 			connectionButton.setOnAction(ActionUtils.createNextAction(connection.getConnectionStatus(), connection, connectionManager));
 			
@@ -342,34 +349,87 @@ public class ControlPanelController extends AnchorPane implements Initializable,
 		// Clear any previously displayed connections
 		while (controller.getCustomItems().getChildren().size() > 2) { controller.getCustomItems().getChildren().remove(2); }
 		
-		final int connections = configurationManager.getConnections().size();
-		if (connections > 0)
+		final int connectionCount = configurationManager.getConnections().size();
+		if (connectionCount > 0)
 		{
-			controller.setTitle("You have " + connections + " " + "connection" + (connections > 1 ? "s" : "") + " configured.");
+			controller.setTitle("You have " + connectionCount + " " + "connection" + (connectionCount > 1 ? "s" : "") + " configured.");
 			controller.setDetails("Click here to edit your connections or on the relevant button to open, connect, reconnect or disconnect.");
 			controller.setStatus(ItemStatus.OK);
 			
-			FlowPane buttons = new FlowPane();
-			buttons.setVgap(4);
-			buttons.setHgap(4);
-			buttons.setMaxHeight(Double.MAX_VALUE);
-			VBox.setVgrow(buttons, Priority.ALWAYS);
-			
-			for (final ConfiguredConnectionDetails connection : configurationManager.getConnections())
+			List<ConfiguredConnectionGroupDetails> groups = configurationManager.getOrderedGroups();		
+			List<Label> labels = new ArrayList<>();
+			for (final ConfiguredConnectionGroupDetails group : groups)
 			{
-				buttons.getChildren().add(createConnectionButton(connection));
-			}
-			
-			controller.getCustomItems().getChildren().add(buttons);
-			
-			button.setOnAction(new EventHandler<ActionEvent>()
-			{			
-				@Override
-				public void handle(ActionEvent event)
+				final List<ConfiguredConnectionDetails> connections = configurationManager.getConnections(group);
+				if (connections.isEmpty())
 				{
-					mainController.editConnections();			
+					continue;
 				}
-			});
+				
+				FlowPane buttons = new FlowPane();
+				buttons.setVgap(4);
+				buttons.setHgap(4);
+				buttons.setMaxHeight(Double.MAX_VALUE);
+				//VBox.setVgrow(buttons, Priority.SOMETIMES);
+				
+				if (groups.size() > 1)
+				{
+					final Label groupLabel = new Label(group.getFullName() + " : ");
+					
+					// Do some basic alignment
+					groupLabel.widthProperty().addListener(new ChangeListener<Number>()
+					{
+						@Override
+						public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue)
+						{
+							double maxWidth = 0;
+							for (final Label label : labels)
+							{
+								if (maxWidth < label.getWidth())
+								{
+									maxWidth = label.getWidth();
+								}
+							}
+							for (final Label label : labels)
+							{
+								logger.debug("Setting min width for " + label.getText() + " to " + maxWidth);
+								label.setMinWidth(maxWidth);
+							}							
+						}
+					});
+					labels.add(groupLabel);
+					buttons.getChildren().add(groupLabel);
+				}
+				
+				for (final ConfiguredConnectionDetails connection : connections)
+				// for (final ConfiguredConnectionDetails connection : configurationManager.getConnections())
+				{
+					buttons.getChildren().add(createConnectionButton(connection));
+				}
+				
+				controller.getCustomItems().getChildren().add(buttons);
+				
+				button.setOnAction(new EventHandler<ActionEvent>()
+				{			
+					@Override
+					public void handle(ActionEvent event)
+					{
+						mainController.editConnections();			
+					}
+				});
+			}
+//			double maxWidth = 0;
+//			for (final Label label : labels)
+//			{
+//				if (maxWidth < label.getWidth())
+//				{
+//					maxWidth = label.getWidth();
+//				}
+//			}
+//			for (final Label label : labels)
+//			{
+//				label.setMinWidth(maxWidth);
+//			}
 		}
 		else
 		{

@@ -80,7 +80,7 @@ public class Main
 
 			// Wire up all classes (assuming ID = 0)
 			final ReconnectionManager reconnectionManager = new ReconnectionManager();
-			final SimpleMqttConnection connection = new SimpleMqttConnection(reconnectionManager, 0, connectionSettings);
+			final SimpleMqttConnection connection = new SimpleMqttConnection(reconnectionManager, "0", connectionSettings);
 			final ScriptManager scriptManager = new ScriptManager(null, null, connection);
 			final MqttCallbackHandler callback = new MqttCallbackHandler(connection, connectionSettings, scriptManager); 
 					

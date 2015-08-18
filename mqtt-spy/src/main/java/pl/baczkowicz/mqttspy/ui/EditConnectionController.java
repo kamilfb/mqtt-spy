@@ -316,7 +316,7 @@ public class EditConnectionController extends AnchorPane implements Initializabl
 				}
 			}
 			
-			checkIfOpened(connectionDetails.getId());
+			checkIfOpened(connectionDetails.getID());
 			if (!openNewMode)
 			{
 				connectionManager.disconnectAndCloseTab(existingConnection);
@@ -438,12 +438,12 @@ public class EditConnectionController extends AnchorPane implements Initializabl
 		return changed;
 	}
 	
-	public void checkIfOpened(final int id)
+	public void checkIfOpened(final String id)
 	{
 		openNewMode = true;
 		for (final MqttAsyncConnection mqttConnection : connectionManager.getConnections())
 		{
-			if (id == mqttConnection.getProperties().getConfiguredProperties().getId() && mqttConnection.isOpened())
+			if (id.equals(mqttConnection.getProperties().getConfiguredProperties().getID()) && mqttConnection.isOpened())
 			{
 				openNewMode = false;
 				existingConnection = mqttConnection;
@@ -464,8 +464,8 @@ public class EditConnectionController extends AnchorPane implements Initializabl
 			existingConnection = null;
 			connectButton.setText("Open connection");
 			
-			logger.debug("Editing connection id={} name={}", editedConnectionDetails.getId(), editedConnectionDetails.getName());
-			checkIfOpened(connectionDetails.getId());
+			logger.debug("Editing connection id={} name={}", editedConnectionDetails.getID(), editedConnectionDetails.getName());
+			checkIfOpened(connectionDetails.getID());
 			
 			if (editedConnectionDetails.getName().equals(
 					ConnectionUtils.composeConnectionName(editedConnectionDetails.getClientID(), editedConnectionDetails.getServerURI())))

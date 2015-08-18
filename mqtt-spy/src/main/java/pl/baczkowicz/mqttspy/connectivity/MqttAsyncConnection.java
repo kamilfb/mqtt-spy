@@ -376,7 +376,7 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection
 		this.preferredStoreSize = preferredStoreSize;
 	}
 	
-	public int getId()
+	public String getId()
 	{
 		return properties.getId();
 	}

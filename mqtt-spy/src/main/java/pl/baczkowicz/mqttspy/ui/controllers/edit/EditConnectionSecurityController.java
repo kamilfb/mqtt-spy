@@ -42,6 +42,7 @@ import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.RadioButton;
+import javafx.scene.control.Tab;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableColumn.CellEditEvent;
 import javafx.scene.control.TableView;
@@ -49,6 +50,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.HBox;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
 
@@ -61,6 +63,7 @@ import pl.baczkowicz.mqttspy.common.generated.UserCredentials;
 import pl.baczkowicz.mqttspy.configuration.ConfiguredConnectionDetails;
 import pl.baczkowicz.mqttspy.configuration.generated.UserAuthenticationOptions;
 import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnectionDetails;
+import pl.baczkowicz.mqttspy.ui.ConnectionController;
 import pl.baczkowicz.mqttspy.ui.EditConnectionController;
 import pl.baczkowicz.mqttspy.ui.properties.KeyValueProperty;
 import pl.baczkowicz.mqttspy.utils.MqttUtils;
@@ -141,6 +144,12 @@ public class EditConnectionSecurityController extends AnchorPane implements Init
 	
 	@FXML
 	private Button removePropertyButton;
+	
+	@FXML
+	private Tab tlsTab;
+	
+	@FXML
+	private Tab authTab;
 	
 	// Other fields
 
@@ -332,6 +341,8 @@ public class EditConnectionSecurityController extends AnchorPane implements Init
 		clientKeyPasswordLabel.setVisible(serverAndClient);
 		clientKeyFileLabel.setVisible(serverAndClient);
 		clientAuthorityFileLabel.setVisible(serverAndClient);
+		
+		updateTlsIcon(!SslModeEnum.DISABLED.equals(modeCombo.getSelectionModel().getSelectedItem()));
 	}
 
 	@Override
@@ -418,6 +429,8 @@ public class EditConnectionSecurityController extends AnchorPane implements Init
 			askForUsername.setDisable(true);
 			askForPassword.setDisable(true);
 		}
+		
+		updateAuthIcon(userAuthentication.isSelected());
 	}
 	
 	@Override
@@ -487,9 +500,30 @@ public class EditConnectionSecurityController extends AnchorPane implements Init
 			}
 		}
 				
+		showIcons(connection);
 		updateUserAuthentication();
-		updateSSL();
-	}		
+		updateSSL();			
+	}	
+	
+	private void updateAuthIcon(boolean authEnabled)
+	{
+		final HBox authIcon = new HBox();
+		ConnectionController.createAuthIcon(authIcon, authEnabled, true);
+		authTab.setGraphic(authIcon);
+	}
+	
+	private void updateTlsIcon(boolean tlsEnabled)
+	{
+		final HBox tlsIcon = new HBox();
+		ConnectionController.createTlsIcon(tlsIcon, tlsEnabled, true);
+		tlsTab.setGraphic(tlsIcon);		
+	}
+	
+	private void showIcons(final ConfiguredConnectionDetails connection)
+	{
+		updateTlsIcon(connection.getSSL() != null);
+		updateAuthIcon(connection.getUserCredentials() != null);
+	}
 	
 	@FXML
 	private void addProperty()

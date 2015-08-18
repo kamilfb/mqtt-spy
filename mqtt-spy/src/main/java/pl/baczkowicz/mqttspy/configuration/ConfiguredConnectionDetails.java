@@ -28,7 +28,7 @@ import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnection
 
 public class ConfiguredConnectionDetails extends UserInterfaceMqttConnectionDetails
 {
-	private int id;
+	//private int id;
 	
 	private boolean modified;
 
@@ -49,10 +49,10 @@ public class ConfiguredConnectionDetails extends UserInterfaceMqttConnectionDeta
 		// Default constructor
 	}
 	
-	public ConfiguredConnectionDetails(final int id, final boolean created, final boolean newConnection,
+	public ConfiguredConnectionDetails(/*final int id, */final boolean created, final boolean newConnection,
 			final UserInterfaceMqttConnectionDetails connectionDetails)
 	{
-		this.id = id;
+		//this.id = id;
 		this.modified = newConnection;
 		this.begingCreated = created;
 		this.newConnection = newConnection;
@@ -143,7 +143,7 @@ public class ConfiguredConnectionDetails extends UserInterfaceMqttConnectionDeta
 		//final ConfiguredConnectionGroupDetails group = (ConfiguredConnectionGroupDetails) getGroup().getReference();
 		//setGroup(null);
 		
-		final ConfiguredConnectionDetails valuesToSave = new ConfiguredConnectionDetails(id, false, false, this);
+		final ConfiguredConnectionDetails valuesToSave = new ConfiguredConnectionDetails(/*id, */false, false, this);
 		//valuesToSave.setGroup(new ConnectionGroupReference(group));
 		//setGroup(new ConnectionGroupReference(group));
 		
@@ -164,15 +164,15 @@ public class ConfiguredConnectionDetails extends UserInterfaceMqttConnectionDeta
 		this.deleted = deleted;
 	}
 
-	public int getId()
-	{
-		return id;
-	}
-
-	public void setId(int id)
-	{
-		this.id = id;
-	}
+//	public int getId()
+//	{
+//		return id;
+//	}
+//
+//	public void setId(int id)
+//	{
+//		this.id = id;
+//	}
 	
 	public boolean isNew()
 	{
