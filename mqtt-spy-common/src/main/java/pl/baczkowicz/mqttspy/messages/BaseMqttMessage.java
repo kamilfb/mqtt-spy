@@ -23,7 +23,7 @@ import java.util.Date;
 
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
-import pl.baczkowicz.mqttspy.utils.ConversionUtils;
+import pl.baczkowicz.spy.utils.ConversionUtils;
 
 /**
  * Represents a message received on a topic (wraps the Paho's MqttMessage).

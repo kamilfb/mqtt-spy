@@ -45,13 +45,13 @@ import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.configuration.generated.TabbedSubscriptionDetails;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
-import pl.baczkowicz.mqttspy.exceptions.MqttSpyException;
 import pl.baczkowicz.mqttspy.ui.connections.ConnectionManager;
 import pl.baczkowicz.mqttspy.ui.keyboard.TimeBasedKeyEventFilter;
 import pl.baczkowicz.mqttspy.ui.panes.PaneVisibilityStatus;
 import pl.baczkowicz.mqttspy.ui.panes.TitledPaneController;
 import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
 import pl.baczkowicz.mqttspy.utils.MqttUtils;
+import pl.baczkowicz.spy.exceptions.SpyException;
 
 /**
  * Controller for creating new subscriptions.
@@ -214,7 +214,7 @@ public class NewSubscriptionController implements Initializable, TitledPaneContr
 							
 				subscribe(subscriptionDetails, true);
 			}
-			catch (MqttSpyException e)
+			catch (SpyException e)
 			{
 				DialogUtils.showError("Invalid topic", "Provided topic is not valid. " + e.getMessage());
 			}

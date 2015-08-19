@@ -21,7 +21,7 @@ package pl.baczkowicz.mqttspy.stats;
 
 import pl.baczkowicz.mqttspy.ui.ConnectionController;
 import pl.baczkowicz.mqttspy.ui.connections.ConnectionManager;
-import pl.baczkowicz.mqttspy.utils.ThreadingUtils;
+import pl.baczkowicz.spy.utils.ThreadingUtils;
 import javafx.application.Platform;
 
 /**

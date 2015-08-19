@@ -45,14 +45,14 @@ import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnection
 import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnectionDetailsV010;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
-import pl.baczkowicz.mqttspy.exceptions.XMLException;
 import pl.baczkowicz.mqttspy.ui.MqttSpyPerspective;
 import pl.baczkowicz.mqttspy.ui.events.EventManager;
 import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
 import pl.baczkowicz.mqttspy.utils.IdGenerator;
-import pl.baczkowicz.mqttspy.utils.ThreadingUtils;
-import pl.baczkowicz.mqttspy.utils.TimeUtils;
-import pl.baczkowicz.mqttspy.xml.XMLParser;
+import pl.baczkowicz.spy.exceptions.XMLException;
+import pl.baczkowicz.spy.utils.ThreadingUtils;
+import pl.baczkowicz.spy.utils.TimeUtils;
+import pl.baczkowicz.spy.xml.XMLParser;
 
 /**
  * Manages loading and saving configuration files.

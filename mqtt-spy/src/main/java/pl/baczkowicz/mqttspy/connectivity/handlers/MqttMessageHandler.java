@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
-import pl.baczkowicz.mqttspy.utils.ThreadingUtils;
+import pl.baczkowicz.spy.utils.ThreadingUtils;
 
 /**
  * This class is responsible for handling received messages. One thread per connection expected here.

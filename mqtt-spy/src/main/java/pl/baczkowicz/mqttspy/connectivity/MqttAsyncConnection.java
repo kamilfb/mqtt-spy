@@ -43,7 +43,7 @@ import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
 import pl.baczkowicz.mqttspy.ui.events.EventManager;
 import pl.baczkowicz.mqttspy.ui.events.queuable.EventQueueManager;
-import pl.baczkowicz.mqttspy.utils.ConversionUtils;
+import pl.baczkowicz.spy.utils.ConversionUtils;
 
 /**
  * Asynchronous MQTT connection with the extra UI elements required.

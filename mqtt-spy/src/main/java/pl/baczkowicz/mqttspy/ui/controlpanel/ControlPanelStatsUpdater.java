@@ -36,8 +36,8 @@ import javafx.scene.control.Label;
 import pl.baczkowicz.mqttspy.stats.StatisticsManager;
 import pl.baczkowicz.mqttspy.ui.ControlPanelItemController;
 import pl.baczkowicz.mqttspy.utils.FormattingUtils;
-import pl.baczkowicz.mqttspy.utils.ThreadingUtils;
-import pl.baczkowicz.mqttspy.utils.TimeUtils;
+import pl.baczkowicz.spy.utils.ThreadingUtils;
+import pl.baczkowicz.spy.utils.TimeUtils;
 
 /**
  * Class responsible for updating control panel statistics.

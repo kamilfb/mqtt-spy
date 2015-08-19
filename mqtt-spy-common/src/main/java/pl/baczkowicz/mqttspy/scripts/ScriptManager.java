@@ -39,10 +39,10 @@ import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.common.generated.ScriptDetails;
 import pl.baczkowicz.mqttspy.connectivity.IMqttConnection;
-import pl.baczkowicz.mqttspy.exceptions.CriticalException;
 import pl.baczkowicz.mqttspy.messages.IBaseMessage;
 import pl.baczkowicz.mqttspy.scripts.io.ScriptIO;
-import pl.baczkowicz.mqttspy.utils.FileUtils;
+import pl.baczkowicz.spy.exceptions.CriticalException;
+import pl.baczkowicz.spy.utils.FileUtils;
 
 /**
  * This class manages script creation and execution.

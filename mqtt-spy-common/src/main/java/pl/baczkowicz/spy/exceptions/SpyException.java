@@ -17,22 +17,22 @@
  *    Kamil Baczkowicz - initial API and implementation and/or initial documentation
  *    
  */
-package pl.baczkowicz.mqttspy.exceptions;
+package pl.baczkowicz.spy.exceptions;
 
 /**
- * Represents an exception during configuration loading.
+ * Represents a base exception.
  */
-public class XMLException extends MqttSpyException
+public class SpyException extends Exception
 {
-	/** serialVersionUID. */
-	private static final long serialVersionUID = 7600725489860423132L;
+	/** Generated serialVersionUID */
+	private static final long serialVersionUID = -1041373917140441043L;
 
-	public XMLException(String error)
+	public SpyException(String error)
 	{
 		super(error);
 	}
 	
-	public XMLException(String error, Throwable e)
+	public SpyException(String error, Throwable e)
 	{
 		super(error, e);
 	}

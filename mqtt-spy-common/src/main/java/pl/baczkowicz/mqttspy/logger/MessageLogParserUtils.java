@@ -33,11 +33,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.common.generated.LoggedMqttMessage;
-import pl.baczkowicz.mqttspy.exceptions.MqttSpyException;
-import pl.baczkowicz.mqttspy.exceptions.XMLException;
 import pl.baczkowicz.mqttspy.messages.BaseMqttMessage;
 import pl.baczkowicz.mqttspy.tasks.ProgressUpdater;
-import pl.baczkowicz.mqttspy.utils.ConversionUtils;
+import pl.baczkowicz.spy.exceptions.SpyException;
+import pl.baczkowicz.spy.exceptions.XMLException;
+import pl.baczkowicz.spy.utils.ConversionUtils;
 
 /**
  * Message log utilities.
@@ -54,9 +54,9 @@ public class MessageLogParserUtils
 	 * 
 	 * @return List of MQTT messages (ReceivedMqttMessage objects)
 	 * 
-	 * @throws MqttSpyException Thrown when cannot process the given file
+	 * @throws SpyException Thrown when cannot process the given file
 	 */
-	public static List<BaseMqttMessage> readAndConvertMessageLog(final File selectedFile) throws MqttSpyException
+	public static List<BaseMqttMessage> readAndConvertMessageLog(final File selectedFile) throws SpyException
 	{
 		return processMessageLog(parseMessageLog(readMessageLog(selectedFile), null, 0, 0), null, 0, 0);
 	}
@@ -68,9 +68,9 @@ public class MessageLogParserUtils
 	 * 
 	 * @return List of lines
 	 * 
-	 * @throws MqttSpyException Thrown when cannot process the given file
+	 * @throws SpyException Thrown when cannot process the given file
 	 */
-	public static List<String> readMessageLog(final File selectedFile) throws MqttSpyException
+	public static List<String> readMessageLog(final File selectedFile) throws SpyException
 	{
 		try
 		{
@@ -90,7 +90,7 @@ public class MessageLogParserUtils
 		}
 		catch (IOException e)
 		{
-			throw new MqttSpyException("Can't open the message log file at " + selectedFile.getAbsolutePath(), e);
+			throw new SpyException("Can't open the message log file at " + selectedFile.getAbsolutePath(), e);
 		}
 	}
 	
@@ -104,10 +104,10 @@ public class MessageLogParserUtils
 	 * 
 	 * @return List of MQTT message objects (LoggedMqttMessage)
 	 * 
-	 * @throws MqttSpyException Thrown when cannot process the given list
+	 * @throws SpyException Thrown when cannot process the given list
 	 */
 	public static List<LoggedMqttMessage> parseMessageLog(final List<String> messages, 
-			final ProgressUpdater progress, final long current, final long max) throws MqttSpyException
+			final ProgressUpdater progress, final long current, final long max) throws SpyException
 	{
 		try
 		{
@@ -144,7 +144,7 @@ public class MessageLogParserUtils
 		}
 		catch (XMLException e)
 		{
-			throw new MqttSpyException("Can't parse the message log file", e);
+			throw new SpyException("Can't parse the message log file", e);
 		}
 	}
 	

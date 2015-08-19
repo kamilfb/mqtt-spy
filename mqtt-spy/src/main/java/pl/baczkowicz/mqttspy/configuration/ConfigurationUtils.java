@@ -68,6 +68,11 @@ public class ConfigurationUtils
 		{
 			connection.setAutoConnect(true);
 		}
+		
+		if (connection.isAutoSubscribe() == null)
+		{
+			connection.setAutoSubscribe(false);
+		}
 	}
 		
 	public static void streamToFile (final InputStream input, final File output) throws IOException 

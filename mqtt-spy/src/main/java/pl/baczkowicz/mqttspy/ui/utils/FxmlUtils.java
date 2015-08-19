@@ -23,7 +23,7 @@ import java.io.IOException;
 
 import javafx.fxml.FXMLLoader;
 import javafx.scene.layout.AnchorPane;
-import pl.baczkowicz.mqttspy.exceptions.CriticalException;
+import pl.baczkowicz.spy.exceptions.CriticalException;
 
 /**
  * FXML-related utilities.

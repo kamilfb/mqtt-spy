@@ -43,8 +43,8 @@ import pl.baczkowicz.mqttspy.ui.TestCaseExecutionController;
 import pl.baczkowicz.mqttspy.ui.TestCasesExecutionController;
 import pl.baczkowicz.mqttspy.ui.properties.TestCaseProperties;
 import pl.baczkowicz.mqttspy.ui.properties.TestCaseStepProperties;
-import pl.baczkowicz.mqttspy.utils.FileUtils;
-import pl.baczkowicz.mqttspy.utils.TimeUtils;
+import pl.baczkowicz.spy.utils.FileUtils;
+import pl.baczkowicz.spy.utils.TimeUtils;
 
 public class TestCaseManager
 {	

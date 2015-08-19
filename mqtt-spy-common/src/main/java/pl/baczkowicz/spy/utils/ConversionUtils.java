@@ -17,7 +17,7 @@
  *    Kamil Baczkowicz - initial API and implementation and/or initial documentation
  *    
  */
-package pl.baczkowicz.mqttspy.utils;
+package pl.baczkowicz.spy.utils;
 
 import java.io.UnsupportedEncodingException;
 
@@ -25,8 +25,8 @@ import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
 
-import pl.baczkowicz.mqttspy.exceptions.ConversionException;
-import pl.baczkowicz.mqttspy.exceptions.CriticalException;
+import pl.baczkowicz.spy.exceptions.ConversionException;
+import pl.baczkowicz.spy.exceptions.CriticalException;
 
 /** 
  * String conversion utilities.

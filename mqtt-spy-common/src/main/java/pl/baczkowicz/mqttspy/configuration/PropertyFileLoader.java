@@ -28,7 +28,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Properties;
 
-import pl.baczkowicz.mqttspy.exceptions.ConfigurationException;
+import pl.baczkowicz.spy.exceptions.ConfigurationException;
 
 /**
  * Utility class for loading a property file and reading property values. 

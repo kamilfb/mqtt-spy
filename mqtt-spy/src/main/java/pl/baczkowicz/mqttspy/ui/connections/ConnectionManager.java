@@ -54,8 +54,6 @@ import pl.baczkowicz.mqttspy.connectivity.handlers.MqttCallbackHandler;
 import pl.baczkowicz.mqttspy.connectivity.handlers.MqttDisconnectionResultHandler;
 import pl.baczkowicz.mqttspy.connectivity.handlers.MqttEventHandler;
 import pl.baczkowicz.mqttspy.connectivity.reconnection.ReconnectionManager;
-import pl.baczkowicz.mqttspy.exceptions.ConfigurationException;
-import pl.baczkowicz.mqttspy.exceptions.MqttSpyException;
 import pl.baczkowicz.mqttspy.logger.MqttMessageLogger;
 import pl.baczkowicz.mqttspy.messages.BaseMqttMessage;
 import pl.baczkowicz.mqttspy.messages.BaseMqttMessageWithSubscriptions;
@@ -81,6 +79,8 @@ import pl.baczkowicz.mqttspy.ui.utils.ContextMenuUtils;
 import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
 import pl.baczkowicz.mqttspy.ui.utils.FxmlUtils;
 import pl.baczkowicz.mqttspy.ui.utils.TabUtils;
+import pl.baczkowicz.spy.exceptions.ConfigurationException;
+import pl.baczkowicz.spy.exceptions.SpyException;
 
 /**
  * Class for managing connection tabs.
@@ -348,6 +348,8 @@ public class ConnectionManager
 		        {		        	
 		        	store.messageReceived(new FormattedMqttMessage(mqttMessage, null));
 		        }
+		        
+		        replayTab.getTabPane().getSelectionModel().select(replayTab);
 			}
 		});		
 	}
@@ -496,7 +498,7 @@ public class ConnectionManager
 			connection.connect(new MqttCallbackHandler(connection), new MqttAsyncConnectionRunnable(connection));			
 			return true;
 		}
-		catch (MqttSpyException e)
+		catch (SpyException e)
 		{
 			// TODO: simplify this
 			Platform.runLater(new MqttEventHandler(new MqttConnectionAttemptFailureEvent(connection, e)));
@@ -517,7 +519,7 @@ public class ConnectionManager
 		{
 			connection.disconnect(new MqttDisconnectionResultHandler());
 		}
-		catch (MqttSpyException e)
+		catch (SpyException e)
 		{
 			// TODO: simplify this
 			Platform.runLater(new MqttEventHandler(new MqttDisconnectionAttemptFailureEvent(connection, e)));

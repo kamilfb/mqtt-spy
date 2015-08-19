@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
 import pl.baczkowicz.mqttspy.common.generated.MessageLog;
 import pl.baczkowicz.mqttspy.common.generated.MessageLogEnum;
 import pl.baczkowicz.mqttspy.messages.BaseMqttMessageWithSubscriptions;
-import pl.baczkowicz.mqttspy.utils.ConversionUtils;
+import pl.baczkowicz.spy.utils.ConversionUtils;
 
 /**
  * Simple message log composer (string buffer based, no JAXB).

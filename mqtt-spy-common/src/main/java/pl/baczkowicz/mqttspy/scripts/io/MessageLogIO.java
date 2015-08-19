@@ -27,8 +27,8 @@ import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.logger.MessageLogParserUtils;
 import pl.baczkowicz.mqttspy.messages.BaseMqttMessage;
-import pl.baczkowicz.mqttspy.utils.ThreadingUtils;
-import pl.baczkowicz.mqttspy.utils.TimeUtils;
+import pl.baczkowicz.spy.utils.ThreadingUtils;
+import pl.baczkowicz.spy.utils.TimeUtils;
 
 /**
  * Implementation of the interface between a script and the messageLog object.

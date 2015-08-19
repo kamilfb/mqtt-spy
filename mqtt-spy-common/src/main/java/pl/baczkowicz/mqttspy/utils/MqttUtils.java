@@ -26,8 +26,8 @@ import java.util.List;
 import org.eclipse.paho.client.mqttv3.MqttTopic;
 
 import pl.baczkowicz.mqttspy.common.generated.ProtocolEnum;
-import pl.baczkowicz.mqttspy.exceptions.MqttSpyException;
-import pl.baczkowicz.mqttspy.utils.ConversionUtils;
+import pl.baczkowicz.spy.exceptions.SpyException;
+import pl.baczkowicz.spy.utils.ConversionUtils;
 
 /**
  * MQTT utilities.
@@ -177,7 +177,7 @@ public class MqttUtils
 		return false;		
 	}
 	
-	public static void validateTopic(final String topic) throws MqttSpyException
+	public static void validateTopic(final String topic) throws SpyException
 	{
 		try
 		{
@@ -185,7 +185,7 @@ public class MqttUtils
 		}
 		catch (Exception e)
 		{
-			throw new MqttSpyException(e.getMessage(), e);
+			throw new SpyException(e.getMessage(), e);
 		}
 	}
 }

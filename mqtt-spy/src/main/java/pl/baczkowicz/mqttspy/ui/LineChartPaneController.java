@@ -81,7 +81,7 @@ import pl.baczkowicz.mqttspy.ui.events.queuable.ui.BrowseReceivedMessageEvent;
 import pl.baczkowicz.mqttspy.ui.properties.MessageLimitProperties;
 import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
 import pl.baczkowicz.mqttspy.ui.utils.StylingUtils;
-import pl.baczkowicz.mqttspy.utils.TimeUtils;
+import pl.baczkowicz.spy.utils.TimeUtils;
 
 /**
  * Controller for line chart pane.

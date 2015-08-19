@@ -26,7 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
-import pl.baczkowicz.mqttspy.utils.TimeUtils;
+import pl.baczkowicz.spy.utils.TimeUtils;
 
 /**
  * Base property class for representing a message.

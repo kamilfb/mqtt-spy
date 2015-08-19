@@ -28,7 +28,7 @@ import javax.script.ScriptException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import pl.baczkowicz.mqttspy.utils.ThreadingUtils;
+import pl.baczkowicz.spy.utils.ThreadingUtils;
 
 /**
  * This runnable implementation is responsible for running a script in its own thread.

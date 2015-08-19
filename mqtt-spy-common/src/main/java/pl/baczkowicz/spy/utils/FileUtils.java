@@ -17,7 +17,7 @@
  *    Kamil Baczkowicz - initial API and implementation and/or initial documentation
  *    
  */
-package pl.baczkowicz.mqttspy.utils;
+package pl.baczkowicz.spy.utils;
 
 import java.io.File;
 import java.io.FileNotFoundException;

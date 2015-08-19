@@ -50,7 +50,6 @@ import pl.baczkowicz.mqttspy.configuration.ConfiguredConnectionDetails;
 import pl.baczkowicz.mqttspy.configuration.generated.ConnectionGroupReference;
 import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnectionDetails;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
-import pl.baczkowicz.mqttspy.exceptions.ConfigurationException;
 import pl.baczkowicz.mqttspy.ui.connections.ConnectionManager;
 import pl.baczkowicz.mqttspy.ui.controllers.edit.EditConnectionConnectivityController;
 import pl.baczkowicz.mqttspy.ui.controllers.edit.EditConnectionLastWillController;
@@ -62,6 +61,7 @@ import pl.baczkowicz.mqttspy.ui.controllers.edit.EditConnectionSubscriptionsCont
 import pl.baczkowicz.mqttspy.ui.utils.ConnectivityUtils;
 import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
 import pl.baczkowicz.mqttspy.utils.ConnectionUtils;
+import pl.baczkowicz.spy.exceptions.ConfigurationException;
 
 /**
  * Controller for editing a single connection.

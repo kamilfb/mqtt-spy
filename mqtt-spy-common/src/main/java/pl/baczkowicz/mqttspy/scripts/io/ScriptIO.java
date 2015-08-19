@@ -40,7 +40,7 @@ import pl.baczkowicz.mqttspy.scripts.Script;
 import pl.baczkowicz.mqttspy.scripts.ScriptRunner;
 import pl.baczkowicz.mqttspy.scripts.ScriptRunningState;
 import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
-import pl.baczkowicz.mqttspy.utils.TimeUtils;
+import pl.baczkowicz.spy.utils.TimeUtils;
 
 /**
  * Implementation of the interface between a script and the mqttspy object.

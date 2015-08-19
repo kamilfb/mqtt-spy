@@ -28,10 +28,10 @@ import pl.baczkowicz.mqttspy.common.generated.MqttConnectionDetails;
 import pl.baczkowicz.mqttspy.common.generated.ProtocolEnum;
 import pl.baczkowicz.mqttspy.common.generated.SslModeEnum;
 import pl.baczkowicz.mqttspy.common.generated.SslProperty;
-import pl.baczkowicz.mqttspy.exceptions.ConfigurationException;
-import pl.baczkowicz.mqttspy.exceptions.MqttSpyException;
 import pl.baczkowicz.mqttspy.utils.ConfigurationUtils;
-import pl.baczkowicz.mqttspy.utils.ConversionUtils;
+import pl.baczkowicz.spy.exceptions.ConfigurationException;
+import pl.baczkowicz.spy.exceptions.SpyException;
+import pl.baczkowicz.spy.utils.ConversionUtils;
 
 /**
  * Extends JAXB-generated class for storing MQTT connection details, by adding the Paho's MqttConnectOptions.
@@ -79,7 +79,7 @@ public class MqttConnectionDetailsWithOptions extends MqttConnectionDetails
 		{
 			populateMqttConnectOptions();
 		}
-		catch (IllegalArgumentException | MqttSpyException e)
+		catch (IllegalArgumentException | SpyException e)
 		{
 			throw new ConfigurationException("Invalid parameters", e);
 		}
@@ -87,9 +87,9 @@ public class MqttConnectionDetailsWithOptions extends MqttConnectionDetails
 	
 	/**
 	 * Populates the Paho's MqttConnectOptions based on the supplied MqttConnectionDetails.
-	 * @throws MqttSpyException Thrown when SSL configuration is not valid
+	 * @throws SpyException Thrown when SSL configuration is not valid
 	 */
-	private void populateMqttConnectOptions() throws MqttSpyException
+	private void populateMqttConnectOptions() throws SpyException
 	{
 		// Populate MQTT options
 		options = new MqttConnectOptions();

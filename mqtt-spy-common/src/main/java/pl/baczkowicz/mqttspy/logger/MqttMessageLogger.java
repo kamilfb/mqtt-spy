@@ -26,8 +26,8 @@ import org.apache.log4j.RollingFileAppender;
 
 import pl.baczkowicz.mqttspy.common.generated.MessageLog;
 import pl.baczkowicz.mqttspy.messages.BaseMqttMessageWithSubscriptions;
-import pl.baczkowicz.mqttspy.utils.ThreadingUtils;
 import pl.baczkowicz.mqttspy.utils.Utils;
+import pl.baczkowicz.spy.utils.ThreadingUtils;
 
 /**
  * This class is responsible for handling logging messages.

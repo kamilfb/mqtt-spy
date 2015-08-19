@@ -51,8 +51,6 @@ import pl.baczkowicz.mqttspy.configuration.ConfiguredConnectionGroupDetails;
 import pl.baczkowicz.mqttspy.configuration.PropertyFileLoader;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.connectivity.MqttConnectionStatus;
-import pl.baczkowicz.mqttspy.exceptions.ConfigurationException;
-import pl.baczkowicz.mqttspy.exceptions.XMLException;
 import pl.baczkowicz.mqttspy.ui.connections.ConnectionManager;
 import pl.baczkowicz.mqttspy.ui.controlpanel.ControlPanelStatsUpdater;
 import pl.baczkowicz.mqttspy.ui.controlpanel.GettingInvolvedTooltip;
@@ -62,10 +60,12 @@ import pl.baczkowicz.mqttspy.ui.events.observers.ConnectionStatusChangeObserver;
 import pl.baczkowicz.mqttspy.ui.utils.ActionUtils;
 import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
 import pl.baczkowicz.mqttspy.ui.utils.StylingUtils;
-import pl.baczkowicz.mqttspy.utils.ThreadingUtils;
 import pl.baczkowicz.mqttspy.versions.VersionManager;
 import pl.baczkowicz.mqttspy.versions.generated.MqttSpyVersions;
 import pl.baczkowicz.mqttspy.versions.generated.ReleaseStatus;
+import pl.baczkowicz.spy.exceptions.ConfigurationException;
+import pl.baczkowicz.spy.exceptions.XMLException;
+import pl.baczkowicz.spy.utils.ThreadingUtils;
 
 /**
  * The controller looking after the control panel.

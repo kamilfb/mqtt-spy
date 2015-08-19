@@ -17,22 +17,22 @@
  *    Kamil Baczkowicz - initial API and implementation and/or initial documentation
  *    
  */
-package pl.baczkowicz.mqttspy.exceptions;
+package pl.baczkowicz.spy.exceptions;
 
 /**
- * Represents an exception during text conversion.
+ * Represents an exception during loading - very bad :)
  */
-public class ConversionException extends Exception
+public class CriticalException extends RuntimeException
 {
 	/** serialVersionUID. */
 	private static final long serialVersionUID = 5880158442069517297L;
 
-	public ConversionException(String error)
+	public CriticalException(String error)
 	{
 		super(error);
 	}
 	
-	public ConversionException(String error, Throwable e)
+	public CriticalException(String error, Throwable e)
 	{
 		super(error, e);
 	}

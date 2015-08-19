@@ -67,7 +67,7 @@ import pl.baczkowicz.mqttspy.ui.charts.ChartMode;
 import pl.baczkowicz.mqttspy.ui.events.EventManager;
 import pl.baczkowicz.mqttspy.ui.properties.SubscriptionTopicSummaryProperties;
 import pl.baczkowicz.mqttspy.utils.MqttUtils;
-import pl.baczkowicz.mqttspy.utils.ThreadingUtils;
+import pl.baczkowicz.spy.utils.ThreadingUtils;
 
 /**
  * Utilities for creating all sorts of dialogs.

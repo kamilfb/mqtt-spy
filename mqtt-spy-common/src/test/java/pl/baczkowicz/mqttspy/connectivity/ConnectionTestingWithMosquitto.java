@@ -37,8 +37,8 @@ import pl.baczkowicz.mqttspy.common.generated.SslModeEnum;
 import pl.baczkowicz.mqttspy.common.generated.SslSettings;
 import pl.baczkowicz.mqttspy.common.generated.UserCredentials;
 import pl.baczkowicz.mqttspy.connectivity.reconnection.ReconnectionManager;
-import pl.baczkowicz.mqttspy.exceptions.MqttSpyException;
-import pl.baczkowicz.mqttspy.utils.ConversionUtils;
+import pl.baczkowicz.spy.exceptions.SpyException;
+import pl.baczkowicz.spy.utils.ConversionUtils;
 
 /**
  * Unit and integration tests for connections. Some of the tests assume
@@ -113,7 +113,7 @@ public class ConnectionTestingWithMosquitto
 	}
 	
 	@Test
-	public void testAnonConnection() throws IOException, MqttSpyException, InterruptedException
+	public void testAnonConnection() throws IOException, SpyException, InterruptedException
 	{
 		final Process mosquitto = startMosquitto("src/test/resources/mosquitto/mosquitto_allow_anon.conf");
 		
@@ -141,7 +141,7 @@ public class ConnectionTestingWithMosquitto
 	}
 	
 	@Test
-	public void testRejectingAnonConnection() throws IOException, MqttSpyException, InterruptedException
+	public void testRejectingAnonConnection() throws IOException, SpyException, InterruptedException
 	{
 		final Process mosquitto = startMosquitto("src/test/resources/mosquitto/mosquitto_specified_users.conf");
 		
@@ -157,7 +157,7 @@ public class ConnectionTestingWithMosquitto
 	}
 	
 	@Test
-	public void testUserConnection() throws IOException, MqttSpyException, InterruptedException
+	public void testUserConnection() throws IOException, SpyException, InterruptedException
 	{
 		final Process mosquitto = startMosquitto("src/test/resources/mosquitto/mosquitto_specified_users.conf");
 		
@@ -188,7 +188,7 @@ public class ConnectionTestingWithMosquitto
 	}
 	
 	@Test
-	public void testUserConnectionWithPassword() throws IOException, MqttSpyException, InterruptedException
+	public void testUserConnectionWithPassword() throws IOException, SpyException, InterruptedException
 	{
 		final Process mosquitto = startMosquitto("src/test/resources/mosquitto/mosquitto_specified_users.conf");
 		
@@ -219,7 +219,7 @@ public class ConnectionTestingWithMosquitto
 	}
 	
 	@Test
-	public void testUserConnectionWithInvalidPassword() throws IOException, MqttSpyException, InterruptedException
+	public void testUserConnectionWithInvalidPassword() throws IOException, SpyException, InterruptedException
 	{
 		final Process mosquitto = startMosquitto("src/test/resources/mosquitto/mosquitto_specified_users.conf");
 		
@@ -235,7 +235,7 @@ public class ConnectionTestingWithMosquitto
 	}
 	
 	@Test
-	public void testServerOnlyAuthenticationWithLocalMosquitto() throws MqttSpyException, InterruptedException, IOException
+	public void testServerOnlyAuthenticationWithLocalMosquitto() throws SpyException, InterruptedException, IOException
 	{			
 		final Process mosquitto = startMosquitto("src/test/resources/mosquitto/mosquitto_ssl_server_only.conf");
 				
@@ -268,7 +268,7 @@ public class ConnectionTestingWithMosquitto
 	}
 	
 	@Test
-	public void testServerAndClientAuthenticationWithLocalMosquitto() throws MqttSpyException, InterruptedException, IOException
+	public void testServerAndClientAuthenticationWithLocalMosquitto() throws SpyException, InterruptedException, IOException
 	{			
 		final Process mosquitto = startMosquitto("src/test/resources/mosquitto/mosquitto_ssl_server_and_client.conf");
 				
@@ -303,7 +303,7 @@ public class ConnectionTestingWithMosquitto
 	}
 	
 	@Test
-	public void testServerOnlyAuthenticationWithLiveMosquitto() throws MqttSpyException, InterruptedException
+	public void testServerOnlyAuthenticationWithLiveMosquitto() throws SpyException, InterruptedException
 	{				
 		final MqttConnectionDetails connectionDetails = createMqttConnectionDetails("ssl://test.mosquitto.org", null, 
 				new SslSettings(SslModeEnum.SERVER_ONLY, "TLSv1.2", 

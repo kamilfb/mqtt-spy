@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.common.generated.ReconnectionSettings;
 import pl.baczkowicz.mqttspy.connectivity.reconnection.ReconnectionManager;
-import pl.baczkowicz.mqttspy.exceptions.MqttSpyException;
+import pl.baczkowicz.spy.exceptions.SpyException;
 
 /**
  * MQTT connection with reconnection.
@@ -58,9 +58,9 @@ public abstract class MqttConnectionWithReconnection extends BaseMqttConnection
 	 * @param callback The MQTT callback to set
 	 * @param connectionRunnable The runnable that actually performs the connection
 	 * 
-	 * @throws MqttSpyException Thrown if anything goes wrong
+	 * @throws SpyException Thrown if anything goes wrong
 	 */
-	public void connect(final MqttCallback callback, final Runnable connectionRunnable) throws MqttSpyException
+	public void connect(final MqttCallback callback, final Runnable connectionRunnable) throws SpyException
 	{
 		createClient(callback);
 		
@@ -81,9 +81,9 @@ public abstract class MqttConnectionWithReconnection extends BaseMqttConnection
 	 * 
 	 * @param diconnectionResultHandler The disconnect result handler to be used
 	 * 
-	 * @throws MqttSpyException Thrown if anything goes wrong
+	 * @throws SpyException Thrown if anything goes wrong
 	 */
-	public void disconnect(final IMqttActionListener diconnectionResultHandler) throws MqttSpyException
+	public void disconnect(final IMqttActionListener diconnectionResultHandler) throws SpyException
 	{		
 		reconnectionManager.removeConnection(this);
 
@@ -107,7 +107,7 @@ public abstract class MqttConnectionWithReconnection extends BaseMqttConnection
 		}
 		catch (MqttException e)
 		{
-			throw new MqttSpyException("Cannot disconnect from connection " +  
+			throw new SpyException("Cannot disconnect from connection " +  
 					getMqttConnectionDetails().getId() + " " + getMqttConnectionDetails().getName(), e);			
 		}		
 	}

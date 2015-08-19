@@ -51,9 +51,6 @@ import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
 import pl.baczkowicz.mqttspy.configuration.ConfiguredConnectionDetails;
 import pl.baczkowicz.mqttspy.configuration.generated.TabbedSubscriptionDetails;
 import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnectionDetails;
-import pl.baczkowicz.mqttspy.exceptions.ConfigurationException;
-import pl.baczkowicz.mqttspy.exceptions.MqttSpyUncaughtExceptionHandler;
-import pl.baczkowicz.mqttspy.exceptions.XMLException;
 import pl.baczkowicz.mqttspy.messages.BaseMqttMessage;
 import pl.baczkowicz.mqttspy.stats.ConnectionStatsUpdater;
 import pl.baczkowicz.mqttspy.stats.StatisticsManager;
@@ -64,6 +61,9 @@ import pl.baczkowicz.mqttspy.ui.messagelog.TaskWithProgressUpdater;
 import pl.baczkowicz.mqttspy.ui.panes.PaneVisibilityStatus;
 import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
 import pl.baczkowicz.mqttspy.ui.utils.FxmlUtils;
+import pl.baczkowicz.spy.exceptions.ConfigurationException;
+import pl.baczkowicz.spy.exceptions.SpyUncaughtExceptionHandler;
+import pl.baczkowicz.spy.exceptions.XMLException;
 
 /**
  * Controller for the main window.
@@ -133,7 +133,7 @@ public class MainController
 	
 	public MainController() throws XMLException
 	{
-		Thread.setDefaultUncaughtExceptionHandler(new MqttSpyUncaughtExceptionHandler());
+		Thread.setDefaultUncaughtExceptionHandler(new SpyUncaughtExceptionHandler());
 		 
 		this.statisticsManager = new StatisticsManager();		
 	}	

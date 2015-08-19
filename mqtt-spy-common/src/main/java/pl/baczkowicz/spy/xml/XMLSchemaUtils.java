@@ -17,7 +17,7 @@
  *    Kamil Baczkowicz - initial API and implementation and/or initial documentation
  *    
  */
-package pl.baczkowicz.mqttspy.xml;
+package pl.baczkowicz.spy.xml;
 
 import java.io.File;
 import java.io.InputStream;
@@ -29,7 +29,7 @@ import javax.xml.validation.SchemaFactory;
 
 import org.xml.sax.SAXException;
 
-import pl.baczkowicz.mqttspy.exceptions.XMLException;
+import pl.baczkowicz.spy.exceptions.XMLException;
 
 /**
  * Utility class for XML Schema.

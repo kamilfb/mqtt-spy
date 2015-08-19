@@ -35,11 +35,11 @@ import pl.baczkowicz.mqttspy.daemon.configuration.generated.DaemonMqttConnection
 import pl.baczkowicz.mqttspy.daemon.configuration.generated.RunningMode;
 import pl.baczkowicz.mqttspy.daemon.connectivity.SimpleMqttConnectionRunnable;
 import pl.baczkowicz.mqttspy.daemon.connectivity.MqttCallbackHandler;
-import pl.baczkowicz.mqttspy.exceptions.MqttSpyException;
-import pl.baczkowicz.mqttspy.exceptions.XMLException;
 import pl.baczkowicz.mqttspy.scripts.Script;
 import pl.baczkowicz.mqttspy.scripts.ScriptManager;
-import pl.baczkowicz.mqttspy.utils.ThreadingUtils;
+import pl.baczkowicz.spy.exceptions.SpyException;
+import pl.baczkowicz.spy.exceptions.XMLException;
+import pl.baczkowicz.spy.utils.ThreadingUtils;
 
 /**
  * The main class of the daemon.
@@ -112,7 +112,7 @@ public class Main
 		{
 			logger.error("Cannot load the mqtt-spy-daemon's configuration", e);
 		}
-		catch (MqttSpyException e)
+		catch (SpyException e)
 		{
 			logger.error("Error occurred while connecting to broker", e);
 		}

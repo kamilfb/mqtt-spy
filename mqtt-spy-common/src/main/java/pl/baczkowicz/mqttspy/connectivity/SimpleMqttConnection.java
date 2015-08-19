@@ -25,9 +25,9 @@ import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.common.generated.MqttConnectionDetails;
 import pl.baczkowicz.mqttspy.connectivity.reconnection.ReconnectionManager;
-import pl.baczkowicz.mqttspy.exceptions.ConfigurationException;
-import pl.baczkowicz.mqttspy.exceptions.MqttSpyException;
-import pl.baczkowicz.mqttspy.utils.ConversionUtils;
+import pl.baczkowicz.spy.exceptions.ConfigurationException;
+import pl.baczkowicz.spy.exceptions.SpyException;
+import pl.baczkowicz.spy.utils.ConversionUtils;
 
 /**
  * Simple synchronous MQTT connection.
@@ -67,7 +67,7 @@ public class SimpleMqttConnection extends MqttConnectionWithReconnection
 			setConnectionStatus(MqttConnectionStatus.CONNECTED);
 			return true;
 		}
-		catch (MqttSpyException e)
+		catch (SpyException e)
 		{
 			logger.error("Connection attempt failed", e);
 			setConnectionStatus(MqttConnectionStatus.NOT_CONNECTED);

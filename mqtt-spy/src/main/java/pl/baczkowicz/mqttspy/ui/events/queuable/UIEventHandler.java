@@ -36,8 +36,8 @@ import pl.baczkowicz.mqttspy.ui.events.queuable.ui.BrowseRemovedMessageEvent;
 import pl.baczkowicz.mqttspy.ui.events.queuable.ui.MqttSpyUIEvent;
 import pl.baczkowicz.mqttspy.ui.events.queuable.ui.TopicSummaryNewMessageEvent;
 import pl.baczkowicz.mqttspy.ui.events.queuable.ui.TopicSummaryRemovedMessageEvent;
-import pl.baczkowicz.mqttspy.utils.ThreadingUtils;
-import pl.baczkowicz.mqttspy.utils.TimeUtils;
+import pl.baczkowicz.spy.utils.ThreadingUtils;
+import pl.baczkowicz.spy.utils.TimeUtils;
 
 /**
  * This class is responsible for handling queued events. This is done in batches

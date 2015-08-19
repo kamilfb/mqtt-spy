@@ -20,8 +20,8 @@
 package pl.baczkowicz.mqttspy.logger;
 
 import pl.baczkowicz.mqttspy.common.generated.LoggedMqttMessage;
-import pl.baczkowicz.mqttspy.exceptions.XMLException;
-import pl.baczkowicz.mqttspy.xml.XMLParser;
+import pl.baczkowicz.spy.exceptions.XMLException;
+import pl.baczkowicz.spy.xml.XMLParser;
 
 /**
  * Parser for the mqtt-spy message log.

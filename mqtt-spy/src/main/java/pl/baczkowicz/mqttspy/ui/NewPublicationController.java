@@ -68,7 +68,6 @@ import org.slf4j.LoggerFactory;
 import pl.baczkowicz.mqttspy.common.generated.ConversionMethod;
 import pl.baczkowicz.mqttspy.common.generated.SimpleMqttMessage;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
-import pl.baczkowicz.mqttspy.exceptions.ConversionException;
 import pl.baczkowicz.mqttspy.messages.BaseMqttMessage;
 import pl.baczkowicz.mqttspy.scripts.InteractiveScriptManager;
 import pl.baczkowicz.mqttspy.scripts.Script;
@@ -82,10 +81,11 @@ import pl.baczkowicz.mqttspy.ui.panes.TitledPaneController;
 import pl.baczkowicz.mqttspy.ui.properties.PublicationScriptProperties;
 import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
 import pl.baczkowicz.mqttspy.ui.utils.UiUtils;
-import pl.baczkowicz.mqttspy.utils.ConversionUtils;
-import pl.baczkowicz.mqttspy.utils.FileUtils;
 import pl.baczkowicz.mqttspy.utils.MqttUtils;
-import pl.baczkowicz.mqttspy.utils.TimeUtils;
+import pl.baczkowicz.spy.exceptions.ConversionException;
+import pl.baczkowicz.spy.utils.ConversionUtils;
+import pl.baczkowicz.spy.utils.FileUtils;
+import pl.baczkowicz.spy.utils.TimeUtils;
 
 /**
  * Controller for creating new publications.
@@ -172,7 +172,7 @@ public class NewPublicationController implements Initializable, ScriptListChange
 	
 	public void initialize(URL location, ResourceBundle resources)
 	{
-		timeBasedFilter = new TimeBasedKeyEventFilter(15);
+		timeBasedFilter = new TimeBasedKeyEventFilter(500);
 		
 		publicationTopicText.setItems(publicationTopics);
 		formatGroup.getToggles().get(0).setUserData(ConversionMethod.PLAIN);

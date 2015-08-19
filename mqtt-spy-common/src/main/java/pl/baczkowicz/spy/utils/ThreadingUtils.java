@@ -17,12 +17,12 @@
  *    Kamil Baczkowicz - initial API and implementation and/or initial documentation
  *    
  */
-package pl.baczkowicz.mqttspy.utils;
+package pl.baczkowicz.spy.utils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import pl.baczkowicz.mqttspy.utils.ThreadingUtils;
+import pl.baczkowicz.spy.utils.ThreadingUtils;
 
 /** 
  * Threading related utilities.
@@ -36,7 +36,10 @@ public class ThreadingUtils
 	private static final String STARTING_THREAD = "Starting thread ID=%s \"%s\" ...";
 	
 	/** Log entry for stopping a thread. */
-	private static final String ENDING_THREAD = "Ending thread ID=%s \"%s\" ...";	 
+	private static final String ENDING_THREAD = "Ending thread ID=%s \"%s\" ...";
+	
+	/** Application name. */
+	private static String APP_NAME = "mqtt-spy";	
 	
 	/**
 	 * Logs the fact of starting a thread.
@@ -54,7 +57,7 @@ public class ThreadingUtils
 	 */
 	public static void logThreadStarting(final String threadName)
 	{
-		Thread.currentThread().setName("mqtt-spy [" + threadName + "]");
+		Thread.currentThread().setName(APP_NAME + " [" + threadName + "]");
 		logThreadStarting();
 	}
 	
@@ -88,5 +91,15 @@ public class ThreadingUtils
 			logger.warn("Thread {} has been interrupted", Thread.currentThread().getName(), e);
 			return true;
 		}
+	}
+	
+	/**
+	 * Sets the application name.
+	 * 
+	 * @param name The prefix to be used for all threads names
+	 */
+	public static void setAppName(final String name)
+	{
+		APP_NAME = name;
 	}
 }

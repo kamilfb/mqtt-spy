@@ -28,9 +28,9 @@ import org.slf4j.LoggerFactory;
 import pl.baczkowicz.mqttspy.common.generated.ScriptDetails;
 import pl.baczkowicz.mqttspy.configuration.PropertyFileLoader;
 import pl.baczkowicz.mqttspy.daemon.configuration.generated.MqttSpyDaemonConfiguration;
-import pl.baczkowicz.mqttspy.exceptions.XMLException;
 import pl.baczkowicz.mqttspy.utils.ConfigurationUtils;
-import pl.baczkowicz.mqttspy.xml.XMLParser;
+import pl.baczkowicz.spy.exceptions.XMLException;
+import pl.baczkowicz.spy.xml.XMLParser;
 
 /**
  * Helper class for loading the daemon's configuration.

@@ -22,7 +22,7 @@ package pl.baczkowicz.mqttspy.storage;
 import pl.baczkowicz.mqttspy.ui.events.queuable.EventQueueManager;
 import pl.baczkowicz.mqttspy.ui.events.queuable.ui.BrowseRemovedMessageEvent;
 import pl.baczkowicz.mqttspy.ui.events.queuable.ui.TopicSummaryRemovedMessageEvent;
-import pl.baczkowicz.mqttspy.utils.ThreadingUtils;
+import pl.baczkowicz.spy.utils.ThreadingUtils;
 
 /**
  * This class is responsible for deleting old messages from memory, so we don't

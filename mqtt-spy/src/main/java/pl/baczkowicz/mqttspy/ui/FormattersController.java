@@ -58,8 +58,8 @@ import pl.baczkowicz.mqttspy.scripts.Script;
 import pl.baczkowicz.mqttspy.scripts.ScriptBasedFormatter;
 import pl.baczkowicz.mqttspy.scripts.ScriptManager;
 import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
-import pl.baczkowicz.mqttspy.utils.ConversionUtils;
 import pl.baczkowicz.mqttspy.utils.FormattingUtils;
+import pl.baczkowicz.spy.utils.ConversionUtils;
 
 /**
  * Controller for the converter window.

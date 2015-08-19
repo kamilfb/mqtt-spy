@@ -27,7 +27,7 @@ import pl.baczkowicz.mqttspy.scripts.Script;
 import pl.baczkowicz.mqttspy.scripts.ScriptChangeObserver;
 import pl.baczkowicz.mqttspy.scripts.ScriptRunningState;
 import pl.baczkowicz.mqttspy.scripts.ScriptTypeEnum;
-import pl.baczkowicz.mqttspy.utils.TimeUtils;
+import pl.baczkowicz.spy.utils.TimeUtils;
 
 /**
  * This represents a single row displayed in the scripts table.

@@ -39,10 +39,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
-import pl.baczkowicz.mqttspy.exceptions.XMLException;
 import pl.baczkowicz.mqttspy.stats.generated.MqttSpyStats;
-import pl.baczkowicz.mqttspy.utils.ThreadingUtils;
-import pl.baczkowicz.mqttspy.xml.XMLParser;
+import pl.baczkowicz.spy.exceptions.XMLException;
+import pl.baczkowicz.spy.utils.ThreadingUtils;
+import pl.baczkowicz.spy.xml.XMLParser;
 
 /**
  * This class is responsible for loading, processing and saving processing statistics.

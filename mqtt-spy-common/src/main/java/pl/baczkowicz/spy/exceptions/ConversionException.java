@@ -17,22 +17,22 @@
  *    Kamil Baczkowicz - initial API and implementation and/or initial documentation
  *    
  */
-package pl.baczkowicz.mqttspy.exceptions;
+package pl.baczkowicz.spy.exceptions;
 
 /**
- * Represents an exception during configuration loading.
+ * Represents an exception during text conversion.
  */
-public class ConfigurationException extends XMLException
+public class ConversionException extends Exception
 {
 	/** serialVersionUID. */
 	private static final long serialVersionUID = 5880158442069517297L;
 
-	public ConfigurationException(String error)
+	public ConversionException(String error)
 	{
 		super(error);
 	}
 	
-	public ConfigurationException(String error, Throwable e)
+	public ConversionException(String error, Throwable e)
 	{
 		super(error, e);
 	}

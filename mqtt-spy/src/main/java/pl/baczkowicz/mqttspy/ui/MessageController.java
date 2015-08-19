@@ -54,7 +54,7 @@ import pl.baczkowicz.mqttspy.ui.events.observers.MessageFormatChangeObserver;
 import pl.baczkowicz.mqttspy.ui.events.observers.MessageIndexChangeObserver;
 import pl.baczkowicz.mqttspy.ui.search.SearchOptions;
 import pl.baczkowicz.mqttspy.utils.FormattingUtils;
-import pl.baczkowicz.mqttspy.utils.TimeUtils;
+import pl.baczkowicz.spy.utils.TimeUtils;
 
 /**
  * Controller for displaying a message.

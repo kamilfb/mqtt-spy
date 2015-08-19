@@ -17,23 +17,23 @@
  *    Kamil Baczkowicz - initial API and implementation and/or initial documentation
  *    
  */
-package pl.baczkowicz.mqttspy.exceptions;
+package pl.baczkowicz.spy.exceptions;
+
+import java.lang.Thread.UncaughtExceptionHandler;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * Represents a base exception.
+ * Used for catching any uncaught exceptions.
  */
-public class MqttSpyException extends Exception
+public class SpyUncaughtExceptionHandler implements UncaughtExceptionHandler
 {
-	/** Generated serialVersionUID */
-	private static final long serialVersionUID = -1041373917140441043L;
-
-	public MqttSpyException(String error)
-	{
-		super(error);
-	}
+	private final static Logger logger = LoggerFactory.getLogger(SpyUncaughtExceptionHandler.class);
 	
-	public MqttSpyException(String error, Throwable e)
+	@Override
+	public void uncaughtException(Thread t, Throwable e)
 	{
-		super(error, e);
+		logger.error("Thread " + t + " failed with " + e, e);
 	}
 }

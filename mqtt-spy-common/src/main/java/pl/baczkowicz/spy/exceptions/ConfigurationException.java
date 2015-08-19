@@ -17,22 +17,22 @@
  *    Kamil Baczkowicz - initial API and implementation and/or initial documentation
  *    
  */
-package pl.baczkowicz.mqttspy.exceptions;
+package pl.baczkowicz.spy.exceptions;
 
 /**
- * Represents an exception during loading - very bad :)
+ * Represents an exception during configuration loading.
  */
-public class CriticalException extends RuntimeException
+public class ConfigurationException extends XMLException
 {
 	/** serialVersionUID. */
 	private static final long serialVersionUID = 5880158442069517297L;
 
-	public CriticalException(String error)
+	public ConfigurationException(String error)
 	{
 		super(error);
 	}
 	
-	public CriticalException(String error, Throwable e)
+	public ConfigurationException(String error, Throwable e)
 	{
 		super(error, e);
 	}

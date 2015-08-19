@@ -27,7 +27,7 @@ import pl.baczkowicz.mqttspy.common.generated.FormatterDetails;
 import pl.baczkowicz.mqttspy.connectivity.BaseMqttConnection;
 import pl.baczkowicz.mqttspy.messages.BaseMqttMessage;
 import pl.baczkowicz.mqttspy.messages.BaseMqttMessageWithSubscriptions;
-import pl.baczkowicz.mqttspy.utils.ConversionUtils;
+import pl.baczkowicz.spy.utils.ConversionUtils;
 
 public class FormattedMqttMessage extends BaseMqttMessageWithSubscriptions
 {

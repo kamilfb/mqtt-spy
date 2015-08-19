@@ -34,11 +34,11 @@ import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.common.generated.ScriptDetails;
 import pl.baczkowicz.mqttspy.connectivity.topicmatching.TopicMatcher;
-import pl.baczkowicz.mqttspy.exceptions.MqttSpyException;
 import pl.baczkowicz.mqttspy.scripts.Script;
 import pl.baczkowicz.mqttspy.scripts.ScriptManager;
 import pl.baczkowicz.mqttspy.utils.ConnectionUtils;
-import pl.baczkowicz.mqttspy.utils.TimeUtils;
+import pl.baczkowicz.spy.exceptions.SpyException;
+import pl.baczkowicz.spy.utils.TimeUtils;
 
 /**
  * Base MQTT connection class, encapsulating the Paho's MQTT client and providing some common features.
@@ -95,9 +95,9 @@ public abstract class BaseMqttConnection implements IMqttConnection
 	 * 
 	 * @param callback The callback to be set on the MQTT client
 	 * 
-	 * @throws MqttSpyException Thrown when errors detected
+	 * @throws SpyException Thrown when errors detected
 	 */
-	public void createClient(final MqttCallback callback) throws MqttSpyException
+	public void createClient(final MqttCallback callback) throws SpyException
 	{
 		try
 		{
@@ -112,11 +112,11 @@ public abstract class BaseMqttConnection implements IMqttConnection
 		}
 		catch (IllegalArgumentException e)
 		{
-			throw new MqttSpyException("Cannot instantiate the MQTT client", e);
+			throw new SpyException("Cannot instantiate the MQTT client", e);
 		}
 		catch (MqttException e)
 		{
-			throw new MqttSpyException("Cannot instantiate the MQTT client", e);
+			throw new SpyException("Cannot instantiate the MQTT client", e);
 		}
 	}
 	
@@ -128,9 +128,9 @@ public abstract class BaseMqttConnection implements IMqttConnection
 	 * @param userContext The user context (used for any callbacks)
 	 * @param callback Connection result callback
 	 * 
-	 * @throws MqttSpyException Thrown when errors detected
+	 * @throws SpyException Thrown when errors detected
 	 */
-	public void connect(final MqttConnectOptions options, final Object userContext, final IMqttActionListener callback) throws MqttSpyException
+	public void connect(final MqttConnectOptions options, final Object userContext, final IMqttActionListener callback) throws SpyException
 	{
 		recordConnectionAttempt();
 		
@@ -140,15 +140,15 @@ public abstract class BaseMqttConnection implements IMqttConnection
 		}
 		catch (IllegalArgumentException e)
 		{
-			throw new MqttSpyException("Connection attempt failed", e);
+			throw new SpyException("Connection attempt failed", e);
 		}
 		catch (MqttSecurityException e)
 		{
-			throw new MqttSpyException("Connection attempt failed", e);
+			throw new SpyException("Connection attempt failed", e);
 		}
 		catch (MqttException e)
 		{
-			throw new MqttSpyException("Connection attempt failed", e);
+			throw new SpyException("Connection attempt failed", e);
 		}
 	}
 	
@@ -158,9 +158,9 @@ public abstract class BaseMqttConnection implements IMqttConnection
 	 * TODO: check if this parameter is needed
 	 * @param options The connection options
 	 * 
-	 * @throws MqttSpyException Thrown when errors detected
+	 * @throws SpyException Thrown when errors detected
 	 */
-	public void connectAndWait(final MqttConnectOptions options) throws MqttSpyException
+	public void connectAndWait(final MqttConnectOptions options) throws SpyException
 	{
 		recordConnectionAttempt();
 		
@@ -170,15 +170,15 @@ public abstract class BaseMqttConnection implements IMqttConnection
 		}
 		catch (IllegalArgumentException e)
 		{
-			throw new MqttSpyException("Connection attempt failed", e);
+			throw new SpyException("Connection attempt failed", e);
 		}
 		catch (MqttSecurityException e)
 		{
-			throw new MqttSpyException("Connection attempt failed", e);
+			throw new SpyException("Connection attempt failed", e);
 		}
 		catch (MqttException e)
 		{
-			throw new MqttSpyException("Connection attempt failed", e);
+			throw new SpyException("Connection attempt failed", e);
 		}
 	}
 	
@@ -213,9 +213,9 @@ public abstract class BaseMqttConnection implements IMqttConnection
 	 * @param topic The topic to subscribe to
 	 * @param qos The quality of service requested
 	 * 
-	 * @throws MqttSpyException Thrown when errors detected
+	 * @throws SpyException Thrown when errors detected
 	 */
-	private void subscribeToTopic(final String topic, final int qos) throws MqttSpyException
+	private void subscribeToTopic(final String topic, final int qos) throws SpyException
 	{
 		if (client == null || !client.isConnected())
 		{
@@ -232,7 +232,7 @@ public abstract class BaseMqttConnection implements IMqttConnection
 		}
 		catch (MqttException e)
 		{
-			throw new MqttSpyException("Subscription attempt failed", e);
+			throw new SpyException("Subscription attempt failed", e);
 		}
 	}	
 	
@@ -251,7 +251,7 @@ public abstract class BaseMqttConnection implements IMqttConnection
 			logger.info("Successfully subscribed to " + topic);
 			return true;
 		}
-		catch (MqttSpyException e)
+		catch (SpyException e)
 		{
 			logger.error("Subscription attempt failed for topic {}", topic, e);
 		}
@@ -342,7 +342,7 @@ public abstract class BaseMqttConnection implements IMqttConnection
 		return lastUsedSubscriptionId;
 	}
 	
-	public void unsubscribeFromTopic(final String topic) throws MqttSpyException
+	public void unsubscribeFromTopic(final String topic) throws SpyException
 	{
 		if (client == null || !client.isConnected())
 		{
@@ -359,7 +359,7 @@ public abstract class BaseMqttConnection implements IMqttConnection
 		}
 		catch (MqttException e)
 		{
-			throw new MqttSpyException("Unsubscription attempt failed", e);
+			throw new SpyException("Unsubscription attempt failed", e);
 		}
 	}
 	
@@ -377,7 +377,7 @@ public abstract class BaseMqttConnection implements IMqttConnection
 			logger.info("Successfully unsubscribed from " + topic);
 			return true;
 		}
-		catch (MqttSpyException e)
+		catch (SpyException e)
 		{
 			logger.error("Unsubscribe attempt failed for topic {}", topic, e);
 		}

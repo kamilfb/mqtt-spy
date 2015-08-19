@@ -35,7 +35,7 @@ import pl.baczkowicz.mqttspy.configuration.generated.TabbedSubscriptionDetails;
 import pl.baczkowicz.mqttspy.connectivity.IMqttConnection;
 import pl.baczkowicz.mqttspy.ui.properties.PublicationScriptProperties;
 import pl.baczkowicz.mqttspy.ui.utils.RunLaterExecutor;
-import pl.baczkowicz.mqttspy.utils.FileUtils;
+import pl.baczkowicz.spy.utils.FileUtils;
 
 /**
  * Script manager that interacts with the UI.

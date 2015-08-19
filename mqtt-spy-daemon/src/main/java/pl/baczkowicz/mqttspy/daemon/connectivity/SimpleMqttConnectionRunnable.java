@@ -27,7 +27,7 @@ import pl.baczkowicz.mqttspy.connectivity.SimpleMqttConnection;
 import pl.baczkowicz.mqttspy.daemon.configuration.generated.DaemonMqttConnectionDetails;
 import pl.baczkowicz.mqttspy.scripts.ScriptManager;
 import pl.baczkowicz.mqttspy.utils.ConnectionUtils;
-import pl.baczkowicz.mqttspy.utils.ThreadingUtils;
+import pl.baczkowicz.spy.utils.ThreadingUtils;
 
 /**
  * This runnable is responsible for establishing a connection.

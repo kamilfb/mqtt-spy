@@ -82,8 +82,8 @@ import pl.baczkowicz.mqttspy.ui.search.UniqueContentOnlyFilter;
 import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
 import pl.baczkowicz.mqttspy.ui.utils.FxmlUtils;
 import pl.baczkowicz.mqttspy.ui.utils.UiUtils;
-import pl.baczkowicz.mqttspy.utils.ConversionUtils;
 import pl.baczkowicz.mqttspy.utils.FormattingUtils;
+import pl.baczkowicz.spy.utils.ConversionUtils;
 
 /**
  * Controller for the subscription tab.

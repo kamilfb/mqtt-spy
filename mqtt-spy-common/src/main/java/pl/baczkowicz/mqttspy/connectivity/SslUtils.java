@@ -44,7 +44,7 @@ import javax.net.ssl.TrustManagerFactory;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.util.io.pem.PemReader;
 
-import pl.baczkowicz.mqttspy.exceptions.MqttSpyException;
+import pl.baczkowicz.spy.exceptions.SpyException;
 
 /**
  * Utility class for handling SSL/TLS connections.
@@ -137,7 +137,7 @@ public class SslUtils
 	/**
 	 * Creates an SSL/TLS socket factory with the given CA certificate file and protocol version.
 	 */
-	public static SSLSocketFactory getSocketFactory(final String caCrtFile, final String protocolVersion) throws MqttSpyException
+	public static SSLSocketFactory getSocketFactory(final String caCrtFile, final String protocolVersion) throws SpyException
 	{
 		try
 		{
@@ -154,7 +154,7 @@ public class SslUtils
 		}
 		catch (Exception e)
 		{
-			throw new MqttSpyException("Cannot create SSL/TLS connection", e);
+			throw new SpyException("Cannot create SSL/TLS connection", e);
 		}
 	}
 	
@@ -163,7 +163,7 @@ public class SslUtils
 	 */
 	public static SSLSocketFactory getSocketFactory(final String caCrtFile,
 			final String crtFile, final String keyFile, final String password,
-			final String protocolVersion) throws MqttSpyException
+			final String protocolVersion) throws SpyException
 	{
 		try
 		{
@@ -180,7 +180,7 @@ public class SslUtils
 		}
 		catch (Exception e)
 		{
-			throw new MqttSpyException("Cannot create SSL/TLS connection", e);
+			throw new SpyException("Cannot create SSL/TLS connection", e);
 		}			
 	}
 }

@@ -33,9 +33,9 @@ import pl.baczkowicz.mqttspy.common.generated.FormatterDetails;
 import pl.baczkowicz.mqttspy.common.generated.FormatterFunction;
 import pl.baczkowicz.mqttspy.common.generated.SubstringConversionFormatterDetails;
 import pl.baczkowicz.mqttspy.common.generated.SubstringExtractFormatterDetails;
-import pl.baczkowicz.mqttspy.exceptions.ConversionException;
-import pl.baczkowicz.mqttspy.utils.ConversionUtils;
 import pl.baczkowicz.mqttspy.utils.FormattingUtils;
+import pl.baczkowicz.spy.exceptions.ConversionException;
+import pl.baczkowicz.spy.utils.ConversionUtils;
 
 /**
  * Uses for the formatting/conversion utils.

@@ -34,8 +34,8 @@ import pl.baczkowicz.mqttspy.common.generated.SubstringExtractFormatterDetails;
 import pl.baczkowicz.mqttspy.scripts.ScriptBasedFormatter;
 import pl.baczkowicz.mqttspy.scripts.ScriptManager;
 import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
-import pl.baczkowicz.mqttspy.utils.ConversionUtils;
 import pl.baczkowicz.mqttspy.utils.FormattingUtils;
+import pl.baczkowicz.spy.utils.ConversionUtils;
 
 public class FormattingPerformanceTest
 {

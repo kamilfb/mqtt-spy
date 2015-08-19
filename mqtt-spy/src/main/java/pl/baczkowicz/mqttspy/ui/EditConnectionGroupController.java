@@ -52,10 +52,10 @@ import pl.baczkowicz.mqttspy.common.generated.ProtocolEnum;
 import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
 import pl.baczkowicz.mqttspy.configuration.ConfiguredConnectionDetails;
 import pl.baczkowicz.mqttspy.configuration.ConfiguredConnectionGroupDetails;
-import pl.baczkowicz.mqttspy.exceptions.ConfigurationException;
 import pl.baczkowicz.mqttspy.ui.properties.ConnectionListItemProperties;
 import pl.baczkowicz.mqttspy.ui.properties.ConnectionTreeItemProperties;
 import pl.baczkowicz.mqttspy.utils.ConnectionUtils;
+import pl.baczkowicz.spy.exceptions.ConfigurationException;
 
 /**
  * Controller for editing a single connection.

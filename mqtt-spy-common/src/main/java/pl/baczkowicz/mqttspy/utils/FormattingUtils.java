@@ -35,7 +35,8 @@ import pl.baczkowicz.mqttspy.common.generated.SubstringConversionFormatterDetail
 import pl.baczkowicz.mqttspy.common.generated.SubstringExtractFormatterDetails;
 import pl.baczkowicz.mqttspy.common.generated.SubstringFormatterDetails;
 import pl.baczkowicz.mqttspy.common.generated.SubstringReplaceFormatterDetails;
-import pl.baczkowicz.mqttspy.exceptions.ConversionException;
+import pl.baczkowicz.spy.exceptions.ConversionException;
+import pl.baczkowicz.spy.utils.ConversionUtils;
 
 /**
  * Formatting-related utils.
@@ -415,7 +416,7 @@ public class FormattingUtils
 	 *  
 	 * @param conversionMethod The conversion method to be used
 	 * 
-	 * @return Created formmater function
+	 * @return Created formatter function
 	 */
 	private static FormatterFunction createBasicFormatterFunction(final ConversionMethod conversionMethod)	
 	{

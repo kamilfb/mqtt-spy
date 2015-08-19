@@ -54,7 +54,6 @@ import pl.baczkowicz.mqttspy.configuration.generated.ConnectionGroupReference;
 import pl.baczkowicz.mqttspy.configuration.generated.ConnectionReference;
 import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnectionDetails;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
-import pl.baczkowicz.mqttspy.exceptions.ConfigurationException;
 import pl.baczkowicz.mqttspy.ui.connections.ConnectionManager;
 import pl.baczkowicz.mqttspy.ui.controls.DragAndDropTreeViewCell;
 import pl.baczkowicz.mqttspy.ui.events.EventManager;
@@ -63,6 +62,7 @@ import pl.baczkowicz.mqttspy.ui.properties.ConnectionTreeItemProperties;
 import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
 import pl.baczkowicz.mqttspy.utils.ConnectionUtils;
 import pl.baczkowicz.mqttspy.utils.MqttUtils;
+import pl.baczkowicz.spy.exceptions.ConfigurationException;
 
 /**
  * Controller for editing all connections.

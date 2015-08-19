@@ -62,7 +62,7 @@ import pl.baczkowicz.mqttspy.ui.events.queuable.ui.BrowseRemovedMessageEvent;
 import pl.baczkowicz.mqttspy.ui.messagelog.MessageLogUtils;
 import pl.baczkowicz.mqttspy.ui.utils.TextUtils;
 import pl.baczkowicz.mqttspy.ui.utils.UiUtils;
-import pl.baczkowicz.mqttspy.utils.FileUtils;
+import pl.baczkowicz.spy.utils.FileUtils;
 
 /**
  * Controller for the message navigation buttons.
