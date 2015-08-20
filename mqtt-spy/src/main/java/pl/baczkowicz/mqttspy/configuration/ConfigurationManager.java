@@ -145,14 +145,14 @@ public class ConfigurationManager
 		catch (XMLException e)
 		{
 			setLastException(e);
-			DialogUtils.showInvalidConfigurationFileDialog("Cannot process the given configuration file. See the log file for more details.");					
+			DialogUtils.showError("Invalid configuration file", "Cannot process the given configuration file. See the log file for more details.");					
 			logger.error("Cannot process the configuration file at " + file.getAbsolutePath(), e);
 			eventManager.notifyConfigurationFileReadFailure();
 		}
 		catch (FileNotFoundException e)
 		{
 			setLastException(e);
-			DialogUtils.showInvalidConfigurationFileDialog("Cannot read the given configuration file. See the log file for more details.");
+			DialogUtils.showError("Invalid configuration file", "Cannot read the given configuration file. See the log file for more details.");
 			logger.error("Cannot read the configuration file from " + file.getAbsolutePath(), e);
 			eventManager.notifyConfigurationFileReadFailure();
 		}
@@ -274,13 +274,13 @@ public class ConfigurationManager
 				configuration.getConnectionGroups().addAll(connectionGroups);
 				
 				populateMissingFormatters(configuration.getFormatting().getFormatter(), connections);
-				for (final ConnectionGroup group : connectionGroups)
-				{
-					if (group.getGroup() != null && group.getGroup().getReference() == null)
-					{
-						group.setGroup(null);
-					}
-				}
+//				for (final ConnectionGroup group : connectionGroups)
+//				{
+//					if (group.getGroup() != null && group.getGroup().getReference() == null)
+//					{
+//						group.setGroup(null);
+//					}
+//				}
 				
 				parser.saveToFile(loadedConfigurationFile, 
 						new JAXBElement(new QName("http://baczkowicz.pl/mqtt-spy-configuration", "MqttSpyConfiguration"), MqttSpyConfiguration.class, configuration));
@@ -562,23 +562,31 @@ public class ConfigurationManager
 	
 	public void createConnectionGroups()
 	{						
+		final List<ConnectionGroup> groupsWithoutParent = new ArrayList<>(configuration.getConnectionGroups());
+		
 		// This is expected from v0.3.0
 		for (final ConnectionGroup group : configuration.getConnectionGroups())
 		{			
-			final ConfiguredConnectionGroupDetails details = new ConfiguredConnectionGroupDetails(group, false); 
-			if (group.getGroup() == null || group.getGroup().getReference() == null)
+			final ConfiguredConnectionGroupDetails details = new ConfiguredConnectionGroupDetails(group, false);
+			
+			for (ConnectionGroupReference subgroup : group.getSubgroups())
 			{
-				rootGroup = details;
+				groupsWithoutParent.remove(subgroup.getReference());
 			}
+				
+//			if (group.getGroup() == null || group.getGroup().getReference() == null)
+//			{
+//				rootGroup = details;
+//			}
 			
 			connectionGroups.add(details);						
 		}
 		
 		// Create the root if no groups present (pre v0.3.0)
-		if (connectionGroups.isEmpty())
+		if (connectionGroups.isEmpty() || groupsWithoutParent.isEmpty())
 		{
 			rootGroup = new ConfiguredConnectionGroupDetails(new ConnectionGroup(
-					ConfigurationManager.DEFAULT_GROUP, "All connections", null, new ArrayList(), new ArrayList()), false);
+					ConfigurationManager.DEFAULT_GROUP, "All connections", new ArrayList(), new ArrayList()), false);
 			
 			connectionGroups.add(rootGroup);
 			
@@ -593,6 +601,16 @@ public class ConfigurationManager
 		}
 		else
 		{
+			// Find the root group
+			final String rootId = groupsWithoutParent.get(0).getID();
+			for (final ConfiguredConnectionGroupDetails group : connectionGroups)
+			{
+				if (group.getID().equals(rootId))
+				{
+					rootGroup = group;
+					break;
+				}
+			}
 			// At this point, new groups link to old connection and group objects, and old connection objects to old groups
 			
 			// Re-wire all connections

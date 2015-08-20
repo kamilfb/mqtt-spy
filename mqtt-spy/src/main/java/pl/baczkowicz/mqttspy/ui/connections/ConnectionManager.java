@@ -149,7 +149,7 @@ public class ConnectionManager
 			final String validationResult = ConnectivityUtils.validateConnectionDetails(connectionDetails, true);
 			if (validationResult != null)
 			{
-				DialogUtils.showValidationWarning(validationResult);
+				DialogUtils.showWarning("Invalid value detected", validationResult);
 			}
 			else
 			{

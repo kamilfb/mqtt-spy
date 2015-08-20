@@ -28,8 +28,6 @@ import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnection
 
 public class ConfiguredConnectionDetails extends UserInterfaceMqttConnectionDetails
 {
-	//private int id;
-	
 	private boolean modified;
 
 	private boolean begingCreated;
@@ -40,7 +38,9 @@ public class ConfiguredConnectionDetails extends UserInterfaceMqttConnectionDeta
 	
 	private boolean valid;
 
-	private UserInterfaceMqttConnectionDetails lastSavedValues;
+	private ConfiguredConnectionDetails lastSavedValues;	
+
+	private ConnectionGroupReference group;
 
 	private boolean groupingModified;
 
@@ -49,19 +49,32 @@ public class ConfiguredConnectionDetails extends UserInterfaceMqttConnectionDeta
 		// Default constructor
 	}
 	
-	public ConfiguredConnectionDetails(/*final int id, */final boolean created, final boolean newConnection,
-			final UserInterfaceMqttConnectionDetails connectionDetails)
+	 /**
+     * Initialising value constructor
+     */
+	public ConfiguredConnectionDetails(
+			final ConnectionGroupReference group,
+			final UserInterfaceMqttConnectionDetails connection)
+	{
+		this.group = group;
+		connection.copyTo(this);
+    }
+	
+	public ConfiguredConnectionDetails(final boolean created, final boolean newConnection,
+			final UserInterfaceMqttConnectionDetails connection)
 	{
 		//this.id = id;
 		this.modified = newConnection;
 		this.begingCreated = created;
-		this.newConnection = newConnection;
-		this.lastSavedValues = connectionDetails;
+		this.newConnection = newConnection;		
+		
+		final ConfiguredConnectionDetails connectionDetails = new ConfiguredConnectionDetails(null, connection);
 
 		setConnectionDetails(connectionDetails);
+		setLastSavedValues(connectionDetails);
 	}
 
-	public void setConnectionDetails(final UserInterfaceMqttConnectionDetails connectionDetails)
+	public void setConnectionDetails(final ConfiguredConnectionDetails connectionDetails)
 	{
 		// Take a copy and null it, so that copyTo can work...
 		final ConnectionGroup group = connectionDetails.getGroup() != null ? (ConnectionGroup) connectionDetails.getGroup().getReference() : null;
@@ -102,7 +115,7 @@ public class ConfiguredConnectionDetails extends UserInterfaceMqttConnectionDeta
 		return lastSavedValues;
 	}
 
-	public void setLastSavedValues(UserInterfaceMqttConnectionDetails savedValues)
+	private void setLastSavedValues(final ConfiguredConnectionDetails savedValues)
 	{
 		this.lastSavedValues = savedValues;
 	}
@@ -139,13 +152,7 @@ public class ConfiguredConnectionDetails extends UserInterfaceMqttConnectionDeta
 
 	public void apply()
 	{
-		// Take a copy and null it, so that copyTo can work...
-		//final ConfiguredConnectionGroupDetails group = (ConfiguredConnectionGroupDetails) getGroup().getReference();
-		//setGroup(null);
-		
-		final ConfiguredConnectionDetails valuesToSave = new ConfiguredConnectionDetails(/*id, */false, false, this);
-		//valuesToSave.setGroup(new ConnectionGroupReference(group));
-		//setGroup(new ConnectionGroupReference(group));
+		final ConfiguredConnectionDetails valuesToSave = new ConfiguredConnectionDetails(false, false, this);
 		
 		setLastSavedValues(valuesToSave);
 		begingCreated = false;
@@ -163,16 +170,6 @@ public class ConfiguredConnectionDetails extends UserInterfaceMqttConnectionDeta
 	{
 		this.deleted = deleted;
 	}
-
-//	public int getId()
-//	{
-//		return id;
-//	}
-//
-//	public void setId(int id)
-//	{
-//		this.id = id;
-//	}
 	
 	public boolean isNew()
 	{
@@ -207,5 +204,21 @@ public class ConfiguredConnectionDetails extends UserInterfaceMqttConnectionDeta
 	public boolean isGroupingModified()
 	{
 		return groupingModified;
+	}
+
+	/**
+	 * @return the group
+	 */
+	public ConnectionGroupReference getGroup()
+	{
+		return group;
+	}
+
+	/**
+	 * @param group the group to set
+	 */
+	public void setGroup(ConnectionGroupReference group)
+	{
+		this.group = group;
 	}
 }

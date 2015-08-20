@@ -40,6 +40,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ComboBox;
@@ -58,8 +59,6 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.TextAlignment;
 
-import org.controlsfx.control.action.Action;
-import org.controlsfx.dialog.Dialog;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.fxmisc.richtext.StyleClassedTextArea;
 import org.slf4j.Logger;
@@ -90,7 +89,6 @@ import pl.baczkowicz.spy.utils.TimeUtils;
 /**
  * Controller for creating new publications.
  */
-@SuppressWarnings("deprecation")
 public class NewPublicationController implements Initializable, ScriptListChangeObserver, TitledPaneController
 {
 	/** Diagnostic logger. */
@@ -807,7 +805,9 @@ public class NewPublicationController implements Initializable, ScriptListChange
 		
 		while (!valid)
 		{
-			final Optional<String> response = DialogUtils.askForScriptName(pane);
+			final Optional<String> response = DialogUtils.askForInput(
+					pane.getScene().getWindow(), 
+					"Enter a name for your message-based script", "Script name (without .js)");
 			
 			logger.info("Script name response = " + response);
 			if (response.isPresent())
@@ -823,15 +823,15 @@ public class NewPublicationController implements Initializable, ScriptListChange
 				
 				if (script != null)
 				{
-					Action duplicateNameResponse = DialogUtils.showQuestion("Script name already exists", 
+					Optional<ButtonType> duplicateNameResponse = DialogUtils.askQuestion("Script name already exists", 
 							"Script with name \"" + scriptName 
 							+ "\" already exists in your script folder (" 
 							+ directory + "). Do you want to override it?");
-					if (duplicateNameResponse == Dialog.ACTION_NO)
+					if (duplicateNameResponse.get() == ButtonType.NO)
 					{
 						continue;
 					}
-					else if (duplicateNameResponse == Dialog.ACTION_CANCEL)
+					else if (duplicateNameResponse.get() == ButtonType.CANCEL)
 					{
 						break;
 					}

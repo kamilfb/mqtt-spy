@@ -32,20 +32,39 @@ public class ConfiguredConnectionGroupDetails extends ConnectionGroup
 	
 	private boolean newGroup;
 	
-	private ConnectionGroup lastSavedValues;
+	private ConfiguredConnectionGroupDetails lastSavedValues;
+	
+	private ConnectionGroupReference group;
 
 	private boolean groupingModified;
 
+    /**
+     * Initialising value constructor
+     */
+    public ConfiguredConnectionGroupDetails(final String id, final String name, 
+    		final ConnectionGroupReference group,
+    		final List<ConnectionGroupReference> subgroups, final List<ConnectionReference> connections) 
+    {
+        this.id = id;
+        this.name = name;
+        this.subgroups = subgroups;
+        this.connections = connections;
+        this.group = group;
+    }
+	
 	public ConfiguredConnectionGroupDetails(final ConnectionGroup group, final boolean newConnection)
 	{
 		this.modified = newConnection;
 		this.newGroup = newConnection;
-		setGroupDetails(group);
-		setLastSavedValues(new ConnectionGroup(group.getID(), group.getName(), 
-				group.getGroup(), group.getSubgroups(), group.getConnections()));
+		
+		final ConfiguredConnectionGroupDetails groupDetails = new ConfiguredConnectionGroupDetails(group.getID(), group.getName(), 
+				null, group.getSubgroups(), group.getConnections());
+		
+		setGroupDetails(groupDetails);
+		setLastSavedValues(groupDetails);
 	}
 	
-	public void setGroupDetails(final ConnectionGroup groupDetails)
+	private void setGroupDetails(final ConfiguredConnectionGroupDetails groupDetails)
 	{
 		// Take a copy and null it, so that copyTo can work...
 		final ConnectionGroup group = groupDetails.getGroup() != null ? (ConnectionGroup) groupDetails.getGroup().getReference() : null;
@@ -127,7 +146,7 @@ public class ConfiguredConnectionGroupDetails extends ConnectionGroup
 	/**
 	 * @param lastSavedValues the lastSavedValues to set
 	 */
-	public void setLastSavedValues(final ConnectionGroup lastSavedValues)
+	private void setLastSavedValues(final ConfiguredConnectionGroupDetails lastSavedValues)
 	{
 		this.lastSavedValues = lastSavedValues;
 	}
@@ -156,8 +175,10 @@ public class ConfiguredConnectionGroupDetails extends ConnectionGroup
 
 	public void apply()
 	{
-		setLastSavedValues(new ConnectionGroup(getID(), getName(), getGroup(), 
-				new ArrayList<>(getSubgroups()), new ArrayList<>(getConnections())));
+		final ConfiguredConnectionGroupDetails valuesToSave = new ConfiguredConnectionGroupDetails(getID(), getName(), getGroup(), 
+				new ArrayList<>(getSubgroups()), new ArrayList<>(getConnections()));
+		
+		setLastSavedValues(valuesToSave);
 		modified = false;
 		newGroup = false;
 		groupingModified = false;
@@ -196,5 +217,21 @@ public class ConfiguredConnectionGroupDetails extends ConnectionGroup
 	public boolean isGroupingModified()
 	{
 		return groupingModified;
+	}
+
+	/**
+	 * @return the group
+	 */
+	public ConnectionGroupReference getGroup()
+	{
+		return group;
+	}
+
+	/**
+	 * @param group the group to set
+	 */
+	public void setGroup(final ConnectionGroupReference group)
+	{
+		this.group = group;
 	}
 }

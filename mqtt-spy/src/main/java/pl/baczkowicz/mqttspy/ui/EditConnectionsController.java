@@ -32,6 +32,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.TreeCell;
 import javafx.scene.control.TreeItem;
@@ -41,7 +42,6 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.util.Callback;
 
-import org.controlsfx.dialog.Dialog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,7 +67,7 @@ import pl.baczkowicz.spy.exceptions.ConfigurationException;
 /**
  * Controller for editing all connections.
  */
-@SuppressWarnings({"unchecked", "rawtypes", "deprecation"})
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class EditConnectionsController extends AnchorPane implements Initializable, ConnectionStatusChangeObserver
 {
 	public final static String MODIFIED_ITEM = "* ";
@@ -491,7 +491,7 @@ public class EditConnectionsController extends AnchorPane implements Initializab
 			if (result.isPresent())
 			{
 				final ConnectionGroup group = new ConnectionGroup(ConfigurationManager.generateConnectionGroupId(), 
-						result.get(), null, new ArrayList(), new ArrayList()); 
+						result.get(), new ArrayList(), new ArrayList()); 
 				final ConfiguredConnectionGroupDetails groupDetails = new ConfiguredConnectionGroupDetails(group, true);
 				
 				addToParentGroup(groupDetails, configurationManager.getRootGroup());
@@ -518,12 +518,12 @@ public class EditConnectionsController extends AnchorPane implements Initializab
 			final ConfiguredConnectionGroupDetails group = getSelectedItem().getGroup(); 
 			
 			final String groupName = group.getName();
-			final int connectionCount = selected.getChildren().size();
+			final int childrenCount = selected.getChildren().size();
 			
-			if (DialogUtils.showDeleteQuestion("Deleting connection group", 
+			if (DialogUtils.askQuestion("Deleting connection group", 
 					"Are you sure you want to delete connection group '" + groupName + "'"
-					+ (connectionCount == 0 ? "" : " and all subitems")
-					+ "?") == Dialog.ACTION_YES)
+							+ (childrenCount == 0 ? "" : " and all subitems")
+							+ "?" + " This cannot be undone.", false).get() == ButtonType.YES)
 			{
 				group.removeFromGroup();
 				groups.remove(group);
@@ -546,7 +546,10 @@ public class EditConnectionsController extends AnchorPane implements Initializab
 			
 			final String connectionName = connection.getName();
 			
-			if (DialogUtils.showDeleteConnectionQuestion(connectionName) == Dialog.ACTION_YES)
+			if (DialogUtils.askQuestion(
+					"Deleting connection", 
+					"Are you sure you want to delete connection '" + connectionName + "'?" + " This cannot be undone.", 
+					false).get() == ButtonType.YES)
 			{	
 				editConnectionPaneController.setRecordModifications(false);
 				

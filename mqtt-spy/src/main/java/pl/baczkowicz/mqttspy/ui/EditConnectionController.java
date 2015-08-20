@@ -20,6 +20,7 @@
 package pl.baczkowicz.mqttspy.ui;
 
 import java.net.URL;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 import javafx.application.Platform;
@@ -28,6 +29,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
@@ -37,8 +39,6 @@ import javafx.stage.Stage;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
 
-import org.controlsfx.control.action.Action;
-import org.controlsfx.dialog.Dialog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,7 +66,7 @@ import pl.baczkowicz.spy.exceptions.ConfigurationException;
 /**
  * Controller for editing a single connection.
  */
-@SuppressWarnings({"unchecked", "rawtypes", "deprecation"})
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class EditConnectionController extends AnchorPane implements Initializable
 {
 	final static Logger logger = LoggerFactory.getLogger(EditConnectionController.class);
@@ -295,18 +295,23 @@ public class EditConnectionController extends AnchorPane implements Initializabl
 		
 		if (validationResult != null)
 		{
-			DialogUtils.showValidationWarning(validationResult);
+			DialogUtils.showWarning("Invalid value detected", validationResult);
 		}
 		else
 		{					
 			if (connectionDetails.isModified())
 			{	
-				Action response = DialogUtils.showApplyChangesQuestion("connection " + connectionDetails.getName()); 
-				if (response == Dialog.ACTION_YES)
+				Optional<ButtonType> response = DialogUtils.askQuestion(
+						"Unsaved changes detected", 
+						"You've got unsaved changes for " + "connection " 
+						+ connectionDetails.getName() + ". Do you want to save/apply them now?", 
+						true);
+				
+				if (response.get() == ButtonType.YES)
 				{
 					save();
 				}
-				else if (response == Dialog.ACTION_NO)
+				else if (response.get() == ButtonType.NO)
 				{
 					// Do nothing
 				}
@@ -415,7 +420,7 @@ public class EditConnectionController extends AnchorPane implements Initializabl
 	
 	private boolean readAndDetectChanges()
 	{
-		final UserInterfaceMqttConnectionDetails connection = readValues();
+		final ConfiguredConnectionDetails connection = new ConfiguredConnectionDetails(null, readValues());
 
 		// Copy...
 		final ConnectionGroupReference group = editedConnectionDetails.getGroup();

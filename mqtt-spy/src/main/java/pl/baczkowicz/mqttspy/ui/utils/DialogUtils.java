@@ -34,9 +34,13 @@ import javafx.fxml.FXMLLoader;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
@@ -141,96 +145,89 @@ public class DialogUtils
 	 */
 	public static void showError(final String title, final String message)
 	{
-		Dialogs.create().owner(null).title(title).masthead(null).message(message).showError();
-	}
-	
-	/**
-	 * Shows a warning dialog with "Invalid value detected" title.
-	 * 
-	 * @param message The message to be displayed
-	 */
-	public static void showValidationWarning(final String message)
-	{
-		Dialogs.create().owner(null).title("Invalid value detected").masthead(null)
-				.message(message + ".").showWarning();
+		final Alert alert = new Alert(AlertType.ERROR);
+		alert.setTitle(title);
+		alert.setContentText(message);
+		alert.setHeaderText(null);
+
+		alert.showAndWait();
+		
+		// TODO: remove; used before Update 40
+		// Dialogs.create().owner(null).title(title).masthead(null).message(message).showError();
 	}
 
-	/**
-	 * Asks the user whether to save unsaved changes.
-	 * 
-	 * @param parameter The parameter that has changed
-	 * 
-	 * @return The user's response
-	 */
-	public static Action showApplyChangesQuestion(final String parameter)
+	public static void showWarning(final String title, final String message)
 	{
-		return Dialogs.create().owner(null).title("Unsaved changes detected").masthead(null)
-		.message("You've got unsaved changes for " + parameter + ". Do you want to save/apply them now?").showConfirm();		
-	}
+		Alert alert = new Alert(AlertType.WARNING);
+		alert.setTitle(title);
+		alert.setContentText(message + ".");
+		alert.setHeaderText(null);
+
+		alert.showAndWait();
+		
+		// TODO: remove; used before Update 40
+//		Dialogs.create()
+//		.owner(null)
+//		.title(title)
+//		.masthead(null)
+//		.message(message)
+//		.showWarning();
+	}	
 	
-	public static Action showQuestion(final String title, final String message)
+
+	public static Optional<ButtonType> askQuestion(final String title, final String message, final boolean showNoButton)
 	{
-		return showQuestion(title, message, true);
-	}
-	
-	public static Action showQuestion(final String title, final String message, final boolean showNoButton)
-	{
+		final Alert alert = new Alert(AlertType.CONFIRMATION);
+		alert.setTitle(title);
+		alert.setContentText(message);
+		alert.setHeaderText(null);
+
 		if (showNoButton)
 		{
-			return Dialogs.create().owner(null).title(title).masthead(null)
-					.message(message).showConfirm();				
+			alert.getButtonTypes().setAll(ButtonType.CANCEL, ButtonType.NO, ButtonType.YES);
+		}
+		else
+		{
+			alert.getButtonTypes().setAll(ButtonType.CANCEL, ButtonType.YES);
 		}
 		
-		return Dialogs.create().owner(null).title(title).masthead(null)
-				.actions(Dialog.ACTION_YES, Dialog.ACTION_CANCEL)
-				.message(message).showConfirm();
+		// TODO: remove; used before Update 40
+//		if (showNoButton)
+//		{
+//			return Dialogs.create().owner(null).title(title).masthead(null)
+//					.message(message).showConfirm();				
+//		}
+//		
+//		return Dialogs.create().owner(null).title(title).masthead(null)
+//				.actions(Dialog.ACTION_YES, Dialog.ACTION_CANCEL)
+//				.message(message).showConfirm();
+		
+		return alert.showAndWait();
 	}
-	
+
 	/**
 	 * Asks the user for input.
 	 * 
 	 * @return The user's response
 	 */
-	public static Optional<String> askForInput(final Object owner, final String title, final String label)
+	public static Optional<String> askForInput(final Window owner, final String title, final String label)
 	{
-		return Dialogs.create().owner(owner).title(title).masthead(null)
-		.message(label).showTextInput();		
+		final TextInputDialog dialog = new TextInputDialog();
+		dialog.setTitle(title);
+		dialog.setHeaderText(null);
+		dialog.setContentText(label);
+		dialog.initOwner(owner);
+		
+		return dialog.showAndWait();
+		
+		// TODO: remove; used before Update 40
+//		return Dialogs.create().owner(owner).title(title).masthead(null)
+//				.message(label).showTextInput();		
 	}
 	
-	/**
-	 * Asks the user for a script name.
-	 * 
-	 * @return The user's response
-	 */
-	public static Optional<String> askForScriptName(final Object owner)
+	public static Optional<ButtonType> askQuestion(final String title, final String message)
 	{
-		return askForInput(owner, "Enter a name for your message-based script", "Script name (without .js)");
-	}
-	
-	/**
-	 * Asks the user whether to delete the given element/parameter.
-	 * 
-	 * @param parameter The element to delete
-	 * 
-	 * @return The user's response
-	 */
-	public static Action showDeleteConnectionQuestion(final String parameter)
-	{
-		return showDeleteQuestion("Deleting connection", "Are you sure you want to delete connection '" + parameter + "'?");		
-	}
-	
-	/**
-	 * Asks the user whether to delete the given element/parameter.
-	 * 
-	 * @param parameter The element to delete
-	 * 
-	 * @return The user's response
-	 */
-	public static Action showDeleteQuestion(final String title, final String question)
-	{
-		return Dialogs.create().owner(null).title(title).masthead(null)
-		.actions(Dialog.ACTION_YES, Dialog.ACTION_CANCEL)
-		.message(question + " This cannot be undone.").showConfirm();		
+		return askQuestion(title, message, true);
 	}
 
 	/**
@@ -245,6 +242,7 @@ public class DialogUtils
 	public static boolean showUsernameAndPasswordDialog(final Object owner,
 			String connectionName, final UserCredentials userCredentials)
 	{
+		// TODO: use Java dialogs
 		final Pair<String, String> userInfo = new Pair<String, String>(
 				userCredentials.getUsername(), 
 				MqttUtils.decodePassword(userCredentials.getPassword()));
@@ -265,39 +263,18 @@ public class DialogUtils
 		return false;
 	}
 
-	/**
-	 * Shows a dialog with "Invalid configuration file" title.
-	 * 
-	 * @param message The message to be shown 
-	 */
-	public static void showInvalidConfigurationFileDialog(final String message)
-	{
-		Dialogs.create().owner(null).title("Invalid configuration file").masthead(null)
-				.message(message).showError();
-	}
-
-
-	public static void showWarning(final String title, final String message)
-	{
-		Dialogs.create()
-		.owner(null)
-		.title(title)
-		.masthead(null)
-		.message(message)
-		.showWarning();
-	}	
-	/**
-	 * Shows a dialog saying the given file is read-only.
-	 * 
-	 * @param absolutePath The path to the file
-	 */
-	public static void showReadOnlyWarning(final String absolutePath)
-	{
-		showWarning("Read-only configuration file", 
-				"The configuration file that has been loaded (" + absolutePath
-								+ ") is read-only. Changes won't be saved. "
-								+ "Please make the file writeable for any changes to be saved.");
-	}
+//	/**
+//	 * Shows a dialog saying the given file is read-only.
+//	 * 
+//	 * @param absolutePath The path to the file
+//	 */
+//	public static void showReadOnlyWarning(final String absolutePath)
+//	{
+//		showWarning("Read-only configuration file", 
+//				"The configuration file that has been loaded (" + absolutePath
+//								+ ") is read-only. Changes won't be saved. "
+//								+ "Please make the file writeable for any changes to be saved.");
+//	}
 	
 	/**
 	 * Updates the given connection tooltip with connection information.
@@ -382,6 +359,7 @@ public class DialogUtils
 	 */
 	public static boolean showDefaultConfigurationFileMissingChoice(final String title, final Window window)
 	{	
+		// TODO: use Java dialogs
 		final DialogAction createWithSample = new DialogAction("Create mqtt-spy configuration file with sample content");
 		createWithSample.setLongText(System.getProperty("line.separator") + "This creates a configuration file " +  
                 "in \"" + ConfigurationManager.DEFAULT_HOME_DIRECTORY + "\"" + 
@@ -455,12 +433,14 @@ public class DialogUtils
 	 */
 	public static void showWorkerDialog(final Task<?> readAndProcess)
 	{
+		// TODO: use Java dialogs
 		Dialogs.create().showWorkerProgress(readAndProcess);
 	}
 
 	public static Color showColorDialog(final Color color, final String title,
 			final String label)
 	{
+		// TODO: use Java dialogs
 		CustomDialog dialog = new CustomDialog(null, title);
 
 		final ColorPicker picker = new ColorPicker(color);

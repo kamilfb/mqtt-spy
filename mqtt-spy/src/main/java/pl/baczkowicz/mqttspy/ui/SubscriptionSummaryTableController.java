@@ -22,6 +22,7 @@ package pl.baczkowicz.mqttspy.ui;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -36,6 +37,7 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
@@ -48,8 +50,6 @@ import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.util.Callback;
 
-import org.controlsfx.control.action.Action;
-import org.controlsfx.dialog.Dialog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,7 +68,6 @@ import pl.baczkowicz.mqttspy.ui.utils.UiUtils;
 /**
  * Controller for the subscription summary table.
  */
-@SuppressWarnings("deprecation")
 public class SubscriptionSummaryTableController implements Initializable
 {
 	private static final int CHART_TOPIC_COUNT = 10;
@@ -630,13 +629,13 @@ public class SubscriptionSummaryTableController implements Initializable
 					final Set<String> topics = store.getFilteredMessageStore().getBrowsedTopics();
 					if (topics.size() > CHART_TOPIC_COUNT)
 					{
-						final Action response = DialogUtils.showQuestion(
+						final Optional<ButtonType> response = DialogUtils.askQuestion(
 								"Number of selected topics", 
 								"More than " + CHART_TOPIC_COUNT 
 								+ " topics have been selected to be displayed on a chart. Do you want to proceed?",
 								false);
 						
-						if (!response.equals(Dialog.ACTION_YES))
+						if (response.get() != ButtonType.YES)
 						{
 							return;
 						}
@@ -676,13 +675,13 @@ public class SubscriptionSummaryTableController implements Initializable
 					final Set<String> topics = store.getFilteredMessageStore().getBrowsedTopics();
 					if (topics.size() > CHART_TOPIC_COUNT)
 					{
-						final Action response = DialogUtils.showQuestion(
+						final Optional<ButtonType> response = DialogUtils.askQuestion(
 								"Number of selected topics", 
 								"More than " + CHART_TOPIC_COUNT 
 								+ " topics have been selected to be displayed on a chart. Do you want to proceed?",
 								false);
 						
-						if (!response.equals(Dialog.ACTION_YES))
+						if (response.get() != ButtonType.YES)
 						{
 							return;
 						}

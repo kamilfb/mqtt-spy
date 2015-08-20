@@ -30,6 +30,7 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
@@ -40,8 +41,6 @@ import javafx.util.Callback;
 
 import javax.script.ScriptException;
 
-import org.controlsfx.control.action.Action;
-import org.controlsfx.dialog.Dialog;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,7 +63,7 @@ import pl.baczkowicz.spy.utils.ConversionUtils;
 /**
  * Controller for the converter window.
  */
-@SuppressWarnings({"rawtypes", "unchecked", "deprecation"})
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class FormattersController implements Initializable
 {
 	final static Logger logger = LoggerFactory.getLogger(FormattersController.class);
@@ -314,15 +313,15 @@ public class FormattersController implements Initializable
 			}
 		}
 		
-		Action result = null;
+		Optional<ButtonType> result = null;
 		if (count > 0)
 		{
-			result = DialogUtils.showQuestion("Formatter is still in use", 
+			result = DialogUtils.askQuestion("Formatter is still in use", 
 					"There are " + count + " connections configured with this formatter. Are you sure you want to delete it?", 
-					true);
+					false);
 		}
 		
-		if (count == 0 || result == Dialog.ACTION_YES)
+		if (count == 0 || result.get() == ButtonType.YES)
 		{
 			for (final ConfiguredConnectionDetails connectionDetails : configurationManager.getConnections())
 			{					
@@ -346,7 +345,8 @@ public class FormattersController implements Initializable
 		selectedFormatter = null;
 		newFormatter = new FormatterDetails();
 		
-		Optional<String> name = DialogUtils.askForInput(formattersWindow, "Enter formatter name", "Name for the new formatter");
+		Optional<String> name = DialogUtils.askForInput(
+				formattersWindow.getScene().getWindow(), "Enter formatter name", "Name for the new formatter");
 		
 		boolean cancelled = !name.isPresent();
 		boolean valid = false;
@@ -363,7 +363,8 @@ public class FormattersController implements Initializable
 				if (formatter.getName().equals(newFormatter.getName()) || formatter.getID().equals(newFormatter.getID()))
 				{
 					DialogUtils.showWarning("Invalid name", "Entered formatter name/ID already exists. Please chose a different one.");
-					name = DialogUtils.askForInput(formattersWindow, "Enter formatter name", "Name for the new formatter");
+					name = DialogUtils.askForInput(
+							formattersWindow.getScene().getWindow(), "Enter formatter name", "Name for the new formatter");
 					cancelled = name.isPresent();
 					valid = false;
 					break;
