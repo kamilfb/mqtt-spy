@@ -118,6 +118,12 @@ public class MessageLogParserUtils
 	        
 	        for (final String message : messages)
 	        {
+	        	if (progress.isCancelled())
+				{
+					logger.info("Task cancelled!");
+					return null;
+				}
+	        	
 	        	if (progress != null)
 	        	{
 		        	item++;
@@ -168,6 +174,12 @@ public class MessageLogParserUtils
 		// Process the messages
         for (final LoggedMqttMessage loggedMessage : list)
         {
+        	if (progress.isCancelled())
+			{
+				logger.info("Task cancelled!");
+				return null;
+			}
+        	
         	if (progress != null)
         	{
 	        	item++;

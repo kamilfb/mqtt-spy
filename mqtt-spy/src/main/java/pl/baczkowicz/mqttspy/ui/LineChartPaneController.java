@@ -79,7 +79,7 @@ import pl.baczkowicz.mqttspy.ui.events.EventManager;
 import pl.baczkowicz.mqttspy.ui.events.observers.MessageAddedObserver;
 import pl.baczkowicz.mqttspy.ui.events.queuable.ui.BrowseReceivedMessageEvent;
 import pl.baczkowicz.mqttspy.ui.properties.MessageLimitProperties;
-import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
+import pl.baczkowicz.spy.ui.utils.DialogUtils;
 import pl.baczkowicz.mqttspy.ui.utils.StylingUtils;
 import pl.baczkowicz.spy.utils.TimeUtils;
 

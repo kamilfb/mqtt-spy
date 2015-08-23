@@ -76,7 +76,7 @@ import pl.baczkowicz.mqttspy.ui.panes.PaneVisibilityStatus;
 import pl.baczkowicz.mqttspy.ui.panes.TabStatus;
 import pl.baczkowicz.mqttspy.ui.utils.ConnectivityUtils;
 import pl.baczkowicz.mqttspy.ui.utils.ContextMenuUtils;
-import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
+import pl.baczkowicz.spy.ui.utils.DialogUtils;
 import pl.baczkowicz.mqttspy.ui.utils.FxmlUtils;
 import pl.baczkowicz.mqttspy.ui.utils.TabUtils;
 import pl.baczkowicz.spy.exceptions.ConfigurationException;
@@ -178,7 +178,7 @@ public class ConnectionManager
 			if (connectionDetails.getUserAuthentication().isAskForPassword() || connectionDetails.getUserAuthentication().isAskForUsername())
 			{
 				// Password is decoded and encoded in this utility method
-				if (!DialogUtils.showUsernameAndPasswordDialog(stage, connectionDetails.getName(), userCredentials))
+				if (!DialogUtils.askForMqttUsernameAndPassword(stage, connectionDetails.getName(), userCredentials))
 				{
 					return true;
 				}

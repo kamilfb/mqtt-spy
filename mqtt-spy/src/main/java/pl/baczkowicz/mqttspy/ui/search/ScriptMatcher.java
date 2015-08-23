@@ -22,7 +22,7 @@ package pl.baczkowicz.mqttspy.ui.search;
 import pl.baczkowicz.mqttspy.scripts.Script;
 import pl.baczkowicz.mqttspy.scripts.ScriptManager;
 import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
-import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
+import pl.baczkowicz.spy.ui.utils.DialogUtils;
 
 public class ScriptMatcher implements SearchMatcher
 {

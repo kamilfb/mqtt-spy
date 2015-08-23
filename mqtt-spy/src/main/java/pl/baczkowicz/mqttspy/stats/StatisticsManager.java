@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -320,5 +321,63 @@ public class StatisticsManager implements Runnable
 		}					
 		
 		ThreadingUtils.logThreadEnding();
+	}
+	
+	/** Format of the stats label. */
+	public static final String STATS_FORMAT = "load: " + getPeriodValues();
+	
+	/**
+	 * Creates the list of all periods defined in the statistics manager.
+	 * 
+	 * @return List of all periods
+	 */
+	public static String getPeriodList()
+	{
+		final StringBuffer sb = new StringBuffer();
+		
+		final Iterator<Integer> iterator = StatisticsManager.periods.iterator();
+		while (iterator.hasNext()) 
+		{
+			final int period = (int) iterator.next();
+			if (period > 60)
+			{
+				sb.append((period / 60) + "m");
+			}
+			else
+			{
+				sb.append(period + "s");
+			}
+			
+			if (iterator.hasNext())
+			{
+				sb.append(", ");
+			}
+		}
+		
+		return sb.toString();
+	}
+	
+	/**
+	 * Creates the stats format for all periods defined in the statistics manager.
+	 * 
+	 * @return Format for all periods
+	 */
+	public static String getPeriodValues()
+	{
+		final StringBuffer sb = new StringBuffer();
+		
+		final Iterator<Integer> iterator = StatisticsManager.periods.iterator();
+		while (iterator.hasNext()) 
+		{
+			sb.append("%.1f");	
+			iterator.next();
+			
+			if (iterator.hasNext())
+			{
+				sb.append("/");
+			}
+		}
+		
+		return sb.toString();
 	}
 }

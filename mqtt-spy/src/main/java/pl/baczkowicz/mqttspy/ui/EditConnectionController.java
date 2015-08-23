@@ -59,7 +59,8 @@ import pl.baczkowicz.mqttspy.ui.controllers.edit.EditConnectionPublicationsContr
 import pl.baczkowicz.mqttspy.ui.controllers.edit.EditConnectionSecurityController;
 import pl.baczkowicz.mqttspy.ui.controllers.edit.EditConnectionSubscriptionsController;
 import pl.baczkowicz.mqttspy.ui.utils.ConnectivityUtils;
-import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
+import pl.baczkowicz.spy.ui.utils.DialogUtils;
+import pl.baczkowicz.spy.ui.utils.TooltipUtils;
 import pl.baczkowicz.mqttspy.utils.ConnectionUtils;
 import pl.baczkowicz.spy.exceptions.ConfigurationException;
 
@@ -268,7 +269,7 @@ public class EditConnectionController extends AnchorPane implements Initializabl
 					
 			updateButtons();
 			
-			DialogUtils.showTooltip(saveButton, "Changes for connection " + editedConnectionDetails.getName() + " have been saved.");
+			TooltipUtils.showTooltip(saveButton, "Changes for connection " + editedConnectionDetails.getName() + " have been saved.");
 		}
 		else
 		{

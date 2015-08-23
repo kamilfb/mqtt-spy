@@ -256,7 +256,7 @@ public class MainController
 		{			
 			final TaskWithProgressUpdater<List<BaseMqttMessage>> readAndProcess = new LogReaderTask(selectedFile, connectionManager, this);
 			
-			DialogUtils.showWorkerDialog(readAndProcess);
+			pl.baczkowicz.spy.ui.utils.DialogUtils.showWorkerDialog(readAndProcess);
 			
 			new Thread(readAndProcess).start();			
 		}

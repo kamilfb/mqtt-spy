@@ -30,6 +30,7 @@ import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import pl.baczkowicz.mqttspy.ui.panes.PaneVisibilityStatus;
 import pl.baczkowicz.mqttspy.ui.panes.TabController;
+import pl.baczkowicz.spy.ui.utils.DialogUtils;
 
 import com.sun.javafx.scene.control.behavior.TabPaneBehavior;
 import com.sun.javafx.scene.control.skin.TabPaneSkin;

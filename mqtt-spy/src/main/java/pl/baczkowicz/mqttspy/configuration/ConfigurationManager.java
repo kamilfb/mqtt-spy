@@ -47,7 +47,7 @@ import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
 import pl.baczkowicz.mqttspy.ui.MqttSpyPerspective;
 import pl.baczkowicz.mqttspy.ui.events.EventManager;
-import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
+import pl.baczkowicz.spy.ui.utils.DialogUtils;
 import pl.baczkowicz.mqttspy.utils.IdGenerator;
 import pl.baczkowicz.spy.exceptions.XMLException;
 import pl.baczkowicz.spy.utils.ThreadingUtils;

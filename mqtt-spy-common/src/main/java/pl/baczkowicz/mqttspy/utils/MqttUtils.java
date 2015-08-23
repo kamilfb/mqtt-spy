@@ -27,7 +27,6 @@ import org.eclipse.paho.client.mqttv3.MqttTopic;
 
 import pl.baczkowicz.mqttspy.common.generated.ProtocolEnum;
 import pl.baczkowicz.spy.exceptions.SpyException;
-import pl.baczkowicz.spy.utils.ConversionUtils;
 
 /**
  * MQTT utilities.
@@ -138,30 +137,6 @@ public class MqttUtils
 		}		
 
 		return serverURI;
-	}
-	
-	/**
-	 * Encodes the given password to Base 64.
-	 * 
-	 * @param value The password to encode
-	 * 
-	 * @return The encoded password
-	 */
-	public static String encodePassword(final String value)
-	{
-		return ConversionUtils.stringToBase64(value);
-	}
-	
-	/**
-	 * Decodes the given password from Base 64.
-	 * 
-	 * @param value The password to decode
-	 * 
-	 * @return The decoded password
-	 */
-	public static String decodePassword(final String value)
-	{
-		return ConversionUtils.base64ToString(value);
 	}
 	
 	public static boolean recordTopic(final String newTopic, final List<String> topics)

@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 import pl.baczkowicz.mqttspy.Main;
 import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnectionDetails;
 import pl.baczkowicz.mqttspy.storage.MessageList;
+import pl.baczkowicz.spy.utils.ConversionUtils;
 
 public class ConfigurationUtils
 {
@@ -206,4 +207,29 @@ public class ConfigurationUtils
 		configurationManager.getUiPropertyFile().setProperty(propertyName, String.valueOf(returnValue));
 		return returnValue;
 	}	
+	
+	
+	/**
+	 * Encodes the given password to Base 64.
+	 * 
+	 * @param value The password to encode
+	 * 
+	 * @return The encoded password
+	 */
+	public static String encodePassword(final String value)
+	{
+		return ConversionUtils.stringToBase64(value);
+	}
+	
+	/**
+	 * Decodes the given password from Base 64.
+	 * 
+	 * @param value The password to decode
+	 * 
+	 * @return The decoded password
+	 */
+	public static String decodePassword(final String value)
+	{
+		return ConversionUtils.base64ToString(value);
+	}
 }

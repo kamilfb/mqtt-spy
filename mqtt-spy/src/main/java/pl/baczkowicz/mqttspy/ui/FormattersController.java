@@ -56,7 +56,8 @@ import pl.baczkowicz.mqttspy.messages.BaseMqttMessageWithSubscriptions;
 import pl.baczkowicz.mqttspy.scripts.Script;
 import pl.baczkowicz.mqttspy.scripts.ScriptBasedFormatter;
 import pl.baczkowicz.mqttspy.scripts.ScriptManager;
-import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
+import pl.baczkowicz.spy.ui.utils.DialogUtils;
+import pl.baczkowicz.spy.ui.utils.TooltipUtils;
 import pl.baczkowicz.mqttspy.utils.FormattingUtils;
 import pl.baczkowicz.spy.utils.ConversionUtils;
 
@@ -331,7 +332,7 @@ public class FormattersController implements Initializable
 			
 			if (configurationManager.saveConfiguration())
 			{
-				DialogUtils.showTooltip(deleteButton, "Formatter deleted. Changes saved.");
+				TooltipUtils.showTooltip(deleteButton, "Formatter deleted. Changes saved.");
 				init();
 				formattersList.getSelectionModel().selectFirst();
 			}
@@ -413,7 +414,7 @@ public class FormattersController implements Initializable
 		
 		if (configurationManager.saveConfiguration())
 		{
-			DialogUtils.showTooltip(newButton, "Formatter added. Changes saved.");
+			TooltipUtils.showTooltip(newButton, "Formatter added. Changes saved.");
 			init();
 			formattersList.getSelectionModel().selectFirst();
 		}

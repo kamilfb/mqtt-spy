@@ -20,58 +20,36 @@
 package pl.baczkowicz.mqttspy.ui.utils;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
-import javafx.application.Platform;
-import javafx.collections.ObservableList;
-import javafx.concurrent.Task;
+import javafx.beans.binding.DoubleBinding;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.fxml.FXMLLoader;
-import javafx.geometry.Point2D;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.geometry.VPos;
 import javafx.scene.Node;
-import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.ColorPicker;
+import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextInputDialog;
-import javafx.scene.control.Tooltip;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.paint.Color;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.Priority;
+import javafx.scene.text.TextAlignment;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
-import javafx.stage.Stage;
 import javafx.stage.Window;
-import javafx.stage.WindowEvent;
 import javafx.util.Pair;
 
-import org.controlsfx.control.action.Action;
-import org.controlsfx.dialog.CustomDialog;
 import org.controlsfx.dialog.CustomDialogs;
-import org.controlsfx.dialog.Dialog;
-import org.controlsfx.dialog.DialogAction;
-import org.controlsfx.dialog.Dialogs;
 
-import pl.baczkowicz.mqttspy.common.generated.UserCredentials;
 import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
 import pl.baczkowicz.mqttspy.configuration.ConfigurationUtils;
-import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
-import pl.baczkowicz.mqttspy.connectivity.MqttConnectionStatus;
-import pl.baczkowicz.mqttspy.stats.StatisticsManager;
-import pl.baczkowicz.mqttspy.storage.BasicMessageStoreWithSummary;
-import pl.baczkowicz.mqttspy.ui.LineChartPaneController;
-import pl.baczkowicz.mqttspy.ui.PieChartPaneController;
-import pl.baczkowicz.mqttspy.ui.charts.ChartMode;
-import pl.baczkowicz.mqttspy.ui.events.EventManager;
-import pl.baczkowicz.mqttspy.ui.properties.SubscriptionTopicSummaryProperties;
-import pl.baczkowicz.mqttspy.utils.MqttUtils;
-import pl.baczkowicz.spy.utils.ThreadingUtils;
+import pl.baczkowicz.mqttspy.ui.controls.DialogAction;
 
 /**
  * Utilities for creating all sorts of dialogs.
@@ -79,276 +57,6 @@ import pl.baczkowicz.spy.utils.ThreadingUtils;
 @SuppressWarnings("deprecation")
 public class DialogUtils
 {
-	/** Format of the stats label. */
-	public static final String STATS_FORMAT = "load: " + getPeriodValues();
-	
-	/**
-	 * Creates the list of all periods defined in the statistics manager.
-	 * 
-	 * @return List of all periods
-	 */
-	public static String getPeriodList()
-	{
-		final StringBuffer sb = new StringBuffer();
-		
-		final Iterator<Integer> iterator = StatisticsManager.periods.iterator();
-		while (iterator.hasNext()) 
-		{
-			final int period = (int) iterator.next();
-			if (period > 60)
-			{
-				sb.append((period / 60) + "m");
-			}
-			else
-			{
-				sb.append(period + "s");
-			}
-			
-			if (iterator.hasNext())
-			{
-				sb.append(", ");
-			}
-		}
-		
-		return sb.toString();
-	}
-	
-	/**
-	 * Creates the stats format for all periods defined in the statistics manager.
-	 * 
-	 * @return Format for all periods
-	 */
-	public static String getPeriodValues()
-	{
-		final StringBuffer sb = new StringBuffer();
-		
-		final Iterator<Integer> iterator = StatisticsManager.periods.iterator();
-		while (iterator.hasNext()) 
-		{
-			sb.append("%.1f");	
-			iterator.next();
-			
-			if (iterator.hasNext())
-			{
-				sb.append("/");
-			}
-		}
-		
-		return sb.toString();
-	}
-	
-	/**
-	 * Shows an error dialog.
-	 * 
-	 * @param title Title of the dialog
-	 * @param message Message to be displayed
-	 */
-	public static void showError(final String title, final String message)
-	{
-		final Alert alert = new Alert(AlertType.ERROR);
-		alert.setTitle(title);
-		alert.setContentText(message);
-		alert.setHeaderText(null);
-
-		alert.showAndWait();
-		
-		// TODO: remove; used before Update 40
-		// Dialogs.create().owner(null).title(title).masthead(null).message(message).showError();
-	}
-
-	public static void showWarning(final String title, final String message)
-	{
-		Alert alert = new Alert(AlertType.WARNING);
-		alert.setTitle(title);
-		alert.setContentText(message + ".");
-		alert.setHeaderText(null);
-
-		alert.showAndWait();
-		
-		// TODO: remove; used before Update 40
-//		Dialogs.create()
-//		.owner(null)
-//		.title(title)
-//		.masthead(null)
-//		.message(message)
-//		.showWarning();
-	}	
-	
-
-	public static Optional<ButtonType> askQuestion(final String title, final String message, final boolean showNoButton)
-	{
-		final Alert alert = new Alert(AlertType.CONFIRMATION);
-		alert.setTitle(title);
-		alert.setContentText(message);
-		alert.setHeaderText(null);
-
-		if (showNoButton)
-		{
-			alert.getButtonTypes().setAll(ButtonType.CANCEL, ButtonType.NO, ButtonType.YES);
-		}
-		else
-		{
-			alert.getButtonTypes().setAll(ButtonType.CANCEL, ButtonType.YES);
-		}
-		
-		// TODO: remove; used before Update 40
-//		if (showNoButton)
-//		{
-//			return Dialogs.create().owner(null).title(title).masthead(null)
-//					.message(message).showConfirm();				
-//		}
-//		
-//		return Dialogs.create().owner(null).title(title).masthead(null)
-//				.actions(Dialog.ACTION_YES, Dialog.ACTION_CANCEL)
-//				.message(message).showConfirm();
-		
-		return alert.showAndWait();
-	}
-
-	/**
-	 * Asks the user for input.
-	 * 
-	 * @return The user's response
-	 */
-	public static Optional<String> askForInput(final Window owner, final String title, final String label)
-	{
-		final TextInputDialog dialog = new TextInputDialog();
-		dialog.setTitle(title);
-		dialog.setHeaderText(null);
-		dialog.setContentText(label);
-		dialog.initOwner(owner);
-		
-		return dialog.showAndWait();
-		
-		// TODO: remove; used before Update 40
-//		return Dialogs.create().owner(owner).title(title).masthead(null)
-//				.message(label).showTextInput();		
-	}
-	
-	public static Optional<ButtonType> askQuestion(final String title, final String message)
-	{
-		return askQuestion(title, message, true);
-	}
-
-	/**
-	 * Asks the user to review/complete username and password information.
-	 * 
-	 * @param owner The window owner
-	 * @param connectionName Name of the connection
-	 * @param userCredentials Existing user credentials
-	 * 
-	 * @return True when confirmed by user
-	 */
-	public static boolean showUsernameAndPasswordDialog(final Object owner,
-			String connectionName, final UserCredentials userCredentials)
-	{
-		// TODO: use Java dialogs
-		final Pair<String, String> userInfo = new Pair<String, String>(
-				userCredentials.getUsername(), 
-				MqttUtils.decodePassword(userCredentials.getPassword()));
-		
-		final CustomDialogs dialog = new CustomDialogs();
-		dialog.owner(owner);
-		dialog.masthead("Enter MQTT user name and password:");
-		dialog.title("User credentials for connection " + connectionName);
-		Optional<Pair<String, String>> response = dialog.showLogin(userInfo, null);
-		
-		if (response.isPresent())
-		{
-			userCredentials.setUsername(response.get().getKey());			
-			userCredentials.setPassword(MqttUtils.encodePassword(response.get().getValue()));
-			return true;
-		}
-		
-		return false;
-	}
-
-//	/**
-//	 * Shows a dialog saying the given file is read-only.
-//	 * 
-//	 * @param absolutePath The path to the file
-//	 */
-//	public static void showReadOnlyWarning(final String absolutePath)
-//	{
-//		showWarning("Read-only configuration file", 
-//				"The configuration file that has been loaded (" + absolutePath
-//								+ ") is read-only. Changes won't be saved. "
-//								+ "Please make the file writeable for any changes to be saved.");
-//	}
-	
-	/**
-	 * Updates the given connection tooltip with connection information.
-	 * 
-	 * @param connection The connection to which the tooltip refers
-	 * @param tooltip The tooltip to be updated
-	 */
-	public static void updateConnectionTooltip(final MqttAsyncConnection connection, final Tooltip tooltip)
-	{
-		final StringBuffer sb = new StringBuffer();
-		sb.append("Status: " + connection.getConnectionStatus().toString().toLowerCase());
-		
-		if (MqttConnectionStatus.CONNECTED.equals(connection.getConnectionStatus()))
-		{
-			sb.append(" (" + connection.getLastSuccessfulyConnectionAttempt() + ")");
-			
-			sb.append(System.getProperty("line.separator"));
-			final String sslStatus = connection.getProperties().getSSL() != null ? "on" : "off";
-			final String userAuthStatus = connection.getProperties().getUserCredentials() != null ? "on" : "off";
-			sb.append("Security: TLS/SSL is " +  sslStatus + "; user authentication is " + userAuthStatus);
-		}
-		
-		if (connection.getConnectionAttempts() > 1)
-		{
-			sb.append(System.getProperty("line.separator"));
-			sb.append("Connection attempts: " + connection.getConnectionAttempts());
-		}
-				
-		if (connection.getDisconnectionReason() != null && !connection.getDisconnectionReason().isEmpty())
-		{
-			sb.append(System.getProperty("line.separator"));
-			sb.append("Last error: " + connection.getDisconnectionReason().toLowerCase());
-		}	
-		
-		tooltip.setText(sb.toString());
-	}
-	
-	/**
-	 * Shows the given tooltip for 5 seconds.
-	 * 
-	 * @param button The button to be used as the parent
-	 * @param message The message to be shown in the tooltip
-	 */
-	public static void showTooltip(final Button button, final String message)
-	{
-		final Tooltip tooltip = new Tooltip(message);
-		button.setTooltip(tooltip);
-		tooltip.setAutoHide(true);
-		tooltip.setAutoFix(true);
-		Point2D p = button.localToScene(0.0, 0.0);	    
-		tooltip.show(button.getScene().getWindow(), 
-				p.getX() + button.getScene().getX() + button.getScene().getWindow().getX() - 50, 
-		        p.getY() + button.getScene().getY() + button.getScene().getWindow().getY() - 50);
-		
-		new Thread(new Runnable()
-		{
-			@Override
-			public void run()			
-			{
-				ThreadingUtils.sleep(5000);
-				
-				Platform.runLater(new Runnable()
-				{
-					@Override
-					public void run()
-					{
-						button.setTooltip(null);
-						tooltip.hide();
-					}				
-				});
-			}		
-		}).start();
-	}
-
 	/**
 	 * Shows the choice dialog when missing configuration file is detected.
 	 * 
@@ -360,51 +68,54 @@ public class DialogUtils
 	public static boolean showDefaultConfigurationFileMissingChoice(final String title, final Window window)
 	{	
 		// TODO: use Java dialogs
-		final DialogAction createWithSample = new DialogAction("Create mqtt-spy configuration file with sample content");
-		createWithSample.setLongText(System.getProperty("line.separator") + "This creates a configuration file " +  
+		final DialogAction createWithSample = new DialogAction("Create mqtt-spy configuration file with sample content",
+				System.getProperty("line.separator") + "This creates a configuration file " +  
                 "in \"" + ConfigurationManager.DEFAULT_HOME_DIRECTORY + "\"" + 
                 " called \"" + ConfigurationManager.DEFAULT_FILE_NAME + "\"" + 
                 ", which will include sample connections to localhost and iot.eclipse.org.");
 		
-		 final DialogAction createEmpty = new DialogAction("Create empty mqtt-spy configuration file");
-		 createEmpty.setLongText(
- 				System.getProperty("line.separator") + "This creates a configuration file " +  
+		 final DialogAction createEmpty = new DialogAction("Create empty mqtt-spy configuration file",
+				 System.getProperty("line.separator") + "This creates a configuration file " +  
                  "in \"" + ConfigurationManager.DEFAULT_HOME_DIRECTORY + "\"" + 
                  " called \"" + ConfigurationManager.DEFAULT_FILE_NAME + "\" with no sample connections.");
 		 
-		 final DialogAction copyExisting = new DialogAction("Copy existing mqtt-spy configuration file");
-		 copyExisting.setLongText(
+		 final DialogAction copyExisting = new DialogAction("Copy existing mqtt-spy configuration file",
 				 System.getProperty("line.separator") + "This copies an existing configuration file (selected in the next step) " +  
                  "to \"" + ConfigurationManager.DEFAULT_HOME_DIRECTORY + "\"" + 
                  " and renames it to \"" + ConfigurationManager.DEFAULT_FILE_NAME + "\".");
 		 
-		 final DialogAction dontDoAnything = new DialogAction("Don't do anything");
-		 dontDoAnything.setLongText(
+		 final DialogAction dontDoAnything = new DialogAction("Don't do anything",
 				 System.getProperty("line.separator") + "You can still point mqtt-spy at your chosen configuration file " +  
                  "by using the \"--configuration=my_custom_path\"" + 
                  " command line parameter or open a configuration file from the main menu.");
 		
 		final List<DialogAction> links = Arrays.asList(createWithSample, createEmpty, copyExisting, dontDoAnything);
 		
-		final CustomDialogs dialog = new CustomDialogs();
-		dialog
-	      .owner(window)
-	      .title(title)
-	      .masthead(null)
-	      .message("Please select one of the following options with regards to the mqtt-spy configuration file:");
+//		final CustomDialogs dialog = new CustomDialogs();
+//		dialog
+//	      .owner(window)
+//	      .title(title)
+//	      .masthead(null)
+//	      .message("Please select one of the following options with regards to the mqtt-spy configuration file:");
 		
-		Action response = dialog.showCommandLinks(links.get(0), links, 650, 30, 110);
+		Optional<DialogAction> response = DialogUtils.showCommandLinks(title,
+				"Please select one of the following options with regards to the mqtt-spy configuration file:",
+				links.get(0), links, 650, 30, 110);
 		boolean configurationFileCreated = false;
 		
-		if (response.textProperty().getValue().toLowerCase().contains("sample"))
+		if (!response.isPresent())
+		{
+			// Do nothing
+		}
+		else if (response.get().getHeading().toLowerCase().contains("sample"))
 		{
 			configurationFileCreated = ConfigurationUtils.createDefaultConfigFromClassPath("sample");
 		}
-		else if (response.textProperty().getValue().toLowerCase().contains("empty"))
+		else if (response.get().getHeading().toLowerCase().contains("empty"))
 		{
 			configurationFileCreated = ConfigurationUtils.createDefaultConfigFromClassPath("empty");
 		}
-		else if (response.textProperty().getValue().toLowerCase().contains("copy"))
+		else if (response.get().getHeading().toLowerCase().contains("copy"))
 		{
 			final FileChooser fileChooser = new FileChooser();
 			fileChooser.setTitle("Select configuration file to copy");
@@ -424,144 +135,171 @@ public class DialogUtils
 		}
 		
 		return configurationFileCreated;
-	}
+	}	
+	
 
 	/**
-	 * Shows a worker / progress dialog.
-	 * 
-	 * @param readAndProcess The task backing up the dialog
-	 */
-	public static void showWorkerDialog(final Task<?> readAndProcess)
-	{
-		// TODO: use Java dialogs
-		Dialogs.create().showWorkerProgress(readAndProcess);
-	}
+     * Show a dialog filled with provided command links. Command links are used instead of button bar and represent 
+     * a set of available 'radio' buttons
+	 * @param message 
+	 * @param string 
+     * @param defaultCommandLink command is set to be default. Null means no default
+     * @param links list of command links presented in specified sequence 
+     * @return action used to close dialog (it is either one of command links or CANCEL) 
+     */
+    public static Optional<DialogAction> showCommandLinks(final String title, final String message, DialogAction defaultCommandLink, List<DialogAction> links, 
+    		final int minWidth, final int longMessageMinHeight, double maxHeight) 
+    {
+        final Dialog<DialogAction> dialog = new Dialog<DialogAction>();
+        dialog.setTitle(title);
+        dialog.getDialogPane().getScene().getStylesheets().add(DialogUtils.class.getResource(
+        		"/pl/baczkowicz/mqttspy/application.css").toExternalForm());
+        dialog.getDialogPane().getButtonTypes().clear();
+        
+        final ImageView image = new ImageView(DialogUtils.class.getResource("/images/dialog-information.png").toString());
+        image.setFitHeight(55);
+        image.setFitWidth(55);
+     	dialog.setGraphic(image);
+        dialog.setResizable(true);
+        
+        Label label = new Label(message);
+		label.setAlignment(Pos.TOP_LEFT);
+		label.setTextAlignment(TextAlignment.LEFT);
+		label.setMaxWidth(Double.MAX_VALUE);
+		label.setMaxHeight(Double.MAX_VALUE);
+		label.setWrapText(true);
+		label.getStyleClass().add("command-link-message");
 
-	public static Color showColorDialog(final Color color, final String title,
-			final String label)
-	{
-		// TODO: use Java dialogs
-		CustomDialog dialog = new CustomDialog(null, title);
-
-		final ColorPicker picker = new ColorPicker(color);
-
-		final AnchorPane content = new AnchorPane();
-		final Label textLabel = new Label(label);
-		content.getChildren().addAll(textLabel, picker);
-		AnchorPane.setLeftAnchor(textLabel, 5.0);
-		AnchorPane.setTopAnchor(textLabel, 5.0);
-		AnchorPane.setLeftAnchor(picker, 175.0);
-		AnchorPane.setRightAnchor(picker, 0.0);
-
-		dialog.setResizable(false);
-		dialog.setIconifiable(false);
-		dialog.setContent(content);
-		dialog.getActions().addAll(Dialog.ACTION_OK, Dialog.ACTION_CANCEL);
-
-		Platform.runLater(new Runnable()
-		{
-			public void run()
-			{
-				picker.requestFocus();
-			}
-		});
-
-		if (dialog.show().equals(Dialog.ACTION_OK))
-		{
-			return picker.getValue();
-		}
-		else
-		{
-			return color;
-		}
-	}
-	
-	public static Stage createWindowWithPane(final Node pane, final Scene parentScene, 
-			final String title, final double margin)
-	{
-		final Stage stage = new Stage();
-		final AnchorPane content = new AnchorPane();
-		
-		content.getChildren().add(pane);
-		AnchorPane.setBottomAnchor(pane, margin);
-		AnchorPane.setLeftAnchor(pane, margin);
-		AnchorPane.setTopAnchor(pane, margin);
-		AnchorPane.setRightAnchor(pane, margin);
-		
-		final Scene scene = new Scene(content);
-		scene.getStylesheets().addAll(parentScene.getStylesheets());
-		stage.setTitle(title);
-		stage.setScene(scene);
-		
-		return stage;
-	}
-
-	public static void showMessageBasedLineCharts(Collection<String> topics, 
-			final BasicMessageStoreWithSummary store,
-			final ChartMode mode, 
-			final String seriesType, final String seriesValueName, 
-			final String seriesUnit, final String title, 
-			final Scene parentScene, final EventManager eventManager)
-	{
-		final FXMLLoader loader = FxmlUtils.createFxmlLoaderForProjectFile("LineChartPane.fxml");
-		final AnchorPane statsWindow = FxmlUtils.loadAnchorPane(loader);
-		final LineChartPaneController statsPaneController = ((LineChartPaneController) loader.getController());		
-		statsPaneController.setEventManager(eventManager);
-		statsPaneController.setStore(store);
-		statsPaneController.setSeriesTypeName(seriesType);
-		statsPaneController.setTopics(topics);
-		statsPaneController.setChartMode(mode);
-		statsPaneController.setSeriesValueName(seriesValueName);
-		statsPaneController.setSeriesUnit(seriesUnit);
-		statsPaneController.init();
-		
-		Scene scene = new Scene(statsWindow);
-		scene.getStylesheets().addAll(parentScene.getStylesheets());		
-
-		final Stage statsPaneStage = new Stage();
-		statsPaneStage.setWidth(600);
-		statsPaneStage.setHeight(470);
-		statsPaneStage.setScene(scene);			       
-		statsPaneStage.setTitle(title);
-		statsPaneStage.show();
-		// Resize to get axis right
-		statsPaneStage.setHeight(480);
-		statsPaneStage.setOnCloseRequest(new EventHandler<WindowEvent>()
+        final int gapSize = 10;
+        final List<Button> buttons = new ArrayList<>(links.size());
+        
+		GridPane content = new GridPane()
 		{
 			@Override
-			public void handle(WindowEvent event)
+			protected double computePrefWidth(double height)
 			{
-				statsPaneController.cleanup();
+				double pw = 0;
+
+				for (int i = 0; i < buttons.size(); i++)
+				{
+					Button btn = buttons.get(i);
+					pw = Math.min(pw, btn.prefWidth(-1));
+				}
+				return pw + gapSize;
 			}
-		});
-	}
-	
-	public static void showMessageBasedPieCharts(final String title, 
-			final Scene parentScene, final ObservableList<SubscriptionTopicSummaryProperties> observableList)
-	{
-		final FXMLLoader loader = FxmlUtils.createFxmlLoaderForProjectFile("PieChartPane.fxml");
-		final AnchorPane chartWindow = FxmlUtils.loadAnchorPane(loader);
-		final PieChartPaneController chartPaneController = ((PieChartPaneController) loader.getController());		
-		chartPaneController.setObservableList(observableList);
-		chartPaneController.init();
-		
-		Scene scene = new Scene(chartWindow);
-		scene.getStylesheets().addAll(parentScene.getStylesheets());		
 
-		final Stage statsPaneStage = new Stage();
-		statsPaneStage.setWidth(800);
-		statsPaneStage.setHeight(600);
-		statsPaneStage.setScene(scene);			       
-		statsPaneStage.setTitle(title);
-		statsPaneStage.show();
-
-		statsPaneStage.setOnCloseRequest(new EventHandler<WindowEvent>()
-		{
 			@Override
-			public void handle(WindowEvent event)
+			protected double computePrefHeight(double width)
 			{
-				chartPaneController.cleanup();
+				double ph = 10;
+
+				for (int i = 0; i < buttons.size(); i++)
+				{
+					Button btn = buttons.get(i);
+					ph += btn.prefHeight(width) + gapSize;
+				}
+				return ph * 1.5;
 			}
-		});
-	}
+		};
+		int row = 0;
+		content.add(label, 0, row++);
+		content.setMinWidth(minWidth);
+        content.setHgap(gapSize);
+        content.setVgap(gapSize);
+        
+		for (final DialogAction commandLink : links)
+		{
+			if (commandLink == null)
+				continue;
+
+			final Button button = buildCommandLinkButton(commandLink, longMessageMinHeight, maxHeight);
+			button.setDefaultButton(commandLink == defaultCommandLink);
+			button.setOnAction(new EventHandler<ActionEvent>()
+			{
+				@Override
+				public void handle(ActionEvent ae)
+				{
+					dialog.setResultConverter(dialogButton -> 
+					{					    
+					    return commandLink;
+					});
+					dialog.close();
+				}
+			});
+
+			GridPane.setHgrow(button, Priority.ALWAYS);
+			GridPane.setVgrow(button, Priority.ALWAYS);
+			content.add(button, 0, row++);
+			buttons.add(button);
+		}
+        
+        // last button gets some extra padding (hacky)
+        GridPane.setMargin(buttons.get(buttons.size() - 1), new Insets(0,0,10,0));
+        
+        dialog.getDialogPane().setContent(content);
+        //dlg.getActions().clear();
+        
+        return dialog.showAndWait();
+    }
+    
+
+
+    private static Button buildCommandLinkButton(DialogAction commandLink, final int longMessageMinHeight, double maxHeight) 
+    {
+        // put the content inside a button
+        final Button button = new Button();
+        button.getStyleClass().addAll("command-link-button");
+        button.setMaxHeight(maxHeight);
+        button.setMaxWidth(Double.MAX_VALUE);
+        button.setAlignment(Pos.CENTER_LEFT);
+        
+        final Label titleLabel = new Label(commandLink.getHeading() );
+        titleLabel.minWidthProperty().bind(new DoubleBinding() {
+            {
+                bind(titleLabel.prefWidthProperty());
+            }
+            
+            @Override protected double computeValue() {
+                return titleLabel.getPrefWidth() + 400;
+            }
+        });
+        titleLabel.getStyleClass().addAll("line-1");
+        titleLabel.setWrapText(true);
+        titleLabel.setAlignment(Pos.TOP_LEFT);
+        GridPane.setVgrow(titleLabel, Priority.NEVER);
+
+        Label messageLabel = new Label(commandLink.getLongText() );
+        messageLabel.setMinHeight(longMessageMinHeight);
+        messageLabel.setPrefHeight(longMessageMinHeight + 10);
+        //messageLabel.setMaxHeight(longMessageMaxHeight);
+        messageLabel.getStyleClass().addAll("line-2");
+        messageLabel.setWrapText(true);
+        messageLabel.setAlignment(Pos.TOP_LEFT);
+        messageLabel.setMaxHeight(Double.MAX_VALUE);
+        // GridPane.setVgrow(messageLabel, Priority.SOMETIMES);
+        GridPane.setVgrow(messageLabel, Priority.ALWAYS);
+        
+        //Node graphic = null;
+        final ImageView icon = new ImageView(CustomDialogs.class.getResource("/images/go-next-green.png").toString());
+        icon.setFitHeight(20);
+        icon.setFitWidth(20);
+        Pane graphicContainer = new Pane(icon);
+        graphicContainer.getStyleClass().add("graphic-container");
+        GridPane.setValignment(graphicContainer, VPos.TOP);
+        GridPane.setMargin(graphicContainer, new Insets(0,15,0,0));
+        
+        GridPane grid = new GridPane();
+        grid.minWidthProperty().bind(titleLabel.prefWidthProperty());
+        grid.setMaxHeight(Double.MAX_VALUE);
+        grid.setMaxWidth(Double.MAX_VALUE);
+        grid.getStyleClass().add("container");
+        grid.add(graphicContainer, 0, 0, 1, 2);
+        grid.add(titleLabel, 1, 0);
+        grid.add(messageLabel, 1, 1);
+
+        button.setGraphic(grid);
+        button.minWidthProperty().bind(titleLabel.prefWidthProperty());
+        
+        return button;
+    }
 }

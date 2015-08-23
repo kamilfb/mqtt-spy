@@ -59,7 +59,8 @@ import pl.baczkowicz.mqttspy.ui.controls.DragAndDropTreeViewCell;
 import pl.baczkowicz.mqttspy.ui.events.EventManager;
 import pl.baczkowicz.mqttspy.ui.events.observers.ConnectionStatusChangeObserver;
 import pl.baczkowicz.mqttspy.ui.properties.ConnectionTreeItemProperties;
-import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
+import pl.baczkowicz.spy.ui.utils.DialogUtils;
+import pl.baczkowicz.spy.ui.utils.TooltipUtils;
 import pl.baczkowicz.mqttspy.utils.ConnectionUtils;
 import pl.baczkowicz.mqttspy.utils.MqttUtils;
 import pl.baczkowicz.spy.exceptions.ConfigurationException;
@@ -535,7 +536,7 @@ public class EditConnectionsController extends AnchorPane implements Initializab
 				if (configurationManager.saveConfiguration())
 				{
 					// TODO: for some reason, this is not shown
-					DialogUtils.showTooltip(deleteConnectionButton, "Connection group " + groupName + " deleted.");
+					TooltipUtils.showTooltip(deleteConnectionButton, "Connection group " + groupName + " deleted.");
 				}
 			}
 		}
@@ -564,7 +565,7 @@ public class EditConnectionsController extends AnchorPane implements Initializab
 				if (configurationManager.saveConfiguration())
 				{
 					// TODO: for some reason, this is not shown
-					DialogUtils.showTooltip(deleteConnectionButton, "Connection " + connectionName + " deleted.");
+					TooltipUtils.showTooltip(deleteConnectionButton, "Connection " + connectionName + " deleted.");
 				}
 			}
 		}
@@ -627,7 +628,7 @@ public class EditConnectionsController extends AnchorPane implements Initializab
 		logger.debug("Saving all connections & groups");
 		if (configurationManager.saveConfiguration())
 		{
-			DialogUtils.showTooltip(applyAllButton, "Changes for all connections and groups have been saved.");
+			TooltipUtils.showTooltip(applyAllButton, "Changes for all connections and groups have been saved.");
 		}
 	}
 	

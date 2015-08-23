@@ -31,4 +31,6 @@ public interface ProgressUpdater
 	 * @param max Maximum progress value
 	 */
 	void update(final long current, final long max);
+	
+	boolean isCancelled();
 }

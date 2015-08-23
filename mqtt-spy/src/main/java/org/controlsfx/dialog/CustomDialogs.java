@@ -47,7 +47,6 @@
 package org.controlsfx.dialog;
 
 import static impl.org.controlsfx.i18n.Localization.asKey;
-import static impl.org.controlsfx.i18n.Localization.getString;
 import static impl.org.controlsfx.i18n.Localization.localize;
 import static org.controlsfx.dialog.Dialog.ACTION_CANCEL;
 import static org.controlsfx.dialog.Dialog.ACTION_NO;
@@ -58,9 +57,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 
-import javafx.application.Platform;
 import javafx.beans.binding.DoubleBinding;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -76,18 +73,8 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
-import javafx.scene.layout.VBox;
-import javafx.util.Callback;
-import javafx.util.Pair;
 
-import org.controlsfx.control.ButtonBar;
-import org.controlsfx.control.ButtonBar.ButtonType;
 import org.controlsfx.control.action.Action;
-import org.controlsfx.control.textfield.CustomPasswordField;
-import org.controlsfx.control.textfield.CustomTextField;
-import org.controlsfx.control.textfield.TextFields;
-import org.controlsfx.validation.ValidationSupport;
-import org.controlsfx.validation.Validator;
 
 @SuppressWarnings("deprecation")
 /**
@@ -151,91 +138,6 @@ public class CustomDialogs
 		this.masthead = masthead;
 		return this;
 	}
-
-	/** This a replacement for Dialogs.showLogin. */
-    public Optional<Pair<String,String>> showLogin( final Pair<String,String> initialUserInfo, final Callback<Pair<String,String>, Void> authenticator ) {
-    	
-    	final CustomTextField txUserName = (CustomTextField) TextFields.createClearableTextField();
-    	txUserName.setLeft(new ImageView( DialogResources.getImage("login.user.icon")) ); //$NON-NLS-1$
-    	
-    	final CustomPasswordField txPassword = (CustomPasswordField) TextFields.createClearablePasswordField();
-    	txPassword.setLeft(new ImageView( DialogResources.getImage("login.password.icon"))); //$NON-NLS-1$
-		
-		final Label lbMessage= new Label("");  //$NON-NLS-1$
-		lbMessage.getStyleClass().addAll("message-banner"); //$NON-NLS-1$
-		lbMessage.setVisible(false);
-		lbMessage.setManaged(false);
-		
-		final VBox content = new VBox(10);
-		content.getChildren().add(new Label("User name"));
-		content.getChildren().add(txUserName);
-		content.getChildren().add(txPassword);
-		
-		final Action actionLogin = new DialogAction("Connect", null, false, false, true) { //$NON-NLS-1$
-			{
-				ButtonBar.setType(this, ButtonType.OK_DONE);
-				setEventHandler(this::handleAction);
-			}
-			
-			protected void handleAction(ActionEvent ae) {
-				Dialog dlg = (Dialog) ae.getSource();
-				try {
-					if ( authenticator != null ) {
-						authenticator.call(new Pair<>(txUserName.getText(), txPassword.getText()));
-					}
-					lbMessage.setVisible(false);
-					lbMessage.setManaged(false);
-					dlg.hide();
-					dlg.setResult(this);
-				} catch( Throwable ex ) {
-					lbMessage.setVisible(true);
-					lbMessage.setManaged(true);
-					lbMessage.setText(ex.getMessage());
-					dlg.sizeToScene();
-					dlg.shake();
-					ex.printStackTrace();
-				}
-			}
-
-			@Override public String toString() {
-				return "LOGIN"; //$NON-NLS-1$
-			};
-		};
-		
-		final Dialog dlg = buildDialog(Type.LOGIN);
-        dlg.setContent(content);
-        
-        dlg.setResizable(false);
-		dlg.setIconifiable(false);
-		if ( dlg.getGraphic() == null ) { 
-			dlg.setGraphic( new ImageView( DialogResources.getImage("login.icon"))); //$NON-NLS-1$
-		}
-		dlg.getActions().setAll(actionLogin, ACTION_CANCEL);
-		final String userNameCation = getString("login.dlg.user.caption"); //$NON-NLS-1$
-		final String passwordCaption = getString("login.dlg.pswd.caption"); //$NON-NLS-1$
-		txUserName.setPromptText(userNameCation);
-		txUserName.setText( initialUserInfo.getKey());
-		txPassword.setPromptText(passwordCaption);
-		txPassword.setText(new String(initialUserInfo.getValue()));
-
-		final ValidationSupport validationSupport = new ValidationSupport();
-		Platform.runLater(new Runnable()
-		{
-		@Override
-		public void run()
-		{
-			String requiredFormat = "'%s' is required"; //$NON-NLS-1$
-			validationSupport.registerValidator(txUserName, Validator.createEmptyValidator( String.format( requiredFormat, userNameCation )));
-			actionLogin.disabledProperty().bind(validationSupport.invalidProperty());
-			txUserName.requestFocus();			
-		}});
-
-		dlg.sizeToScene();
-    	return Optional.ofNullable( 
-    			dlg.show() == actionLogin? 
-    					new Pair<>(txUserName.getText(), txPassword.getText()): 
-    					null);
-    }
 	
 	/**
      * Show a dialog filled with provided command links. Command links are used instead of button bar and represent 
@@ -361,7 +263,7 @@ public class CustomDialogs
         GridPane.setVgrow(messageLabel, Priority.ALWAYS);
         
         Node graphic = commandLink.getGraphic();
-        Node view = graphic == null? new ImageView( DialogResources.getImage("command.link.icon")) : graphic;
+        Node view = (graphic == null ? new ImageView( CustomDialogs.class.getResource("/images/go-next.png").toString()) : graphic);
         Pane graphicContainer = new Pane(view);
         graphicContainer.getStyleClass().add("graphic-container");
         GridPane.setValignment(graphicContainer, VPos.TOP);

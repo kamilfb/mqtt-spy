@@ -63,13 +63,14 @@ public class LogReaderTask extends TaskWithProgressUpdater<List<BaseMqttMessage>
 		this.selectedFile = selectedFile;
 		this.connectionManager = connectionManager;
 		this.controller = mainController;
+		super.updateTitle("Processing message log file " + selectedFile.getName());
 	}
 
 	@Override
 	protected List<BaseMqttMessage> call() throws Exception
 	{
 		try
-		{
+		{			
 			// Read the message log
 			updateMessage("Please wait - reading message log [1/4]");
 			updateProgress(0, 4);
@@ -77,15 +78,33 @@ public class LogReaderTask extends TaskWithProgressUpdater<List<BaseMqttMessage>
 			final long totalItems = fileContent.size();
 			updateProgress(totalItems, totalItems * 4);
 			
+			if (isCancelled())
+			{
+				logger.info("Task cancelled!");
+				return null;
+			}
+			
 			// Parser the message log (string -> LoggedMqttMessage)
 			updateMessage("Please wait - parsing " + fileContent.size() + " messages [2/4]");					
 			final List<LoggedMqttMessage> loggedMessages = MessageLogParserUtils.parseMessageLog(fileContent, this, totalItems, totalItems * 4);
 			updateProgress(totalItems * 2, totalItems * 4);
-								
+			
+			if (isCancelled())
+			{
+				logger.info("Task cancelled!");
+				return null;
+			}
+			
 			// Process the message log (LoggedMqttMessage -> ReceivedMqttMessage)
 			updateMessage("Please wait - processing " + loggedMessages.size() + " messages [3/4]");					
 			final List<BaseMqttMessage> processedMessages = MessageLogParserUtils.processMessageLog(loggedMessages, this, totalItems * 2, totalItems * 4);
 			updateProgress(totalItems * 3, totalItems * 4);
+			
+			if (isCancelled())
+			{
+				logger.info("Task cancelled!");
+				return null;
+			}
 			
 			// Display message log
 			updateMessage("Please wait - displaying " + loggedMessages.size() + " messages [4/4]");	

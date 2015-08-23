@@ -79,7 +79,6 @@ import pl.baczkowicz.mqttspy.ui.messagelog.MessageLogUtils;
 import pl.baczkowicz.mqttspy.ui.panes.TabController;
 import pl.baczkowicz.mqttspy.ui.panes.TabStatus;
 import pl.baczkowicz.mqttspy.ui.search.UniqueContentOnlyFilter;
-import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
 import pl.baczkowicz.mqttspy.ui.utils.FxmlUtils;
 import pl.baczkowicz.mqttspy.ui.utils.UiUtils;
 import pl.baczkowicz.mqttspy.utils.FormattingUtils;
@@ -106,7 +105,7 @@ public class SubscriptionController implements Initializable, ClearTabObserver, 
 	private static final String SUMMARY_PANE_TITLE = "Received messages summary";
 
 	/** (10 topics; 50 messages, load average: 0.1/0.5/5.0). */
-	private static final String SUMMARY_PANE_STATS_FORMAT = " (%s, %s, " + DialogUtils.STATS_FORMAT + ")";
+	private static final String SUMMARY_PANE_STATS_FORMAT = " (%s, %s, " + StatisticsManager.STATS_FORMAT + ")";
 
 	@FXML
 	private SplitPane splitPane;
@@ -283,7 +282,8 @@ public class SubscriptionController implements Initializable, ClearTabObserver, 
 	public void init()
 	{
 		final Tooltip summaryTitledPaneTooltip = new Tooltip(
-				"Load, the average number of messages per second, is calculated over the following intervals: " +  DialogUtils.getPeriodList() + ".");
+				"Load, the average number of messages per second, is calculated over the following intervals: " 
+						+ StatisticsManager.getPeriodList() + ".");
 				
 		statsHistory = new BasicMessageStoreWithSummary(
 				"stats" + store.getName(), 

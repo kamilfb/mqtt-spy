@@ -78,7 +78,7 @@ import pl.baczkowicz.mqttspy.ui.keyboard.TimeBasedKeyEventFilter;
 import pl.baczkowicz.mqttspy.ui.panes.PaneVisibilityStatus;
 import pl.baczkowicz.mqttspy.ui.panes.TitledPaneController;
 import pl.baczkowicz.mqttspy.ui.properties.PublicationScriptProperties;
-import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
+import pl.baczkowicz.spy.ui.utils.DialogUtils;
 import pl.baczkowicz.mqttspy.ui.utils.UiUtils;
 import pl.baczkowicz.mqttspy.utils.MqttUtils;
 import pl.baczkowicz.spy.exceptions.ConversionException;

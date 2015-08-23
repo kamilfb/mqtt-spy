@@ -39,12 +39,14 @@ import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
 import pl.baczkowicz.mqttspy.stats.StatisticsManager;
 import pl.baczkowicz.mqttspy.ui.ConnectionController;
 import pl.baczkowicz.mqttspy.ui.SubscriptionController;
+import pl.baczkowicz.mqttspy.ui.charts.ChartFactory;
 import pl.baczkowicz.mqttspy.ui.charts.ChartMode;
 import pl.baczkowicz.mqttspy.ui.connections.ConnectionManager;
 import pl.baczkowicz.mqttspy.ui.connections.SubscriptionManager;
 import pl.baczkowicz.mqttspy.ui.events.EventManager;
 import pl.baczkowicz.mqttspy.ui.panes.PaneVisibilityStatus;
 import pl.baczkowicz.mqttspy.ui.panes.TitledPaneStatus;
+import pl.baczkowicz.spy.ui.utils.DialogUtils;
 
 /**
  * Context menu utils - mainly for creating various context menus.
@@ -158,7 +160,7 @@ public class ContextMenuUtils
 		{
 			public void handle(ActionEvent e)
 			{			
-				DialogUtils.showMessageBasedLineCharts(
+				ChartFactory.createMessageBasedLineChart(
 						Arrays.asList(SubscriptionController.AVG5_TOPIC, SubscriptionController.AVG30_TOPIC, SubscriptionController.AVG300_TOPIC),
 						subscriptionController.getStatsHistory(), 
 						ChartMode.USER_DRIVEN_MSG_PAYLOAD,
@@ -175,7 +177,7 @@ public class ContextMenuUtils
 		{
 			public void handle(ActionEvent e)
 			{			
-				DialogUtils.showMessageBasedPieCharts("Message count statistics for " + subscription.getTopic(), 
+				ChartFactory.createMessageBasedPieChart("Message count statistics for " + subscription.getTopic(), 
 						subscriptionController.getScene(),
 						subscriptionController.getSubscription().getStore().getNonFilteredMessageList().getTopicSummary().getObservableMessagesPerTopic());
 			}
@@ -229,7 +231,7 @@ public class ContextMenuUtils
 			{
 				final Color newColor = 
 						DialogUtils.showColorDialog(subscription.getColor(), 
-								"Select new subscription color", "Subscription color");
+								"Select new subscription color", "Subscription color: ");
 				
 				if (!newColor.equals(subscription.getColor()))
 				{
@@ -323,7 +325,7 @@ public class ContextMenuUtils
 		{
 			public void handle(ActionEvent e)
 			{
-				DialogUtils.showMessageBasedLineCharts(
+				ChartFactory.createMessageBasedLineChart(
 						Arrays.asList(SubscriptionController.AVG5_TOPIC, SubscriptionController.AVG30_TOPIC, SubscriptionController.AVG300_TOPIC),
 						subscriptionController.getStatsHistory(), 
 						ChartMode.USER_DRIVEN_MSG_PAYLOAD,

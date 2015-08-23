@@ -62,9 +62,10 @@ import pl.baczkowicz.mqttspy.ui.panes.PaneVisibilityStatus;
 import pl.baczkowicz.mqttspy.ui.panes.TabController;
 import pl.baczkowicz.mqttspy.ui.panes.TabStatus;
 import pl.baczkowicz.mqttspy.ui.panes.TitledPaneStatus;
-import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
+import pl.baczkowicz.spy.ui.utils.DialogUtils;
 import pl.baczkowicz.mqttspy.ui.utils.FxmlUtils;
 import pl.baczkowicz.mqttspy.ui.utils.StylingUtils;
+import pl.baczkowicz.spy.ui.utils.TooltipUtils;
 
 /**
  * Controller looking after the connection tab.
@@ -513,7 +514,7 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 		}
 		connectionTab.getStyleClass().add(StylingUtils.getStyleForMqttConnectionStatus(connectionStatus));
 		
-		DialogUtils.updateConnectionTooltip(connection, tooltip);
+		TooltipUtils.updateConnectionTooltip(connection, tooltip);
 	}
 	
 	public void updateConnectionStats()

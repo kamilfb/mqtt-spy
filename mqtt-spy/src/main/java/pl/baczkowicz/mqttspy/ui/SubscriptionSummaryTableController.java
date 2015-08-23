@@ -58,10 +58,11 @@ import pl.baczkowicz.mqttspy.connectivity.BaseMqttSubscription;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
 import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
+import pl.baczkowicz.mqttspy.ui.charts.ChartFactory;
 import pl.baczkowicz.mqttspy.ui.charts.ChartMode;
 import pl.baczkowicz.mqttspy.ui.events.EventManager;
 import pl.baczkowicz.mqttspy.ui.properties.SubscriptionTopicSummaryProperties;
-import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
+import pl.baczkowicz.spy.ui.utils.DialogUtils;
 import pl.baczkowicz.mqttspy.ui.utils.StylingUtils;
 import pl.baczkowicz.mqttspy.ui.utils.UiUtils;
 
@@ -369,13 +370,13 @@ public class SubscriptionSummaryTableController implements Initializable
 		
 		if (ChartMode.USER_DRIVEN_MSG_SIZE.equals(mode))
 		{
-			DialogUtils.showMessageBasedLineCharts(topics, store, mode, 
+			ChartFactory.createMessageBasedLineChart(topics, store, mode, 
 					"Topic", "Size", "bytes", "Message size chart" + connectionName, 
 					filterTable.getScene(), eventManager);
 		}
 		else
 		{
-			DialogUtils.showMessageBasedLineCharts(topics, store, mode, 
+			ChartFactory.createMessageBasedLineChart(topics, store, mode, 
 					"Topic", "Value", "", "Message content chart" + connectionName,
 					filterTable.getScene(), eventManager);
 		}		
