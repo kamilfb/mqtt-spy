@@ -20,43 +20,61 @@
 package pl.baczkowicz.mqttspy.ui.utils;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import javafx.beans.binding.DoubleBinding;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.geometry.VPos;
-import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.control.Dialog;
-import javafx.scene.control.Label;
-import javafx.scene.image.ImageView;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.Priority;
-import javafx.scene.text.TextAlignment;
+import javafx.scene.control.Tooltip;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Window;
 import javafx.util.Pair;
-
-import org.controlsfx.dialog.CustomDialogs;
-
+import pl.baczkowicz.mqttspy.common.generated.UserCredentials;
 import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
 import pl.baczkowicz.mqttspy.configuration.ConfigurationUtils;
+import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
+import pl.baczkowicz.mqttspy.connectivity.MqttConnectionStatus;
+import pl.baczkowicz.mqttspy.ui.controls.CommandLinksDialog;
 import pl.baczkowicz.mqttspy.ui.controls.DialogAction;
+import pl.baczkowicz.spy.ui.utils.DialogFactory;
 
 /**
  * Utilities for creating all sorts of dialogs.
  */
-@SuppressWarnings("deprecation")
 public class DialogUtils
 {
+
+	/**
+	 * Asks the user to review/complete username and password information.
+	 * 
+	 * @param owner The window owner
+	 * @param connectionName Name of the connection
+	 * @param userCredentials Existing user credentials
+	 * 
+	 * @return True when confirmed by user
+	 */
+	public static boolean createMqttUsernameAndPasswordDialog(final Object owner,
+			final String connectionName, final UserCredentials userCredentials)
+	{
+		final Pair<String, String> userInfo = new Pair<String, String>(
+				userCredentials.getUsername(), 
+				ConfigurationUtils.decodePassword(userCredentials.getPassword()));
+		
+		Optional<Pair<String, String>> response = DialogFactory.createUsernameAndPasswordDialog(
+				"MQTT user credentials",
+				"User credentials for connection " + connectionName,
+				userInfo);
+		
+		if (response.isPresent())
+		{
+			userCredentials.setUsername(response.get().getKey());			
+			userCredentials.setPassword(ConfigurationUtils.encodePassword(response.get().getValue()));
+			return true;
+		}
+		
+		return false;
+	}
+	
 	/**
 	 * Shows the choice dialog when missing configuration file is detected.
 	 * 
@@ -91,16 +109,11 @@ public class DialogUtils
 		
 		final List<DialogAction> links = Arrays.asList(createWithSample, createEmpty, copyExisting, dontDoAnything);
 		
-//		final CustomDialogs dialog = new CustomDialogs();
-//		dialog
-//	      .owner(window)
-//	      .title(title)
-//	      .masthead(null)
-//	      .message("Please select one of the following options with regards to the mqtt-spy configuration file:");
-		
-		Optional<DialogAction> response = DialogUtils.showCommandLinks(title,
+		Optional<DialogAction> response = CommandLinksDialog.showCommandLinks(title,
 				"Please select one of the following options with regards to the mqtt-spy configuration file:",
-				links.get(0), links, 650, 30, 110);
+				links.get(0), links, 650, 30, 110, 
+				Arrays.asList(DialogUtils.class.getResource("/pl/baczkowicz/mqttspy/application.css").toExternalForm()));
+		
 		boolean configurationFileCreated = false;
 		
 		if (!response.isPresent())
@@ -136,170 +149,40 @@ public class DialogUtils
 		
 		return configurationFileCreated;
 	}	
-	
-
-	/**
-     * Show a dialog filled with provided command links. Command links are used instead of button bar and represent 
-     * a set of available 'radio' buttons
-	 * @param message 
-	 * @param string 
-     * @param defaultCommandLink command is set to be default. Null means no default
-     * @param links list of command links presented in specified sequence 
-     * @return action used to close dialog (it is either one of command links or CANCEL) 
-     */
-    public static Optional<DialogAction> showCommandLinks(final String title, final String message, DialogAction defaultCommandLink, List<DialogAction> links, 
-    		final int minWidth, final int longMessageMinHeight, double maxHeight) 
-    {
-        final Dialog<DialogAction> dialog = new Dialog<DialogAction>();
-        dialog.setTitle(title);
-        dialog.getDialogPane().getScene().getStylesheets().add(DialogUtils.class.getResource(
-        		"/pl/baczkowicz/mqttspy/application.css").toExternalForm());
-        dialog.getDialogPane().getButtonTypes().clear();
-        
-        final ImageView image = new ImageView(DialogUtils.class.getResource("/images/dialog-information.png").toString());
-        image.setFitHeight(55);
-        image.setFitWidth(55);
-     	dialog.setGraphic(image);
-        dialog.setResizable(true);
-        
-        Label label = new Label(message);
-		label.setAlignment(Pos.TOP_LEFT);
-		label.setTextAlignment(TextAlignment.LEFT);
-		label.setMaxWidth(Double.MAX_VALUE);
-		label.setMaxHeight(Double.MAX_VALUE);
-		label.setWrapText(true);
-		label.getStyleClass().add("command-link-message");
-
-        final int gapSize = 10;
-        final List<Button> buttons = new ArrayList<>(links.size());
-        
-		GridPane content = new GridPane()
-		{
-			@Override
-			protected double computePrefWidth(double height)
-			{
-				double pw = 0;
-
-				for (int i = 0; i < buttons.size(); i++)
-				{
-					Button btn = buttons.get(i);
-					pw = Math.min(pw, btn.prefWidth(-1));
-				}
-				return pw + gapSize;
-			}
-
-			@Override
-			protected double computePrefHeight(double width)
-			{
-				double ph = 10;
-
-				for (int i = 0; i < buttons.size(); i++)
-				{
-					Button btn = buttons.get(i);
-					ph += btn.prefHeight(width) + gapSize;
-				}
-				return ph * 1.5;
-			}
-		};
-		int row = 0;
-		content.add(label, 0, row++);
-		content.setMinWidth(minWidth);
-        content.setHgap(gapSize);
-        content.setVgap(gapSize);
-        
-		for (final DialogAction commandLink : links)
-		{
-			if (commandLink == null)
-				continue;
-
-			final Button button = buildCommandLinkButton(commandLink, longMessageMinHeight, maxHeight);
-			button.setDefaultButton(commandLink == defaultCommandLink);
-			button.setOnAction(new EventHandler<ActionEvent>()
-			{
-				@Override
-				public void handle(ActionEvent ae)
-				{
-					dialog.setResultConverter(dialogButton -> 
-					{					    
-					    return commandLink;
-					});
-					dialog.close();
-				}
-			});
-
-			GridPane.setHgrow(button, Priority.ALWAYS);
-			GridPane.setVgrow(button, Priority.ALWAYS);
-			content.add(button, 0, row++);
-			buttons.add(button);
-		}
-        
-        // last button gets some extra padding (hacky)
-        GridPane.setMargin(buttons.get(buttons.size() - 1), new Insets(0,0,10,0));
-        
-        dialog.getDialogPane().setContent(content);
-        //dlg.getActions().clear();
-        
-        return dialog.showAndWait();
-    }
     
-
-
-    private static Button buildCommandLinkButton(DialogAction commandLink, final int longMessageMinHeight, double maxHeight) 
-    {
-        // put the content inside a button
-        final Button button = new Button();
-        button.getStyleClass().addAll("command-link-button");
-        button.setMaxHeight(maxHeight);
-        button.setMaxWidth(Double.MAX_VALUE);
-        button.setAlignment(Pos.CENTER_LEFT);
-        
-        final Label titleLabel = new Label(commandLink.getHeading() );
-        titleLabel.minWidthProperty().bind(new DoubleBinding() {
-            {
-                bind(titleLabel.prefWidthProperty());
-            }
-            
-            @Override protected double computeValue() {
-                return titleLabel.getPrefWidth() + 400;
-            }
-        });
-        titleLabel.getStyleClass().addAll("line-1");
-        titleLabel.setWrapText(true);
-        titleLabel.setAlignment(Pos.TOP_LEFT);
-        GridPane.setVgrow(titleLabel, Priority.NEVER);
-
-        Label messageLabel = new Label(commandLink.getLongText() );
-        messageLabel.setMinHeight(longMessageMinHeight);
-        messageLabel.setPrefHeight(longMessageMinHeight + 10);
-        //messageLabel.setMaxHeight(longMessageMaxHeight);
-        messageLabel.getStyleClass().addAll("line-2");
-        messageLabel.setWrapText(true);
-        messageLabel.setAlignment(Pos.TOP_LEFT);
-        messageLabel.setMaxHeight(Double.MAX_VALUE);
-        // GridPane.setVgrow(messageLabel, Priority.SOMETIMES);
-        GridPane.setVgrow(messageLabel, Priority.ALWAYS);
-        
-        //Node graphic = null;
-        final ImageView icon = new ImageView(CustomDialogs.class.getResource("/images/go-next-green.png").toString());
-        icon.setFitHeight(20);
-        icon.setFitWidth(20);
-        Pane graphicContainer = new Pane(icon);
-        graphicContainer.getStyleClass().add("graphic-container");
-        GridPane.setValignment(graphicContainer, VPos.TOP);
-        GridPane.setMargin(graphicContainer, new Insets(0,15,0,0));
-        
-        GridPane grid = new GridPane();
-        grid.minWidthProperty().bind(titleLabel.prefWidthProperty());
-        grid.setMaxHeight(Double.MAX_VALUE);
-        grid.setMaxWidth(Double.MAX_VALUE);
-        grid.getStyleClass().add("container");
-        grid.add(graphicContainer, 0, 0, 1, 2);
-        grid.add(titleLabel, 1, 0);
-        grid.add(messageLabel, 1, 1);
-
-        button.setGraphic(grid);
-        button.minWidthProperty().bind(titleLabel.prefWidthProperty());
-        
-        return button;
-    }
+    /**
+	 * Updates the given connection tooltip with connection information.
+	 * 
+	 * @param connection The connection to which the tooltip refers
+	 * @param tooltip The tooltip to be updated
+	 */
+	public static void updateConnectionTooltip(final MqttAsyncConnection connection, final Tooltip tooltip)
+	{
+		final StringBuffer sb = new StringBuffer();
+		sb.append("Status: " + connection.getConnectionStatus().toString().toLowerCase());
+		
+		if (MqttConnectionStatus.CONNECTED.equals(connection.getConnectionStatus()))
+		{
+			sb.append(" (" + connection.getLastSuccessfulyConnectionAttempt() + ")");
+			
+			sb.append(System.getProperty("line.separator"));
+			final String sslStatus = connection.getProperties().getSSL() != null ? "on" : "off";
+			final String userAuthStatus = connection.getProperties().getUserCredentials() != null ? "on" : "off";
+			sb.append("Security: TLS/SSL is " +  sslStatus + "; user authentication is " + userAuthStatus);
+		}
+		
+		if (connection.getConnectionAttempts() > 1)
+		{
+			sb.append(System.getProperty("line.separator"));
+			sb.append("Connection attempts: " + connection.getConnectionAttempts());
+		}
+				
+		if (connection.getDisconnectionReason() != null && !connection.getDisconnectionReason().isEmpty())
+		{
+			sb.append(System.getProperty("line.separator"));
+			sb.append("Last error: " + connection.getDisconnectionReason().toLowerCase());
+		}	
+		
+		tooltip.setText(sb.toString());
+	}
 }

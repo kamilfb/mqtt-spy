@@ -22,8 +22,8 @@ package pl.baczkowicz.mqttspy.ui;
 import javafx.scene.control.MenuButton;
 import javafx.scene.control.TitledPane;
 import javafx.scene.layout.AnchorPane;
-import pl.baczkowicz.mqttspy.ui.panes.PaneVisibilityStatus;
-import pl.baczkowicz.mqttspy.ui.panes.TitledPaneController;
+import pl.baczkowicz.spy.ui.panes.PaneVisibilityStatus;
+import pl.baczkowicz.spy.ui.panes.TitledPaneController;
 
 public class SubscriptionsController implements TitledPaneController
 {

@@ -59,8 +59,8 @@ import pl.baczkowicz.mqttspy.ui.controls.DragAndDropTreeViewCell;
 import pl.baczkowicz.mqttspy.ui.events.EventManager;
 import pl.baczkowicz.mqttspy.ui.events.observers.ConnectionStatusChangeObserver;
 import pl.baczkowicz.mqttspy.ui.properties.ConnectionTreeItemProperties;
-import pl.baczkowicz.spy.ui.utils.DialogUtils;
-import pl.baczkowicz.spy.ui.utils.TooltipUtils;
+import pl.baczkowicz.spy.ui.utils.DialogFactory;
+import pl.baczkowicz.spy.ui.utils.TooltipFactory;
 import pl.baczkowicz.mqttspy.utils.ConnectionUtils;
 import pl.baczkowicz.mqttspy.utils.MqttUtils;
 import pl.baczkowicz.spy.exceptions.ConfigurationException;
@@ -486,7 +486,7 @@ public class EditConnectionsController extends AnchorPane implements Initializab
 	{
 		try
 		{
-			final Optional<String> result = DialogUtils.askForInput(
+			final Optional<String> result = DialogFactory.createInputDialog(
 					connectionList.getScene().getWindow(), "New connection group", "Please enter the connection group name: ");
 			
 			if (result.isPresent())
@@ -521,7 +521,7 @@ public class EditConnectionsController extends AnchorPane implements Initializab
 			final String groupName = group.getName();
 			final int childrenCount = selected.getChildren().size();
 			
-			if (DialogUtils.askQuestion("Deleting connection group", 
+			if (DialogFactory.createQuestionDialog("Deleting connection group", 
 					"Are you sure you want to delete connection group '" + groupName + "'"
 							+ (childrenCount == 0 ? "" : " and all subitems")
 							+ "?" + " This cannot be undone.", false).get() == ButtonType.YES)
@@ -536,7 +536,7 @@ public class EditConnectionsController extends AnchorPane implements Initializab
 				if (configurationManager.saveConfiguration())
 				{
 					// TODO: for some reason, this is not shown
-					TooltipUtils.showTooltip(deleteConnectionButton, "Connection group " + groupName + " deleted.");
+					TooltipFactory.createTooltip(deleteConnectionButton, "Connection group " + groupName + " deleted.");
 				}
 			}
 		}
@@ -547,7 +547,7 @@ public class EditConnectionsController extends AnchorPane implements Initializab
 			
 			final String connectionName = connection.getName();
 			
-			if (DialogUtils.askQuestion(
+			if (DialogFactory.createQuestionDialog(
 					"Deleting connection", 
 					"Are you sure you want to delete connection '" + connectionName + "'?" + " This cannot be undone.", 
 					false).get() == ButtonType.YES)
@@ -565,7 +565,7 @@ public class EditConnectionsController extends AnchorPane implements Initializab
 				if (configurationManager.saveConfiguration())
 				{
 					// TODO: for some reason, this is not shown
-					TooltipUtils.showTooltip(deleteConnectionButton, "Connection " + connectionName + " deleted.");
+					TooltipFactory.createTooltip(deleteConnectionButton, "Connection " + connectionName + " deleted.");
 				}
 			}
 		}
@@ -628,7 +628,7 @@ public class EditConnectionsController extends AnchorPane implements Initializab
 		logger.debug("Saving all connections & groups");
 		if (configurationManager.saveConfiguration())
 		{
-			TooltipUtils.showTooltip(applyAllButton, "Changes for all connections and groups have been saved.");
+			TooltipFactory.createTooltip(applyAllButton, "Changes for all connections and groups have been saved.");
 		}
 	}
 	

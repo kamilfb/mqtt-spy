@@ -17,7 +17,7 @@
  *    Kamil Baczkowicz - initial API and implementation and/or initial documentation
  *    
  */
-package pl.baczkowicz.mqttspy.ui.utils;
+package pl.baczkowicz.spy.ui.utils;
 
 import javafx.scene.image.ImageView;
 import javafx.scene.input.Clipboard;
@@ -38,17 +38,17 @@ public class UiUtils
 	public static ImageView createImage(final String iconLocation, final int size)
 	{
 		final ImageView icon = new ImageView(iconLocation);
-		icon.setFitHeight(14);
-		icon.setFitWidth(14);
+		icon.setFitHeight(size);
+		icon.setFitWidth(size);
 		return icon;
 	}
 	
 	public static ImageView createImage(final String iconLocation, final int size, final String style)
 	{
 		final ImageView icon = new ImageView(iconLocation);
-		icon.setFitHeight(14);
-		icon.setFitWidth(14);
-		icon.getStyleClass().add("style");
+		icon.setFitHeight(size);
+		icon.setFitWidth(size);
+		icon.getStyleClass().add(style);
 		return icon;
 	}
 }

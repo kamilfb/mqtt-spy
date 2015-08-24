@@ -34,7 +34,7 @@ import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
 import pl.baczkowicz.mqttspy.configuration.generated.TabbedSubscriptionDetails;
 import pl.baczkowicz.mqttspy.connectivity.IMqttConnection;
 import pl.baczkowicz.mqttspy.ui.properties.PublicationScriptProperties;
-import pl.baczkowicz.mqttspy.ui.utils.RunLaterExecutor;
+import pl.baczkowicz.spy.ui.utils.RunLaterExecutor;
 import pl.baczkowicz.spy.utils.FileUtils;
 
 /**

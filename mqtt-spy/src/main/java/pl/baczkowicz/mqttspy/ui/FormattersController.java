@@ -56,8 +56,8 @@ import pl.baczkowicz.mqttspy.messages.BaseMqttMessageWithSubscriptions;
 import pl.baczkowicz.mqttspy.scripts.Script;
 import pl.baczkowicz.mqttspy.scripts.ScriptBasedFormatter;
 import pl.baczkowicz.mqttspy.scripts.ScriptManager;
-import pl.baczkowicz.spy.ui.utils.DialogUtils;
-import pl.baczkowicz.spy.ui.utils.TooltipUtils;
+import pl.baczkowicz.spy.ui.utils.DialogFactory;
+import pl.baczkowicz.spy.ui.utils.TooltipFactory;
 import pl.baczkowicz.mqttspy.utils.FormattingUtils;
 import pl.baczkowicz.spy.utils.ConversionUtils;
 
@@ -317,7 +317,7 @@ public class FormattersController implements Initializable
 		Optional<ButtonType> result = null;
 		if (count > 0)
 		{
-			result = DialogUtils.askQuestion("Formatter is still in use", 
+			result = DialogFactory.createQuestionDialog("Formatter is still in use", 
 					"There are " + count + " connections configured with this formatter. Are you sure you want to delete it?", 
 					false);
 		}
@@ -332,7 +332,7 @@ public class FormattersController implements Initializable
 			
 			if (configurationManager.saveConfiguration())
 			{
-				TooltipUtils.showTooltip(deleteButton, "Formatter deleted. Changes saved.");
+				TooltipFactory.createTooltip(deleteButton, "Formatter deleted. Changes saved.");
 				init();
 				formattersList.getSelectionModel().selectFirst();
 			}
@@ -346,7 +346,7 @@ public class FormattersController implements Initializable
 		selectedFormatter = null;
 		newFormatter = new FormatterDetails();
 		
-		Optional<String> name = DialogUtils.askForInput(
+		Optional<String> name = DialogFactory.createInputDialog(
 				formattersWindow.getScene().getWindow(), "Enter formatter name", "Name for the new formatter");
 		
 		boolean cancelled = !name.isPresent();
@@ -363,8 +363,8 @@ public class FormattersController implements Initializable
 				logger.info("{}, {}, {}, {}", formatter.getName(), newFormatter.getName(), formatter.getID(), newFormatter.getID());
 				if (formatter.getName().equals(newFormatter.getName()) || formatter.getID().equals(newFormatter.getID()))
 				{
-					DialogUtils.showWarning("Invalid name", "Entered formatter name/ID already exists. Please chose a different one.");
-					name = DialogUtils.askForInput(
+					DialogFactory.createWarningDialog("Invalid name", "Entered formatter name/ID already exists. Please chose a different one.");
+					name = DialogFactory.createInputDialog(
 							formattersWindow.getScene().getWindow(), "Enter formatter name", "Name for the new formatter");
 					cancelled = name.isPresent();
 					valid = false;
@@ -414,7 +414,7 @@ public class FormattersController implements Initializable
 		
 		if (configurationManager.saveConfiguration())
 		{
-			TooltipUtils.showTooltip(newButton, "Formatter added. Changes saved.");
+			TooltipFactory.createTooltip(newButton, "Formatter added. Changes saved.");
 			init();
 			formattersList.getSelectionModel().selectFirst();
 		}

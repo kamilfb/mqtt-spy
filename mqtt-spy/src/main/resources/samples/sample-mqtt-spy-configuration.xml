@@ -16,9 +16,6 @@
     <ConnectionGroups>
         <ID>cg_samples</ID>
         <Name>Sample local brokers</Name>
-        <Group>
-            <Reference>default_group</Reference>
-        </Group>
         <Connections>
             <Reference>conn12964088</Reference>
         </Connections>
@@ -26,9 +23,6 @@
     <ConnectionGroups>
         <ID>cg_public</ID>
         <Name>Public MQTT brokers</Name>
-        <Group>
-            <Reference>default_group</Reference>
-        </Group>
         <Connections>
             <Reference>conn12964089</Reference>
         </Connections>
@@ -49,7 +43,6 @@
             <ServerURI>127.0.0.1:1883</ServerURI>
             <ClientID>mqtt-spy</ClientID>
 			<CleanSession>true</CleanSession>
-			<Group><Reference>cg_samples</Reference></Group>
 			<Publication topic="/mqtt-spy/test/" />                
             <Subscription createTab="true" topic="/mqtt-spy/test/" qos="0" scriptFile=""/>
 
@@ -66,9 +59,6 @@
             <ServerURI>iot.eclipse.org:1883</ServerURI>
             <ClientID></ClientID>
 			<CleanSession>true</CleanSession>
-			<Group>
-                <Reference>cg_public</Reference>
-            </Group>
 			<Publication topic="/mqtt-spy/test/" />                
 			<Subscription createTab="true" topic="/mqtt-spy/test/" qos="0" scriptFile=""/>
 
@@ -100,9 +90,6 @@
                 <RetryInterval>5000</RetryInterval>
                 <Resubscribe>true</Resubscribe>
             </ReconnectionSettings>
-            <Group>
-                <Reference>cg_public</Reference>
-            </Group>
             <Subscription createTab="true" topic="/test/#" qos="0" scriptFile=""/>
             <AutoOpen>false</AutoOpen>
             <AutoConnect>true</AutoConnect>
@@ -119,9 +106,6 @@
             <ServerURI>broker.mqtt-dashboard.com</ServerURI>
             <ClientID></ClientID>
 			<CleanSession>true</CleanSession>
-			<Group>
-                <Reference>cg_public</Reference>
-            </Group>
 			<Publication topic="/mqtt-spy/test/" />                
 			<Subscription createTab="true" topic="/mqtt-spy/test/" qos="0" scriptFile=""/>
 

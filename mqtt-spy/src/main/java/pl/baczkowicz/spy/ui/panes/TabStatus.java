@@ -17,27 +17,31 @@
  *    Kamil Baczkowicz - initial API and implementation and/or initial documentation
  *    
  */
-package pl.baczkowicz.mqttspy.ui.utils;
+package pl.baczkowicz.spy.ui.panes;
 
-import javafx.event.EventHandler;
-import javafx.scene.input.KeyEvent;
+import javafx.scene.control.TabPane;
 
-/**
- * Keyboard-related utilities.
- */
-public class KeyboardUtils
+public class TabStatus extends PaneStatus
 {
-	/** Non-numeric key consumer - consumes any non-number characters. */
-	public static final EventHandler<KeyEvent> nonNumericKeyConsumer = new EventHandler<KeyEvent>()
+	private TabPane parentWhenAttached;		
+
+	/**
+	 * Gets the parent object.
+	 * 
+	 * @return the parent
+	 */
+	public TabPane getParentWhenAttached()
 	{
-		public void handle(KeyEvent t)
-		{
-			char ar[] = t.getCharacter().toCharArray();
-			char ch = ar[t.getCharacter().toCharArray().length - 1];
-			if (!(ch >= '0' && ch <= '9'))
-			{
-				t.consume();
-			}
-		}
-	};
+		return parentWhenAttached;
+	}
+
+	/**
+	 * Sets the parent object.
+	 * 
+	 * @param parent the parent to set
+	 */
+	public void setParent(TabPane parent)
+	{
+		this.parentWhenAttached = parent;
+	}
 }

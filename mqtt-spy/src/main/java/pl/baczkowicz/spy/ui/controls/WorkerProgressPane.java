@@ -44,7 +44,7 @@
  *		Kamil Baczkowicz - minor changes to work with Java dialogs, derivative work created from ControlsFX (http://fxexperience.com/controlsfx/)
  *    
  */
-package pl.baczkowicz.mqttspy.ui.controls;
+package pl.baczkowicz.spy.ui.controls;
 
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;

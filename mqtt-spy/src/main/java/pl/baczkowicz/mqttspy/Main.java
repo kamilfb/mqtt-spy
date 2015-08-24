@@ -36,8 +36,7 @@ import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
 import pl.baczkowicz.mqttspy.configuration.UiProperties;
 import pl.baczkowicz.mqttspy.ui.MainController;
 import pl.baczkowicz.mqttspy.ui.events.EventManager;
-import pl.baczkowicz.mqttspy.ui.utils.FxmlUtils;
-import pl.baczkowicz.mqttspy.utils.IdGenerator;
+import pl.baczkowicz.spy.ui.utils.FxmlUtils;
 
 /** 
  * The main class, loading the app.
@@ -63,11 +62,10 @@ public class Main extends Application
 	public void start(final Stage primaryStage)
 	{
 		final EventManager eventManager = new EventManager();			
-		final IdGenerator connectionIdGenerator = new IdGenerator();
 				
 		try
 		{
-			final ConfigurationManager configurationManager = new ConfigurationManager(eventManager, connectionIdGenerator);			
+			final ConfigurationManager configurationManager = new ConfigurationManager(eventManager);			
 			
 			// Load the main window
 			FxmlUtils.setParentClass(getClass());

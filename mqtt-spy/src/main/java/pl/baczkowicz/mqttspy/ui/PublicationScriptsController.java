@@ -54,11 +54,11 @@ import pl.baczkowicz.mqttspy.scripts.ScriptRunningState;
 import pl.baczkowicz.mqttspy.scripts.ScriptTypeEnum;
 import pl.baczkowicz.mqttspy.ui.events.EventManager;
 import pl.baczkowicz.mqttspy.ui.events.observers.ScriptStateChangeObserver;
-import pl.baczkowicz.mqttspy.ui.panes.PaneVisibilityStatus;
-import pl.baczkowicz.mqttspy.ui.panes.TitledPaneController;
 import pl.baczkowicz.mqttspy.ui.properties.PublicationScriptProperties;
-import pl.baczkowicz.spy.ui.utils.DialogUtils;
-import pl.baczkowicz.mqttspy.ui.utils.UiUtils;
+import pl.baczkowicz.spy.ui.panes.PaneVisibilityStatus;
+import pl.baczkowicz.spy.ui.panes.TitledPaneController;
+import pl.baczkowicz.spy.ui.utils.DialogFactory;
+import pl.baczkowicz.spy.ui.utils.UiUtils;
 
 /**
  * Controller for publications scripts pane.
@@ -448,7 +448,7 @@ public class PublicationScriptsController implements Initializable, ScriptStateC
 						scriptManager.removeScript(item);
 						if (!item.getScript().getScriptFile().delete())
 						{
-							DialogUtils.showWarning("File cannot be deleted", 
+							DialogFactory.createWarningDialog("File cannot be deleted", 
 									"File \"" + item.getScript().getScriptFile().getAbsolutePath() + "\" couln't be deleted. Try doing it manually.");
 						}
 					}

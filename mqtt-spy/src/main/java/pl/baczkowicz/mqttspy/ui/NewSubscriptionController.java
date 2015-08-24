@@ -46,10 +46,10 @@ import org.slf4j.LoggerFactory;
 import pl.baczkowicz.mqttspy.configuration.generated.TabbedSubscriptionDetails;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.ui.connections.ConnectionManager;
-import pl.baczkowicz.mqttspy.ui.keyboard.TimeBasedKeyEventFilter;
-import pl.baczkowicz.mqttspy.ui.panes.PaneVisibilityStatus;
-import pl.baczkowicz.mqttspy.ui.panes.TitledPaneController;
-import pl.baczkowicz.spy.ui.utils.DialogUtils;
+import pl.baczkowicz.spy.ui.keyboard.TimeBasedKeyEventFilter;
+import pl.baczkowicz.spy.ui.panes.PaneVisibilityStatus;
+import pl.baczkowicz.spy.ui.panes.TitledPaneController;
+import pl.baczkowicz.spy.ui.utils.DialogFactory;
 import pl.baczkowicz.mqttspy.utils.MqttUtils;
 import pl.baczkowicz.spy.exceptions.SpyException;
 
@@ -216,12 +216,12 @@ public class NewSubscriptionController implements Initializable, TitledPaneContr
 			}
 			catch (SpyException e)
 			{
-				DialogUtils.showError("Invalid topic", "Provided topic is not valid. " + e.getMessage());
+				DialogFactory.createErrorDialog("Invalid topic", "Provided topic is not valid. " + e.getMessage());
 			}
 		}
 		else
 		{
-			DialogUtils.showError("Invalid topic", "Cannot subscribe to an empty topic.");
+			DialogFactory.createErrorDialog("Invalid topic", "Cannot subscribe to an empty topic.");
 		}
 	}	
 
@@ -240,7 +240,7 @@ public class NewSubscriptionController implements Initializable, TitledPaneContr
 		}
 		else
 		{
-			DialogUtils.showError("Duplicate topic", "You already have a subscription tab with " + subscriptionDetails.getTopic() + " topic.");
+			DialogFactory.createErrorDialog("Duplicate topic", "You already have a subscription tab with " + subscriptionDetails.getTopic() + " topic.");
 		}
 	}
 	

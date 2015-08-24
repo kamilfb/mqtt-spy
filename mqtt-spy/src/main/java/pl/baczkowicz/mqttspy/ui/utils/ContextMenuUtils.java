@@ -44,9 +44,11 @@ import pl.baczkowicz.mqttspy.ui.charts.ChartMode;
 import pl.baczkowicz.mqttspy.ui.connections.ConnectionManager;
 import pl.baczkowicz.mqttspy.ui.connections.SubscriptionManager;
 import pl.baczkowicz.mqttspy.ui.events.EventManager;
-import pl.baczkowicz.mqttspy.ui.panes.PaneVisibilityStatus;
-import pl.baczkowicz.mqttspy.ui.panes.TitledPaneStatus;
-import pl.baczkowicz.spy.ui.utils.DialogUtils;
+import pl.baczkowicz.spy.ui.panes.PaneVisibilityStatus;
+import pl.baczkowicz.spy.ui.panes.TitledPaneStatus;
+import pl.baczkowicz.spy.ui.utils.DialogFactory;
+import pl.baczkowicz.spy.ui.utils.TabUtils;
+import pl.baczkowicz.spy.ui.utils.UiUtils;
 
 /**
  * Context menu utils - mainly for creating various context menus.
@@ -230,7 +232,7 @@ public class ContextMenuUtils
 			public void handle(ActionEvent event)
 			{
 				final Color newColor = 
-						DialogUtils.showColorDialog(subscription.getColor(), 
+						DialogFactory.createColorChoiceDialog(subscription.getColor(), 
 								"Select new subscription color", "Subscription color: ");
 				
 				if (!newColor.equals(subscription.getColor()))

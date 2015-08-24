@@ -17,7 +17,7 @@
  *    Kamil Baczkowicz - initial API and implementation and/or initial documentation
  *    
  */
-package pl.baczkowicz.mqttspy.ui.keyboard;
+package pl.baczkowicz.spy.ui.keyboard;
 
 import java.util.Date;
 import java.util.HashMap;

@@ -52,7 +52,7 @@ import pl.baczkowicz.mqttspy.ui.events.EventManager;
 import pl.baczkowicz.mqttspy.ui.events.observers.MessageIndexChangeObserver;
 import pl.baczkowicz.mqttspy.ui.properties.MqttContentProperties;
 import pl.baczkowicz.mqttspy.ui.utils.StylingUtils;
-import pl.baczkowicz.mqttspy.ui.utils.UiUtils;
+import pl.baczkowicz.spy.ui.utils.UiUtils;
 
 /**
  * Controller for the message list table.

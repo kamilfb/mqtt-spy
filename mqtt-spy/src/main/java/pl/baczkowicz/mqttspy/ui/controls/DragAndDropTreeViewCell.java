@@ -245,29 +245,7 @@ public class DragAndDropTreeViewCell extends TreeCell<ConnectionTreeItemProperti
 		}
 		
 		return false;
-	}
-	
-//	private void checkGroupForParentChanges(final ConfiguredConnectionGroupDetails group)
-//	{
-//		boolean changed = !group.equals(group.getLastSavedValues());
-//		
-//		if (changed)
-//		{
-//			logger.debug("Parent changed = " + changed);
-//			group.setGroupingModified(true);
-//		}
-//	}
-	
-//	private void checkConnectionForParentChanges(final ConfiguredConnectionDetails connection)
-//	{
-//		boolean changed = !connection.equals(connection.getSavedValues());
-//		
-//		if (changed)
-//		{
-//			logger.debug("Parent changed = " + changed);
-//			connection.setGroupingModified(true);
-//		}		
-//	}
+	}	
 
 	private TreeItem<ConnectionTreeItemProperties> findNode(
 			final TreeItem<ConnectionTreeItemProperties> currentNode,

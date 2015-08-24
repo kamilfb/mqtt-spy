@@ -17,7 +17,7 @@
  *    Kamil Baczkowicz - initial API and implementation and/or initial documentation
  *    
  */
-package pl.baczkowicz.mqttspy.ui.panes;
+package pl.baczkowicz.spy.ui.panes;
 
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.Menu;

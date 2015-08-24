@@ -60,8 +60,8 @@ import pl.baczkowicz.mqttspy.ui.events.observers.MessageRemovedObserver;
 import pl.baczkowicz.mqttspy.ui.events.queuable.ui.BrowseReceivedMessageEvent;
 import pl.baczkowicz.mqttspy.ui.events.queuable.ui.BrowseRemovedMessageEvent;
 import pl.baczkowicz.mqttspy.ui.messagelog.MessageLogUtils;
-import pl.baczkowicz.mqttspy.ui.utils.TextUtils;
-import pl.baczkowicz.mqttspy.ui.utils.UiUtils;
+import pl.baczkowicz.spy.ui.utils.TextUtils;
+import pl.baczkowicz.spy.ui.utils.UiUtils;
 import pl.baczkowicz.spy.utils.FileUtils;
 
 /**

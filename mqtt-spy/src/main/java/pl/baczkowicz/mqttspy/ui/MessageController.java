@@ -47,13 +47,13 @@ import pl.baczkowicz.mqttspy.configuration.UiProperties;
 import pl.baczkowicz.mqttspy.scripts.FormattingManager;
 import pl.baczkowicz.mqttspy.storage.BasicMessageStoreWithSummary;
 import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
-import pl.baczkowicz.mqttspy.ui.controls.StyledTextAreaWrapper;
-import pl.baczkowicz.mqttspy.ui.controls.TextAreaInterface;
-import pl.baczkowicz.mqttspy.ui.controls.TextAreaWrapper;
 import pl.baczkowicz.mqttspy.ui.events.observers.MessageFormatChangeObserver;
 import pl.baczkowicz.mqttspy.ui.events.observers.MessageIndexChangeObserver;
 import pl.baczkowicz.mqttspy.ui.search.SearchOptions;
 import pl.baczkowicz.mqttspy.utils.FormattingUtils;
+import pl.baczkowicz.spy.ui.controls.StyledTextAreaWrapper;
+import pl.baczkowicz.spy.ui.controls.TextAreaInterface;
+import pl.baczkowicz.spy.ui.controls.TextAreaWrapper;
 import pl.baczkowicz.spy.utils.TimeUtils;
 
 /**

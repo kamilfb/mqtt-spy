@@ -1,6 +1,6 @@
 /***********************************************************************************
  * 
- * Copyright (c) 2014 Kamil Baczkowicz
+ * Copyright (c) 2015 Kamil Baczkowicz
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -17,19 +17,32 @@
  *    Kamil Baczkowicz - initial API and implementation and/or initial documentation
  *    
  */
-package pl.baczkowicz.mqttspy.ui.panes;
 
-import javafx.scene.control.Tab;
+package pl.baczkowicz.spy.ui.controls;
 
-public interface TabController
+import javafx.beans.value.ObservableValue;
+import javafx.scene.control.Tooltip;
+
+/**
+ * A common interface for accessing text areas (standard and styled). 
+ */
+public interface TextAreaInterface
 {
-	Tab getTab();
+	void setEditable(boolean editable);
 	
-	void setTab(Tab tab);
+	void setWrapText(boolean wrapText);
 	
-	TabStatus getTabStatus();
+	ObservableValue<String> selectedTextProperty();
 	
-	void setTabStatus(TabStatus status);
+	void setTooltip(Tooltip tooltip);
 	
-	void refreshStatus();
+	void clear();
+	
+	void appendText(String text);
+	
+	void positionCaret(int position);
+	
+	String getSelectedText();
+
+	String getText();
 }

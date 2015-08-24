@@ -23,55 +23,17 @@ import javafx.application.Platform;
 import javafx.geometry.Point2D;
 import javafx.scene.control.Button;
 import javafx.scene.control.Tooltip;
-import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
-import pl.baczkowicz.mqttspy.connectivity.MqttConnectionStatus;
 import pl.baczkowicz.spy.utils.ThreadingUtils;
 
-public class TooltipUtils
+public class TooltipFactory
 {
-	/**
-	 * Updates the given connection tooltip with connection information.
-	 * 
-	 * @param connection The connection to which the tooltip refers
-	 * @param tooltip The tooltip to be updated
-	 */
-	public static void updateConnectionTooltip(final MqttAsyncConnection connection, final Tooltip tooltip)
-	{
-		final StringBuffer sb = new StringBuffer();
-		sb.append("Status: " + connection.getConnectionStatus().toString().toLowerCase());
-		
-		if (MqttConnectionStatus.CONNECTED.equals(connection.getConnectionStatus()))
-		{
-			sb.append(" (" + connection.getLastSuccessfulyConnectionAttempt() + ")");
-			
-			sb.append(System.getProperty("line.separator"));
-			final String sslStatus = connection.getProperties().getSSL() != null ? "on" : "off";
-			final String userAuthStatus = connection.getProperties().getUserCredentials() != null ? "on" : "off";
-			sb.append("Security: TLS/SSL is " +  sslStatus + "; user authentication is " + userAuthStatus);
-		}
-		
-		if (connection.getConnectionAttempts() > 1)
-		{
-			sb.append(System.getProperty("line.separator"));
-			sb.append("Connection attempts: " + connection.getConnectionAttempts());
-		}
-				
-		if (connection.getDisconnectionReason() != null && !connection.getDisconnectionReason().isEmpty())
-		{
-			sb.append(System.getProperty("line.separator"));
-			sb.append("Last error: " + connection.getDisconnectionReason().toLowerCase());
-		}	
-		
-		tooltip.setText(sb.toString());
-	}
-	
 	/**
 	 * Shows the given tooltip for 5 seconds.
 	 * 
 	 * @param button The button to be used as the parent
 	 * @param message The message to be shown in the tooltip
 	 */
-	public static void showTooltip(final Button button, final String message)
+	public static void createTooltip(final Button button, final String message)
 	{
 		final Tooltip tooltip = new Tooltip(message);
 		button.setTooltip(tooltip);

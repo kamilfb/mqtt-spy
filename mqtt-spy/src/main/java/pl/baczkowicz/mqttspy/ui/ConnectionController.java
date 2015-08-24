@@ -58,14 +58,14 @@ import pl.baczkowicz.mqttspy.stats.StatisticsManager;
 import pl.baczkowicz.mqttspy.ui.connections.ConnectionManager;
 import pl.baczkowicz.mqttspy.ui.events.EventManager;
 import pl.baczkowicz.mqttspy.ui.events.observers.ConnectionStatusChangeObserver;
-import pl.baczkowicz.mqttspy.ui.panes.PaneVisibilityStatus;
-import pl.baczkowicz.mqttspy.ui.panes.TabController;
-import pl.baczkowicz.mqttspy.ui.panes.TabStatus;
-import pl.baczkowicz.mqttspy.ui.panes.TitledPaneStatus;
-import pl.baczkowicz.spy.ui.utils.DialogUtils;
-import pl.baczkowicz.mqttspy.ui.utils.FxmlUtils;
+import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
 import pl.baczkowicz.mqttspy.ui.utils.StylingUtils;
-import pl.baczkowicz.spy.ui.utils.TooltipUtils;
+import pl.baczkowicz.spy.ui.panes.PaneVisibilityStatus;
+import pl.baczkowicz.spy.ui.panes.TabController;
+import pl.baczkowicz.spy.ui.panes.TabStatus;
+import pl.baczkowicz.spy.ui.panes.TitledPaneStatus;
+import pl.baczkowicz.spy.ui.utils.DialogFactory;
+import pl.baczkowicz.spy.ui.utils.FxmlUtils;
 
 /**
  * Controller looking after the connection tab.
@@ -514,7 +514,7 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 		}
 		connectionTab.getStyleClass().add(StylingUtils.getStyleForMqttConnectionStatus(connectionStatus));
 		
-		TooltipUtils.updateConnectionTooltip(connection, tooltip);
+		DialogUtils.updateConnectionTooltip(connection, tooltip);
 	}
 	
 	public void updateConnectionStats()
@@ -700,7 +700,7 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 			if (status.getVisibility().equals(PaneVisibilityStatus.DETACHED))
 			{				
 				// Add to separate window
-				final Stage stage = DialogUtils.createWindowWithPane(status.getController().getTitledPane(), splitPane.getScene(), 
+				final Stage stage = DialogFactory.createWindowWithPane(status.getController().getTitledPane(), splitPane.getScene(), 
 						connection.getName(), 0);
 				status.setParentWhenDetached(stage);
 				status.setLastExpanded(status.getController().getTitledPane().isExpanded());

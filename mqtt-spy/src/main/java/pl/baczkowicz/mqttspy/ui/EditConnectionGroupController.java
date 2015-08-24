@@ -97,10 +97,6 @@ public class EditConnectionGroupController extends AnchorPane implements Initial
 
 	private ConfiguredConnectionGroupDetails editedConnectionGroupDetails;
 
-	// private boolean openNewMode;
-	//
-	// private Object existingConnection;
-
 	private List<ConfiguredConnectionDetails> connections;
 	
 	private Map<ConnectionListItemProperties, ConfiguredConnectionDetails> connectionMapping;
@@ -251,13 +247,6 @@ public class EditConnectionGroupController extends AnchorPane implements Initial
 		editConnectionsController.listConnections();
 				
 		updateButtons();
-		
-		// TODO
-//		logger.debug("Saving connection " + getConnectionName().getText());
-//		if (configurationManager.saveConfiguration())
-//		{
-//			DialogUtils.showTooltip(saveButton, "Changes for connection " + editedConnectionDetails.getName() + " have been saved.");
-//		}
 	}	
 	
 	@FXML
@@ -275,7 +264,7 @@ public class EditConnectionGroupController extends AnchorPane implements Initial
 	
 	public void onChange()
 	{
-		if (recordModifications/* && !emptyConnectionList*/)
+		if (recordModifications)
 		{					
 			if (readAndDetectChanges())
 			{
@@ -304,31 +293,7 @@ public class EditConnectionGroupController extends AnchorPane implements Initial
 		{
 			this.editedConnectionGroupDetails = connectionGroup;
 			this.connections = new ArrayList<>();
-			for (final ConnectionTreeItemProperties item : list)
-			{
-				if (!item.isGroup() && item.getConnection() != null)
-				{
-					connections.add(item.getConnection());
-				}
-			}			
-			
-			// Set 'open connection' button mode
-			// openNewMode = true;
-			// existingConnection = null;
-			//connectButton.setText("Open connection");
-			
-//			logger.debug("Editing connection id={} name={}", editedConnectionGroupDetails.getId(),
-//					editedConnectionGroupDetails.getName());
-//			for (final MqttAsyncConnection mqttConnection : connectionManager.getGroups())
-//			{
-//				if (connectionDetails.getId() == mqttConnection.getProperties().getConfiguredProperties().getId() && mqttConnection.isOpened())
-//				{
-//					openNewMode = false;
-//					existingConnection = mqttConnection;
-//					connectButton.setText("Close and re-open existing connection");
-//					break;
-//				}				
-//			}
+			ConfigurationManager.findConnections(connectionGroup, connections);					
 			
 			displayConnectionDetails(editedConnectionGroupDetails);		
 						

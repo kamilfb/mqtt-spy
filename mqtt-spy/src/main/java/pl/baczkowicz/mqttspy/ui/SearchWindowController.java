@@ -51,8 +51,8 @@ import pl.baczkowicz.mqttspy.ui.events.observers.MessageListChangedObserver;
 import pl.baczkowicz.mqttspy.ui.events.observers.MessageRemovedObserver;
 import pl.baczkowicz.mqttspy.ui.events.queuable.ui.BrowseReceivedMessageEvent;
 import pl.baczkowicz.mqttspy.ui.events.queuable.ui.BrowseRemovedMessageEvent;
-import pl.baczkowicz.mqttspy.ui.utils.FxmlUtils;
 import pl.baczkowicz.mqttspy.ui.utils.StylingUtils;
+import pl.baczkowicz.spy.ui.utils.FxmlUtils;
 
 /**
  * Controller for the search window.

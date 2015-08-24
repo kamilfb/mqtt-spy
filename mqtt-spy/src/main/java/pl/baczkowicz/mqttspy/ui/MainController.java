@@ -58,12 +58,12 @@ import pl.baczkowicz.mqttspy.ui.connections.ConnectionManager;
 import pl.baczkowicz.mqttspy.ui.events.EventManager;
 import pl.baczkowicz.mqttspy.ui.messagelog.LogReaderTask;
 import pl.baczkowicz.mqttspy.ui.messagelog.TaskWithProgressUpdater;
-import pl.baczkowicz.mqttspy.ui.panes.PaneVisibilityStatus;
 import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
-import pl.baczkowicz.mqttspy.ui.utils.FxmlUtils;
 import pl.baczkowicz.spy.exceptions.ConfigurationException;
 import pl.baczkowicz.spy.exceptions.SpyUncaughtExceptionHandler;
 import pl.baczkowicz.spy.exceptions.XMLException;
+import pl.baczkowicz.spy.ui.panes.PaneVisibilityStatus;
+import pl.baczkowicz.spy.ui.utils.FxmlUtils;
 
 /**
  * Controller for the main window.
@@ -256,7 +256,7 @@ public class MainController
 		{			
 			final TaskWithProgressUpdater<List<BaseMqttMessage>> readAndProcess = new LogReaderTask(selectedFile, connectionManager, this);
 			
-			pl.baczkowicz.spy.ui.utils.DialogUtils.showWorkerDialog(readAndProcess);
+			pl.baczkowicz.spy.ui.utils.DialogFactory.createWorkerDialog(readAndProcess);
 			
 			new Thread(readAndProcess).start();			
 		}

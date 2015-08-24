@@ -55,9 +55,9 @@ import pl.baczkowicz.mqttspy.testcases.TestCase;
 import pl.baczkowicz.mqttspy.testcases.TestCaseManager;
 import pl.baczkowicz.mqttspy.testcases.TestCaseStatus;
 import pl.baczkowicz.mqttspy.ui.events.EventManager;
-import pl.baczkowicz.mqttspy.ui.panes.PaneVisibilityStatus;
-import pl.baczkowicz.mqttspy.ui.panes.TitledPaneController;
 import pl.baczkowicz.mqttspy.ui.properties.TestCaseProperties;
+import pl.baczkowicz.spy.ui.panes.PaneVisibilityStatus;
+import pl.baczkowicz.spy.ui.panes.TitledPaneController;
 
 /**
  * Controller for the test cases execution window.

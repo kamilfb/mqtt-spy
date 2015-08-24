@@ -33,7 +33,7 @@ import pl.baczkowicz.mqttspy.ui.LineChartPaneController;
 import pl.baczkowicz.mqttspy.ui.PieChartPaneController;
 import pl.baczkowicz.mqttspy.ui.events.EventManager;
 import pl.baczkowicz.mqttspy.ui.properties.SubscriptionTopicSummaryProperties;
-import pl.baczkowicz.mqttspy.ui.utils.FxmlUtils;
+import pl.baczkowicz.spy.ui.utils.FxmlUtils;
 
 public class ChartFactory
 {

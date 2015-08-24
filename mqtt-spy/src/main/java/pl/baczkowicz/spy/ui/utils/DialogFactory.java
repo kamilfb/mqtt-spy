@@ -21,20 +21,14 @@ package pl.baczkowicz.spy.ui.utils;
 
 import java.util.Optional;
 
-import org.controlsfx.dialog.CustomDialogs;
-
 import javafx.application.Platform;
-import javafx.beans.binding.DoubleBinding;
 import javafx.concurrent.Task;
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.geometry.VPos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonBar.ButtonData;
-import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.control.Dialog;
@@ -45,28 +39,22 @@ import javafx.scene.control.TextInputDialog;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import javafx.util.Pair;
-import pl.baczkowicz.mqttspy.common.generated.UserCredentials;
-import pl.baczkowicz.mqttspy.configuration.ConfigurationUtils;
-import pl.baczkowicz.mqttspy.ui.controls.DialogAction;
-import pl.baczkowicz.mqttspy.ui.controls.WorkerProgressPane;
+import pl.baczkowicz.spy.ui.controls.WorkerProgressPane;
 
-public class DialogUtils
+public class DialogFactory
 {
-
 	/**
 	 * Shows an error dialog.
 	 * 
 	 * @param title Title of the dialog
 	 * @param message Message to be displayed
 	 */
-	public static void showError(final String title, final String message)
+	public static void createErrorDialog(final String title, final String message)
 	{
 		final Alert alert = new Alert(AlertType.ERROR);
 		alert.setTitle(title);
@@ -76,7 +64,7 @@ public class DialogUtils
 		alert.showAndWait();
 	}
 
-	public static void showWarning(final String title, final String message)
+	public static void createWarningDialog(final String title, final String message)
 	{
 		Alert alert = new Alert(AlertType.WARNING);
 		alert.setTitle(title);
@@ -87,7 +75,7 @@ public class DialogUtils
 	}	
 	
 
-	public static Optional<ButtonType> askQuestion(final String title, final String message, final boolean showNoButton)
+	public static Optional<ButtonType> createQuestionDialog(final String title, final String message, final boolean showNoButton)
 	{
 		final Alert alert = new Alert(AlertType.CONFIRMATION);
 		alert.setTitle(title);
@@ -111,7 +99,7 @@ public class DialogUtils
 	 * 
 	 * @return The user's response
 	 */
-	public static Optional<String> askForInput(final Window owner, final String title, final String label)
+	public static Optional<String> createInputDialog(final Window owner, final String title, final String label)
 	{
 		final TextInputDialog dialog = new TextInputDialog();
 		dialog.setTitle(title);
@@ -122,43 +110,12 @@ public class DialogUtils
 		return dialog.showAndWait();	
 	}
 	
-	public static Optional<ButtonType> askQuestion(final String title, final String message)
+	public static Optional<ButtonType> createQuestionDialog(final String title, final String message)
 	{
-		return askQuestion(title, message, true);
-	}
+		return createQuestionDialog(title, message, true);
+	}	
 	
-	/**
-	 * Asks the user to review/complete username and password information.
-	 * 
-	 * @param owner The window owner
-	 * @param connectionName Name of the connection
-	 * @param userCredentials Existing user credentials
-	 * 
-	 * @return True when confirmed by user
-	 */
-	public static boolean askForMqttUsernameAndPassword(final Object owner,
-			final String connectionName, final UserCredentials userCredentials)
-	{
-		final Pair<String, String> userInfo = new Pair<String, String>(
-				userCredentials.getUsername(), 
-				ConfigurationUtils.decodePassword(userCredentials.getPassword()));
-		
-		Optional<Pair<String, String>> response = askForUsernameAndPassword(
-				"MQTT user credentials",
-				"User credentials for connection " + connectionName,
-				userInfo);
-		
-		if (response.isPresent())
-		{
-			userCredentials.setUsername(response.get().getKey());			
-			userCredentials.setPassword(ConfigurationUtils.encodePassword(response.get().getValue()));
-			return true;
-		}
-		
-		return false;
-	}
-	
-	public static Optional<Pair<String, String>> askForUsernameAndPassword(
+	public static Optional<Pair<String, String>> createUsernameAndPasswordDialog(
 			final String title, final String header, 
 			final Pair<String, String> userInfo)
 	{
@@ -169,7 +126,7 @@ public class DialogUtils
 		dialog.setHeaderText(header);
 
 		// Set the icon
-		dialog.setGraphic(new ImageView(DialogUtils.class.getResource("/images/login.png").toString()));
+		dialog.setGraphic(new ImageView(DialogFactory.class.getResource("/images/login.png").toString()));
 
 		// Set the button types
 		final ButtonType loginButtonType = new ButtonType("Connect", ButtonData.OK_DONE);
@@ -239,7 +196,7 @@ public class DialogUtils
 		return stage;
 	}
 	
-	public static Color showColorDialog(final Color color, final String title, final String label)
+	public static Color createColorChoiceDialog(final Color color, final String title, final String label)
 	{
 		// Create the custom dialog
 		final Dialog<Color> dialog = new Dialog<>();
@@ -291,7 +248,7 @@ public class DialogUtils
 	 * 
 	 * @param readAndProcess The task backing up the dialog
 	 */
-	public static void showWorkerDialog(final Task<?> readAndProcess)
+	public static void createWorkerDialog(final Task<?> readAndProcess)
 	{
 		final Alert dialog = new Alert(AlertType.INFORMATION);
 		dialog.setTitle(readAndProcess.getTitle());

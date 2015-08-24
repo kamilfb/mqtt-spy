@@ -18,17 +18,18 @@
  *    
  */
 
-package pl.baczkowicz.mqttspy.ui.controls;
+package pl.baczkowicz.spy.ui.controls;
 
 import javafx.beans.value.ObservableValue;
-import javafx.scene.control.TextArea;
 import javafx.scene.control.Tooltip;
 
-public class TextAreaWrapper implements TextAreaInterface
-{
-	private TextArea dataField;
+import org.fxmisc.richtext.StyleClassedTextArea;
 
-	public TextAreaWrapper(final TextArea textArea)
+public class StyledTextAreaWrapper implements TextAreaInterface
+{
+	private StyleClassedTextArea dataField;
+	
+	public StyledTextAreaWrapper(final StyleClassedTextArea textArea)
 	{
 		this.dataField = textArea;
 	}

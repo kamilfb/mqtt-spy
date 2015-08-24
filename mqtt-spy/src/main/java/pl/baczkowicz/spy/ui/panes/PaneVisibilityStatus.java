@@ -17,23 +17,9 @@
  *    Kamil Baczkowicz - initial API and implementation and/or initial documentation
  *    
  */
-package pl.baczkowicz.mqttspy.utils;
+package pl.baczkowicz.spy.ui.panes;
 
-/**
- * Class for generating IDs. 
- */
-public class IdGenerator
+public enum PaneVisibilityStatus
 {
-	private int lastUsedId = 0;
-	
-	public int getNextAvailableId()
-	{
-		lastUsedId++;
-		return lastUsedId;
-	}
-	
-	public void resetLastUsedId()
-	{
-		lastUsedId = 0;
-	}
+	NOT_LOADED, NOT_VISIBLE, ATTACHED, DETACHED
 }

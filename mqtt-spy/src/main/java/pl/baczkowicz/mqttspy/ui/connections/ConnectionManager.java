@@ -72,13 +72,14 @@ import pl.baczkowicz.mqttspy.ui.events.queuable.EventQueueManager;
 import pl.baczkowicz.mqttspy.ui.events.queuable.UIEventHandler;
 import pl.baczkowicz.mqttspy.ui.events.queuable.connectivity.MqttConnectionAttemptFailureEvent;
 import pl.baczkowicz.mqttspy.ui.events.queuable.connectivity.MqttDisconnectionAttemptFailureEvent;
-import pl.baczkowicz.mqttspy.ui.panes.PaneVisibilityStatus;
-import pl.baczkowicz.mqttspy.ui.panes.TabStatus;
 import pl.baczkowicz.mqttspy.ui.utils.ConnectivityUtils;
 import pl.baczkowicz.mqttspy.ui.utils.ContextMenuUtils;
-import pl.baczkowicz.spy.ui.utils.DialogUtils;
-import pl.baczkowicz.mqttspy.ui.utils.FxmlUtils;
-import pl.baczkowicz.mqttspy.ui.utils.TabUtils;
+import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
+import pl.baczkowicz.spy.ui.panes.PaneVisibilityStatus;
+import pl.baczkowicz.spy.ui.panes.TabStatus;
+import pl.baczkowicz.spy.ui.utils.DialogFactory;
+import pl.baczkowicz.spy.ui.utils.FxmlUtils;
+import pl.baczkowicz.spy.ui.utils.TabUtils;
 import pl.baczkowicz.spy.exceptions.ConfigurationException;
 import pl.baczkowicz.spy.exceptions.SpyException;
 
@@ -149,7 +150,7 @@ public class ConnectionManager
 			final String validationResult = ConnectivityUtils.validateConnectionDetails(connectionDetails, true);
 			if (validationResult != null)
 			{
-				DialogUtils.showWarning("Invalid value detected", validationResult);
+				DialogFactory.createWarningDialog("Invalid value detected", validationResult);
 			}
 			else
 			{
@@ -178,7 +179,7 @@ public class ConnectionManager
 			if (connectionDetails.getUserAuthentication().isAskForPassword() || connectionDetails.getUserAuthentication().isAskForUsername())
 			{
 				// Password is decoded and encoded in this utility method
-				if (!DialogUtils.askForMqttUsernameAndPassword(stage, connectionDetails.getName(), userCredentials))
+				if (!DialogUtils.createMqttUsernameAndPasswordDialog(stage, connectionDetails.getName(), userCredentials))
 				{
 					return true;
 				}

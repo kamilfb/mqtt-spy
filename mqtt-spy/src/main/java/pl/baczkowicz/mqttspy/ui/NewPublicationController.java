@@ -74,12 +74,12 @@ import pl.baczkowicz.mqttspy.scripts.ScriptManager;
 import pl.baczkowicz.mqttspy.scripts.ScriptTypeEnum;
 import pl.baczkowicz.mqttspy.ui.events.EventManager;
 import pl.baczkowicz.mqttspy.ui.events.observers.ScriptListChangeObserver;
-import pl.baczkowicz.mqttspy.ui.keyboard.TimeBasedKeyEventFilter;
-import pl.baczkowicz.mqttspy.ui.panes.PaneVisibilityStatus;
-import pl.baczkowicz.mqttspy.ui.panes.TitledPaneController;
 import pl.baczkowicz.mqttspy.ui.properties.PublicationScriptProperties;
-import pl.baczkowicz.spy.ui.utils.DialogUtils;
-import pl.baczkowicz.mqttspy.ui.utils.UiUtils;
+import pl.baczkowicz.spy.ui.keyboard.TimeBasedKeyEventFilter;
+import pl.baczkowicz.spy.ui.panes.PaneVisibilityStatus;
+import pl.baczkowicz.spy.ui.panes.TitledPaneController;
+import pl.baczkowicz.spy.ui.utils.DialogFactory;
+import pl.baczkowicz.spy.ui.utils.UiUtils;
 import pl.baczkowicz.mqttspy.utils.MqttUtils;
 import pl.baczkowicz.spy.exceptions.ConversionException;
 import pl.baczkowicz.spy.utils.ConversionUtils;
@@ -646,7 +646,7 @@ public class NewPublicationController implements Initializable, ScriptListChange
 		{
 			logger.error("Cannot publish to an empty topic");
 			
-			DialogUtils.showError("Invalid topic", "Cannot publish to an empty topic.");
+			DialogFactory.createErrorDialog("Invalid topic", "Cannot publish to an empty topic.");
 			return null;
 		}
 		
@@ -805,7 +805,7 @@ public class NewPublicationController implements Initializable, ScriptListChange
 		
 		while (!valid)
 		{
-			final Optional<String> response = DialogUtils.askForInput(
+			final Optional<String> response = DialogFactory.createInputDialog(
 					pane.getScene().getWindow(), 
 					"Enter a name for your message-based script", "Script name (without .js)");
 			
@@ -823,7 +823,7 @@ public class NewPublicationController implements Initializable, ScriptListChange
 				
 				if (script != null)
 				{
-					Optional<ButtonType> duplicateNameResponse = DialogUtils.askQuestion("Script name already exists", 
+					Optional<ButtonType> duplicateNameResponse = DialogFactory.createQuestionDialog("Script name already exists", 
 							"Script with name \"" + scriptName 
 							+ "\" already exists in your script folder (" 
 							+ directory + "). Do you want to override it?");
@@ -907,7 +907,7 @@ public class NewPublicationController implements Initializable, ScriptListChange
 	{
 		logger.error("Cannot convert " + publicationData.getText() + " to plain text");
 		
-		DialogUtils.showError("Invalid hex format", "Provided text is not a valid hex string.");
+		DialogFactory.createErrorDialog("Invalid hex format", "Provided text is not a valid hex string.");
 	}
 
 	public void setConnection(MqttAsyncConnection connection)

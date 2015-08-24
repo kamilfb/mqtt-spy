@@ -62,9 +62,9 @@ import pl.baczkowicz.mqttspy.ui.charts.ChartFactory;
 import pl.baczkowicz.mqttspy.ui.charts.ChartMode;
 import pl.baczkowicz.mqttspy.ui.events.EventManager;
 import pl.baczkowicz.mqttspy.ui.properties.SubscriptionTopicSummaryProperties;
-import pl.baczkowicz.spy.ui.utils.DialogUtils;
+import pl.baczkowicz.spy.ui.utils.DialogFactory;
+import pl.baczkowicz.spy.ui.utils.UiUtils;
 import pl.baczkowicz.mqttspy.ui.utils.StylingUtils;
-import pl.baczkowicz.mqttspy.ui.utils.UiUtils;
 
 /**
  * Controller for the subscription summary table.
@@ -630,7 +630,7 @@ public class SubscriptionSummaryTableController implements Initializable
 					final Set<String> topics = store.getFilteredMessageStore().getBrowsedTopics();
 					if (topics.size() > CHART_TOPIC_COUNT)
 					{
-						final Optional<ButtonType> response = DialogUtils.askQuestion(
+						final Optional<ButtonType> response = DialogFactory.createQuestionDialog(
 								"Number of selected topics", 
 								"More than " + CHART_TOPIC_COUNT 
 								+ " topics have been selected to be displayed on a chart. Do you want to proceed?",
@@ -676,7 +676,7 @@ public class SubscriptionSummaryTableController implements Initializable
 					final Set<String> topics = store.getFilteredMessageStore().getBrowsedTopics();
 					if (topics.size() > CHART_TOPIC_COUNT)
 					{
-						final Optional<ButtonType> response = DialogUtils.askQuestion(
+						final Optional<ButtonType> response = DialogFactory.createQuestionDialog(
 								"Number of selected topics", 
 								"More than " + CHART_TOPIC_COUNT 
 								+ " topics have been selected to be displayed on a chart. Do you want to proceed?",

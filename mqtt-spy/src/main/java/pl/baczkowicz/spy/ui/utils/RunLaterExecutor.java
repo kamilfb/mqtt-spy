@@ -17,15 +17,20 @@
  *    Kamil Baczkowicz - initial API and implementation and/or initial documentation
  *    
  */
-package pl.baczkowicz.mqttspy.ui.panes;
+package pl.baczkowicz.spy.ui.utils;
 
-import javafx.scene.control.TitledPane;
+import java.util.concurrent.Executor;
 
-public interface TitledPaneController
+import javafx.application.Platform;
+
+/**
+ * Simple 'run later' executor.
+ */
+public class RunLaterExecutor implements Executor
 {
-	TitledPane getTitledPane();
-	
-	void setTitledPane(TitledPane pane);
-	
-	void updatePane(PaneVisibilityStatus attached);
+	@Override
+	public void execute(final Runnable command)
+	{
+		Platform.runLater(command);
+	}
 }

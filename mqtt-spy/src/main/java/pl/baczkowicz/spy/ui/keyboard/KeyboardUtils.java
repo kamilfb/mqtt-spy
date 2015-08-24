@@ -17,20 +17,27 @@
  *    Kamil Baczkowicz - initial API and implementation and/or initial documentation
  *    
  */
-package pl.baczkowicz.mqttspy.ui.utils;
+package pl.baczkowicz.spy.ui.keyboard;
 
-import java.util.concurrent.Executor;
-
-import javafx.application.Platform;
+import javafx.event.EventHandler;
+import javafx.scene.input.KeyEvent;
 
 /**
- * Simple 'run later' executor.
+ * Keyboard-related utilities.
  */
-public class RunLaterExecutor implements Executor
+public class KeyboardUtils
 {
-	@Override
-	public void execute(final Runnable command)
+	/** Non-numeric key consumer - consumes any non-number characters. */
+	public static final EventHandler<KeyEvent> nonNumericKeyConsumer = new EventHandler<KeyEvent>()
 	{
-		Platform.runLater(command);
-	}
+		public void handle(KeyEvent t)
+		{
+			char ar[] = t.getCharacter().toCharArray();
+			char ch = ar[t.getCharacter().toCharArray().length - 1];
+			if (!(ch >= '0' && ch <= '9'))
+			{
+				t.consume();
+			}
+		}
+	};
 }

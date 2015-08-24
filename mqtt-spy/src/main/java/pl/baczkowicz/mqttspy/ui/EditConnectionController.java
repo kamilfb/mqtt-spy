@@ -59,8 +59,8 @@ import pl.baczkowicz.mqttspy.ui.controllers.edit.EditConnectionPublicationsContr
 import pl.baczkowicz.mqttspy.ui.controllers.edit.EditConnectionSecurityController;
 import pl.baczkowicz.mqttspy.ui.controllers.edit.EditConnectionSubscriptionsController;
 import pl.baczkowicz.mqttspy.ui.utils.ConnectivityUtils;
-import pl.baczkowicz.spy.ui.utils.DialogUtils;
-import pl.baczkowicz.spy.ui.utils.TooltipUtils;
+import pl.baczkowicz.spy.ui.utils.DialogFactory;
+import pl.baczkowicz.spy.ui.utils.TooltipFactory;
 import pl.baczkowicz.mqttspy.utils.ConnectionUtils;
 import pl.baczkowicz.spy.exceptions.ConfigurationException;
 
@@ -269,11 +269,11 @@ public class EditConnectionController extends AnchorPane implements Initializabl
 					
 			updateButtons();
 			
-			TooltipUtils.showTooltip(saveButton, "Changes for connection " + editedConnectionDetails.getName() + " have been saved.");
+			TooltipFactory.createTooltip(saveButton, "Changes for connection " + editedConnectionDetails.getName() + " have been saved.");
 		}
 		else
 		{
-			DialogUtils.showError(
+			DialogFactory.createErrorDialog(
 					"Cannot save the configuration file", 
 					"Oops... an error has occurred while trying to save your configuration. "
 					+ "Please check the log file for more information. Your changes were not saved.");
@@ -296,13 +296,13 @@ public class EditConnectionController extends AnchorPane implements Initializabl
 		
 		if (validationResult != null)
 		{
-			DialogUtils.showWarning("Invalid value detected", validationResult);
+			DialogFactory.createWarningDialog("Invalid value detected", validationResult);
 		}
 		else
 		{					
 			if (connectionDetails.isModified())
 			{	
-				Optional<ButtonType> response = DialogUtils.askQuestion(
+				Optional<ButtonType> response = DialogFactory.createQuestionDialog(
 						"Unsaved changes detected", 
 						"You've got unsaved changes for " + "connection " 
 						+ connectionDetails.getName() + ". Do you want to save/apply them now?", 

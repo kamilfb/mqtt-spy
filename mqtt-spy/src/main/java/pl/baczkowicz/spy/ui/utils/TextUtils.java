@@ -17,7 +17,7 @@
  *    Kamil Baczkowicz - initial API and implementation and/or initial documentation
  *    
  */
-package pl.baczkowicz.mqttspy.ui.utils;
+package pl.baczkowicz.spy.ui.utils;
 
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;

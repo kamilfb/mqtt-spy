@@ -47,12 +47,12 @@ import pl.baczkowicz.mqttspy.ui.ConnectionController;
 import pl.baczkowicz.mqttspy.ui.SubscriptionController;
 import pl.baczkowicz.mqttspy.ui.events.EventManager;
 import pl.baczkowicz.mqttspy.ui.events.queuable.EventQueueManager;
-import pl.baczkowicz.mqttspy.ui.panes.PaneVisibilityStatus;
-import pl.baczkowicz.mqttspy.ui.panes.TabStatus;
 import pl.baczkowicz.mqttspy.ui.utils.ContextMenuUtils;
-import pl.baczkowicz.mqttspy.ui.utils.FxmlUtils;
 import pl.baczkowicz.mqttspy.ui.utils.StylingUtils;
-import pl.baczkowicz.mqttspy.ui.utils.TabUtils;
+import pl.baczkowicz.spy.ui.panes.PaneVisibilityStatus;
+import pl.baczkowicz.spy.ui.panes.TabStatus;
+import pl.baczkowicz.spy.ui.utils.FxmlUtils;
+import pl.baczkowicz.spy.ui.utils.TabUtils;
 
 /**
  * Class for managing subscription tabs.

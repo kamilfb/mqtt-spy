@@ -17,7 +17,7 @@
  *    Kamil Baczkowicz - initial API and implementation and/or initial documentation
  *    
  */
-package pl.baczkowicz.mqttspy.ui.utils;
+package pl.baczkowicz.spy.ui.utils;
 
 import javafx.event.ActionEvent;
 import javafx.event.Event;
@@ -28,9 +28,8 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
-import pl.baczkowicz.mqttspy.ui.panes.PaneVisibilityStatus;
-import pl.baczkowicz.mqttspy.ui.panes.TabController;
-import pl.baczkowicz.spy.ui.utils.DialogUtils;
+import pl.baczkowicz.spy.ui.panes.PaneVisibilityStatus;
+import pl.baczkowicz.spy.ui.panes.TabController;
 
 import com.sun.javafx.scene.control.behavior.TabPaneBehavior;
 import com.sun.javafx.scene.control.skin.TabPaneSkin;
@@ -124,7 +123,7 @@ public class TabUtils
 				controller.getTab().setClosable(false);				
 				menuItem.setDisable(true);
 				
-				final Stage stage = DialogUtils.createWindowWithPane(
+				final Stage stage = DialogFactory.createWindowWithPane(
 						tabPane, controller.getTabStatus().getParentWhenAttached().getScene(), 
 						windowTitle, margin);
 				

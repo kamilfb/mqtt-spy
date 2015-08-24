@@ -47,9 +47,8 @@ import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
 import pl.baczkowicz.mqttspy.ui.MqttSpyPerspective;
 import pl.baczkowicz.mqttspy.ui.events.EventManager;
-import pl.baczkowicz.spy.ui.utils.DialogUtils;
-import pl.baczkowicz.mqttspy.utils.IdGenerator;
 import pl.baczkowicz.spy.exceptions.XMLException;
+import pl.baczkowicz.spy.ui.utils.DialogFactory;
 import pl.baczkowicz.spy.utils.ThreadingUtils;
 import pl.baczkowicz.spy.utils.TimeUtils;
 import pl.baczkowicz.spy.xml.XMLParser;
@@ -102,9 +101,7 @@ public class ConfigurationManager
 	
 	private final PropertyFileLoader uiPropertyFile;
 
-	private IdGenerator connectionIdGenerator;
-
-	public ConfigurationManager(final EventManager eventManager, final IdGenerator connectionIdGenerator) throws XMLException
+	public ConfigurationManager(final EventManager eventManager) throws XMLException
 	{
 		// Load the default property file from classpath
 		this.defaultPropertyFile = new PropertyFileLoader();
@@ -127,7 +124,6 @@ public class ConfigurationManager
 		this.configuration.setFormatting(new Formatting());		
 		
 		this.eventManager = eventManager;
-		this.connectionIdGenerator = connectionIdGenerator;
 	}
 	
 	public boolean loadConfiguration(final File file)
@@ -145,14 +141,14 @@ public class ConfigurationManager
 		catch (XMLException e)
 		{
 			setLastException(e);
-			DialogUtils.showError("Invalid configuration file", "Cannot process the given configuration file. See the log file for more details.");					
+			DialogFactory.createErrorDialog("Invalid configuration file", "Cannot process the given configuration file. See the log file for more details.");					
 			logger.error("Cannot process the configuration file at " + file.getAbsolutePath(), e);
 			eventManager.notifyConfigurationFileReadFailure();
 		}
 		catch (FileNotFoundException e)
 		{
 			setLastException(e);
-			DialogUtils.showError("Invalid configuration file", "Cannot read the given configuration file. See the log file for more details.");
+			DialogFactory.createErrorDialog("Invalid configuration file", "Cannot read the given configuration file. See the log file for more details.");
 			logger.error("Cannot read the configuration file from " + file.getAbsolutePath(), e);
 			eventManager.notifyConfigurationFileReadFailure();
 		}
@@ -329,7 +325,6 @@ public class ConfigurationManager
 		configuration = null;
 		loadedConfigurationFile = null;
 		lastException =  null;
-		connectionIdGenerator.resetLastUsedId();
 	}
 	
 	public ConfiguredConnectionDetails getMatchingConnection(final String id)
@@ -573,11 +568,6 @@ public class ConfigurationManager
 			{
 				groupsWithoutParent.remove(subgroup.getReference());
 			}
-				
-//			if (group.getGroup() == null || group.getGroup().getReference() == null)
-//			{
-//				rootGroup = details;
-//			}
 			
 			connectionGroups.add(details);						
 		}
@@ -642,6 +632,23 @@ public class ConfigurationManager
 		}
 		
 		return null;
+	}
+	
+	public static void findConnections(final ConfiguredConnectionGroupDetails parentGroup, final List<ConfiguredConnectionDetails> connections)
+	{		
+		for (final ConnectionGroupReference reference : parentGroup.getSubgroups())			
+		{
+			final ConfiguredConnectionGroupDetails groupDetails = (ConfiguredConnectionGroupDetails) reference.getReference();
+						
+			// Recursive
+			findConnections(groupDetails, connections);
+		}
+		
+		for (final ConnectionReference reference : parentGroup.getConnections())			
+		{
+			final ConfiguredConnectionDetails connectionDetails = (ConfiguredConnectionDetails) reference.getReference();
+			connections.add(connectionDetails);
+		}		
 	}
 	
 	private void updateTree(final ConfiguredConnectionGroupDetails parentGroup)

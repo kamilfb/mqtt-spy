@@ -76,12 +76,12 @@ import pl.baczkowicz.mqttspy.ui.events.observers.ClearTabObserver;
 import pl.baczkowicz.mqttspy.ui.events.observers.SubscriptionStatusChangeObserver;
 import pl.baczkowicz.mqttspy.ui.events.queuable.ui.BrowseReceivedMessageEvent;
 import pl.baczkowicz.mqttspy.ui.messagelog.MessageLogUtils;
-import pl.baczkowicz.mqttspy.ui.panes.TabController;
-import pl.baczkowicz.mqttspy.ui.panes.TabStatus;
 import pl.baczkowicz.mqttspy.ui.search.UniqueContentOnlyFilter;
-import pl.baczkowicz.mqttspy.ui.utils.FxmlUtils;
-import pl.baczkowicz.mqttspy.ui.utils.UiUtils;
 import pl.baczkowicz.mqttspy.utils.FormattingUtils;
+import pl.baczkowicz.spy.ui.panes.TabController;
+import pl.baczkowicz.spy.ui.panes.TabStatus;
+import pl.baczkowicz.spy.ui.utils.FxmlUtils;
+import pl.baczkowicz.spy.ui.utils.UiUtils;
 import pl.baczkowicz.spy.utils.ConversionUtils;
 
 /**

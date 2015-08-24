@@ -22,7 +22,7 @@ package pl.baczkowicz.mqttspy.ui.search;
 import pl.baczkowicz.mqttspy.scripts.Script;
 import pl.baczkowicz.mqttspy.scripts.ScriptManager;
 import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
-import pl.baczkowicz.spy.ui.utils.DialogUtils;
+import pl.baczkowicz.spy.ui.utils.DialogFactory;
 
 public class ScriptMatcher implements SearchMatcher
 {
@@ -59,7 +59,7 @@ public class ScriptMatcher implements SearchMatcher
 	{
 		if (script.getScriptRunner().getLastThrownException() != null)
 		{
-			DialogUtils.showError("Script execution error", "Script failed due to: " + script.getScriptRunner().getLastThrownException().getLocalizedMessage());
+			DialogFactory.createErrorDialog("Script execution error", "Script failed due to: " + script.getScriptRunner().getLastThrownException().getLocalizedMessage());
 			return false;
 		}
 
