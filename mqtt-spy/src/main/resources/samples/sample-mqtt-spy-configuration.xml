@@ -56,9 +56,19 @@
         	<ID>conn12964089</ID>
             <Name>iot.eclipse.org</Name>
             <Protocol>MQTT 3.1.1</Protocol>
-            <ServerURI>iot.eclipse.org:1883</ServerURI>
+            <ServerURI>iot.eclipse.org</ServerURI>
             <ClientID></ClientID>
 			<CleanSession>true</CleanSession>
+			
+			<SSL>
+                <Mode>SERVER_ONLY</Mode>
+                <Protocol>TLSv1.2</Protocol>
+                <CertificateAuthorityFile>/certificates/certificate_authority_files/iot.eclipse.org.crt</CertificateAuthorityFile>
+                <ClientCertificateFile></ClientCertificateFile>
+                <ClientKeyFile></ClientKeyFile>
+                <ClientKeyPassword></ClientKeyPassword>
+            </SSL>
+			
 			<Publication topic="/mqtt-spy/test/" />                
 			<Subscription createTab="true" topic="/mqtt-spy/test/" qos="0" scriptFile=""/>
 
@@ -81,7 +91,7 @@
             <SSL>
                 <Mode>SERVER_ONLY</Mode>
                 <Protocol>TLSv1.2</Protocol>
-                <CertificateAuthorityFile>/home/kamil/Programming/Git/mqtt-spy-common/src/test/resources/test_mosquitto_org/mosquitto.org.crt</CertificateAuthorityFile>
+                <CertificateAuthorityFile>/certificates/certificate_authority_files/mosquitto.org.crt</CertificateAuthorityFile>
                 <ClientCertificateFile></ClientCertificateFile>
                 <ClientKeyFile></ClientKeyFile>
                 <ClientKeyPassword></ClientKeyPassword>

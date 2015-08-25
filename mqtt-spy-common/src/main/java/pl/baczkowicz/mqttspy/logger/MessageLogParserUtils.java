@@ -34,10 +34,10 @@ import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.common.generated.LoggedMqttMessage;
 import pl.baczkowicz.mqttspy.messages.BaseMqttMessage;
-import pl.baczkowicz.mqttspy.tasks.ProgressUpdater;
 import pl.baczkowicz.spy.exceptions.SpyException;
 import pl.baczkowicz.spy.exceptions.XMLException;
 import pl.baczkowicz.spy.utils.ConversionUtils;
+import pl.baczkowicz.spy.utils.tasks.ProgressUpdater;
 
 /**
  * Message log utilities.

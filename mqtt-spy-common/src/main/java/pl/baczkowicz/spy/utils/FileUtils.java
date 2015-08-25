@@ -20,9 +20,12 @@
 package pl.baczkowicz.spy.utils;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -117,5 +120,26 @@ public class FileUtils
 		{
 			logger.error("Cannot write to file", e);
 		}		
+	}
+	
+	public static InputStream loadFileByName(final String filename) throws IOException
+	{
+		final File file = new java.io.File(filename);
+		if (file.isFile())
+		{
+			logger.debug("Trying to read {} from filesystem", filename);
+			return new FileInputStream(file);
+		}
+		else
+		{
+			logger.debug("Trying to read {} from classpath", filename);
+			final URL url = FileUtils.class.getResource(filename); 
+			if (url != null)
+			{
+				return url.openStream();
+			}
+			logger.debug("File {} not found on classpath", filename);
+			return null;
+		}
 	}
 }

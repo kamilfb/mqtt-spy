@@ -32,6 +32,7 @@ import pl.baczkowicz.mqttspy.utils.ConfigurationUtils;
 import pl.baczkowicz.spy.exceptions.ConfigurationException;
 import pl.baczkowicz.spy.exceptions.SpyException;
 import pl.baczkowicz.spy.utils.ConversionUtils;
+import pl.baczkowicz.spy.utils.SslUtils;
 
 /**
  * Extends JAXB-generated class for storing MQTT connection details, by adding the Paho's MqttConnectOptions.

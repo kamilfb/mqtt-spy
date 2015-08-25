@@ -17,11 +17,11 @@
  *    Kamil Baczkowicz - initial API and implementation and/or initial documentation
  *    
  */
-package pl.baczkowicz.mqttspy.connectivity;
+package pl.baczkowicz.spy.utils;
 
-import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.security.KeyFactory;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -84,9 +84,9 @@ public class SslUtils
     public static X509Certificate loadX509Certificate(final String certificateFile) throws IOException, CertificateException 
     {
         final CertificateFactory cf = CertificateFactory.getInstance("X.509");
-        final FileInputStream fileStream = new FileInputStream(certificateFile);
-        final X509Certificate certificate = (X509Certificate) cf.generateCertificate(fileStream);
-        fileStream.close();
+        final InputStream inputStream = FileUtils.loadFileByName(certificateFile);
+        final X509Certificate certificate = (X509Certificate) cf.generateCertificate(inputStream);
+        inputStream.close();
         return certificate;
     }
 	

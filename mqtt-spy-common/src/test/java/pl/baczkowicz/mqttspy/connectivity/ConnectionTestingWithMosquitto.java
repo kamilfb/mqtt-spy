@@ -243,7 +243,7 @@ public class ConnectionTestingWithMosquitto
 				"ssl://localhost:10010", 
 				new UserCredentials("nopassword", ""),
 				new SslSettings(SslModeEnum.SERVER_ONLY, "TLSv1", 
-						"/home/kamil/Programming/Git/mqtt-spy-common/src/test/resources/mosquitto/ssl/ca.crt", 
+						"src/test/resources/mosquitto/ssl/ca.crt", 
 						null, null, null, null));
 		
 		final SimpleMqttConnection connection = new SimpleMqttConnection(reconnectionManager, "0", connectionDetails);
@@ -276,9 +276,9 @@ public class ConnectionTestingWithMosquitto
 				"ssl://localhost:10011", 
 				new UserCredentials("nopassword", ""),
 				new SslSettings(SslModeEnum.SERVER_AND_CLIENT, "TLSv1.1", 
-						"/home/kamil/Programming/Git/mqtt-spy-common/src/test/resources/mosquitto/ssl/ca.crt", 
-						"/home/kamil/Programming/Git/mqtt-spy-common/src/test/resources/mosquitto/ssl/bouncy_castle/client.crt", 
-						"/home/kamil/Programming/Git/mqtt-spy-common/src/test/resources/mosquitto/ssl/bouncy_castle/client.key", 
+						"src/test/resources/mosquitto/ssl/ca.crt", 
+						"src/test/resources/mosquitto/ssl/bouncy_castle/client.crt", 
+						"src/test/resources/mosquitto/ssl/bouncy_castle/client.key", 
 						"", null));
 		
 		final SimpleMqttConnection connection = new SimpleMqttConnection(reconnectionManager, "0", connectionDetails);
@@ -305,13 +305,25 @@ public class ConnectionTestingWithMosquitto
 	@Test
 	public void testServerOnlyAuthenticationWithLiveMosquitto() throws SpyException, InterruptedException
 	{				
-		final MqttConnectionDetails connectionDetails = createMqttConnectionDetails("ssl://test.mosquitto.org", null, 
+		testServerOnlyAuthentication("ssl://test.mosquitto.org", "/certificates/certificate_authority_files/mosquitto.org.crt");
+	}
+	
+	@Test
+	public void testServerOnlyAuthenticationWithLiveEclipseServer() throws SpyException, InterruptedException
+	{				
+		testServerOnlyAuthentication("ssl://iot.eclipse.org", "/certificates/certificate_authority_files/iot.eclipse.org.crt");
+	}
+	
+	private void testServerOnlyAuthentication(final String server, final String certificateAuthorityFile) 
+			throws InterruptedException, SpyException
+	{
+		final MqttConnectionDetails connectionDetails = createMqttConnectionDetails(server, null, 
 				new SslSettings(SslModeEnum.SERVER_ONLY, "TLSv1.2", 
-						"/home/kamil/Programming/Git/mqtt-spy-common/src/test/resources/test_mosquitto_org/mosquitto.org.crt", 
+						certificateAuthorityFile, 
 						null, null, null, null));
 		
 		final SimpleMqttConnection connection = new SimpleMqttConnection(reconnectionManager, "0", connectionDetails);
-		connection.createClient(createTestCallback("ssl://test.mosquitto.org"));
+		connection.createClient(createTestCallback(server));
 		assertTrue(connection.connect());
 		System.out.println("Connected...");
 		
@@ -327,5 +339,4 @@ public class ConnectionTestingWithMosquitto
 		connection.disconnect();
 		System.out.println("Disconnected");
 	}
-
 }

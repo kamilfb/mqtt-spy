@@ -17,7 +17,7 @@
  *    Kamil Baczkowicz - initial API and implementation and/or initial documentation
  *    
  */
-package pl.baczkowicz.mqttspy.tasks;
+package pl.baczkowicz.spy.utils.tasks;
 
 /**
  * Simple interface for updating progress of a task.
