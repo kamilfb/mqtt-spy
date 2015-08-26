@@ -72,6 +72,8 @@ public class ScriptIO implements IScriptIO
 	/** The messageLog object, as seen by the script. */
 	private final IMessageLogIO messageLog;
 	
+	private String scriptName = "n/a";
+	
 	/**
 	 * Creates the PublicationScriptIO.
 	 * 
@@ -89,6 +91,11 @@ public class ScriptIO implements IScriptIO
 		this.script = script;
 		this.executor = executor;
 		this.messageLog = new MessageLogIO();
+		
+		if (script != null)
+		{
+			scriptName = script.getName();
+		}
 	}
 
 	@Override
@@ -101,10 +108,11 @@ public class ScriptIO implements IScriptIO
 	public void setScriptTimeout(final long customTimeout)
 	{
 		script.setScriptTimeout(customTimeout);
-		logger.debug("Timeout for script {} changed to {}", script.getName(), customTimeout);
+		logger.debug("Timeout for script {} changed to {}", scriptName, customTimeout);
 	}
 	
 	@Override
+	// TODO: deprecate?
 	public boolean instantiate(final String className)
 	{
 		try
@@ -160,11 +168,11 @@ public class ScriptIO implements IScriptIO
 
 		if (!script.getStatus().equals(ScriptRunningState.RUNNING))
 		{
-			ScriptRunner.changeState(eventManager, script.getName(), ScriptRunningState.RUNNING, script, executor);
+			ScriptRunner.changeState(eventManager, scriptName, ScriptRunningState.RUNNING, script, executor);
 		}
 		
 		logger.debug("[JS {}] Publishing message to {} with payload size = {}, qos = {}, retained = {}", 
-				script.getName(), publicationTopic, data.length, qos, retained);
+				scriptName, publicationTopic, data.length, qos, retained);
 		final boolean published = connection.publish(publicationTopic, data, qos, retained);
 		
 		if (published)
@@ -178,13 +186,14 @@ public class ScriptIO implements IScriptIO
 	{
 		touch();
 
-		if (!script.getStatus().equals(ScriptRunningState.RUNNING))
+		if (script != null && !script.getStatus().equals(ScriptRunningState.RUNNING))
 		{
-			ScriptRunner.changeState(eventManager, script.getName(), ScriptRunningState.RUNNING, script, executor);
+			ScriptRunner.changeState(eventManager, scriptName, ScriptRunningState.RUNNING, script, executor);
 		}
 		
 		logger.debug("[JS {}] Publishing message to {} with payload = {}, qos = {}, retained = {}", 
-				script.getName(), publicationTopic, data, qos, retained);
+				scriptName, publicationTopic, data, qos, retained);
+		
 		final boolean published = connection.publish(publicationTopic, data, qos, retained);
 		
 		if (published)
@@ -208,7 +217,7 @@ public class ScriptIO implements IScriptIO
 				}
 			});
 		}
-		else
+		else if (script != null)
 		{
 			script.setLastPublished(new Date());
 			script.setMessagesPublished(publishedMessages);		

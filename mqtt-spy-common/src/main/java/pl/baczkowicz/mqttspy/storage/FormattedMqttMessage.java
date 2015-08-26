@@ -19,8 +19,6 @@
  */
 package pl.baczkowicz.mqttspy.storage;
 
-import java.util.Date;
-
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
 import pl.baczkowicz.mqttspy.common.generated.FormatterDetails;
@@ -51,13 +49,13 @@ public class FormattedMqttMessage extends BaseMqttMessageWithSubscriptions
 		super(id, topic, message, connection);
 		this.formattedPayload = ConversionUtils.arrayToString(message.getPayload());
 	}
-	
+	/*
 	public FormattedMqttMessage(final long id, final String topic, final MqttMessage message, final Date date, final BaseMqttConnection connection)
 	{
 		super(id, topic, message, date, connection);
 		this.formattedPayload = ConversionUtils.arrayToString(message.getPayload());
 	}
-	
+	*/
 	public FormattedMqttMessage(final BaseMqttMessage message, final BaseMqttConnection connection)
 	{
 		super(message.getId(), message.getTopic(), message.getRawMessage(), message.getDate(), connection);

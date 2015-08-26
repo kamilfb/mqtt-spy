@@ -31,6 +31,7 @@
 		<xs:complexContent>
 			<xs:extension base="mqttspycommon:MqttConnectionDetails">
 				<xs:sequence>
+					<xs:element name="Formatter" 			type="xs:IDREF" 							minOccurs="0" maxOccurs="1" />
 					<xs:element name="MessageLog"			type="mqttspycommon:MessageLog" 			minOccurs="1" maxOccurs="1" />
 		        	<xs:element name="Subscription"			type="mqttspycommon:SubscriptionDetails" 	minOccurs="0" maxOccurs="unbounded" />
 		        	<xs:element name="BackgroundScript"		type="mqttspycommon:ScriptDetails"			minOccurs="0" maxOccurs="unbounded" />
@@ -42,7 +43,8 @@
 	
 	<xs:complexType name="MqttSpyDaemonConfiguration">
 		<xs:sequence>
-			<xs:element name="Connection" type="mqttspydc:DaemonMqttConnectionDetails" minOccurs="1" maxOccurs="1"/>			
+			<xs:element name="Connection" type="mqttspydc:DaemonMqttConnectionDetails" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="Formatting" type="mqttspycommon:Formatting"	minOccurs="0" maxOccurs="1"/>			
 		</xs:sequence>
 	</xs:complexType>
 	

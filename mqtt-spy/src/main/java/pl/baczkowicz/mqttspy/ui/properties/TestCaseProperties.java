@@ -22,10 +22,13 @@ package pl.baczkowicz.mqttspy.ui.properties;
 import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import pl.baczkowicz.mqttspy.scripts.ScriptChangeObserver;
-import pl.baczkowicz.mqttspy.scripts.ScriptTypeEnum;
 import pl.baczkowicz.mqttspy.testcases.TestCase;
 import pl.baczkowicz.mqttspy.testcases.TestCaseStatus;
+import pl.baczkowicz.mqttspy.testcases.TestCaseStep;
+import pl.baczkowicz.mqttspy.ui.scripts.ScriptTypeEnum;
 
 /**
  * This represents a single row displayed in the test cases table.
@@ -34,29 +37,40 @@ public class TestCaseProperties implements ScriptChangeObserver
 {
 	private SimpleObjectProperty<TestCaseStatus> statusProperty;
 	
+	// TODO: is that needed?
 	private SimpleObjectProperty<ScriptTypeEnum> typeProperty;
 
 	private SimpleStringProperty lastUpdatedProperty;
 
 	private SimpleLongProperty countProperty;
 		
-	private TestCase script;
+	private TestCase testCase;
 	
-	public TestCaseProperties(final TestCase script)
+	private ObservableList<TestCaseStepProperties> steps = FXCollections.observableArrayList();
+	
+	public TestCaseProperties(final TestCase testCase)
 	{
-		this.script = script;
+		this.testCase = testCase;
 		
 		this.statusProperty = new SimpleObjectProperty<TestCaseStatus>(TestCaseStatus.NOT_RUN);		
 		this.typeProperty = new SimpleObjectProperty<ScriptTypeEnum>(ScriptTypeEnum.PUBLICATION);
 		this.lastUpdatedProperty = new SimpleStringProperty("");
 		this.countProperty = new SimpleLongProperty(0);
+		
+		for (final TestCaseStep step : testCase.getSteps())
+		{
+			final TestCaseStepProperties properties = new TestCaseStepProperties(step);
+			step.setObserver(properties);
+			steps.add(properties);
+		}
 
 		update();
 	}
 	
 	public void update()
 	{
-		// 
+		lastUpdatedProperty.setValue(testCase.getLastUpdated());
+		statusProperty.setValue(testCase.getTestCaseStatus());
 	}
 	
 	public SimpleObjectProperty<TestCaseStatus> statusProperty()
@@ -86,17 +100,22 @@ public class TestCaseProperties implements ScriptChangeObserver
 	 */
 	public String getName()
 	{
-		return script.getName();
+		return testCase.getName();
 	}
 	
 	public TestCase getScript()
 	{
-		return script;
+		return testCase;
 	}
 
 	@Override
 	public void onChange()
 	{
 		update();		
+	}
+
+	public ObservableList<TestCaseStepProperties> getSteps()
+	{
+		return steps;
 	}
 }

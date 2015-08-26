@@ -28,6 +28,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
+import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.fxmisc.richtext.StyleClassedTextArea;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -58,30 +63,24 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.TextAlignment;
-
-import org.eclipse.paho.client.mqttv3.MqttMessage;
-import org.fxmisc.richtext.StyleClassedTextArea;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import pl.baczkowicz.mqttspy.common.generated.ConversionMethod;
 import pl.baczkowicz.mqttspy.common.generated.SimpleMqttMessage;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.messages.BaseMqttMessage;
-import pl.baczkowicz.mqttspy.scripts.InteractiveScriptManager;
 import pl.baczkowicz.mqttspy.scripts.Script;
 import pl.baczkowicz.mqttspy.scripts.ScriptManager;
-import pl.baczkowicz.mqttspy.scripts.ScriptTypeEnum;
 import pl.baczkowicz.mqttspy.ui.events.EventManager;
 import pl.baczkowicz.mqttspy.ui.events.observers.ScriptListChangeObserver;
 import pl.baczkowicz.mqttspy.ui.properties.PublicationScriptProperties;
+import pl.baczkowicz.mqttspy.ui.scripts.InteractiveScriptManager;
+import pl.baczkowicz.mqttspy.ui.scripts.ScriptTypeEnum;
+import pl.baczkowicz.mqttspy.utils.MqttUtils;
+import pl.baczkowicz.spy.exceptions.ConversionException;
 import pl.baczkowicz.spy.ui.keyboard.TimeBasedKeyEventFilter;
 import pl.baczkowicz.spy.ui.panes.PaneVisibilityStatus;
 import pl.baczkowicz.spy.ui.panes.TitledPaneController;
 import pl.baczkowicz.spy.ui.utils.DialogFactory;
 import pl.baczkowicz.spy.ui.utils.UiUtils;
-import pl.baczkowicz.mqttspy.utils.MqttUtils;
-import pl.baczkowicz.spy.exceptions.ConversionException;
 import pl.baczkowicz.spy.utils.ConversionUtils;
 import pl.baczkowicz.spy.utils.FileUtils;
 import pl.baczkowicz.spy.utils.TimeUtils;

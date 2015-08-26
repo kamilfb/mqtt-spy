@@ -21,40 +21,44 @@ package pl.baczkowicz.mqttspy.ui.properties;
 
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
+import pl.baczkowicz.mqttspy.scripts.ScriptChangeObserver;
 import pl.baczkowicz.mqttspy.testcases.TestCaseStatus;
+import pl.baczkowicz.mqttspy.testcases.TestCaseStep;
 
 /**
  * This represents a single row displayed in the test case table.
  */
-public class TestCaseStepProperties
+public class TestCaseStepProperties implements ScriptChangeObserver
 {
 	/** The step number. */
-	private SimpleStringProperty stepNumber;
+	private SimpleStringProperty stepNumberProperty;
 	
 	/** Description of the step. */	
-	private SimpleStringProperty description;
+	private SimpleStringProperty descriptionProperty;
 	
 	/** Step status. */	
-	private SimpleObjectProperty<TestCaseStatus> status;
+	private SimpleObjectProperty<TestCaseStatus> statusProperty;
 	
 	/** Information about the execution. */	
-	private SimpleStringProperty executionInfo;
-		
-	/**
-	 * Creates a TestCaseStepProperties with the given parameters.
-	 * 
-	 * @param stepNumber
-	 * @param description
-	 * @param status
-	 * @param info
-	 */
-	public TestCaseStepProperties(final String stepNumber, final String description, final TestCaseStatus status, final String info)
+	private SimpleStringProperty executionInfoProperty;
+	
+	private TestCaseStep step;
+
+	public TestCaseStepProperties(final TestCaseStep step)
 	{
-		this.stepNumber = new SimpleStringProperty(stepNumber);
-		this.description = new SimpleStringProperty(description);
-		this.status = new SimpleObjectProperty<>(status);
-		this.executionInfo = new SimpleStringProperty(info);
-	}	
+		this.step = step;
+		
+		this.stepNumberProperty = new SimpleStringProperty(step.getStepNumber());
+		this.descriptionProperty = new SimpleStringProperty(step.getDescription());
+		this.statusProperty = new SimpleObjectProperty<>(step.getStatus());
+		this.executionInfoProperty = new SimpleStringProperty(step.getExecutionInfo());
+	}
+
+	public void update()
+	{
+		executionInfoProperty().setValue(step.getExecutionInfo());
+		statusProperty().setValue(step.getStatus());
+	}
 
 	/**
 	 * The description property.
@@ -63,7 +67,7 @@ public class TestCaseStepProperties
 	 */
 	public SimpleStringProperty descriptionProperty()
 	{
-		return this.description;
+		return this.descriptionProperty;
 	}
 	
 	/**
@@ -73,7 +77,7 @@ public class TestCaseStepProperties
 	 */
 	public SimpleStringProperty stepNumberProperty()
 	{
-		return this.stepNumber;
+		return this.stepNumberProperty;
 	}
 	
 	/**
@@ -83,7 +87,7 @@ public class TestCaseStepProperties
 	 */
 	public SimpleStringProperty executionInfoProperty()
 	{
-		return this.executionInfo;
+		return this.executionInfoProperty;
 	}
 	
 	/**
@@ -93,6 +97,12 @@ public class TestCaseStepProperties
 	 */
 	public SimpleObjectProperty<TestCaseStatus> statusProperty()
 	{
-		return this.status;
+		return this.statusProperty;
+	}
+
+	@Override
+	public void onChange()
+	{
+		update();		
 	}
 }

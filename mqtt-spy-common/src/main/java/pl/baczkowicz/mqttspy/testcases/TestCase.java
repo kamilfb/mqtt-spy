@@ -19,10 +19,10 @@
  */
 package pl.baczkowicz.mqttspy.testcases;
 
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
+import java.util.ArrayList;
+import java.util.List;
+
 import pl.baczkowicz.mqttspy.scripts.Script;
-import pl.baczkowicz.mqttspy.ui.properties.TestCaseStepProperties;
 
 public class TestCase extends Script
 {
@@ -30,9 +30,13 @@ public class TestCase extends Script
 	
 	private int currentStep;
 	
-	private ObservableList<TestCaseStepProperties> steps = FXCollections.observableArrayList();
+	private String lastUpdated = "";
 	
-	private TestCaseStatus testCaseStatus;
+	private List<TestCaseStep> steps = new ArrayList<>();
+	
+	private TestCaseStatus testCaseStatus = TestCaseStatus.NOT_RUN;
+	
+	private TestCaseResult testCaseResult = new TestCaseResult(); 
 
 	/**
 	 * @return the info
@@ -48,9 +52,10 @@ public class TestCase extends Script
 	public void setInfo(TestCaseInfo info)
 	{
 		this.info = info;
+		// nofityChange();
 	}
 	
-	public ObservableList<TestCaseStepProperties> getSteps()
+	public List<TestCaseStep> getSteps()
 	{
 		return this.steps;
 	}
@@ -69,6 +74,7 @@ public class TestCase extends Script
 	public void setTestCaseStatus(TestCaseStatus status)
 	{
 		this.testCaseStatus = status;
+		nofityChange();
 	}
 
 	/**
@@ -85,5 +91,27 @@ public class TestCase extends Script
 	public void setCurrentStep(int currentStep)
 	{
 		this.currentStep = currentStep;
+		nofityChange();
+	}
+
+	public String getLastUpdated()
+	{
+		return lastUpdated;
+	}
+
+	public void setLastUpdated(String lastUpdated)
+	{
+		this.lastUpdated = lastUpdated;
+		nofityChange();
+	}
+
+	public TestCaseResult getTestCaseResult()
+	{
+		return testCaseResult;
+	}
+
+	public void setTestCaseResult(TestCaseResult testCaseResult)
+	{
+		this.testCaseResult = testCaseResult;
 	}
 }

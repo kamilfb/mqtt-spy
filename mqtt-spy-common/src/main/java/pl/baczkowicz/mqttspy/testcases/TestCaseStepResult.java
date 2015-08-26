@@ -63,4 +63,9 @@ public class TestCaseStepResult
 		this.info = info;
 	}
 
+	@Override
+	public String toString()
+	{
+		return "TestCaseStepResult [status=" + status + ", info=" + info + "]";
+	}
 }

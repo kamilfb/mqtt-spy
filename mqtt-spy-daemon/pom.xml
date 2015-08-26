@@ -3,10 +3,10 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>pl.baczkowicz.mqttspy</groupId>
 	<artifactId>mqtt-spy-daemon</artifactId>
-	<version>0.0.5-beta</version>
+	<version>0.0.6</version>
 
   	<name>mqtt-spy-daemon</name>
-  	<url>https://code.google.com/p/mqtt-spy/</url>
+  	<url>http://kamilfb.github.io/mqtt-spy/</url>
 
 	<scm>
     	<connection>scm:git:/home/kamil/Programming/Git/mqtt-spy-logger/.git</connection>
@@ -28,7 +28,7 @@
 		<dependency>
 			<groupId>pl.baczkowicz.mqttspy</groupId>
 			<artifactId>mqtt-spy-common</artifactId>
-			<version>0.0.10</version>			 
+			<version>0.0.11</version>			 
 			<exclusions>
 				<exclusion>
 					<artifactId>maven-jaxb2-plugin</artifactId>
@@ -170,7 +170,7 @@
 			<plugin>
 			    <groupId>org.jvnet.jaxb2.maven2</groupId>
 			    <artifactId>maven-jaxb2-plugin</artifactId>
-			    <version>0.12.3</version>
+			    <version>0.12.0</version>
 			    <executions>
 			    
 			        <execution>
