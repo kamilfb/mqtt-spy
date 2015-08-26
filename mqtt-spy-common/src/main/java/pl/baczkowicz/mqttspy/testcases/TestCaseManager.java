@@ -70,6 +70,13 @@ public class TestCaseManager
 	
 	public TestCase addTestCase(final File scriptFile)
 	{
+		if (!scriptFile.exists())
+		{
+			logger.error("Script file " + scriptFile.getPath() + " does not exist");
+			// TODO: Throw an exception instead?
+			return null;
+		}
+		
 		logger.info("Adding " + scriptFile.getName() + " with parent " + scriptFile.getParent());
 		
 		final ScriptDetails scriptDetails = new ScriptDetails();					

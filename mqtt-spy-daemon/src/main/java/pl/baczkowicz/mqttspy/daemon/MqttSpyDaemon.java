@@ -194,6 +194,7 @@ public class MqttSpyDaemon
 	{
 		final TestCase testCase = testCaseManager.addTestCase(new File(testCaseLocation));
 		// TODO: pass the args
+		// TODO: add protection against missing/invalid files
 		testCaseManager.runTestCase(testCase);
 		return testCase.getTestCaseResult();
 	}	
