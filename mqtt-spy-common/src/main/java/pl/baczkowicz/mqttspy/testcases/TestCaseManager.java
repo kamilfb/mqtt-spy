@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.common.generated.ScriptDetails;
 import pl.baczkowicz.mqttspy.scripts.ScriptManager;
-import pl.baczkowicz.mqttspy.scripts.ScriptRunningState;
+import pl.baczkowicz.spy.scripts.ScriptRunningState;
 import pl.baczkowicz.spy.utils.FileUtils;
 import pl.baczkowicz.spy.utils.TimeUtils;
 

@@ -24,7 +24,6 @@ import java.util.List;
 
 import javafx.application.Platform;
 import pl.baczkowicz.mqttspy.scripts.ScriptManager;
-import pl.baczkowicz.mqttspy.scripts.ScriptRunningState;
 import pl.baczkowicz.mqttspy.testcases.TestCase;
 import pl.baczkowicz.mqttspy.testcases.TestCaseManager;
 import pl.baczkowicz.mqttspy.testcases.TestCaseStatus;
@@ -32,6 +31,7 @@ import pl.baczkowicz.mqttspy.testcases.TestCaseStep;
 import pl.baczkowicz.mqttspy.ui.TestCaseExecutionController;
 import pl.baczkowicz.mqttspy.ui.TestCasesExecutionController;
 import pl.baczkowicz.mqttspy.ui.properties.TestCaseProperties;
+import pl.baczkowicz.spy.scripts.ScriptRunningState;
 
 public class InteractiveTestCaseManager extends TestCaseManager
 {	

@@ -19,8 +19,8 @@
  */
 package pl.baczkowicz.mqttspy.testcases;
 
-import pl.baczkowicz.mqttspy.scripts.ScriptChangeObserver;
 import pl.baczkowicz.mqttspy.testcases.TestCaseStatus;
+import pl.baczkowicz.spy.scripts.ScriptChangeObserver;
 
 /**
  * This represents a test step that is part of a test case.

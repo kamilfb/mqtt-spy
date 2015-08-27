@@ -22,7 +22,7 @@ package pl.baczkowicz.mqttspy.utils;
 import java.util.List;
 
 import pl.baczkowicz.mqttspy.common.generated.MqttConnectionDetails;
-import pl.baczkowicz.mqttspy.common.generated.ProtocolEnum;
+import pl.baczkowicz.mqttspy.common.generated.ProtocolVersionEnum;
 
 /**
  * Connection utils.
@@ -114,7 +114,7 @@ public class ConnectionUtils
 		final boolean emptyClientId = (connectionDetails.getClientID() == null)
 				|| connectionDetails.getClientID().trim().isEmpty();
 		
-		if (ProtocolEnum.MQTT_3_1_1.equals(connectionDetails.getProtocol()) && emptyClientId)
+		if (ProtocolVersionEnum.MQTT_3_1_1.equals(connectionDetails.getProtocol()) && emptyClientId)
 		{
 			if (!connectionDetails.isCleanSession())
 			{

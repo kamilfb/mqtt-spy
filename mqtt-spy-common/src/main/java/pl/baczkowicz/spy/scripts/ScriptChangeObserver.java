@@ -17,30 +17,12 @@
  *    Kamil Baczkowicz - initial API and implementation and/or initial documentation
  *    
  */
-package pl.baczkowicz.mqttspy.scripts;
+package pl.baczkowicz.spy.scripts;
 
 /**
- * Indicates the running state of a script.
+ * Simple interface for observing changes to script properties.
  */
-public enum ScriptRunningState
+public interface ScriptChangeObserver
 {
-	NOT_STARTED("Not started"), FAILED("Failed"), RUNNING("Running"), STOPPED("Stopped"), 
-	FINISHED("Finished"), FROZEN("Not responding");
-
-	private final String name;
-
-	private ScriptRunningState(final String s)
-	{
-		name = s;
-	}
-
-	public boolean equalsName(String otherName)
-	{
-		return (otherName == null) ? false : name.equals(otherName);
-	}
-
-	public String toString()
-	{
-		return name;
-	}
+	void onChange();
 }

@@ -19,16 +19,9 @@
  */
 package pl.baczkowicz.mqttspy.scripts.io;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Executor;
-
-import javax.script.Bindings;
-import javax.script.ScriptContext;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,46 +29,41 @@ import org.slf4j.LoggerFactory;
 import pl.baczkowicz.mqttspy.connectivity.BaseMqttSubscription;
 import pl.baczkowicz.mqttspy.connectivity.IMqttConnection;
 import pl.baczkowicz.mqttspy.scripts.IScriptEventManager;
-import pl.baczkowicz.mqttspy.scripts.Script;
-import pl.baczkowicz.mqttspy.scripts.ScriptRunner;
-import pl.baczkowicz.mqttspy.scripts.ScriptRunningState;
 import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
-import pl.baczkowicz.spy.utils.TimeUtils;
-import pl.baczkowicz.spy.utils.tasks.StoppableTask;
+import pl.baczkowicz.spy.scripts.Script;
+import pl.baczkowicz.spy.scripts.ScriptIO;
+import pl.baczkowicz.spy.scripts.ScriptRunner;
+import pl.baczkowicz.spy.scripts.ScriptRunningState;
 
 /**
- * Implementation of the interface between a script and the mqttspy object.
+ * Implementation of the interface between a script and the rest of the application.
  */
-public class ScriptIO implements IScriptIO
+// TODO: remove the MQTT elements from here
+public class MqttScriptIO extends ScriptIO implements IMqttScriptIO
 {
 	/** Diagnostic logger. */
-	private final static Logger logger = LoggerFactory.getLogger(ScriptIO.class);
+	private final static Logger logger = LoggerFactory.getLogger(MqttScriptIO.class);
 	
 	/** Reference to the MQTT connection. */
 	private final IMqttConnection connection;
 	
 	/** Script properties. */
-	private Script script;
+	//private Script script;
 	
 	// TODO: could possibly replace that with a local variable
 	/** The number of messages published by the script. */
-	private int publishedMessages;
-	
-	/** Last time the script touched or published a message. */
-	private long lastTouch;
+	//private int publishedMessages;	
 
 	/** Event manager for notifying about various events. */
 	private final IScriptEventManager eventManager;
 
 	/** Task executor. */
-	private Executor executor;
+	//private Executor executor;
 
 	/** The messageLog object, as seen by the script. */
 	//private final IMqttMessageLogIO messageLog;
 	
-	private String scriptName = "n/a";
-	
-	private List<StoppableTask> backgroundTasks = new ArrayList<>();
+	//private String scriptName = "n/a";
 	
 	/**
 	 * Creates the PublicationScriptIO.
@@ -85,78 +73,71 @@ public class ScriptIO implements IScriptIO
 	 * @param script The script itself
 	 * @param executor Task executor
 	 */
-	public ScriptIO(
+	public MqttScriptIO(
 			final IMqttConnection connection, final IScriptEventManager eventManager, 
 			final Script script, final Executor executor)
 	{
-		this.eventManager = eventManager;
+		super(/*connection, eventManager, */script, executor);	
 		this.connection = connection;
-		this.script = script;
-		this.executor = executor;
-		//this.messageLog = new MqttMessageLogIO();
-		
-		if (script != null)
-		{
-			scriptName = script.getName();
-		}
+		this.eventManager = eventManager;
 	}
 
-	@Override
-	public void touch()
-	{
-		this.lastTouch = TimeUtils.getMonotonicTime();
-	}
+//	@Override
+//	public void touch()
+//	{
+//		script.touch();
+//	}
+//	
+//	@Override
+//	public void setScriptTimeout(final long customTimeout)
+//	{
+//		script.setScriptTimeout(customTimeout);
+//		logger.debug("Timeout for script {} changed to {}", scriptName, customTimeout);
+//	}
 	
-	@Override
-	public void setScriptTimeout(final long customTimeout)
-	{
-		script.setScriptTimeout(customTimeout);
-		logger.debug("Timeout for script {} changed to {}", scriptName, customTimeout);
-	}
-	
-	@Override
-	// TODO: deprecate?
-	public boolean instantiate(final String className)
-	{
-		try
-		{
-			final Bindings bindings = script.getScriptEngine().getBindings(ScriptContext.ENGINE_SCOPE);
-			bindings.put(className.replace(".", "_"), Class.forName(className).newInstance());
-			script.getScriptEngine().setBindings(bindings, ScriptContext.ENGINE_SCOPE);
-			return true;
-		}
-		catch (Exception e)
-		{
-			logger.error("Cannot instantiate class " + className, e);
-			return false;
-		}
-	}
-	
-	@Override
-	public String execute(final String command) throws IOException, InterruptedException
-	{
-		Runtime rt = Runtime.getRuntime();
-		Process p = rt.exec(command);
-		p.waitFor();
-		BufferedReader input = new BufferedReader(new InputStreamReader(p.getInputStream()));
-		String line = null;
-
-		try
-		{
-			final StringBuffer sb = new StringBuffer();
-			while ((line = input.readLine()) != null)
-			{
-				sb.append(line);
-			}
-			return sb.toString();
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}			
-		
-		return null;
-	}
+//	@Override
+//	// TODO: deprecate?
+//	public boolean instantiate(final String className)
+//	{
+//		try
+//		{
+//			final Bindings bindings = script.getScriptEngine().getBindings(ScriptContext.ENGINE_SCOPE);
+//			bindings.put(className.replace(".", "_"), Class.forName(className).newInstance());
+//			script.getScriptEngine().setBindings(bindings, ScriptContext.ENGINE_SCOPE);
+//			return true;
+//		}
+//		catch (Exception e)
+//		{
+//			logger.error("Cannot instantiate class " + className, e);
+//			return false;
+//		}
+//	}
+//	
+//	@Override
+//	public String execute(final String command) throws IOException, InterruptedException
+//	{
+//		Runtime rt = Runtime.getRuntime();
+//		Process p = rt.exec(command);
+//		p.waitFor();
+//		BufferedReader input = new BufferedReader(new InputStreamReader(p.getInputStream()));
+//		String line = null;
+//
+//		try
+//		{
+//			final StringBuffer sb = new StringBuffer();
+//			while ((line = input.readLine()) != null)
+//			{
+//				sb.append(line);
+//			}
+//			return sb.toString();
+//		}
+//		catch (IOException e)
+//		{
+//			e.printStackTrace();
+//		}			
+//		
+//		return null;
+//	}
 	
 	@Override
 	public void publish(final String publicationTopic, final String data)
@@ -204,43 +185,29 @@ public class ScriptIO implements IScriptIO
 			updatePublished();
 		}
 	}
-	
-	public void addTask(final StoppableTask task)
-	{
-		backgroundTasks.add(task);
-	}
-	
-	private void updatePublished()
-	{
-		publishedMessages++;
-		
-		if (executor != null)
-		{
-			executor.execute(new Runnable()
-			{			
-				public void run()
-				{
-					script.setLastPublished(new Date());
-					script.setMessagesPublished(publishedMessages);				
-				}
-			});
-		}
-		else if (script != null)
-		{
-			script.setLastPublished(new Date());
-			script.setMessagesPublished(publishedMessages);		
-		}
-	}
-
-	/**
-	 * Returns the time of the last touch.
-	 * 
-	 * @return Time of the last touch (in milliseconds)
-	 */
-	public long getLastTouch()
-	{
-		return lastTouch;
-	}
+//	
+//	
+//	private void updatePublished()
+//	{
+//		publishedMessages++;
+//		
+//		if (executor != null)
+//		{
+//			executor.execute(new Runnable()
+//			{			
+//				public void run()
+//				{
+//					script.setLastPublished(new Date());
+//					script.setMessagesPublished(publishedMessages);				
+//				}
+//			});
+//		}
+//		else if (script != null)
+//		{
+//			script.setLastPublished(new Date());
+//			script.setMessagesPublished(publishedMessages);		
+//		}
+//	}
 
 	/**
 	 * Gets the messageLog object.
@@ -251,18 +218,7 @@ public class ScriptIO implements IScriptIO
 //	{
 //		return messageLog;
 //	}
-	
-	/**
-	 * Stops any running tasks (threads).
-	 */
-	public void stop()
-	{
-		for (final StoppableTask task : backgroundTasks)
-		{
-			task.stop();
-		}
-		// messageLog.stop();
-	}
+
 
 	@Override
 	public boolean subscribe(final String topic, final int qos)

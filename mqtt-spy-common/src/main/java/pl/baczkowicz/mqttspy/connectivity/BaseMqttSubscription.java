@@ -20,9 +20,9 @@
 package pl.baczkowicz.mqttspy.connectivity;
 
 import pl.baczkowicz.mqttspy.common.generated.SubscriptionDetails;
-import pl.baczkowicz.mqttspy.scripts.Script;
 import pl.baczkowicz.mqttspy.storage.BasicMessageStore;
 import pl.baczkowicz.mqttspy.storage.MessageList;
+import pl.baczkowicz.spy.scripts.Script;
 
 public class BaseMqttSubscription
 {

@@ -19,8 +19,8 @@
  */
 package pl.baczkowicz.mqttspy.ui.search;
 
-import pl.baczkowicz.mqttspy.scripts.Script;
 import pl.baczkowicz.mqttspy.scripts.ScriptManager;
+import pl.baczkowicz.spy.scripts.Script;
 
 public class InlineScriptMatcher extends ScriptMatcher
 {

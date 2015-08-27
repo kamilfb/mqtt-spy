@@ -17,7 +17,7 @@
  *    Kamil Baczkowicz - initial API and implementation and/or initial documentation
  *    
  */
-package pl.baczkowicz.mqttspy.scripts;
+package pl.baczkowicz.spy.scripts;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -28,6 +28,7 @@ import javax.script.ScriptException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import pl.baczkowicz.mqttspy.scripts.IScriptEventManager;
 import pl.baczkowicz.spy.utils.ThreadingUtils;
 
 /**
@@ -78,7 +79,7 @@ public class ScriptRunner implements Runnable
 			ThreadingUtils.logThreadStarting("Script " + script.getName());
 		}		
 		
-		script.getScriptIO().touch();
+		script.touch();
 		runningThread = Thread.currentThread();
 		
 		boolean firstRun = true;
@@ -112,7 +113,7 @@ public class ScriptRunner implements Runnable
 			}
 		}
 		
-		script.getScriptIO().stop();
+		script.stop();
 		
 		if (script.isAsynchronous())
 		{

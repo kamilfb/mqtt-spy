@@ -17,7 +17,7 @@
  *    Kamil Baczkowicz - initial API and implementation and/or initial documentation
  *    
  */
-package pl.baczkowicz.mqttspy.scripts;
+package pl.baczkowicz.spy.scripts;
 
 import pl.baczkowicz.mqttspy.common.generated.ScriptDetails;
 

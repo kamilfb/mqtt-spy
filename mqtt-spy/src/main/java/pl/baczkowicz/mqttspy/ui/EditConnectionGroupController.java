@@ -48,7 +48,7 @@ import javafx.util.Callback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import pl.baczkowicz.mqttspy.common.generated.ProtocolEnum;
+import pl.baczkowicz.mqttspy.common.generated.ProtocolVersionEnum;
 import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
 import pl.baczkowicz.mqttspy.configuration.ConfiguredConnectionDetails;
 import pl.baczkowicz.mqttspy.configuration.ConfiguredConnectionGroupDetails;
@@ -324,11 +324,11 @@ public class EditConnectionGroupController extends AnchorPane implements Initial
 		
 		for (final ConfiguredConnectionDetails connection : connections)
 		{
-			final ProtocolEnum protocol = connection.getProtocol();
+			final ProtocolVersionEnum protocol = connection.getProtocol();
 			
 			final ConnectionListItemProperties properties = new ConnectionListItemProperties(
 					connection.getName(), 
-					(protocol == null ? ProtocolEnum.MQTT_DEFAULT.value() : protocol.value()), 
+					(protocol == null ? ProtocolVersionEnum.MQTT_DEFAULT.value() : protocol.value()), 
 					connection.getClientID() + "@" + ConnectionUtils.serverURIsToString(connection.getServerURI()), 
 					connection.getSSL() != null, 
 					connection.getUserAuthentication() != null);

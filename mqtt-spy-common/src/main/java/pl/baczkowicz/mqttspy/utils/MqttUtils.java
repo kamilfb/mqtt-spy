@@ -25,7 +25,7 @@ import java.util.List;
 
 import org.eclipse.paho.client.mqttv3.MqttTopic;
 
-import pl.baczkowicz.mqttspy.common.generated.ProtocolEnum;
+import pl.baczkowicz.mqttspy.common.generated.ProtocolVersionEnum;
 import pl.baczkowicz.spy.exceptions.SpyException;
 
 /**
@@ -84,7 +84,7 @@ public class MqttUtils
 	 * 
 	 * @return The generated client ID
 	 */
-	public static String generateClientIdWithTimestamp(final String clientId, final ProtocolEnum protocol)
+	public static String generateClientIdWithTimestamp(final String clientId, final ProtocolVersionEnum protocol)
 	{
 		final int addedLength = CLIENT_ID_TIMESTAMP_FORMAT.length() + CLIENT_ID_TIMESTAMP_DELIMITER.length();
 		final int index = clientId.lastIndexOf(CLIENT_ID_TIMESTAMP_DELIMITER);
@@ -106,9 +106,9 @@ public class MqttUtils
 		return newClientId;
 	}
 	
-	public static boolean limitClientId(final ProtocolEnum protocol)
+	public static boolean limitClientId(final ProtocolVersionEnum protocol)
 	{
-		if (ProtocolEnum.MQTT_3_1.equals(protocol) || ProtocolEnum.MQTT_DEFAULT.equals(protocol))
+		if (ProtocolVersionEnum.MQTT_3_1.equals(protocol) || ProtocolVersionEnum.MQTT_DEFAULT.equals(protocol))
 		{
 			return true;
 		}

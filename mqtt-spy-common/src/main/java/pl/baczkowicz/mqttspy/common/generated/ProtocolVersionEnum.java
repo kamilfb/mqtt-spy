@@ -14,40 +14,34 @@ import javax.xml.bind.annotation.XmlType;
 
 
 /**
- * <p>Java class for ConversionMethod.
+ * <p>Java class for ProtocolVersionEnum.
  * 
  * <p>The following schema fragment specifies the expected content contained within this class.
  * <p>
  * <pre>
- * &lt;simpleType name="ConversionMethod"&gt;
+ * &lt;simpleType name="ProtocolVersionEnum"&gt;
  *   &lt;restriction base="{http://www.w3.org/2001/XMLSchema}string"&gt;
- *     &lt;enumeration value="Plain"/&gt;
- *     &lt;enumeration value="HexDecode"/&gt;
- *     &lt;enumeration value="HexEncode"/&gt;
- *     &lt;enumeration value="Base64Decode"/&gt;
- *     &lt;enumeration value="Base64Encode"/&gt;
+ *     &lt;enumeration value="MQTT Default"/&gt;
+ *     &lt;enumeration value="MQTT 3.1.1"/&gt;
+ *     &lt;enumeration value="MQTT 3.1"/&gt;
  *   &lt;/restriction&gt;
  * &lt;/simpleType&gt;
  * </pre>
  * 
  */
-@XmlType(name = "ConversionMethod")
+@XmlType(name = "ProtocolVersionEnum")
 @XmlEnum
-public enum ConversionMethod {
+public enum ProtocolVersionEnum {
 
-    @XmlEnumValue("Plain")
-    PLAIN("Plain"),
-    @XmlEnumValue("HexDecode")
-    HEX_DECODE("HexDecode"),
-    @XmlEnumValue("HexEncode")
-    HEX_ENCODE("HexEncode"),
-    @XmlEnumValue("Base64Decode")
-    BASE_64_DECODE("Base64Decode"),
-    @XmlEnumValue("Base64Encode")
-    BASE_64_ENCODE("Base64Encode");
+    @XmlEnumValue("MQTT Default")
+    MQTT_DEFAULT("MQTT Default"),
+    @XmlEnumValue("MQTT 3.1.1")
+    MQTT_3_1_1("MQTT 3.1.1"),
+    @XmlEnumValue("MQTT 3.1")
+    MQTT_3_1("MQTT 3.1");
     private final String value;
 
-    ConversionMethod(String v) {
+    ProtocolVersionEnum(String v) {
         value = v;
     }
 
@@ -55,8 +49,8 @@ public enum ConversionMethod {
         return value;
     }
 
-    public static ConversionMethod fromValue(String v) {
-        for (ConversionMethod c: ConversionMethod.values()) {
+    public static ProtocolVersionEnum fromValue(String v) {
+        for (ProtocolVersionEnum c: ProtocolVersionEnum.values()) {
             if (c.value.equals(v)) {
                 return c;
             }

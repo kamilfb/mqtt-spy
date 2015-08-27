@@ -32,12 +32,13 @@ import org.eclipse.paho.client.mqttv3.MqttSecurityException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import pl.baczkowicz.mqttspy.common.generated.ProtocolEnum;
 import pl.baczkowicz.mqttspy.common.generated.ScriptDetails;
 import pl.baczkowicz.mqttspy.connectivity.topicmatching.TopicMatcher;
-import pl.baczkowicz.mqttspy.scripts.Script;
 import pl.baczkowicz.mqttspy.scripts.ScriptManager;
 import pl.baczkowicz.mqttspy.utils.ConnectionUtils;
 import pl.baczkowicz.spy.exceptions.SpyException;
+import pl.baczkowicz.spy.scripts.Script;
 import pl.baczkowicz.spy.utils.TimeUtils;
 
 /**
@@ -547,5 +548,10 @@ public abstract class BaseMqttConnection implements IMqttConnection
 	public BaseMqttSubscription getMqttSubscriptionForTopic(final String topic)
 	{
 		return subscriptions.get(topic);
+	}
+	
+	public ProtocolEnum getProtocol()	
+	{
+		return ProtocolEnum.MQTT;
 	}
 }

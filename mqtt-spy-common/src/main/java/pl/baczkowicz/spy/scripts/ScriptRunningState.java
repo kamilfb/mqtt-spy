@@ -17,21 +17,30 @@
  *    Kamil Baczkowicz - initial API and implementation and/or initial documentation
  *    
  */
-package pl.baczkowicz.mqttspy.scripts;
-
-import pl.baczkowicz.spy.scripts.ScriptRunningState;
+package pl.baczkowicz.spy.scripts;
 
 /**
- * Interface for notifying script's state changes.
+ * Indicates the running state of a script.
  */
-public interface IScriptEventManager
+public enum ScriptRunningState
 {
-	/**
-	 * Notifies any consumers that the state of the given script has changed.
-	 * 
-	 * @param scriptName The name of the script
-	 * @param state The new state
-	 */
-	// TODO: could possibly change the scriptName to the script object
-	void notifyScriptStateChange(final String scriptName, final ScriptRunningState state);
+	NOT_STARTED("Not started"), FAILED("Failed"), RUNNING("Running"), STOPPED("Stopped"), 
+	FINISHED("Finished"), FROZEN("Not responding");
+
+	private final String name;
+
+	private ScriptRunningState(final String s)
+	{
+		name = s;
+	}
+
+	public boolean equalsName(String otherName)
+	{
+		return (otherName == null) ? false : name.equals(otherName);
+	}
+
+	public String toString()
+	{
+		return name;
+	}
 }

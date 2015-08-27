@@ -19,12 +19,14 @@
  */
 package pl.baczkowicz.mqttspy.messages;
 
+import java.util.Date;
+
 import pl.baczkowicz.mqttspy.common.generated.SimpleMqttMessage;
 
 /**
  * Wrapper around the XSD-based simple MQTT message, exposing standard access methods.
  */
-public class SimpleMqttMessageWrapper implements IBaseMessage
+public class SimpleMqttMessageWrapper implements IBaseMqttMessage
 {
 	/** Wrapped MQTT message. */
 	private final SimpleMqttMessage message;
@@ -67,5 +69,19 @@ public class SimpleMqttMessageWrapper implements IBaseMessage
 	public void setPayload(String payload)
 	{
 		message.setValue(payload);		
+	}
+
+	@Override
+	public long getId()
+	{
+		// Not used
+		return 0;
+	}
+
+	@Override
+	public Date getDate()
+	{
+		// Not used
+		return null;
 	}
 }

@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.common.generated.MessageLog;
 import pl.baczkowicz.mqttspy.common.generated.MqttConnectionDetails;
-import pl.baczkowicz.mqttspy.common.generated.ProtocolEnum;
+import pl.baczkowicz.mqttspy.common.generated.ProtocolVersionEnum;
 
 /**
  * Configuration utilities.
@@ -68,7 +68,7 @@ public class ConfigurationUtils
 	{	
 		if (connection.getProtocol() == null)
 		{
-			connection.setProtocol(ProtocolEnum.MQTT_DEFAULT);
+			connection.setProtocol(ProtocolVersionEnum.MQTT_DEFAULT);
 		}
 		
 		if (connection.getName() == null || connection.getName().isEmpty())

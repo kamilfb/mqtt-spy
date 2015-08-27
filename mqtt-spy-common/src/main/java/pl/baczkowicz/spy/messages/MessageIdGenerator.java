@@ -1,6 +1,6 @@
 /***********************************************************************************
  * 
- * Copyright (c) 2014 Kamil Baczkowicz
+ * Copyright (c) 2015 Kamil Baczkowicz
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -17,12 +17,15 @@
  *    Kamil Baczkowicz - initial API and implementation and/or initial documentation
  *    
  */
-package pl.baczkowicz.mqttspy.scripts;
+package pl.baczkowicz.spy.messages;
 
-/**
- * Simple interface for observing changes to script properties.
- */
-public interface ScriptChangeObserver
+public class MessageIdGenerator
 {
-	void onChange();
+	private static long id = 0;
+	
+	public static long getNewId()
+	{
+		id++;
+		return id;
+	}
 }

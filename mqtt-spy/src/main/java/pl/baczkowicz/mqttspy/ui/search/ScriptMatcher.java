@@ -19,9 +19,9 @@
  */
 package pl.baczkowicz.mqttspy.ui.search;
 
-import pl.baczkowicz.mqttspy.scripts.Script;
 import pl.baczkowicz.mqttspy.scripts.ScriptManager;
 import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
+import pl.baczkowicz.spy.scripts.Script;
 import pl.baczkowicz.spy.ui.utils.DialogFactory;
 
 public class ScriptMatcher implements SearchMatcher
@@ -40,7 +40,7 @@ public class ScriptMatcher implements SearchMatcher
 	public boolean matches(FormattedMqttMessage message)
 	{
 		boolean matches = false;
-		scriptManager.runScriptFileWithMessage(script, ScriptManager.MESSAGE_PARAMETER, message, false);
+		scriptManager.runScriptFileParameter(script, ScriptManager.MESSAGE_PARAMETER, message, false);
 		
 		if (script.getScriptRunner().getLastReturnValue() != null)
 		{

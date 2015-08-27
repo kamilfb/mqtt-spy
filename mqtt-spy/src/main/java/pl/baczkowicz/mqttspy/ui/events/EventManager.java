@@ -27,7 +27,6 @@ import javafx.application.Platform;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
 import pl.baczkowicz.mqttspy.scripts.IScriptEventManager;
-import pl.baczkowicz.mqttspy.scripts.ScriptRunningState;
 import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
 import pl.baczkowicz.mqttspy.storage.MessageList;
 import pl.baczkowicz.mqttspy.storage.MessageListWithObservableTopicSummary;
@@ -46,6 +45,7 @@ import pl.baczkowicz.mqttspy.ui.events.observers.ScriptStateChangeObserver;
 import pl.baczkowicz.mqttspy.ui.events.observers.SubscriptionStatusChangeObserver;
 import pl.baczkowicz.mqttspy.ui.events.queuable.ui.BrowseReceivedMessageEvent;
 import pl.baczkowicz.mqttspy.ui.events.queuable.ui.BrowseRemovedMessageEvent;
+import pl.baczkowicz.spy.scripts.ScriptRunningState;
 
 /**
  * There are two ways events are distributed around the application. First,

@@ -43,7 +43,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.common.generated.MessageLog;
-import pl.baczkowicz.mqttspy.common.generated.ProtocolEnum;
+import pl.baczkowicz.mqttspy.common.generated.ProtocolVersionEnum;
 import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
 import pl.baczkowicz.mqttspy.configuration.ConfigurationUtils;
 import pl.baczkowicz.mqttspy.configuration.ConfiguredConnectionDetails;
@@ -76,7 +76,7 @@ public class EditConnectionController extends AnchorPane implements Initializabl
 	private TextField connectionNameText;
 	
 	@FXML
-	private ComboBox<ProtocolEnum> protocolCombo;
+	private ComboBox<ProtocolVersionEnum> protocolCombo;
 	
 	// Action buttons
 	
@@ -164,15 +164,15 @@ public class EditConnectionController extends AnchorPane implements Initializabl
 		});
 		
 		protocolCombo.getSelectionModel().selectedIndexProperty().addListener(basicOnChangeListener);
-		protocolCombo.setCellFactory(new Callback<ListView<ProtocolEnum>, ListCell<ProtocolEnum>>()
+		protocolCombo.setCellFactory(new Callback<ListView<ProtocolVersionEnum>, ListCell<ProtocolVersionEnum>>()
 		{
 			@Override
-			public ListCell<ProtocolEnum> call(ListView<ProtocolEnum> l)
+			public ListCell<ProtocolVersionEnum> call(ListView<ProtocolVersionEnum> l)
 			{
-				return new ListCell<ProtocolEnum>()
+				return new ListCell<ProtocolVersionEnum>()
 				{
 					@Override
-					protected void updateItem(ProtocolEnum item, boolean empty)
+					protected void updateItem(ProtocolVersionEnum item, boolean empty)
 					{
 						super.updateItem(item, empty);
 						if (item == null || empty)
@@ -187,10 +187,10 @@ public class EditConnectionController extends AnchorPane implements Initializabl
 				};
 			}
 		});
-		protocolCombo.setConverter(new StringConverter<ProtocolEnum>()
+		protocolCombo.setConverter(new StringConverter<ProtocolVersionEnum>()
 		{
 			@Override
-			public String toString(ProtocolEnum item)
+			public String toString(ProtocolVersionEnum item)
 			{
 				if (item == null)
 				{
@@ -203,13 +203,13 @@ public class EditConnectionController extends AnchorPane implements Initializabl
 			}
 
 			@Override
-			public ProtocolEnum fromString(String id)
+			public ProtocolVersionEnum fromString(String id)
 			{
 				return null;
 			}
 		});
 		
-		for (ProtocolEnum protocolEnum : ProtocolEnum.values())
+		for (ProtocolVersionEnum protocolEnum : ProtocolVersionEnum.values())
 		{
 			protocolCombo.getItems().add(protocolEnum);
 		}

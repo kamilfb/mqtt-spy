@@ -1,6 +1,6 @@
 /***********************************************************************************
  * 
- * Copyright (c) 2014 Kamil Baczkowicz
+ * Copyright (c) 2015 Kamil Baczkowicz
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -17,39 +17,30 @@
  *    Kamil Baczkowicz - initial API and implementation and/or initial documentation
  *    
  */
-package pl.baczkowicz.mqttspy.connectivity;
+package pl.baczkowicz.spy.connectivity;
 
-import pl.baczkowicz.spy.connectivity.IConnection;
+import pl.baczkowicz.mqttspy.common.generated.ProtocolEnum;
 
 /** 
- * Basic interface for interacting with an MQTT connection.
- * 
- * TODO: might need adding more methods from BaseMqttConnection
+ * Basic interface for interacting with a connection.
  */
-public interface IMqttConnection extends IConnection
+public interface IConnection
 {
-	BaseMqttSubscription getMqttSubscriptionForTopic(final String topic);
-	
-	void addSubscription(final BaseMqttSubscription subscription);
-	
-	void removeSubscription(final BaseMqttSubscription subscription);
-	
+	ProtocolEnum getProtocol();
 	/**
 	 * Attempts a subscription to the given topic and quality of service.
 	 * 
 	 * @param topic Subscription topic
 	 * @param qos Subscription QoS
 	 */
-	boolean subscribe(final String topic, final int qos);
-	
-	boolean subscribe(final BaseMqttSubscription subscription);
+	//boolean subscribe(final String topic);
 	
 	/**
 	 * Attempts to unsubscribe from the given topic.
 	 * 
 	 * @param topic Subscription topic
 	 */
-	boolean unsubscribe(final String topic);
+	//boolean unsubscribe(final String topic);
 	
 	/** 
 	 * Checks if a message can be published (e.g. client is connected).
@@ -63,22 +54,18 @@ public interface IMqttConnection extends IConnection
 	 * 
 	 * @param publicationTopic Publication topic
 	 * @param payload Payload
-	 * @param qos Quality of Service
-	 * @param retained Retained flag
 	 * 
 	 * @return True if publication was successful
 	 */
-	boolean publish(final String publicationTopic, final String payload, final int qos, final boolean retained);
+	//boolean publish(final String publicationTopic, final String payload);
 	
 	/**
 	 * Publishes a message with the given parameters.
 	 * 
 	 * @param publicationTopic Publication topic
 	 * @param payload Payload
-	 * @param qos Quality of Service
-	 * @param retained Retained flag
 	 * 
 	 * @return True if publication was successful
 	 */
-	boolean publish(final String publicationTopic, final byte[] payload, final int qos, final boolean retained);
+	//boolean publish(final IBaseMessage message);
 }

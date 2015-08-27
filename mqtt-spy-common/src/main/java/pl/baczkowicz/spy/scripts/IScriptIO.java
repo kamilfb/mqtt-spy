@@ -17,50 +17,15 @@
  *    Kamil Baczkowicz - initial API and implementation and/or initial documentation
  *    
  */
-package pl.baczkowicz.mqttspy.scripts.io;
+package pl.baczkowicz.spy.scripts;
 
 import java.io.IOException;
-import java.util.List;
-
-import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
 
 /**
- * Interface between a script and the mqttspy object, primarily used for publishing messages.
+ * Interface between a script and the rest of the application, primarily used for publishing messages.
  */
 public interface IScriptIO
 {
-	boolean subscribe(final String topic, final int qos);
-	
-	boolean unsubscribe(final String topic);
-	
-	/**
-	 * Publishes a message with the given payload to the given topic (qos = 0; retained = false).
-	 * 
-	 * @param publicationTopic The publication topic
-	 * @param payload The payload of the message
-	 */
-	void publish(final String publicationTopic, final String payload);
-
-	/**
-	 * Publishes a message with the given payload, qos and retained flag to the given topic.
-	 * 
-	 * @param publicationTopic The publication topic
-	 * @param payload The payload of the message
-	 * @param qos The quality of service to be used
-	 * @param retained The retained flag
-	 */
-	void publish(final String publicationTopic, final String payload, final int qos, final boolean retained);
-	
-	/**
-	 * Publishes a message with the given payload, qos and retained flag to the given topic.
-	 * 
-	 * @param publicationTopic The publication topic
-	 * @param payload The payload of the message
-	 * @param qos The quality of service to be used
-	 * @param retained The retained flag
-	 */
-	void publish(final String publicationTopic, final byte[] payload, final int qos, final boolean retained);
-	
 	/**
 	 * Informs the java side the script is still alive.
 	 */
@@ -96,6 +61,4 @@ public interface IScriptIO
 	 * @throws InterruptedException Thrown when a the thread is interrupted
 	 */
 	String execute(String command) throws IOException, InterruptedException;
-
-	List<FormattedMqttMessage> getMessages(String subscriptionTopic);	
 }

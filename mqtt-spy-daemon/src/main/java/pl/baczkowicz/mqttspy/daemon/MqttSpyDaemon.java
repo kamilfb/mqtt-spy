@@ -35,14 +35,15 @@ import pl.baczkowicz.mqttspy.daemon.configuration.generated.DaemonMqttConnection
 import pl.baczkowicz.mqttspy.daemon.configuration.generated.RunningMode;
 import pl.baczkowicz.mqttspy.daemon.connectivity.MqttCallbackHandler;
 import pl.baczkowicz.mqttspy.daemon.connectivity.SimpleMqttConnectionRunnable;
-import pl.baczkowicz.mqttspy.scripts.Script;
 import pl.baczkowicz.mqttspy.scripts.ScriptManager;
-import pl.baczkowicz.mqttspy.scripts.io.ScriptIO;
+import pl.baczkowicz.mqttspy.scripts.io.MqttScriptIO;
 import pl.baczkowicz.mqttspy.testcases.TestCase;
 import pl.baczkowicz.mqttspy.testcases.TestCaseManager;
 import pl.baczkowicz.mqttspy.testcases.TestCaseResult;
 import pl.baczkowicz.spy.exceptions.SpyException;
 import pl.baczkowicz.spy.exceptions.XMLException;
+import pl.baczkowicz.spy.scripts.Script;
+import pl.baczkowicz.spy.scripts.ScriptIO;
 import pl.baczkowicz.spy.utils.ThreadingUtils;
 
 /**
@@ -65,7 +66,7 @@ public class MqttSpyDaemon
 
 	private MqttCallbackHandler callback;
 
-	private ScriptIO scriptIO;
+	private MqttScriptIO scriptIO;
 	
 	/**
 	 * This is an internal method - initialises the daemon class.
@@ -135,7 +136,7 @@ public class MqttSpyDaemon
 		final Runnable connectionRunnable = new SimpleMqttConnectionRunnable(scriptManager, connection, connectionSettings);
 		
 		connection.connect(callback, connectionRunnable);
-		scriptIO = new ScriptIO(connection, null, null, null);
+		scriptIO = new MqttScriptIO(connection, null, null, null);
 		if (reconnectionSettings != null)
 		{
 			new Thread(reconnectionManager).start();

@@ -17,13 +17,14 @@
  *    Kamil Baczkowicz - initial API and implementation and/or initial documentation
  *    
  */
-package pl.baczkowicz.mqttspy.scripts;
+package pl.baczkowicz.spy.scripts;
 
 import java.util.concurrent.Executor;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import pl.baczkowicz.mqttspy.scripts.IScriptEventManager;
 import pl.baczkowicz.spy.utils.ThreadingUtils;
 import pl.baczkowicz.spy.utils.TimeUtils;
 
@@ -73,13 +74,13 @@ public class ScriptHealthDetector implements Runnable
 			if (logger.isTraceEnabled())
 			{
 				logger.trace("Checking script {} for responsiveness, last touch = {}, timeout = {}, current time = {}", script.getName(), 
-					script.getScriptIO().getLastTouch(), script.getScriptTimeout(), TimeUtils.getMonotonicTime());
+					script.getLastTouch(), script.getScriptTimeout(), TimeUtils.getMonotonicTime());
 			}
 			
-			if (script.getScriptIO().getLastTouch() + script.getScriptTimeout() < TimeUtils.getMonotonicTime())
+			if (script.getLastTouch() + script.getScriptTimeout() < TimeUtils.getMonotonicTime())
 			{
 				logger.warn("Script {} detected as frozen, last touch = {}, current time = {}", script.getName(), 
-						script.getScriptIO().getLastTouch(), TimeUtils.getMonotonicTime());
+						script.getLastTouch(), TimeUtils.getMonotonicTime());
 				ScriptRunner.changeState(eventManager, script.getName(), ScriptRunningState.FROZEN, script, executor);
 			}
 			

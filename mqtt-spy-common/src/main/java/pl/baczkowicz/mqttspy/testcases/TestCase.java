@@ -22,7 +22,7 @@ package pl.baczkowicz.mqttspy.testcases;
 import java.util.ArrayList;
 import java.util.List;
 
-import pl.baczkowicz.mqttspy.scripts.Script;
+import pl.baczkowicz.spy.scripts.Script;
 
 public class TestCase extends Script
 {

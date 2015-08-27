@@ -23,10 +23,10 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
-import pl.baczkowicz.mqttspy.scripts.Script;
-import pl.baczkowicz.mqttspy.scripts.ScriptChangeObserver;
-import pl.baczkowicz.mqttspy.scripts.ScriptRunningState;
 import pl.baczkowicz.mqttspy.ui.scripts.ScriptTypeEnum;
+import pl.baczkowicz.spy.scripts.Script;
+import pl.baczkowicz.spy.scripts.ScriptChangeObserver;
+import pl.baczkowicz.spy.scripts.ScriptRunningState;
 import pl.baczkowicz.spy.utils.TimeUtils;
 
 /**

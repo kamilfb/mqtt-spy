@@ -1,6 +1,6 @@
 /***********************************************************************************
  * 
- * Copyright (c) 2014 Kamil Baczkowicz
+ * Copyright (c) 2015 Kamil Baczkowicz
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -17,13 +17,19 @@
  *    Kamil Baczkowicz - initial API and implementation and/or initial documentation
  *    
  */
-package pl.baczkowicz.mqttspy.messages;
+package pl.baczkowicz.spy.messages;
+
+import java.util.Date;
 
 /**
- * Basic interface for an MQTT message (e.g. used by scripts accessing received or to be published messages.
+ * Basic interface for a message (e.g. used by scripts accessing received or to be published messages.
  */
 public interface IBaseMessage
 {
+	long getId();
+	
+	Date getDate();
+	
 	/**
 	 * Gets the message's topic.
 	 * 
@@ -44,18 +50,4 @@ public interface IBaseMessage
 	 * @param payload The new payload
 	 */
 	void setPayload(final String payload);
-	
-	/**
-	 * Gets the quality of service.
-	 * 
-	 * @return The quality of service (0, 1 or 2)
-	 */
-	int getQoS();
-	
-	/**
-	 * Gets the retained flag for the message.
-	 * 
-	 * @return True if the message is marked as retained
-	 */
-	boolean isRetained();
 }

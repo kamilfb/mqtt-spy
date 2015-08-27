@@ -32,7 +32,7 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.junit.Test;
 
 import pl.baczkowicz.mqttspy.common.generated.MqttConnectionDetails;
-import pl.baczkowicz.mqttspy.common.generated.ProtocolEnum;
+import pl.baczkowicz.mqttspy.common.generated.ProtocolVersionEnum;
 import pl.baczkowicz.mqttspy.common.generated.SslModeEnum;
 import pl.baczkowicz.mqttspy.common.generated.SslSettings;
 import pl.baczkowicz.mqttspy.common.generated.UserCredentials;
@@ -100,7 +100,7 @@ public class ConnectionTestingWithMosquitto
 		return new MqttConnectionDetails(
 				"id",
 				"test", 
-				ProtocolEnum.MQTT_DEFAULT, 
+				ProtocolVersionEnum.MQTT_DEFAULT, 
 				Arrays.asList(brokerAddress), 
 				"mqtt-spy-test", 
 				uc, 

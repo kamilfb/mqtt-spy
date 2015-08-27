@@ -36,13 +36,13 @@ import pl.baczkowicz.mqttspy.configuration.UiProperties;
 import pl.baczkowicz.mqttspy.connectivity.reconnection.ReconnectionManager;
 import pl.baczkowicz.mqttspy.logger.MqttMessageLogger;
 import pl.baczkowicz.mqttspy.scripts.FormattingManager;
-import pl.baczkowicz.mqttspy.scripts.Script;
 import pl.baczkowicz.mqttspy.stats.StatisticsManager;
 import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
 import pl.baczkowicz.mqttspy.ui.events.EventManager;
 import pl.baczkowicz.mqttspy.ui.events.queuable.EventQueueManager;
 import pl.baczkowicz.mqttspy.ui.scripts.InteractiveScriptManager;
+import pl.baczkowicz.spy.scripts.Script;
 import pl.baczkowicz.spy.utils.ConversionUtils;
 
 /**
@@ -189,6 +189,11 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection
 		}			
 		
 		return foundMqttSubscription;
+	}
+	
+	public boolean publish(final String publicationTopic, final String data, final int qos)
+	{
+		return publish(publicationTopic, ConversionUtils.stringToArray(data), qos, false);
 	}
 	
 	public boolean publish(final String publicationTopic, final String data, final int qos, final boolean retained)

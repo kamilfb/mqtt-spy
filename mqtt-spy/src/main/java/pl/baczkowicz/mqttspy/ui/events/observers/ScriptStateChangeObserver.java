@@ -19,7 +19,7 @@
  */
 package pl.baczkowicz.mqttspy.ui.events.observers;
 
-import pl.baczkowicz.mqttspy.scripts.ScriptRunningState;
+import pl.baczkowicz.spy.scripts.ScriptRunningState;
 
 public interface ScriptStateChangeObserver
 {

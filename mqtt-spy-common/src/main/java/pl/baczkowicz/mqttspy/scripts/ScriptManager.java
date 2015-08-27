@@ -41,9 +41,12 @@ import pl.baczkowicz.mqttspy.common.generated.ScriptDetails;
 import pl.baczkowicz.mqttspy.connectivity.IMqttConnection;
 import pl.baczkowicz.mqttspy.logger.IMqttMessageLogIO;
 import pl.baczkowicz.mqttspy.logger.MqttMessageLogIO;
-import pl.baczkowicz.mqttspy.messages.IBaseMessage;
-import pl.baczkowicz.mqttspy.scripts.io.ScriptIO;
+import pl.baczkowicz.mqttspy.messages.IBaseMqttMessage;
+import pl.baczkowicz.mqttspy.scripts.io.MqttScriptIO;
 import pl.baczkowicz.spy.exceptions.CriticalException;
+import pl.baczkowicz.spy.scripts.Script;
+import pl.baczkowicz.spy.scripts.ScriptRunner;
+import pl.baczkowicz.spy.scripts.ScriptRunningState;
 import pl.baczkowicz.spy.utils.FileUtils;
 
 /**
@@ -303,17 +306,24 @@ public class ScriptManager
 		{
 			script.setName(scriptName);			
 			script.setStatus(ScriptRunningState.NOT_STARTED);
-			script.setScriptEngine(scriptEngine);					
-			script.setPublicationScriptIO(new ScriptIO(connection, eventManager, script, executor));
+			script.setScriptEngine(scriptEngine);		
+			final MqttScriptIO scriptIO = new MqttScriptIO(connection, eventManager, script, executor); 
+			//script.setScriptIO(scriptIO);
 			
 			final Map<String, Object> scriptVariables = new HashMap<String, Object>();
-			scriptVariables.put("mqttspy", script.getScriptIO());	
-			scriptVariables.put("spy", script.getScriptIO());
+			
+			// This should be considered deprecated
+			scriptVariables.put("mqttspy", scriptIO);
+			// This should be used for general script-related actions
+			scriptVariables.put("spy", scriptIO);
+			// Going forward, this should only have mqtt-specific elements, e.g. pub/sub
+			scriptVariables.put("mqtt", scriptIO);
+			
 			scriptVariables.put("logger", LoggerFactory.getLogger(ScriptRunner.class));
 			
 			final IMqttMessageLogIO mqttMessageLog = new MqttMessageLogIO();
 			// Add it to the script IO so that it gets stopped when requested
-			script.getScriptIO().addTask(mqttMessageLog);			
+			script.addTask(mqttMessageLog);			
 			scriptVariables.put("messageLog", mqttMessageLog);
 			
 			putJavaVariablesIntoEngine(scriptEngine, scriptVariables);
@@ -392,13 +402,13 @@ public class ScriptManager
 	 * @param script The script to run
 	 * @param message The message to be passed onto the script
 	 */
-	public void runScriptFileWithReceivedMessage(final String scriptFile, final IBaseMessage receivedMessage)
+	public void runScriptFileWithReceivedMessage(final String scriptFile, final IBaseMqttMessage receivedMessage)
 	{
 		final Script script = getScriptObjectFromName(scriptFile);
 		
 		if (script != null)
 		{
-			runScriptFileWithMessage(script, ScriptManager.RECEIVED_MESSAGE_PARAMETER, receivedMessage, false);
+			runScriptFileParameter(script, ScriptManager.RECEIVED_MESSAGE_PARAMETER, receivedMessage, false);
 		}
 		else
 		{
@@ -412,7 +422,7 @@ public class ScriptManager
 	 * @param script The script to run
 	 * @param message The message to be passed onto the script
 	 */
-	public boolean runScriptWithReceivedMessage(final Script script, final IBaseMessage receivedMessage)
+	public boolean runScriptWithReceivedMessage(final Script script, final IBaseMqttMessage receivedMessage)
 	{
 		setVariable(script, ScriptManager.RECEIVED_MESSAGE_PARAMETER, receivedMessage);
 		try
@@ -432,22 +442,22 @@ public class ScriptManager
 	 * @param script The script to run
 	 * @param message The message to be passed onto the script
 	 */
-	public void runScriptFileWithMessage(final Script script, final IBaseMessage message)
+	public void runScriptFileWithMessage(final Script script, final IBaseMqttMessage message)
 	{				
-		runScriptFileWithMessage(script, ScriptManager.MESSAGE_PARAMETER, message, true);
+		runScriptFileParameter(script, ScriptManager.MESSAGE_PARAMETER, message, true);
 	}
 	
 	/**
-	 * Runs the given script and passes the given message as a parameter.
+	 * Runs the given script and passes the given object as a parameter.
 	 * 
 	 * @param script The script to run
 	 * @param parameterName The name of the message parameter
 	 * @param message The message to be passed onto the script
 	 * @param asynchronous Whether the call should be asynchronous
 	 */
-	public void runScriptFileWithMessage(final Script script, final String parameterName, final IBaseMessage message, final boolean asynchronous)
+	public void runScriptFileParameter(final Script script, final String parameterName, final Object parameter, final boolean asynchronous)
 	{	
-		setVariable(script, parameterName, message);
+		setVariable(script, parameterName, parameter);
 		runScript(script, asynchronous);		
 	}
 	

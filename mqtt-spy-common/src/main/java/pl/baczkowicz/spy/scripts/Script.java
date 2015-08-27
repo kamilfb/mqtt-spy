@@ -17,15 +17,19 @@
  *    Kamil Baczkowicz - initial API and implementation and/or initial documentation
  *    
  */
-package pl.baczkowicz.mqttspy.scripts;
+package pl.baczkowicz.spy.scripts;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.Executor;
 
 import javax.script.ScriptEngine;
 
-import pl.baczkowicz.mqttspy.scripts.io.ScriptIO;
+import pl.baczkowicz.mqttspy.scripts.IScriptEventManager;
+import pl.baczkowicz.spy.utils.TimeUtils;
+import pl.baczkowicz.spy.utils.tasks.StoppableTask;
 
 /**
  * This class represents a JS script run with the Nashorn engine.
@@ -51,13 +55,18 @@ public class Script extends BasicScriptProperties
 	private ScriptEngine scriptEngine;
 
 	/** The publication script IO. */
-	private ScriptIO scriptIO;
+	//private ScriptIO scriptIO;
 	
 	/** The script runner - dedicated runnable for that script. */
 	private ScriptRunner scriptRunner;
 	
 	/** Observer of any changes to script's properties. */
 	private ScriptChangeObserver observer;
+	
+	/** Last time the script touched or published a message. */
+	private long lastTouch;	
+	
+	private List<StoppableTask> backgroundTasks = new ArrayList<>();
 
 	private boolean asynchronous;
 
@@ -67,6 +76,34 @@ public class Script extends BasicScriptProperties
 	public Script()
 	{
 		// Default
+	}
+	
+	
+	/**
+	 * Stops any running tasks (threads).
+	 */
+	public void stop()
+	{
+		for (final StoppableTask task : backgroundTasks)
+		{
+			task.stop();
+		}
+		// messageLog.stop();
+	}
+
+	public void touch()
+	{
+		this.lastTouch = TimeUtils.getMonotonicTime();
+	}	
+
+	/**
+	 * Returns the time of the last touch.
+	 * 
+	 * @return Time of the last touch (in milliseconds)
+	 */
+	public long getLastTouch()
+	{
+		return lastTouch;
 	}
 	
 	/**
@@ -92,6 +129,13 @@ public class Script extends BasicScriptProperties
 		{
 			observer.onChange();
 		}
+	}
+	
+	
+
+	public void addTask(final StoppableTask task)
+	{
+		backgroundTasks.add(task);
 	}
 
 	// ===============================
@@ -141,15 +185,15 @@ public class Script extends BasicScriptProperties
 		return status;
 	}
 
-	public void setPublicationScriptIO(ScriptIO scriptIO)
-	{
-		this.scriptIO = scriptIO;
-	}
-	
-	public ScriptIO getScriptIO()
-	{
-		return scriptIO;
-	}
+//	public void setScriptIO(final ScriptIO scriptIO)
+//	{
+//		this.scriptIO = scriptIO;
+//	}
+//	
+//	public ScriptIO getScriptIO()
+//	{
+//		return scriptIO;
+//	}
 
 	public void setScriptEngine(final ScriptEngine scriptEngine)
 	{

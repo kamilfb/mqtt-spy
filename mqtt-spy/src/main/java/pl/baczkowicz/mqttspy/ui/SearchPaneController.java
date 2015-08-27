@@ -52,7 +52,6 @@ import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
 import pl.baczkowicz.mqttspy.configuration.UiProperties;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.scripts.FormattingManager;
-import pl.baczkowicz.mqttspy.scripts.Script;
 import pl.baczkowicz.mqttspy.scripts.ScriptManager;
 import pl.baczkowicz.mqttspy.storage.FilteredMessageStore;
 import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
@@ -68,6 +67,7 @@ import pl.baczkowicz.mqttspy.ui.search.SearchMatcher;
 import pl.baczkowicz.mqttspy.ui.search.SearchOptions;
 import pl.baczkowicz.mqttspy.ui.search.SimplePayloadMatcher;
 import pl.baczkowicz.mqttspy.ui.search.UniqueContentOnlyFilter;
+import pl.baczkowicz.spy.scripts.Script;
 
 /**
  * Controller for the search pane.

@@ -25,7 +25,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 
 import pl.baczkowicz.mqttspy.common.generated.MqttConnectionDetails;
-import pl.baczkowicz.mqttspy.common.generated.ProtocolEnum;
+import pl.baczkowicz.mqttspy.common.generated.ProtocolVersionEnum;
 import pl.baczkowicz.mqttspy.common.generated.SslModeEnum;
 import pl.baczkowicz.mqttspy.common.generated.SslProperty;
 import pl.baczkowicz.mqttspy.utils.ConfigurationUtils;
@@ -95,11 +95,11 @@ public class MqttConnectionDetailsWithOptions extends MqttConnectionDetails
 		// Populate MQTT options
 		options = new MqttConnectOptions();
 				
-		if (ProtocolEnum.MQTT_3_1_1.equals(getProtocol()))
+		if (ProtocolVersionEnum.MQTT_3_1_1.equals(getProtocol()))
 		{
 			options.setMqttVersion(MqttConnectOptions.MQTT_VERSION_3_1_1);
 		}
-		else if (ProtocolEnum.MQTT_3_1.equals(getProtocol()))
+		else if (ProtocolVersionEnum.MQTT_3_1.equals(getProtocol()))
 		{
 			options.setMqttVersion(MqttConnectOptions.MQTT_VERSION_3_1);
 		}

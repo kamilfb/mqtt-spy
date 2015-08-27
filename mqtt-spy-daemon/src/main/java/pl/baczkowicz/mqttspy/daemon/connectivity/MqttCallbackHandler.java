@@ -42,6 +42,7 @@ import pl.baczkowicz.mqttspy.messages.BaseMqttMessageWithSubscriptions;
 import pl.baczkowicz.mqttspy.scripts.FormattingManager;
 import pl.baczkowicz.mqttspy.scripts.ScriptManager;
 import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
+import pl.baczkowicz.spy.messages.MessageIdGenerator;
 
 /**
  * Callback handler for the MQTT connection.
@@ -70,8 +71,9 @@ public class MqttCallbackHandler implements MqttCallback
 	private final ScriptManager scriptManager;
 	
 	private final FormattingManager formattingManager;
+	
 	/** Message ID. */
-	private long currentId = 1;
+	//private long currentId = 1;
 
 	/**
 	 * Creates a MqttCallbackHandler.
@@ -120,7 +122,9 @@ public class MqttCallbackHandler implements MqttCallback
 			logger.trace("[{}] Received message on topic \"{}\". Payload = \"{}\"", messageQueue.size(), topic, new String(message.getPayload()));
 		}
 		
-		final BaseMqttMessageWithSubscriptions receivedMessage = new BaseMqttMessageWithSubscriptions(currentId, topic, message, connection);
+		final long newId = MessageIdGenerator.getNewId();
+		
+		final BaseMqttMessageWithSubscriptions receivedMessage = new BaseMqttMessageWithSubscriptions(newId, topic, message, connection);
 		
 		// Check matching subscriptions
 		final List<String> matchingSubscriptions = connection.getTopicMatcher().getMatchingSubscriptions(receivedMessage.getTopic());
@@ -139,7 +143,7 @@ public class MqttCallbackHandler implements MqttCallback
 		}
 		
 		// Format the message if configured
-		final FormattedMqttMessage formattedMessage = new FormattedMqttMessage(currentId, topic, message, connection);
+		final FormattedMqttMessage formattedMessage = new FormattedMqttMessage(newId, topic, message, connection);
 		if (connectionSettings.getFormatter() != null)
 		{
 			formattingManager.formatMessage(formattedMessage, (FormatterDetails) connectionSettings.getFormatter());
@@ -163,8 +167,6 @@ public class MqttCallbackHandler implements MqttCallback
 		{
 			logMessage(receivedMessage);
 		}
-		
-		currentId++;
 	}
 	
 	/**
