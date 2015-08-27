@@ -26,14 +26,14 @@ import pl.baczkowicz.spy.xml.XMLParser;
 /**
  * Parser for the mqtt-spy message log.
  */
-public class MessageLogParser extends XMLParser
+public class MqttMessageLogParser extends XMLParser
 {
 	/**
 	 * Instantiates the MessageLogParser.
 	 * 
 	 * @throws XMLException Thrown when cannot instantiate the marshaller/unmarshaller.
 	 */
-	public MessageLogParser() throws XMLException
+	public MqttMessageLogParser() throws XMLException
 	{
 		super(LoggedMqttMessage.class);
 	}

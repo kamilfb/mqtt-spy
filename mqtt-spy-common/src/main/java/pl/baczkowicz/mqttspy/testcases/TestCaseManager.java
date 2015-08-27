@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import javax.script.ScriptException;
 
@@ -233,10 +234,16 @@ public class TestCaseManager
 		}
 	}
 	
-	public void runTestCase(final TestCase testCase)
+	public void runTestCase(final TestCase testCase, final Map<String, String> args)
 	{				
 		testCase.setStatus(ScriptRunningState.RUNNING);
 		testCase.setTestCaseStatus(TestCaseStatus.IN_PROGRESS);
+		
+		// Set test case args
+		if (args != null)
+		{
+			scriptManager.setVariable(testCase, "args", args);
+		}
 		
 		// Clear last run for this test case
 		for (final TestCaseStep step : testCase.getSteps())

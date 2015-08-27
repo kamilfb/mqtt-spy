@@ -73,13 +73,13 @@ public class ScriptHealthDetector implements Runnable
 			if (logger.isTraceEnabled())
 			{
 				logger.trace("Checking script {} for responsiveness, last touch = {}, timeout = {}, current time = {}", script.getName(), 
-					script.getPublicationScriptIO().getLastTouch(), script.getScriptTimeout(), TimeUtils.getMonotonicTime());
+					script.getScriptIO().getLastTouch(), script.getScriptTimeout(), TimeUtils.getMonotonicTime());
 			}
 			
-			if (script.getPublicationScriptIO().getLastTouch() + script.getScriptTimeout() < TimeUtils.getMonotonicTime())
+			if (script.getScriptIO().getLastTouch() + script.getScriptTimeout() < TimeUtils.getMonotonicTime())
 			{
 				logger.warn("Script {} detected as frozen, last touch = {}, current time = {}", script.getName(), 
-						script.getPublicationScriptIO().getLastTouch(), TimeUtils.getMonotonicTime());
+						script.getScriptIO().getLastTouch(), TimeUtils.getMonotonicTime());
 				ScriptRunner.changeState(eventManager, script.getName(), ScriptRunningState.FROZEN, script, executor);
 			}
 			

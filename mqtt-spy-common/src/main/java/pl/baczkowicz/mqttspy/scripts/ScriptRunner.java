@@ -78,7 +78,7 @@ public class ScriptRunner implements Runnable
 			ThreadingUtils.logThreadStarting("Script " + script.getName());
 		}		
 		
-		script.getPublicationScriptIO().touch();
+		script.getScriptIO().touch();
 		runningThread = Thread.currentThread();
 		
 		boolean firstRun = true;
@@ -112,7 +112,7 @@ public class ScriptRunner implements Runnable
 			}
 		}
 		
-		script.getPublicationScriptIO().stop();
+		script.getScriptIO().stop();
 		
 		if (script.isAsynchronous())
 		{

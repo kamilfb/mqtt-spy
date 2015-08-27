@@ -42,10 +42,10 @@ import pl.baczkowicz.spy.utils.tasks.ProgressUpdater;
 /**
  * Message log utilities.
  */
-public class MessageLogParserUtils
+public class MqttMessageLogParserUtils
 {
 	/** Diagnostic logger. */
-	private final static Logger logger = LoggerFactory.getLogger(MessageLogParserUtils.class);	
+	private final static Logger logger = LoggerFactory.getLogger(MqttMessageLogParserUtils.class);	
 	
 	/**
 	 * This all-in-one method reads a message log from the given file and turns that into a list of MQTT message objects.
@@ -111,7 +111,7 @@ public class MessageLogParserUtils
 	{
 		try
 		{
-			final MessageLogParser parser = new MessageLogParser();
+			final MqttMessageLogParser parser = new MqttMessageLogParser();
 			        
 	        final List<LoggedMqttMessage> list = new ArrayList<LoggedMqttMessage>();
 	        long item = 0;

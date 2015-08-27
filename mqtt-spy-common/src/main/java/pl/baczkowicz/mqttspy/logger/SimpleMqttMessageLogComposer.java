@@ -33,10 +33,10 @@ import pl.baczkowicz.spy.utils.ConversionUtils;
 /**
  * Simple message log composer (string buffer based, no JAXB).
  */
-public class SimpleMessageLogComposer
+public class SimpleMqttMessageLogComposer
 {
 	/** Diagnostic logger. */
-	private final static Logger logger = LoggerFactory.getLogger(SimpleMessageLogComposer.class);
+	private final static Logger logger = LoggerFactory.getLogger(SimpleMqttMessageLogComposer.class);
 	
 	/** Pattern that is used to decide whether a string should be wrapped in CDATA. */
     private static final Pattern XML_CHARS = Pattern.compile("[&<>]");

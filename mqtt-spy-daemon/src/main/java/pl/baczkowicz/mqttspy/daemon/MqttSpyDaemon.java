@@ -189,20 +189,28 @@ public class MqttSpyDaemon
 		logger.info("All tasks completed - bye bye...");
 	}
 	
+	public TestCaseResult runTestCase(final String testCaseLocation)	
+	{
+		return runTestCase(testCaseLocation, null);
+	}	
 	
 	public TestCaseResult runTestCase(final String testCaseLocation, final Map<String, String> args)	
 	{
 		final TestCase testCase = testCaseManager.addTestCase(new File(testCaseLocation));
-		// TODO: pass the args
 		// TODO: add protection against missing/invalid files
-		testCaseManager.runTestCase(testCase);
+		testCaseManager.runTestCase(testCase, args);
 		return testCase.getTestCaseResult();
 	}	
 	
 	public void runScript(final String scriptLocation)
 	{
+		runScript(scriptLocation, null);
+	}
+	
+	public void runScript(final String scriptLocation, final Map<String, String> args)
+	{
 		final Script script = scriptManager.addScript(scriptLocation);
-		scriptManager.runScript(script, false);
+		scriptManager.runScript(script, false, args);
 	}
 	
 	/**

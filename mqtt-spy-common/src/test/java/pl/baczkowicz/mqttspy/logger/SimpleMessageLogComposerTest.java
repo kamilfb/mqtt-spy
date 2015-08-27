@@ -47,7 +47,7 @@ public class SimpleMessageLogComposerTest
 	};
 	
 	/**
-	 * Test method for {@link pl.baczkowicz.mqttspy.logger.MessageLogParserUtils#createReceivedMessageLog(pl.baczkowicz.mqttspy.messages.BaseMqttMessageWithSubscriptions, pl.baczkowicz.mqttspy.common.generated.MessageLog)}.
+	 * Test method for {@link pl.baczkowicz.mqttspy.logger.MqttMessageLogParserUtils#createReceivedMessageLog(pl.baczkowicz.mqttspy.messages.BaseMqttMessageWithSubscriptions, pl.baczkowicz.mqttspy.common.generated.MessageLog)}.
 	 */
 	@Test
 	public void testCreateReceivedMessageLogWithPlainPayload()
@@ -62,11 +62,11 @@ public class SimpleMessageLogComposerTest
 		final long timestamp = message.getDate().getTime();
 		
 		final String loggedMessage = "<MqttMessage id=\"1\" timestamp=\"" + timestamp + "\" topic=\"topic\">" + SAMPLE_PAYLOAD + "</MqttMessage>";
-		assertEquals(loggedMessage, SimpleMessageLogComposer.createReceivedMessageLog(message, messageLog));
+		assertEquals(loggedMessage, SimpleMqttMessageLogComposer.createReceivedMessageLog(message, messageLog));
 	}
 
 	/**
-	 * Test method for {@link pl.baczkowicz.mqttspy.logger.MessageLogParserUtils#createReceivedMessageLog(pl.baczkowicz.mqttspy.messages.BaseMqttMessageWithSubscriptions, pl.baczkowicz.mqttspy.common.generated.MessageLog)}.
+	 * Test method for {@link pl.baczkowicz.mqttspy.logger.MqttMessageLogParserUtils#createReceivedMessageLog(pl.baczkowicz.mqttspy.messages.BaseMqttMessageWithSubscriptions, pl.baczkowicz.mqttspy.common.generated.MessageLog)}.
 	 * 
 	 * This is to cover Issue 18.
 	 */
@@ -85,6 +85,6 @@ public class SimpleMessageLogComposerTest
 		final String loggedMessage = "<MqttMessage id=\"1\" timestamp=\"" + timestamp + "\" topic=\"topic\" encoded=\"true\">" + 
 				Base64.encodeBase64String(SAMPLE_PAYLOAD.getBytes()) + "</MqttMessage>";
 		
-		assertEquals(loggedMessage, SimpleMessageLogComposer.createReceivedMessageLog(message, messageLog));
+		assertEquals(loggedMessage, SimpleMqttMessageLogComposer.createReceivedMessageLog(message, messageLog));
 	}
 }

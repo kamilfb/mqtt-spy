@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>pl.baczkowicz.mqttspy</groupId>
 	<artifactId>mqtt-spy-daemon</artifactId>
-	<version>0.0.6</version>
+	<version>0.0.7</version>
 
   	<name>mqtt-spy-daemon</name>
   	<url>http://kamilfb.github.io/mqtt-spy/</url>
@@ -28,7 +28,7 @@
 		<dependency>
 			<groupId>pl.baczkowicz.mqttspy</groupId>
 			<artifactId>mqtt-spy-common</artifactId>
-			<version>0.0.11</version>			 
+			<version>0.0.12</version>			 
 			<exclusions>
 				<exclusion>
 					<artifactId>maven-jaxb2-plugin</artifactId>

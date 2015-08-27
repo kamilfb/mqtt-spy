@@ -114,11 +114,11 @@ public class MqttMessageLogger implements Runnable
 					mesagesProcessed++;
 					if (localLogger != null)
 					{
-						localLogger.info(SimpleMessageLogComposer.createReceivedMessageLog(queue.remove(), messageLogSettings));
+						localLogger.info(SimpleMqttMessageLogComposer.createReceivedMessageLog(queue.remove(), messageLogSettings));
 					}
 					else
 					{
-						logger.info(SimpleMessageLogComposer.createReceivedMessageLog(queue.remove(), messageLogSettings));
+						logger.info(SimpleMqttMessageLogComposer.createReceivedMessageLog(queue.remove(), messageLogSettings));
 					}
 					
 					if (mesagesProcessed > LOG_INTERVAL)

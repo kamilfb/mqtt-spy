@@ -107,7 +107,7 @@ public class ScriptBasedFormatter
 				script = formattingScripts.get(formatter);
 			}
 			
-			script.getScriptEngine().put(ScriptManager.RECEIVED_MESSAGE_PARAMETER, message);		
+			scriptManager.setVariable(script, ScriptManager.RECEIVED_MESSAGE_PARAMETER, message);		
 		
 			return (String) scriptManager.invokeFunction(script, "format");
 		}

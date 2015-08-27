@@ -17,7 +17,7 @@
  *    Kamil Baczkowicz - initial API and implementation and/or initial documentation
  *    
  */
-package pl.baczkowicz.mqttspy.scripts.io;
+package pl.baczkowicz.mqttspy.logger;
 
 import java.io.File;
 import java.util.List;
@@ -25,7 +25,6 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import pl.baczkowicz.mqttspy.logger.MessageLogParserUtils;
 import pl.baczkowicz.mqttspy.messages.BaseMqttMessage;
 import pl.baczkowicz.spy.utils.ThreadingUtils;
 import pl.baczkowicz.spy.utils.TimeUtils;
@@ -33,10 +32,10 @@ import pl.baczkowicz.spy.utils.TimeUtils;
 /**
  * Implementation of the interface between a script and the messageLog object.
  */
-public class MessageLogIO implements IMessageLogIO, Runnable
+public class MqttMessageLogIO implements IMqttMessageLogIO, Runnable
 {
 	/** Diagnostic logger. */
-	private final static Logger logger = LoggerFactory.getLogger(MessageLogIO.class);
+	private final static Logger logger = LoggerFactory.getLogger(MqttMessageLogIO.class);
 	
 	/** Messages. */
 	private List<BaseMqttMessage> messages;	
@@ -58,7 +57,7 @@ public class MessageLogIO implements IMessageLogIO, Runnable
 	{
 		try
 		{
-			messages = MessageLogParserUtils.readAndConvertMessageLog(new File(logLocation));
+			messages = MqttMessageLogParserUtils.readAndConvertMessageLog(new File(logLocation));
 						
 			return messages.size();
 		}

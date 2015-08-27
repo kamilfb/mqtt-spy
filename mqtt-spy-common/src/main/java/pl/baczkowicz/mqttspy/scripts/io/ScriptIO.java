@@ -41,6 +41,7 @@ import pl.baczkowicz.mqttspy.scripts.ScriptRunner;
 import pl.baczkowicz.mqttspy.scripts.ScriptRunningState;
 import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
 import pl.baczkowicz.spy.utils.TimeUtils;
+import pl.baczkowicz.spy.utils.tasks.StoppableTask;
 
 /**
  * Implementation of the interface between a script and the mqttspy object.
@@ -70,9 +71,11 @@ public class ScriptIO implements IScriptIO
 	private Executor executor;
 
 	/** The messageLog object, as seen by the script. */
-	private final IMessageLogIO messageLog;
+	//private final IMqttMessageLogIO messageLog;
 	
 	private String scriptName = "n/a";
+	
+	private List<StoppableTask> backgroundTasks = new ArrayList<>();
 	
 	/**
 	 * Creates the PublicationScriptIO.
@@ -90,7 +93,7 @@ public class ScriptIO implements IScriptIO
 		this.connection = connection;
 		this.script = script;
 		this.executor = executor;
-		this.messageLog = new MessageLogIO();
+		//this.messageLog = new MqttMessageLogIO();
 		
 		if (script != null)
 		{
@@ -202,6 +205,11 @@ public class ScriptIO implements IScriptIO
 		}
 	}
 	
+	public void addTask(final StoppableTask task)
+	{
+		backgroundTasks.add(task);
+	}
+	
 	private void updatePublished()
 	{
 		publishedMessages++;
@@ -239,17 +247,21 @@ public class ScriptIO implements IScriptIO
 	 * 
 	 * @return The messageLog object
 	 */
-	public IMessageLogIO getMessageLog()
-	{
-		return messageLog;
-	}
+//	public IMqttMessageLogIO getMessageLog()
+//	{
+//		return messageLog;
+//	}
 	
 	/**
 	 * Stops any running tasks (threads).
 	 */
 	public void stop()
 	{
-		messageLog.stop();
+		for (final StoppableTask task : backgroundTasks)
+		{
+			task.stop();
+		}
+		// messageLog.stop();
 	}
 
 	@Override
@@ -278,6 +290,8 @@ public class ScriptIO implements IScriptIO
 		
 		return false;		
 	}
+	
+	// TODO: getAllMessages
 	
 	@Override
 	public List<FormattedMqttMessage> getMessages(final String subscriptionTopic)

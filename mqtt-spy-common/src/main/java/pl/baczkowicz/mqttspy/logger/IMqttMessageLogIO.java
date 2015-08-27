@@ -17,14 +17,15 @@
  *    Kamil Baczkowicz - initial API and implementation and/or initial documentation
  *    
  */
-package pl.baczkowicz.mqttspy.scripts.io;
+package pl.baczkowicz.mqttspy.logger;
 
 import pl.baczkowicz.mqttspy.messages.BaseMqttMessage;
+import pl.baczkowicz.spy.utils.tasks.StoppableTask;
 
 /**
  * Defines the interface between a script and the MessageLog object.
  */
-public interface IMessageLogIO
+public interface IMqttMessageLogIO extends StoppableTask
 {
 	/**
 	 * Reads MQTT messages from a file and returns the number of messages read.

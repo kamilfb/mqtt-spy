@@ -39,6 +39,8 @@ import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.common.generated.ScriptDetails;
 import pl.baczkowicz.mqttspy.connectivity.IMqttConnection;
+import pl.baczkowicz.mqttspy.logger.IMqttMessageLogIO;
+import pl.baczkowicz.mqttspy.logger.MqttMessageLogIO;
 import pl.baczkowicz.mqttspy.messages.IBaseMessage;
 import pl.baczkowicz.mqttspy.scripts.io.ScriptIO;
 import pl.baczkowicz.spy.exceptions.CriticalException;
@@ -280,6 +282,11 @@ public class ScriptManager
 		script.setScriptFile(scriptFile);
 		script.setScriptDetails(scriptDetails);
 	}
+	
+	public void setVariable(final Script script, final String name, final Object value)
+	{
+		script.getScriptEngine().put(name, value);
+	}
 		
 	/**
 	 * Populates the script object with the necessary values and references.
@@ -300,9 +307,14 @@ public class ScriptManager
 			script.setPublicationScriptIO(new ScriptIO(connection, eventManager, script, executor));
 			
 			final Map<String, Object> scriptVariables = new HashMap<String, Object>();
-			scriptVariables.put("mqttspy", script.getPublicationScriptIO());	
+			scriptVariables.put("mqttspy", script.getScriptIO());	
+			scriptVariables.put("spy", script.getScriptIO());
 			scriptVariables.put("logger", LoggerFactory.getLogger(ScriptRunner.class));
-			scriptVariables.put("messageLog", script.getPublicationScriptIO().getMessageLog());
+			
+			final IMqttMessageLogIO mqttMessageLog = new MqttMessageLogIO();
+			// Add it to the script IO so that it gets stopped when requested
+			script.getScriptIO().addTask(mqttMessageLog);			
+			scriptVariables.put("messageLog", mqttMessageLog);
 			
 			putJavaVariablesIntoEngine(scriptEngine, scriptVariables);
 		}
@@ -340,11 +352,28 @@ public class ScriptManager
 	 */
 	public void runScript(final Script script, final boolean asynchronous)
 	{
+		runScript(script, asynchronous, null);
+	}
+	
+	/**
+	 * Runs the given script in a synchronous or asynchronous way.
+	 * 
+	 * @param script The script to run
+	 * @param asynchronous Whether to run the script asynchronously or not
+	 * @param args Arguments/parameters passed onto the script
+	 */
+	public void runScript(final Script script, final boolean asynchronous, final Map<String, String> args)
+	{
 		// Only start if not running already
 		if (!ScriptRunningState.RUNNING.equals(script.getStatus()))
 		{
 			script.createScriptRunner(eventManager, executor);
 			script.setAsynchronous(asynchronous);
+			// Set test case args
+			if (args != null)
+			{
+				setVariable(script, "args", args);
+			}
 			
 			if (asynchronous)
 			{
@@ -385,7 +414,7 @@ public class ScriptManager
 	 */
 	public boolean runScriptWithReceivedMessage(final Script script, final IBaseMessage receivedMessage)
 	{
-		script.getScriptEngine().put(ScriptManager.RECEIVED_MESSAGE_PARAMETER, receivedMessage);
+		setVariable(script, ScriptManager.RECEIVED_MESSAGE_PARAMETER, receivedMessage);
 		try
 		{
 			invokeFunction(script, ON_MESSAGE_METHOD);
@@ -417,8 +446,8 @@ public class ScriptManager
 	 * @param asynchronous Whether the call should be asynchronous
 	 */
 	public void runScriptFileWithMessage(final Script script, final String parameterName, final IBaseMessage message, final boolean asynchronous)
-	{				
-		script.getScriptEngine().put(parameterName, message);
+	{	
+		setVariable(script, parameterName, message);
 		runScript(script, asynchronous);		
 	}
 	

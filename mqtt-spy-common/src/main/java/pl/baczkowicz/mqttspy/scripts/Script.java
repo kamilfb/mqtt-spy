@@ -146,7 +146,7 @@ public class Script extends BasicScriptProperties
 		this.scriptIO = scriptIO;
 	}
 	
-	public ScriptIO getPublicationScriptIO()
+	public ScriptIO getScriptIO()
 	{
 		return scriptIO;
 	}
