@@ -45,20 +45,20 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import pl.baczkowicz.mqttspy.common.generated.ConversionMethod;
-import pl.baczkowicz.mqttspy.common.generated.FormatterDetails;
-import pl.baczkowicz.mqttspy.common.generated.FormatterFunction;
-import pl.baczkowicz.mqttspy.common.generated.ScriptExecutionDetails;
 import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
 import pl.baczkowicz.mqttspy.configuration.ConfiguredConnectionDetails;
 import pl.baczkowicz.mqttspy.connectivity.BaseMqttConnection;
-import pl.baczkowicz.mqttspy.messages.BaseMqttMessageWithSubscriptions;
-import pl.baczkowicz.mqttspy.scripts.ScriptBasedFormatter;
-import pl.baczkowicz.mqttspy.scripts.ScriptManager;
+import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
+import pl.baczkowicz.mqttspy.scripts.MqttScriptManager;
+import pl.baczkowicz.spy.common.generated.ConversionMethod;
+import pl.baczkowicz.spy.common.generated.FormatterDetails;
+import pl.baczkowicz.spy.common.generated.FormatterFunction;
+import pl.baczkowicz.spy.common.generated.ScriptExecutionDetails;
+import pl.baczkowicz.spy.formatting.FormattingUtils;
+import pl.baczkowicz.spy.formatting.ScriptBasedFormatter;
 import pl.baczkowicz.spy.scripts.Script;
 import pl.baczkowicz.spy.ui.utils.DialogFactory;
 import pl.baczkowicz.spy.ui.utils.TooltipFactory;
-import pl.baczkowicz.mqttspy.utils.FormattingUtils;
 import pl.baczkowicz.spy.utils.ConversionUtils;
 
 /**
@@ -137,7 +137,7 @@ public class FormattersController implements Initializable
 				if (newFormatter != null)
 				{
 					sampleOutput.setText(scriptBasedFormatter.formatMessage(newFormatter, 
-							new BaseMqttMessageWithSubscriptions(0, "", new MqttMessage(sampleInput.getText().getBytes()), connection)));
+							new FormattedMqttMessage(0, "", new MqttMessage(sampleInput.getText().getBytes()), connection)));
 				}
 				else
 				{
@@ -183,7 +183,7 @@ public class FormattersController implements Initializable
 	
 	public void init()
 	{					
-		scriptBasedFormatter = new ScriptBasedFormatter(new ScriptManager(null, null, connection));
+		scriptBasedFormatter = new ScriptBasedFormatter(new MqttScriptManager(null, null, connection));
 		
 		formattersList.getItems().clear();
 		
@@ -217,7 +217,7 @@ public class FormattersController implements Initializable
 		else
 		{
 			sampleOutput.setText(scriptBasedFormatter.formatMessage(newFormatter, 
-				new BaseMqttMessageWithSubscriptions(0, "", new MqttMessage(sampleInput.getText().getBytes()), connection)));
+				new FormattedMqttMessage(0, "", new MqttMessage(sampleInput.getText().getBytes()), connection)));
 			formatterDetails.getStyleClass().add("valid");
 		}
 	}
@@ -390,7 +390,7 @@ public class FormattersController implements Initializable
 			scriptBasedFormatter.addFormatter(newFormatter);
 			formatterDetails.setText(scriptBasedFormatter.getScript(newFormatter).getScriptContent());
 			sampleOutput.setText(scriptBasedFormatter.formatMessage(newFormatter, 
-					new BaseMqttMessageWithSubscriptions(0, "", new MqttMessage(sampleInput.getText().getBytes()), connection)));
+					new FormattedMqttMessage(0, "", new MqttMessage(sampleInput.getText().getBytes()), connection)));
 			
 			newButton.setDisable(true);	
 			applyChangesButton.setDisable(false);
@@ -472,7 +472,7 @@ public class FormattersController implements Initializable
 				}
 				
 				sampleOutput.setText(scriptBasedFormatter.formatMessage(selectedFormatter, 
-						new BaseMqttMessageWithSubscriptions(0, "", new MqttMessage(sampleInput.getText().getBytes()), connection)));
+						new FormattedMqttMessage(0, "", new MqttMessage(sampleInput.getText().getBytes()), connection)));
 			} 
 			else
 			{

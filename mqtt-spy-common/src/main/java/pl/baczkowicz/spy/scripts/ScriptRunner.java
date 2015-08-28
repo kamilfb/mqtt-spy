@@ -28,7 +28,6 @@ import javax.script.ScriptException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import pl.baczkowicz.mqttspy.scripts.IScriptEventManager;
 import pl.baczkowicz.spy.utils.ThreadingUtils;
 
 /**

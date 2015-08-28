@@ -21,9 +21,9 @@ package pl.baczkowicz.mqttspy.ui.properties;
 
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
-import pl.baczkowicz.mqttspy.testcases.TestCaseStatus;
-import pl.baczkowicz.mqttspy.testcases.TestCaseStep;
 import pl.baczkowicz.spy.scripts.ScriptChangeObserver;
+import pl.baczkowicz.spy.testcases.TestCaseStatus;
+import pl.baczkowicz.spy.testcases.TestCaseStep;
 
 /**
  * This represents a single row displayed in the test case table.

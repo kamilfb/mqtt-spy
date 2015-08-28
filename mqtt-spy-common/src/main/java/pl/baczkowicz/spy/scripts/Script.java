@@ -27,7 +27,6 @@ import java.util.concurrent.Executor;
 
 import javax.script.ScriptEngine;
 
-import pl.baczkowicz.mqttspy.scripts.IScriptEventManager;
 import pl.baczkowicz.spy.utils.TimeUtils;
 import pl.baczkowicz.spy.utils.tasks.StoppableTask;
 

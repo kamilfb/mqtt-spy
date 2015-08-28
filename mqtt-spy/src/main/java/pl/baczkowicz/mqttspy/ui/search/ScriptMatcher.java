@@ -19,18 +19,18 @@
  */
 package pl.baczkowicz.mqttspy.ui.search;
 
-import pl.baczkowicz.mqttspy.scripts.ScriptManager;
-import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
+import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
+import pl.baczkowicz.mqttspy.scripts.MqttScriptManager;
 import pl.baczkowicz.spy.scripts.Script;
 import pl.baczkowicz.spy.ui.utils.DialogFactory;
 
 public class ScriptMatcher implements SearchMatcher
 {
-	private ScriptManager scriptManager;
+	private MqttScriptManager scriptManager;
 	
 	private Script script;
 
-	public ScriptMatcher(final ScriptManager scriptManager, final Script script)
+	public ScriptMatcher(final MqttScriptManager scriptManager, final Script script)
 	{
 		this.scriptManager = scriptManager;
 		this.script = script;
@@ -40,7 +40,7 @@ public class ScriptMatcher implements SearchMatcher
 	public boolean matches(FormattedMqttMessage message)
 	{
 		boolean matches = false;
-		scriptManager.runScriptFileParameter(script, ScriptManager.MESSAGE_PARAMETER, message, false);
+		scriptManager.runScriptFileParameter(script, MqttScriptManager.MESSAGE_PARAMETER, message, false);
 		
 		if (script.getScriptRunner().getLastReturnValue() != null)
 		{

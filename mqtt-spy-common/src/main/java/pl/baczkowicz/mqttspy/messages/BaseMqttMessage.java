@@ -23,13 +23,15 @@ import java.util.Date;
 
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
-import pl.baczkowicz.spy.messages.BaseMessage;
+import pl.baczkowicz.spy.messages.FormattedMessage;
 import pl.baczkowicz.spy.utils.ConversionUtils;
 
 /**
  * Represents a message received on a topic (wraps the Paho's MqttMessage).
+ * 
+ * TODO: merge that with FormattedMqttMessage
  */
-public class BaseMqttMessage extends BaseMessage implements IBaseMqttMessage
+public class BaseMqttMessage extends FormattedMessage implements IBaseMqttMessage
 {	
 	/** The received message. */
 	private final MqttMessage rawMessage;
@@ -113,5 +115,10 @@ public class BaseMqttMessage extends BaseMessage implements IBaseMqttMessage
 	public boolean isRetained()
 	{
 		return this.rawMessage.isRetained();
+	}
+	
+	public byte[] getRawBinaryPayload()
+	{
+		return getRawMessage().getPayload();
 	}
 }

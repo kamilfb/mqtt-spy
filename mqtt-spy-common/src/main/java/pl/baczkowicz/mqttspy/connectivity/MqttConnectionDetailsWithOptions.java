@@ -39,6 +39,8 @@ import pl.baczkowicz.spy.utils.SslUtils;
  */
 public class MqttConnectionDetailsWithOptions extends MqttConnectionDetails
 {
+	private static final long serialVersionUID = 5693589380291267334L;
+
 	/** Unique ID for this connection - populated when loading configuration. */
 	private final String id;
 	

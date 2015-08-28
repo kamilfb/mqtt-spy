@@ -45,11 +45,11 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.FileChooser;
 import javafx.util.Callback;
-import pl.baczkowicz.mqttspy.testcases.TestCaseStatus;
 import pl.baczkowicz.mqttspy.ui.properties.TestCaseProperties;
 import pl.baczkowicz.mqttspy.ui.properties.TestCaseStepProperties;
 import pl.baczkowicz.mqttspy.ui.testcases.InteractiveTestCaseManager;
 import pl.baczkowicz.spy.scripts.ScriptRunningState;
+import pl.baczkowicz.spy.testcases.TestCaseStatus;
 
 /**
  * Controller for the search window.

@@ -19,17 +19,17 @@
  */
 package pl.baczkowicz.mqttspy.ui.search;
 
-import pl.baczkowicz.mqttspy.scripts.ScriptManager;
+import pl.baczkowicz.mqttspy.scripts.MqttScriptManager;
 import pl.baczkowicz.spy.scripts.Script;
 
 public class InlineScriptMatcher extends ScriptMatcher
 {
-	public InlineScriptMatcher(final ScriptManager scriptManager, final String inlineScript)
+	public InlineScriptMatcher(final MqttScriptManager scriptManager, final String inlineScript)
 	{
 		super(scriptManager, addAndReturnScript(scriptManager, inlineScript));
 	}
 	
-	public static Script addAndReturnScript(final ScriptManager scriptManager, final String inlineScript)
+	public static Script addAndReturnScript(final MqttScriptManager scriptManager, final String inlineScript)
 	{
 		final Script script = scriptManager.addInlineScript("inline", 
 				"function search() "

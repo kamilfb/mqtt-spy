@@ -19,12 +19,14 @@
  */
 package pl.baczkowicz.mqttspy.connectivity;
 
-import pl.baczkowicz.mqttspy.common.generated.FormatterDetails;
 import pl.baczkowicz.mqttspy.configuration.ConfiguredConnectionDetails;
+import pl.baczkowicz.spy.common.generated.FormatterDetails;
 import pl.baczkowicz.spy.exceptions.ConfigurationException;
 
 public class RuntimeConnectionProperties extends MqttConnectionDetailsWithOptions
 {
+	private static final long serialVersionUID = -2411594766874071799L;
+	
 	private ConfiguredConnectionDetails configuredProperties;
 
 	public RuntimeConnectionProperties(final ConfiguredConnectionDetails configuredProperties) throws ConfigurationException

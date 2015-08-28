@@ -60,15 +60,12 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import pl.baczkowicz.mqttspy.common.generated.FormatterDetails;
-import pl.baczkowicz.mqttspy.common.generated.Formatting;
 import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
 import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
 import pl.baczkowicz.mqttspy.connectivity.RuntimeConnectionProperties;
-import pl.baczkowicz.mqttspy.scripts.FormattingManager;
+import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.stats.StatisticsManager;
 import pl.baczkowicz.mqttspy.storage.BasicMessageStoreWithSummary;
-import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
 import pl.baczkowicz.mqttspy.ui.connections.SubscriptionManager;
 import pl.baczkowicz.mqttspy.ui.events.EventManager;
@@ -77,7 +74,10 @@ import pl.baczkowicz.mqttspy.ui.events.observers.SubscriptionStatusChangeObserve
 import pl.baczkowicz.mqttspy.ui.events.queuable.ui.BrowseReceivedMessageEvent;
 import pl.baczkowicz.mqttspy.ui.messagelog.MessageLogUtils;
 import pl.baczkowicz.mqttspy.ui.search.UniqueContentOnlyFilter;
-import pl.baczkowicz.mqttspy.utils.FormattingUtils;
+import pl.baczkowicz.spy.common.generated.FormatterDetails;
+import pl.baczkowicz.spy.common.generated.Formatting;
+import pl.baczkowicz.spy.formatting.FormattingManager;
+import pl.baczkowicz.spy.formatting.FormattingUtils;
 import pl.baczkowicz.spy.ui.panes.TabController;
 import pl.baczkowicz.spy.ui.panes.TabStatus;
 import pl.baczkowicz.spy.ui.utils.FxmlUtils;

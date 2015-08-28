@@ -19,13 +19,13 @@
  */
 package pl.baczkowicz.mqttspy.ui.events.queuable.ui;
 
-import pl.baczkowicz.mqttspy.events.MqttSpyEvent;
 import pl.baczkowicz.mqttspy.storage.MessageList;
+import pl.baczkowicz.spy.events.SpyEvent;
 
 /**
  * Base UI event object.
  */
-public interface MqttSpyUIEvent extends MqttSpyEvent
+public interface MqttSpyUIEvent extends SpyEvent
 {
 	MessageList getList();
 }

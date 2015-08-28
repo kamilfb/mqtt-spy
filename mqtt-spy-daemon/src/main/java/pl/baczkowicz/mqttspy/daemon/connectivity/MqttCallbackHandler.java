@@ -31,17 +31,16 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import pl.baczkowicz.mqttspy.common.generated.FormatterDetails;
 import pl.baczkowicz.mqttspy.common.generated.MessageLogEnum;
 import pl.baczkowicz.mqttspy.common.generated.SubscriptionDetails;
 import pl.baczkowicz.mqttspy.connectivity.BaseMqttConnection;
 import pl.baczkowicz.mqttspy.connectivity.BaseMqttSubscription;
 import pl.baczkowicz.mqttspy.daemon.configuration.generated.DaemonMqttConnectionDetails;
 import pl.baczkowicz.mqttspy.logger.MqttMessageLogger;
-import pl.baczkowicz.mqttspy.messages.BaseMqttMessageWithSubscriptions;
-import pl.baczkowicz.mqttspy.scripts.FormattingManager;
-import pl.baczkowicz.mqttspy.scripts.ScriptManager;
-import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
+import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
+import pl.baczkowicz.mqttspy.scripts.MqttScriptManager;
+import pl.baczkowicz.spy.common.generated.FormatterDetails;
+import pl.baczkowicz.spy.formatting.FormattingManager;
 import pl.baczkowicz.spy.messages.MessageIdGenerator;
 
 /**
@@ -53,7 +52,7 @@ public class MqttCallbackHandler implements MqttCallback
 	private final static Logger logger = LoggerFactory.getLogger(MqttCallbackHandler.class);
 	
 	/** Stores all received messages, so that we don't block the receiving thread. */
-	private final Queue<BaseMqttMessageWithSubscriptions> messageQueue = new LinkedBlockingQueue<BaseMqttMessageWithSubscriptions>();
+	private final Queue<FormattedMqttMessage> messageQueue = new LinkedBlockingQueue<FormattedMqttMessage>();
 	
 	/** Logs all received messages (if configured). */
 	private final MqttMessageLogger messageLogger;
@@ -68,7 +67,7 @@ public class MqttCallbackHandler implements MqttCallback
 	private final Map<String, SubscriptionDetails> subscriptionsDetails = new HashMap<String, SubscriptionDetails>();
 
 	/** Script manager - for running subscription scripts. */
-	private final ScriptManager scriptManager;
+	private final MqttScriptManager scriptManager;
 	
 	private final FormattingManager formattingManager;
 	
@@ -82,7 +81,7 @@ public class MqttCallbackHandler implements MqttCallback
 	 * @param connectionSettings Connection's details
 	 * @param scriptManager Script manager - for running subscription scripts
 	 */
-	public MqttCallbackHandler(final BaseMqttConnection connection, final DaemonMqttConnectionDetails connectionSettings, final ScriptManager scriptManager)
+	public MqttCallbackHandler(final BaseMqttConnection connection, final DaemonMqttConnectionDetails connectionSettings, final MqttScriptManager scriptManager)
 	{
 		this.connection = connection;
 		this.connectionSettings = connectionSettings;
@@ -124,7 +123,7 @@ public class MqttCallbackHandler implements MqttCallback
 		
 		final long newId = MessageIdGenerator.getNewId();
 		
-		final BaseMqttMessageWithSubscriptions receivedMessage = new BaseMqttMessageWithSubscriptions(newId, topic, message, connection);
+		final FormattedMqttMessage receivedMessage = new FormattedMqttMessage(newId, topic, message, connection);
 		
 		// Check matching subscriptions
 		final List<String> matchingSubscriptions = connection.getTopicMatcher().getMatchingSubscriptions(receivedMessage.getTopic());
@@ -139,7 +138,7 @@ public class MqttCallbackHandler implements MqttCallback
 		if (connectionSettings.getMessageLog().isLogBeforeScripts())
 		{
 			// Log a copy, so that it cannot be modified
-			logMessage(new BaseMqttMessageWithSubscriptions(receivedMessage));
+			logMessage(new FormattedMqttMessage(receivedMessage));
 		}
 		
 		// Format the message if configured
@@ -174,7 +173,7 @@ public class MqttCallbackHandler implements MqttCallback
 	 *  
 	 * @param receivedMessage The received message
 	 */
-	public void logMessage(final BaseMqttMessageWithSubscriptions receivedMessage)
+	public void logMessage(final FormattedMqttMessage receivedMessage)
 	{
 		// Add the received message to queue for logging
 		if (!MessageLogEnum.DISABLED.equals(connectionSettings.getMessageLog().getValue()))

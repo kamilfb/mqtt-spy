@@ -28,6 +28,8 @@ import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnection
 
 public class ConfiguredConnectionDetails extends UserInterfaceMqttConnectionDetails
 {
+	private static final long serialVersionUID = -111271741915161354L;
+
 	private boolean modified;
 
 	private boolean begingCreated;

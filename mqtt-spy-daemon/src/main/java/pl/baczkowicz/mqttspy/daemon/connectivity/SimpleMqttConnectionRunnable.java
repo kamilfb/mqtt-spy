@@ -20,13 +20,13 @@
 package pl.baczkowicz.mqttspy.daemon.connectivity;
 
 import pl.baczkowicz.mqttspy.common.generated.ReconnectionSettings;
-import pl.baczkowicz.mqttspy.common.generated.ScriptDetails;
 import pl.baczkowicz.mqttspy.common.generated.SubscriptionDetails;
 import pl.baczkowicz.mqttspy.connectivity.BaseMqttSubscription;
 import pl.baczkowicz.mqttspy.connectivity.SimpleMqttConnection;
 import pl.baczkowicz.mqttspy.daemon.configuration.generated.DaemonMqttConnectionDetails;
-import pl.baczkowicz.mqttspy.scripts.ScriptManager;
+import pl.baczkowicz.mqttspy.scripts.MqttScriptManager;
 import pl.baczkowicz.mqttspy.utils.ConnectionUtils;
+import pl.baczkowicz.spy.common.generated.ScriptDetails;
 import pl.baczkowicz.spy.utils.ThreadingUtils;
 
 /**
@@ -41,7 +41,7 @@ public class SimpleMqttConnectionRunnable implements Runnable
 	private final DaemonMqttConnectionDetails connectionSettings;
 
 	/** The script manager - used for subscription scripts. */
-	private final ScriptManager scriptManager;
+	private final MqttScriptManager scriptManager;
 
 	/**
 	 * Creates a ConnectionRunnable.
@@ -50,7 +50,7 @@ public class SimpleMqttConnectionRunnable implements Runnable
 	 * @param connection The connection to be used
 	 * @param connectionSettings The connection settings to be used
 	 */
-	public SimpleMqttConnectionRunnable(final ScriptManager scriptManager, final SimpleMqttConnection connection, final DaemonMqttConnectionDetails connectionSettings)
+	public SimpleMqttConnectionRunnable(final MqttScriptManager scriptManager, final SimpleMqttConnection connection, final DaemonMqttConnectionDetails connectionSettings)
 	{
 		this.connection = connection;
 		this.connectionSettings = connectionSettings;

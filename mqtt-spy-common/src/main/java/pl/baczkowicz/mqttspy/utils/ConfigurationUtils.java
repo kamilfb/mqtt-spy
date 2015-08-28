@@ -33,7 +33,10 @@ import pl.baczkowicz.mqttspy.common.generated.ProtocolVersionEnum;
 public class ConfigurationUtils
 {
 	/** Commons schema. */
-	public static final String COMMON_SCHEMA = "/mqtt-spy-common.xsd";
+	public static final String SPY_COMMON_SCHEMA = "/spy-common.xsd";
+	
+	/** Commons schema. */
+	public static final String MQTT_COMMON_SCHEMA = "/mqtt-spy-common.xsd";
 
 	/** Diagnostic logger. */
 	private final static Logger logger = LoggerFactory.getLogger(ConfigurationUtils.class);

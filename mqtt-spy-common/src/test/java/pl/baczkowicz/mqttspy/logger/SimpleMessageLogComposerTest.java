@@ -30,7 +30,7 @@ import org.junit.Test;
 import pl.baczkowicz.mqttspy.common.generated.MessageLog;
 import pl.baczkowicz.mqttspy.common.generated.MessageLogEnum;
 import pl.baczkowicz.mqttspy.connectivity.BaseMqttConnection;
-import pl.baczkowicz.mqttspy.messages.BaseMqttMessageWithSubscriptions;
+import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
 
 /**
  * Tests for the SimpleMessageLogComposer.
@@ -56,7 +56,7 @@ public class SimpleMessageLogComposerTest
 		mqttMessage.setPayload(SAMPLE_PAYLOAD.getBytes());
 		
 		final BaseMqttConnection connection = context.mock(BaseMqttConnection.class); 
-		final BaseMqttMessageWithSubscriptions message = new BaseMqttMessageWithSubscriptions(1, "topic", mqttMessage, connection);
+		final FormattedMqttMessage message = new FormattedMqttMessage(1, "topic", mqttMessage, connection);
 		
 		final MessageLog messageLog = new MessageLog(MessageLogEnum.XML_WITH_PLAIN_PAYLOAD, null, false, false, false, false, false);
 		final long timestamp = message.getDate().getTime();
@@ -77,7 +77,7 @@ public class SimpleMessageLogComposerTest
 		mqttMessage.setPayload("payload".getBytes());
 		
 		final BaseMqttConnection connection = context.mock(BaseMqttConnection.class); 
-		final BaseMqttMessageWithSubscriptions message = new BaseMqttMessageWithSubscriptions(1, "topic", mqttMessage, connection);
+		final FormattedMqttMessage message = new FormattedMqttMessage(1, "topic", mqttMessage, connection);
 		
 		final MessageLog messageLog = new MessageLog(MessageLogEnum.XML_WITH_ENCODED_PAYLOAD, null, false, false, false, false, false);
 		final long timestamp = message.getDate().getTime();

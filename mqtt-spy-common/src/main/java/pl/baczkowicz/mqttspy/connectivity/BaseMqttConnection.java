@@ -32,11 +32,11 @@ import org.eclipse.paho.client.mqttv3.MqttSecurityException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import pl.baczkowicz.mqttspy.common.generated.ProtocolEnum;
-import pl.baczkowicz.mqttspy.common.generated.ScriptDetails;
 import pl.baczkowicz.mqttspy.connectivity.topicmatching.TopicMatcher;
-import pl.baczkowicz.mqttspy.scripts.ScriptManager;
+import pl.baczkowicz.mqttspy.scripts.MqttScriptManager;
 import pl.baczkowicz.mqttspy.utils.ConnectionUtils;
+import pl.baczkowicz.spy.common.generated.ProtocolEnum;
+import pl.baczkowicz.spy.common.generated.ScriptDetails;
 import pl.baczkowicz.spy.exceptions.SpyException;
 import pl.baczkowicz.spy.scripts.Script;
 import pl.baczkowicz.spy.utils.TimeUtils;
@@ -78,7 +78,7 @@ public abstract class BaseMqttConnection implements IMqttConnection
 	private final TopicMatcher topicMatcher;
 
 	/** Used for calling subscription scripts. */
-	private ScriptManager scriptManager;
+	private MqttScriptManager scriptManager;
 	
 	/**
 	 * Instantiates the BaseMqttConnection.
@@ -539,7 +539,7 @@ public abstract class BaseMqttConnection implements IMqttConnection
 		this.client = client;
 	}
 	
-	public void setScriptManager(final ScriptManager scriptManager)
+	public void setScriptManager(final MqttScriptManager scriptManager)
 	{
 		this.scriptManager = scriptManager;
 	}

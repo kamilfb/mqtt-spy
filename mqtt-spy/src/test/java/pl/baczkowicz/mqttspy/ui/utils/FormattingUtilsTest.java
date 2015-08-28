@@ -28,13 +28,13 @@ import org.apache.commons.codec.binary.Hex;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import pl.baczkowicz.mqttspy.common.generated.ConversionMethod;
-import pl.baczkowicz.mqttspy.common.generated.FormatterDetails;
-import pl.baczkowicz.mqttspy.common.generated.FormatterFunction;
-import pl.baczkowicz.mqttspy.common.generated.SubstringConversionFormatterDetails;
-import pl.baczkowicz.mqttspy.common.generated.SubstringExtractFormatterDetails;
-import pl.baczkowicz.mqttspy.utils.FormattingUtils;
+import pl.baczkowicz.spy.common.generated.ConversionMethod;
+import pl.baczkowicz.spy.common.generated.FormatterDetails;
+import pl.baczkowicz.spy.common.generated.FormatterFunction;
+import pl.baczkowicz.spy.common.generated.SubstringConversionFormatterDetails;
+import pl.baczkowicz.spy.common.generated.SubstringExtractFormatterDetails;
 import pl.baczkowicz.spy.exceptions.ConversionException;
+import pl.baczkowicz.spy.formatting.FormattingUtils;
 import pl.baczkowicz.spy.utils.ConversionUtils;
 
 /**
@@ -43,7 +43,7 @@ import pl.baczkowicz.spy.utils.ConversionUtils;
 public class FormattingUtilsTest
 {
 	/**
-	 * Test method for {@link pl.baczkowicz.mqttspy.utils.FormattingUtils#stringToHex(java.lang.String)}.
+	 * Test method for {@link pl.baczkowicz.spy.formatting.FormattingUtils#stringToHex(java.lang.String)}.
 	 */
 	@Test
 	public final void testStringToHex()
@@ -52,7 +52,7 @@ public class FormattingUtilsTest
 	}
 
 	/**
-	 * Test method for {@link pl.baczkowicz.mqttspy.utils.FormattingUtils#hexToString(java.lang.String)}.
+	 * Test method for {@link pl.baczkowicz.spy.formatting.FormattingUtils#hexToString(java.lang.String)}.
 	 * @throws ConversionException 
 	 */
 	@Test
@@ -110,7 +110,7 @@ public class FormattingUtilsTest
 	}
 	
 	/**
-	 * Test method for {@link pl.baczkowicz.mqttspy.utils.FormattingUtils#hexToString(java.lang.String)}.
+	 * Test method for {@link pl.baczkowicz.spy.formatting.FormattingUtils#hexToString(java.lang.String)}.
 	 * @throws ConversionException 
 	 */
 	@Test
@@ -121,7 +121,7 @@ public class FormattingUtilsTest
 	}
 
 	/**
-	 * Test method for {@link pl.baczkowicz.mqttspy.utils.FormattingUtils#hexToStringNoException(java.lang.String)}.
+	 * Test method for {@link pl.baczkowicz.spy.formatting.FormattingUtils#hexToStringNoException(java.lang.String)}.
 	 */
 	@Test
 	public final void testHexToStringNoException()
@@ -130,7 +130,7 @@ public class FormattingUtilsTest
 	}
 
 	/**
-	 * Test method for {@link pl.baczkowicz.mqttspy.utils.FormattingUtils#base64ToString(java.lang.String)}.
+	 * Test method for {@link pl.baczkowicz.spy.formatting.FormattingUtils#base64ToString(java.lang.String)}.
 	 */
 	@Test
 	public final void testBase64ToString()
@@ -139,7 +139,7 @@ public class FormattingUtilsTest
 	}
 
 	/**
-	 * Test method for {@link pl.baczkowicz.mqttspy.utils.FormattingUtils#stringToBase64(java.lang.String)}.
+	 * Test method for {@link pl.baczkowicz.spy.formatting.FormattingUtils#stringToBase64(java.lang.String)}.
 	 */
 	@Test
 	public final void testStringToBase64()
@@ -148,7 +148,7 @@ public class FormattingUtilsTest
 	}
 
 	/**
-	 * Test method for {@link pl.baczkowicz.mqttspy.utils.FormattingUtils#formatText(pl.baczkowicz.mqttspy.configuration.generated.FormatterDetails, java.lang.String)}.
+	 * Test method for {@link pl.baczkowicz.spy.formatting.FormattingUtils#formatText(pl.baczkowicz.spy.common.generated.FormatterDetails, java.lang.String)}.
 	 */
 	@Test
 	public final void testCustomBase64DecodingConversion()
@@ -166,7 +166,7 @@ public class FormattingUtilsTest
 	}
 	
 	/**
-	 * Test method for {@link pl.baczkowicz.mqttspy.utils.FormattingUtils#formatText(pl.baczkowicz.mqttspy.configuration.generated.FormatterDetails, java.lang.String)}.
+	 * Test method for {@link pl.baczkowicz.spy.formatting.FormattingUtils#formatText(pl.baczkowicz.spy.common.generated.FormatterDetails, java.lang.String)}.
 	 */
 	@Test
 	public final void testCustomBase64DecodingConversionNoTags()
@@ -184,7 +184,7 @@ public class FormattingUtilsTest
 	}
 	
 	/**
-	 * Test method for {@link pl.baczkowicz.mqttspy.utils.FormattingUtils#formatText(pl.baczkowicz.mqttspy.configuration.generated.FormatterDetails, java.lang.String)}.
+	 * Test method for {@link pl.baczkowicz.spy.formatting.FormattingUtils#formatText(pl.baczkowicz.spy.common.generated.FormatterDetails, java.lang.String)}.
 	 */
 	@Test
 	public final void testCustomBase64DecodingWithExtract()
@@ -210,7 +210,7 @@ public class FormattingUtilsTest
 	} 
 
 	/**
-	 * Test method for {@link pl.baczkowicz.mqttspy.utils.FormattingUtils#convertText(pl.baczkowicz.mqttspy.configuration.generated.ConversionMethod, java.lang.String)}.
+	 * Test method for {@link pl.baczkowicz.spy.formatting.FormattingUtils#convertText(pl.baczkowicz.spy.common.generated.ConversionMethod, java.lang.String)}.
 	 */
 	@Test
 	public final void testConvert()

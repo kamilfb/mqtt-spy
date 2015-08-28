@@ -24,11 +24,11 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import pl.baczkowicz.mqttspy.testcases.TestCase;
-import pl.baczkowicz.mqttspy.testcases.TestCaseStatus;
-import pl.baczkowicz.mqttspy.testcases.TestCaseStep;
 import pl.baczkowicz.mqttspy.ui.scripts.ScriptTypeEnum;
 import pl.baczkowicz.spy.scripts.ScriptChangeObserver;
+import pl.baczkowicz.spy.testcases.TestCase;
+import pl.baczkowicz.spy.testcases.TestCaseStatus;
+import pl.baczkowicz.spy.testcases.TestCaseStep;
 
 /**
  * This represents a single row displayed in the test cases table.

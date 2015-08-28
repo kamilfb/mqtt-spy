@@ -21,6 +21,8 @@ package pl.baczkowicz.mqttspy.storage;
 
 import java.util.List;
 
+import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
+
 /**
  * Simple interface for access to a message store.
  * 

@@ -28,13 +28,13 @@ import org.slf4j.LoggerFactory;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import pl.baczkowicz.mqttspy.common.generated.ScriptDetails;
 import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
 import pl.baczkowicz.mqttspy.configuration.generated.TabbedSubscriptionDetails;
 import pl.baczkowicz.mqttspy.connectivity.IMqttConnection;
-import pl.baczkowicz.mqttspy.scripts.IScriptEventManager;
-import pl.baczkowicz.mqttspy.scripts.ScriptManager;
+import pl.baczkowicz.mqttspy.scripts.MqttScriptManager;
 import pl.baczkowicz.mqttspy.ui.properties.PublicationScriptProperties;
+import pl.baczkowicz.spy.common.generated.ScriptDetails;
+import pl.baczkowicz.spy.scripts.IScriptEventManager;
 import pl.baczkowicz.spy.scripts.Script;
 import pl.baczkowicz.spy.ui.utils.RunLaterExecutor;
 import pl.baczkowicz.spy.utils.FileUtils;
@@ -42,7 +42,7 @@ import pl.baczkowicz.spy.utils.FileUtils;
 /**
  * Script manager that interacts with the UI.
  */
-public class InteractiveScriptManager extends ScriptManager
+public class InteractiveScriptManager extends MqttScriptManager
 {
 	/** Diagnostic logger. */
 	private final static Logger logger = LoggerFactory.getLogger(InteractiveScriptManager.class);

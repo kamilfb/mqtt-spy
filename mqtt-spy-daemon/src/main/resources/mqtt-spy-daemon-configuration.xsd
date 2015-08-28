@@ -22,9 +22,11 @@
 -->
 <xs:schema 	xmlns:xs="http://www.w3.org/2001/XMLSchema" 
 			xmlns:mqttspydc="http://baczkowicz.pl/mqtt-spy/daemon/configuration"
+			xmlns:spycommon="http://baczkowicz.pl/spy/common"
 			xmlns:mqttspycommon="http://baczkowicz.pl/mqtt-spy/common"
 			targetNamespace="http://baczkowicz.pl/mqtt-spy/daemon/configuration">
 
+	<xs:import namespace="http://baczkowicz.pl/spy/common" />
 	<xs:import namespace="http://baczkowicz.pl/mqtt-spy/common" />
 		
 	<xs:complexType name="DaemonMqttConnectionDetails">
@@ -34,7 +36,7 @@
 					<xs:element name="Formatter" 			type="xs:IDREF" 							minOccurs="0" maxOccurs="1" />
 					<xs:element name="MessageLog"			type="mqttspycommon:MessageLog" 			minOccurs="1" maxOccurs="1" />
 		        	<xs:element name="Subscription"			type="mqttspycommon:SubscriptionDetails" 	minOccurs="0" maxOccurs="unbounded" />
-		        	<xs:element name="BackgroundScript"		type="mqttspycommon:ScriptDetails"			minOccurs="0" maxOccurs="unbounded" />
+		        	<xs:element name="BackgroundScript"		type="spycommon:ScriptDetails"				minOccurs="0" maxOccurs="unbounded" />
 		        	<xs:element name="RunningMode"			type="mqttspydc:RunningMode" 				minOccurs="0" maxOccurs="1" />
 				</xs:sequence>	
 	        </xs:extension>		
@@ -44,7 +46,7 @@
 	<xs:complexType name="MqttSpyDaemonConfiguration">
 		<xs:sequence>
 			<xs:element name="Connection" type="mqttspydc:DaemonMqttConnectionDetails" minOccurs="1" maxOccurs="1"/>
-			<xs:element name="Formatting" type="mqttspycommon:Formatting"	minOccurs="0" maxOccurs="1"/>			
+			<xs:element name="Formatting" type="spycommon:Formatting"	minOccurs="0" maxOccurs="1"/>			
 		</xs:sequence>
 	</xs:complexType>
 	

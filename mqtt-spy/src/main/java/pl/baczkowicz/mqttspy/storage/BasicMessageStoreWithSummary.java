@@ -19,8 +19,8 @@
  */
 package pl.baczkowicz.mqttspy.storage;
 
-import pl.baczkowicz.mqttspy.common.generated.FormatterDetails;
-import pl.baczkowicz.mqttspy.scripts.FormattingManager;
+import pl.baczkowicz.spy.common.generated.FormatterDetails;
+import pl.baczkowicz.spy.formatting.FormattingManager;
 
 /**
  * Basic message store, keeping all messages in a list.

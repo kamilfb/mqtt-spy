@@ -21,9 +21,10 @@ package pl.baczkowicz.mqttspy.storage;
 
 import java.util.List;
 
-import pl.baczkowicz.mqttspy.common.generated.ConversionMethod;
-import pl.baczkowicz.mqttspy.common.generated.FormatterDetails;
-import pl.baczkowicz.mqttspy.utils.FormattingUtils;
+import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
+import pl.baczkowicz.spy.common.generated.ConversionMethod;
+import pl.baczkowicz.spy.common.generated.FormatterDetails;
+import pl.baczkowicz.spy.formatting.FormattingUtils;
 
 /**
  * Basic message store, keeping all messages in a list.

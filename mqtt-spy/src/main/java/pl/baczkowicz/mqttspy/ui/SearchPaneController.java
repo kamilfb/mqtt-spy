@@ -51,11 +51,10 @@ import org.slf4j.LoggerFactory;
 import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
 import pl.baczkowicz.mqttspy.configuration.UiProperties;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
-import pl.baczkowicz.mqttspy.scripts.FormattingManager;
-import pl.baczkowicz.mqttspy.scripts.ScriptManager;
+import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
+import pl.baczkowicz.mqttspy.scripts.MqttScriptManager;
 import pl.baczkowicz.mqttspy.storage.FilteredMessageStore;
 import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
-import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.ui.events.EventManager;
 import pl.baczkowicz.mqttspy.ui.events.observers.MessageAddedObserver;
 import pl.baczkowicz.mqttspy.ui.events.observers.MessageFormatChangeObserver;
@@ -67,6 +66,7 @@ import pl.baczkowicz.mqttspy.ui.search.SearchMatcher;
 import pl.baczkowicz.mqttspy.ui.search.SearchOptions;
 import pl.baczkowicz.mqttspy.ui.search.SimplePayloadMatcher;
 import pl.baczkowicz.mqttspy.ui.search.UniqueContentOnlyFilter;
+import pl.baczkowicz.spy.formatting.FormattingManager;
 import pl.baczkowicz.spy.scripts.Script;
 
 /**
@@ -144,7 +144,7 @@ public class SearchPaneController implements Initializable, MessageFormatChangeO
 
 	private MqttAsyncConnection connection;
 
-	private ScriptManager scriptManager;
+	private MqttScriptManager scriptManager;
 
 	private UniqueContentOnlyFilter uniqueContentOnlyFilter;
 
@@ -219,7 +219,7 @@ public class SearchPaneController implements Initializable, MessageFormatChangeO
 		eventManager.registerChangeMessageIndexFirstObserver(messageNavigationPaneController, foundMessageStore);
 		eventManager.registerIncrementMessageIndexObserver(messageNavigationPaneController, foundMessageStore);
 		
-		scriptManager = new ScriptManager(null, null, connection);
+		scriptManager = new MqttScriptManager(null, null, connection);
 		refreshList();
 		
 		eventManager.registerMessageAddedObserver(this, store.getMessageList());

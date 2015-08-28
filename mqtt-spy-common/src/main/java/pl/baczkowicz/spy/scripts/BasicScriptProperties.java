@@ -19,7 +19,7 @@
  */
 package pl.baczkowicz.spy.scripts;
 
-import pl.baczkowicz.mqttspy.common.generated.ScriptDetails;
+import pl.baczkowicz.spy.common.generated.ScriptDetails;
 
 /**
  * This class represents basic script properties.

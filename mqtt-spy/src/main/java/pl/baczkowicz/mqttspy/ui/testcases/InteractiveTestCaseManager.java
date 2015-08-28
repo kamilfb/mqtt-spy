@@ -23,15 +23,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javafx.application.Platform;
-import pl.baczkowicz.mqttspy.scripts.ScriptManager;
-import pl.baczkowicz.mqttspy.testcases.TestCase;
-import pl.baczkowicz.mqttspy.testcases.TestCaseManager;
-import pl.baczkowicz.mqttspy.testcases.TestCaseStatus;
-import pl.baczkowicz.mqttspy.testcases.TestCaseStep;
+import pl.baczkowicz.mqttspy.scripts.MqttScriptManager;
 import pl.baczkowicz.mqttspy.ui.TestCaseExecutionController;
 import pl.baczkowicz.mqttspy.ui.TestCasesExecutionController;
 import pl.baczkowicz.mqttspy.ui.properties.TestCaseProperties;
 import pl.baczkowicz.spy.scripts.ScriptRunningState;
+import pl.baczkowicz.spy.testcases.TestCase;
+import pl.baczkowicz.spy.testcases.TestCaseManager;
+import pl.baczkowicz.spy.testcases.TestCaseStatus;
+import pl.baczkowicz.spy.testcases.TestCaseStep;
 
 public class InteractiveTestCaseManager extends TestCaseManager
 {	
@@ -43,7 +43,7 @@ public class InteractiveTestCaseManager extends TestCaseManager
 
 	private TestCasesExecutionController testCasesExecutionController;
 		
-	public InteractiveTestCaseManager(final ScriptManager scriptManager, final TestCasesExecutionController testCasesExecutionController, final TestCaseExecutionController testCaseExecutionController)	
+	public InteractiveTestCaseManager(final MqttScriptManager scriptManager, final TestCasesExecutionController testCasesExecutionController, final TestCaseExecutionController testCaseExecutionController)	
 	{
 		super(scriptManager);
 		this.testCaseExecutionController = testCaseExecutionController;

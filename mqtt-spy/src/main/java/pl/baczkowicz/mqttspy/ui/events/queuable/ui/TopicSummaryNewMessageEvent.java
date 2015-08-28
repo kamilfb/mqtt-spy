@@ -19,8 +19,8 @@
  */
 package pl.baczkowicz.mqttspy.ui.events.queuable.ui;
 
+import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.storage.MessageListWithObservableTopicSummary;
-import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
 
 public class TopicSummaryNewMessageEvent implements MqttSpyUIEvent
 {

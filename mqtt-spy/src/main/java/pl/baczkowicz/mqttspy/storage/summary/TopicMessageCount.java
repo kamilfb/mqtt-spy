@@ -22,7 +22,7 @@ package pl.baczkowicz.mqttspy.storage.summary;
 import java.util.HashMap;
 import java.util.Map;
 
-import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
+import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
 
 /**
  * This class contains message count for each topic. These values are not directly displayed on the UI.

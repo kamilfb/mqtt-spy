@@ -19,8 +19,8 @@
  */
 package pl.baczkowicz.mqttspy.ui.events.queuable.ui;
 
+import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.storage.MessageList;
-import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
 
 public class BrowseRemovedMessageEvent implements MqttSpyUIEvent
 {

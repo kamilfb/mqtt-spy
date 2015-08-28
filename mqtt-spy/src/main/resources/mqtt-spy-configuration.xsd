@@ -22,16 +22,18 @@
 -->
 <xs:schema 	xmlns:xs="http://www.w3.org/2001/XMLSchema" 
 			xmlns:config="http://baczkowicz.pl/mqtt-spy-configuration"
+			xmlns:spycommon="http://baczkowicz.pl/spy/common"
 			xmlns:mqttspycommon="http://baczkowicz.pl/mqtt-spy/common"
 			targetNamespace="http://baczkowicz.pl/mqtt-spy-configuration">
 
+	<xs:import namespace="http://baczkowicz.pl/spy/common" />
 	<xs:import namespace="http://baczkowicz.pl/mqtt-spy/common" />
 
 	<xs:complexType name="MqttSpyConfiguration">
 		<xs:sequence>
 			<xs:element name="ConnectionGroups" type="config:ConnectionGroup" minOccurs="0" maxOccurs="unbounded" />
 			<xs:element name="Connectivity" type="config:Connectivity" />
-			<xs:element name="Formatting" 	type="mqttspycommon:Formatting"	minOccurs="0" maxOccurs="1"/>
+			<xs:element name="Formatting" 	type="spycommon:Formatting"	minOccurs="0" maxOccurs="1"/>
 		</xs:sequence>
 	</xs:complexType>
 	
@@ -104,11 +106,11 @@
 					<xs:element name="MinMessagesStoredPerTopic" 	type="xs:int" 		minOccurs="0" maxOccurs="1" />
 					<xs:element name="MaxMessagesStored" 	type="xs:int" 				minOccurs="0" maxOccurs="1" />
 								
-		        	<xs:element name="PublicationScripts" 	type="xs:string" 							minOccurs="0" maxOccurs="1" />
-		        	<xs:element name="SearchScripts" 		type="xs:string" 							minOccurs="0" maxOccurs="1" />
-		        	<xs:element name="BackgroundScript"		type="mqttspycommon:ScriptDetails" 			minOccurs="0" maxOccurs="unbounded" />
+		        	<xs:element name="PublicationScripts" 	type="xs:string" 						minOccurs="0" maxOccurs="1" />
+		        	<xs:element name="SearchScripts" 		type="xs:string" 						minOccurs="0" maxOccurs="1" />
+		        	<xs:element name="BackgroundScript"		type="spycommon:ScriptDetails" 			minOccurs="0" maxOccurs="unbounded" />
 		        	
-		        	<xs:element name="MessageLog"			type="mqttspycommon:MessageLog" 			minOccurs="0" maxOccurs="1" />		        	
+		        	<xs:element name="MessageLog"			type="mqttspycommon:MessageLog" 		minOccurs="0" maxOccurs="1" />		        	
 				</xs:sequence>	
 	        </xs:extension>		
         </xs:complexContent>

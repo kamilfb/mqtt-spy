@@ -27,7 +27,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.common.generated.ReconnectionSettings;
-import pl.baczkowicz.mqttspy.configuration.PropertyFileLoader;
 import pl.baczkowicz.mqttspy.connectivity.SimpleMqttConnection;
 import pl.baczkowicz.mqttspy.connectivity.reconnection.ReconnectionManager;
 import pl.baczkowicz.mqttspy.daemon.configuration.ConfigurationLoader;
@@ -35,15 +34,16 @@ import pl.baczkowicz.mqttspy.daemon.configuration.generated.DaemonMqttConnection
 import pl.baczkowicz.mqttspy.daemon.configuration.generated.RunningMode;
 import pl.baczkowicz.mqttspy.daemon.connectivity.MqttCallbackHandler;
 import pl.baczkowicz.mqttspy.daemon.connectivity.SimpleMqttConnectionRunnable;
-import pl.baczkowicz.mqttspy.scripts.ScriptManager;
-import pl.baczkowicz.mqttspy.scripts.io.MqttScriptIO;
-import pl.baczkowicz.mqttspy.testcases.TestCase;
-import pl.baczkowicz.mqttspy.testcases.TestCaseManager;
-import pl.baczkowicz.mqttspy.testcases.TestCaseResult;
+import pl.baczkowicz.mqttspy.scripts.MqttScriptIO;
+import pl.baczkowicz.mqttspy.scripts.MqttScriptManager;
+import pl.baczkowicz.spy.configuration.PropertyFileLoader;
 import pl.baczkowicz.spy.exceptions.SpyException;
 import pl.baczkowicz.spy.exceptions.XMLException;
 import pl.baczkowicz.spy.scripts.Script;
 import pl.baczkowicz.spy.scripts.ScriptIO;
+import pl.baczkowicz.spy.testcases.TestCase;
+import pl.baczkowicz.spy.testcases.TestCaseManager;
+import pl.baczkowicz.spy.testcases.TestCaseResult;
 import pl.baczkowicz.spy.utils.ThreadingUtils;
 
 /**
@@ -56,7 +56,7 @@ public class MqttSpyDaemon
 	
 	private ConfigurationLoader loader;
 
-	private ScriptManager scriptManager;
+	private MqttScriptManager scriptManager;
 	
 	private TestCaseManager testCaseManager;
 
@@ -127,7 +127,7 @@ public class MqttSpyDaemon
 		// Wire up all classes (assuming ID = 0)
 		reconnectionManager = new ReconnectionManager();
 		connection = new SimpleMqttConnection(reconnectionManager, "0", connectionSettings);
-		scriptManager = new ScriptManager(null, null, connection);
+		scriptManager = new MqttScriptManager(null, null, connection);
 		testCaseManager = new TestCaseManager(scriptManager);
 		callback = new MqttCallbackHandler(connection, connectionSettings, scriptManager); 
 				

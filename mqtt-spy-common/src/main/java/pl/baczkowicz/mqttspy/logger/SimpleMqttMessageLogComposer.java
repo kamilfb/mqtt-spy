@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.common.generated.MessageLog;
 import pl.baczkowicz.mqttspy.common.generated.MessageLogEnum;
-import pl.baczkowicz.mqttspy.messages.BaseMqttMessageWithSubscriptions;
+import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
 import pl.baczkowicz.spy.utils.ConversionUtils;
 
 /**
@@ -49,7 +49,7 @@ public class SimpleMqttMessageLogComposer
      * 
      * @return The log message as string
      */
-	public static String createReceivedMessageLog(final BaseMqttMessageWithSubscriptions message, final MessageLog messageLogOptions)
+	public static String createReceivedMessageLog(final FormattedMqttMessage message, final MessageLog messageLogOptions)
 	{
 		final StringBuffer logMessage = new StringBuffer();
 		logMessage.append("<MqttMessage");
@@ -97,7 +97,7 @@ public class SimpleMqttMessageLogComposer
 	 * @param message The message to be logged 
      * @param messageLogOptions Logging options
 	 */
-	private static void populatePayload(final StringBuffer logMessage, final BaseMqttMessageWithSubscriptions message, final MessageLog messageLogOptions)
+	private static void populatePayload(final StringBuffer logMessage, final FormattedMqttMessage message, final MessageLog messageLogOptions)
 	{
 		boolean encoded = MessageLogEnum.XML_WITH_ENCODED_PAYLOAD.equals(messageLogOptions.getValue());
 		final String payload = new String(message.getPayload());

@@ -56,11 +56,9 @@ import pl.baczkowicz.mqttspy.connectivity.handlers.MqttEventHandler;
 import pl.baczkowicz.mqttspy.connectivity.reconnection.ReconnectionManager;
 import pl.baczkowicz.mqttspy.logger.MqttMessageLogger;
 import pl.baczkowicz.mqttspy.messages.BaseMqttMessage;
-import pl.baczkowicz.mqttspy.messages.BaseMqttMessageWithSubscriptions;
-import pl.baczkowicz.mqttspy.scripts.FormattingManager;
-import pl.baczkowicz.mqttspy.scripts.ScriptManager;
+import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
+import pl.baczkowicz.mqttspy.scripts.MqttScriptManager;
 import pl.baczkowicz.mqttspy.stats.StatisticsManager;
-import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
 import pl.baczkowicz.mqttspy.ui.ConnectionController;
 import pl.baczkowicz.mqttspy.ui.MainController;
@@ -74,14 +72,15 @@ import pl.baczkowicz.mqttspy.ui.scripts.InteractiveScriptManager;
 import pl.baczkowicz.mqttspy.ui.utils.ConnectivityUtils;
 import pl.baczkowicz.mqttspy.ui.utils.ContextMenuUtils;
 import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
+import pl.baczkowicz.spy.exceptions.ConfigurationException;
+import pl.baczkowicz.spy.exceptions.SpyException;
+import pl.baczkowicz.spy.formatting.FormattingManager;
 import pl.baczkowicz.spy.scripts.Script;
 import pl.baczkowicz.spy.ui.panes.PaneVisibilityStatus;
 import pl.baczkowicz.spy.ui.panes.TabStatus;
 import pl.baczkowicz.spy.ui.utils.DialogFactory;
 import pl.baczkowicz.spy.ui.utils.FxmlUtils;
 import pl.baczkowicz.spy.ui.utils.TabUtils;
-import pl.baczkowicz.spy.exceptions.ConfigurationException;
-import pl.baczkowicz.spy.exceptions.SpyException;
 
 /**
  * Class for managing connection tabs.
@@ -310,7 +309,7 @@ public class ConnectionManager
 		
         final ManagedMessageStoreWithFiltering store = new ManagedMessageStoreWithFiltering(
         		name, 0, list.size(), list.size(), uiEventQueue, eventManager, 
-        		new FormattingManager(new ScriptManager(null, null, null)), UiProperties.getSummaryMaxPayloadLength(configurationManager));               
+        		new FormattingManager(new MqttScriptManager(null, null, null)), UiProperties.getSummaryMaxPayloadLength(configurationManager));               
         
 		final SubscriptionController subscriptionController = subscriptionManager.createSubscriptionTab(
 				true, store, null, null, connectionController);
@@ -460,7 +459,7 @@ public class ConnectionManager
 		if (messageLog != null && !messageLog.getValue().equals(MessageLogEnum.DISABLED) 
 				&& messageLog.getLogFile() != null && !messageLog.getLogFile().isEmpty())
 		{
-			final Queue<BaseMqttMessageWithSubscriptions> messageQueue= new LinkedBlockingQueue<BaseMqttMessageWithSubscriptions>();
+			final Queue<FormattedMqttMessage> messageQueue= new LinkedBlockingQueue<FormattedMqttMessage>();
 			
 			if (connection.getMessageLogger() == null)
 			{

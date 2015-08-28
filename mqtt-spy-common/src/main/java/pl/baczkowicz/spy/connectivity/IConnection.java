@@ -19,7 +19,7 @@
  */
 package pl.baczkowicz.spy.connectivity;
 
-import pl.baczkowicz.mqttspy.common.generated.ProtocolEnum;
+import pl.baczkowicz.spy.common.generated.ProtocolEnum;
 
 /** 
  * Basic interface for interacting with a connection.

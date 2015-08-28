@@ -114,5 +114,5 @@ public class BaseMessage implements IBaseMessage
 	public void setPayload(final String payload)
 	{
 		this.payload = payload;
-	}
+	}	
 }

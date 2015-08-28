@@ -19,8 +19,9 @@
  */
 package pl.baczkowicz.mqttspy.storage;
 
-import pl.baczkowicz.mqttspy.common.generated.FormatterDetails;
+import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.storage.summary.ObservableTopicSummary;
+import pl.baczkowicz.spy.common.generated.FormatterDetails;
 
 /**
  * Message list with observable topic summary.

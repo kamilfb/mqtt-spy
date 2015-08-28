@@ -31,8 +31,6 @@ import javax.xml.namespace.QName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import pl.baczkowicz.mqttspy.common.generated.FormatterDetails;
-import pl.baczkowicz.mqttspy.common.generated.Formatting;
 import pl.baczkowicz.mqttspy.common.generated.SimpleMqttMessage;
 import pl.baczkowicz.mqttspy.configuration.generated.ConnectionGroup;
 import pl.baczkowicz.mqttspy.configuration.generated.ConnectionGroupReference;
@@ -47,6 +45,9 @@ import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
 import pl.baczkowicz.mqttspy.ui.MqttSpyPerspective;
 import pl.baczkowicz.mqttspy.ui.events.EventManager;
+import pl.baczkowicz.spy.common.generated.FormatterDetails;
+import pl.baczkowicz.spy.common.generated.Formatting;
+import pl.baczkowicz.spy.configuration.PropertyFileLoader;
 import pl.baczkowicz.spy.exceptions.XMLException;
 import pl.baczkowicz.spy.ui.utils.DialogFactory;
 import pl.baczkowicz.spy.utils.ThreadingUtils;
@@ -69,7 +70,9 @@ public class ConfigurationManager
 	
 	public static final String SCHEMA = "/mqtt-spy-configuration.xsd";
 	
-	public static final String COMMON_SCHEMA = "/mqtt-spy-common.xsd";
+	public static final String SPY_COMMON_SCHEMA = "/spy-common.xsd";
+	
+	public static final String MQTT_COMMON_SCHEMA = "/mqtt-spy-common.xsd";
 
 	public static final String DEFAULT_FILE_NAME = "mqtt-spy-configuration.xml";
 	
@@ -116,7 +119,7 @@ public class ConfigurationManager
 		this.uiPropertyFile = new PropertyFileLoader();
 		this.uiPropertyFile.readFromFileSystem(getUiPropertiesFile());
 		
-		this.parser = new XMLParser(PACKAGE, new String[] {COMMON_SCHEMA, SCHEMA});
+		this.parser = new XMLParser(PACKAGE, new String[] {SPY_COMMON_SCHEMA, MQTT_COMMON_SCHEMA, SCHEMA});
 					
 		// Create empty configuration
 		this.configuration = new MqttSpyConfiguration();
@@ -535,7 +538,7 @@ public class ConfigurationManager
 		
 		try
 		{
-			uiPropertyFile.saveToFileSystem(getUiPropertiesFile());
+			uiPropertyFile.saveToFileSystem("mqtt-spy-ui", getUiPropertiesFile());
 		}
 		catch (IOException e)
 		{

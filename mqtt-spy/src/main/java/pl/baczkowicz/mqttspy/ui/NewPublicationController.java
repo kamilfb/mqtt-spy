@@ -63,17 +63,17 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.TextAlignment;
-import pl.baczkowicz.mqttspy.common.generated.ConversionMethod;
 import pl.baczkowicz.mqttspy.common.generated.SimpleMqttMessage;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.messages.BaseMqttMessage;
-import pl.baczkowicz.mqttspy.scripts.ScriptManager;
+import pl.baczkowicz.mqttspy.scripts.MqttScriptManager;
 import pl.baczkowicz.mqttspy.ui.events.EventManager;
 import pl.baczkowicz.mqttspy.ui.events.observers.ScriptListChangeObserver;
 import pl.baczkowicz.mqttspy.ui.properties.PublicationScriptProperties;
 import pl.baczkowicz.mqttspy.ui.scripts.InteractiveScriptManager;
 import pl.baczkowicz.mqttspy.ui.scripts.ScriptTypeEnum;
 import pl.baczkowicz.mqttspy.utils.MqttUtils;
+import pl.baczkowicz.spy.common.generated.ConversionMethod;
 import pl.baczkowicz.spy.exceptions.ConversionException;
 import pl.baczkowicz.spy.scripts.Script;
 import pl.baczkowicz.spy.ui.keyboard.TimeBasedKeyEventFilter;
@@ -815,7 +815,7 @@ public class NewPublicationController implements Initializable, ScriptListChange
 				
 				final String configuredDirectory = connection.getProperties().getConfiguredProperties().getPublicationScripts();
 				final String directory = InteractiveScriptManager.getScriptDirectoryForConnection(configuredDirectory);
-				final File scriptFile = new File(directory + scriptName + ScriptManager.SCRIPT_EXTENSION);
+				final File scriptFile = new File(directory + scriptName + MqttScriptManager.SCRIPT_EXTENSION);
 				
 				final Script script = scriptManager.getScriptObjectFromName(
 						Script.getScriptIdFromFile(scriptFile));
