@@ -4,25 +4,23 @@
   <Connection>
   
 	<!-- For details on multiple server URIs see http://www.eclipse.org/paho/files/javadoc/org/eclipse/paho/client/mqttv3/MqttConnectOptions.html#setServerURIs%28java.lang.String[]%29 -->
-	<ServerURI>tcp://localhost:2000</ServerURI>
-	<!-- Server URI can be supplied without the tcp:// prefix or the port number (default is 1883) -->
-	<ServerURI>localhost</ServerURI>
+	<ServerURI>test.mosquitto.org</ServerURI>
   			
 	<ClientID>mqtt-spy-daemon</ClientID>
-			
-	<UserCredentials>
-		<Username>test2</Username>
-		<!-- Password is base64 encoded -->
-		<Password>dGVzdDI=</Password>
-	</UserCredentials>
-		
-	<!-- Payload is base64 encoded -->
-	<LastWillAndTestament topic="/ltw/mqtt-spy-daemon" qos="0" retained="false">R29pbmcgb2ZmbGluZS4gQnllIGJ5ZS4uLg==</LastWillAndTestament>
 									
 	<CleanSession>true</CleanSession>
 	<ConnectionTimeout>10</ConnectionTimeout>
 	<KeepAliveInterval>10</KeepAliveInterval>
 			
+	<SSL>
+        <Mode>SERVER_ONLY</Mode>
+        <Protocol>TLSv1.2</Protocol>
+        <CertificateAuthorityFile>/certificates/certificate_authority_files/mosquitto.org.crt</CertificateAuthorityFile>
+       	<ClientCertificateFile></ClientCertificateFile>
+        <ClientKeyFile></ClientKeyFile>
+        <ClientKeyPassword></ClientKeyPassword>
+    </SSL>
+	
 	<ReconnectionSettings>
 		<!-- How long (in ms) to wait after previous connection attempt before trying to connect again -->
 		<RetryInterval>5000</RetryInterval>				
@@ -36,22 +34,8 @@
 		To log QoS, Retained flag, connection name or subscription, use:
 		logQos="true" logRetained="true" logConnection="true" logSubscription="true" 
 	-->
-	<MessageLog logBeforeScripts="false">XML_WITH_PLAIN_PAYLOAD</MessageLog>
-			
-	<Subscription topic="/test/#" qos="0" />
-	<!-- Use the script file for things like auto-reply or additional logging -->
-	<!-- scriptFile="/home/kamil/Programming/Git/mqtt-spy-logger/src/test/resources/reply.js" -->
-	<Subscription topic="/home/#" qos="0" scriptFile="/home/kamil/Programming/Git/mqtt-spy-daemon/src/test/resources/reply.js" />
-			 
-	<!-- Use these for publishing messages -->
-	<BackgroundScript>
-		<File>/home/kamil/Programming/Git/mqtt-spy-daemon/src/test/resources/bedroom.js</File>
-	</BackgroundScript>
-	<!-- 
-	<BackgroundScript repeat="false">
-		<File>/home/kamil/Programming/Git/mqtt-spy-daemon/src/test/resources/replay.js</File>
-	</BackgroundScript>
-	 -->
+	<MessageLog logBeforeScripts="false">DISABLED</MessageLog>
+
 	<!-- Use CONTINUOUS or SCRIPTS_ONLY -->
 	<RunningMode>CONTINUOUS</RunningMode>
   </Connection>

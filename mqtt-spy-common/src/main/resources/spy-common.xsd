@@ -58,6 +58,17 @@
 			 </xs:extension>		
         </xs:complexContent>
 	</xs:complexType>
+	
+	<!-- ==================== -->
+	<!-- === TEST CASES ===== -->
+	<!-- ==================== -->
+	
+	<xs:complexType name="TestCasesSettings">
+		<xs:sequence>
+			<xs:element name="Location" 				type="xs:string" />
+			<xs:element name="ExportResults"			type="xs:boolean" />
+		</xs:sequence>
+	</xs:complexType>
  	
 	<!-- ================== -->
 	<!-- === FORMATTING === -->

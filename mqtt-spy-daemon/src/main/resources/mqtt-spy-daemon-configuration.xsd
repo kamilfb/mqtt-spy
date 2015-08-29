@@ -37,6 +37,7 @@
 					<xs:element name="MessageLog"			type="mqttspycommon:MessageLog" 			minOccurs="1" maxOccurs="1" />
 		        	<xs:element name="Subscription"			type="mqttspycommon:SubscriptionDetails" 	minOccurs="0" maxOccurs="unbounded" />
 		        	<xs:element name="BackgroundScript"		type="spycommon:ScriptDetails"				minOccurs="0" maxOccurs="unbounded" />
+		        	<xs:element name="TestCases"			type="spycommon:TestCasesSettings"			minOccurs="0" maxOccurs="1" />
 		        	<xs:element name="RunningMode"			type="mqttspydc:RunningMode" 				minOccurs="0" maxOccurs="1" />
 				</xs:sequence>	
 	        </xs:extension>		

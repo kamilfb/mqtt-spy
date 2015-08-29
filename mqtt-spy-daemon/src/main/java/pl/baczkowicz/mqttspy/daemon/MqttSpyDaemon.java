@@ -36,6 +36,7 @@ import pl.baczkowicz.mqttspy.daemon.connectivity.MqttCallbackHandler;
 import pl.baczkowicz.mqttspy.daemon.connectivity.SimpleMqttConnectionRunnable;
 import pl.baczkowicz.mqttspy.scripts.MqttScriptIO;
 import pl.baczkowicz.mqttspy.scripts.MqttScriptManager;
+import pl.baczkowicz.spy.common.generated.TestCasesSettings;
 import pl.baczkowicz.spy.configuration.PropertyFileLoader;
 import pl.baczkowicz.spy.exceptions.SpyException;
 import pl.baczkowicz.spy.exceptions.XMLException;
@@ -135,6 +136,7 @@ public class MqttSpyDaemon
 		final ReconnectionSettings reconnectionSettings = connection.getMqttConnectionDetails().getReconnectionSettings();			
 		final Runnable connectionRunnable = new SimpleMqttConnectionRunnable(scriptManager, connection, connectionSettings);
 		
+		connection.setScriptManager(scriptManager);
 		connection.connect(callback, connectionRunnable);
 		scriptIO = new MqttScriptIO(connection, null, null, null);
 		if (reconnectionSettings != null)
@@ -148,6 +150,20 @@ public class MqttSpyDaemon
 		{
 			logger.info("About to start background script " + script.getName());
 			scriptManager.runScript(script, true);
+		}
+		
+		// Run all tests, one by one
+		final TestCasesSettings testCasesSettings = connectionSettings.getTestCases();
+		if (testCasesSettings != null)
+		{
+			testCaseManager.setAutoExport(testCasesSettings.isExportResults());
+			testCaseManager.loadTestCases(testCasesSettings.getLocation());
+			while (!connection.canPublish())
+			{
+				logger.debug("Client not connected yet - can't start test cases... [waiting another 1000ms]");
+				ThreadingUtils.sleep(1000);
+			}
+			testCaseManager.runAllTestCases();
 		}
 		
 		// If in 'scripts only' mode, exit when all scripts finished
@@ -167,6 +183,14 @@ public class MqttSpyDaemon
 		// Wait until all scripts have completed or got frozen
 		while (scriptManager.areScriptsRunning())
 		{
+			logger.debug("Scripts are still running... [waiting another 1000ms]");
+			ThreadingUtils.sleep(1000);
+		}
+		
+		// Wait until all test cases have completed or got frozen
+		while (testCaseManager.areTestCasesStillRunning())
+		{
+			logger.debug("Test cases are still running... [waiting another 1000ms]");
 			ThreadingUtils.sleep(1000);
 		}
 		

@@ -19,6 +19,9 @@
  */
 package pl.baczkowicz.mqttspy.daemon.connectivity;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import pl.baczkowicz.mqttspy.common.generated.ReconnectionSettings;
 import pl.baczkowicz.mqttspy.common.generated.SubscriptionDetails;
 import pl.baczkowicz.mqttspy.connectivity.BaseMqttSubscription;
@@ -34,6 +37,9 @@ import pl.baczkowicz.spy.utils.ThreadingUtils;
  */
 public class SimpleMqttConnectionRunnable implements Runnable
 {
+	/** Diagnostic logger. */
+	private final static Logger logger = LoggerFactory.getLogger(SimpleMqttConnectionRunnable.class);
+	
 	/** The connection to be used. */	
 	private final SimpleMqttConnection connection;
 	
@@ -75,6 +81,7 @@ public class SimpleMqttConnectionRunnable implements Runnable
 			{	
 				if (neverStarted && subscriptionDetails.getScriptFile() != null)
 				{
+					logger.debug("Adding script " + subscriptionDetails.getScriptFile());
 					scriptManager.addScript(new ScriptDetails(true, false, subscriptionDetails.getScriptFile()));
 				}
 				

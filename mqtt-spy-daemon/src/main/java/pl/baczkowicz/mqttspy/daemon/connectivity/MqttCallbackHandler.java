@@ -157,8 +157,11 @@ public class MqttCallbackHandler implements MqttCallback
 				scriptManager.runScriptWithReceivedMessage(subscription.getScript(), receivedMessage);
 			}
 			
-			// Store the message (e.g. to be used by scripts and test cases)
-			subscription.getStore().messageReceived(formattedMessage);
+			// Store the message (e.g. to be used by test cases; not needed for logging and general scripts)
+			if (subscription.getStore() != null)
+			{
+				subscription.getStore().messageReceived(formattedMessage);
+			}
 		}
 				
 		// After scripts

@@ -538,6 +538,7 @@ public abstract class BaseScriptManager
 		{
 			if (ScriptRunningState.RUNNING.equals(script.getStatus()))
 			{
+				logger.debug("Script {} is still running", script.getName());
 				return true;
 			}
 		}

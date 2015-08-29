@@ -32,6 +32,7 @@ import pl.baczkowicz.spy.testcases.TestCase;
 import pl.baczkowicz.spy.testcases.TestCaseManager;
 import pl.baczkowicz.spy.testcases.TestCaseStatus;
 import pl.baczkowicz.spy.testcases.TestCaseStep;
+import pl.baczkowicz.spy.utils.ThreadingUtils;
 
 public class InteractiveTestCaseManager extends TestCaseManager
 {	
@@ -66,6 +67,9 @@ public class InteractiveTestCaseManager extends TestCaseManager
 			@Override
 			public void run()
 			{
+				ThreadingUtils.logThreadStarting("runEnqueuedTestCases");
+								
+				// TODO: there must be a way to stop this
 				while (true)
 				{
 					try
@@ -82,6 +86,8 @@ public class InteractiveTestCaseManager extends TestCaseManager
 						runTestCase(enqueuedtestCases.remove(0));
 					}
 				}
+				
+				ThreadingUtils.logThreadEnding();
 			}
 		}).start();
 	}

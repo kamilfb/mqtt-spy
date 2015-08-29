@@ -32,8 +32,6 @@ import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
 import pl.baczkowicz.spy.scripts.IScriptEventManager;
 import pl.baczkowicz.spy.scripts.Script;
 import pl.baczkowicz.spy.scripts.ScriptIO;
-import pl.baczkowicz.spy.scripts.ScriptRunner;
-import pl.baczkowicz.spy.scripts.ScriptRunningState;
 
 /**
  * Implementation of the interface between a script and the rest of the application.
@@ -150,10 +148,11 @@ public class MqttScriptIO extends ScriptIO implements IMqttScriptIO
 	{
 		touch();
 
-		if (!script.getStatus().equals(ScriptRunningState.RUNNING))
-		{
-			ScriptRunner.changeState(eventManager, scriptName, ScriptRunningState.RUNNING, script, executor);
-		}
+		// TODO: commented out - not sure why this was here
+//		if (!script.getStatus().equals(ScriptRunningState.RUNNING))
+//		{
+//			ScriptRunner.changeState(eventManager, scriptName, ScriptRunningState.RUNNING, script, executor);
+//		}
 		
 		logger.debug("[JS {}] Publishing message to {} with payload size = {}, qos = {}, retained = {}", 
 				scriptName, publicationTopic, data.length, qos, retained);
@@ -163,6 +162,8 @@ public class MqttScriptIO extends ScriptIO implements IMqttScriptIO
 		{				
 			updatePublished();
 		}
+		
+		// TODO: change state to finished?
 	}
 	
 	@Override
@@ -170,10 +171,11 @@ public class MqttScriptIO extends ScriptIO implements IMqttScriptIO
 	{
 		touch();
 
-		if (script != null && !script.getStatus().equals(ScriptRunningState.RUNNING))
-		{
-			ScriptRunner.changeState(eventManager, scriptName, ScriptRunningState.RUNNING, script, executor);
-		}
+		// TODO: commented out - not sure why this was here
+//		if (script != null && !script.getStatus().equals(ScriptRunningState.RUNNING))
+//		{
+//			ScriptRunner.changeState(eventManager, scriptName, ScriptRunningState.RUNNING, script, executor);
+//		}
 		
 		logger.debug("[JS {}] Publishing message to {} with payload = {}, qos = {}, retained = {}", 
 				scriptName, publicationTopic, data, qos, retained);
@@ -184,6 +186,8 @@ public class MqttScriptIO extends ScriptIO implements IMqttScriptIO
 		{				
 			updatePublished();
 		}
+		
+		// TODO: change state to finished?
 	}
 //	
 //	

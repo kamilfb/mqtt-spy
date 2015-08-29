@@ -39,6 +39,7 @@ import pl.baczkowicz.spy.common.generated.ScriptDetails;
 import pl.baczkowicz.spy.scripts.BaseScriptManager;
 import pl.baczkowicz.spy.scripts.ScriptRunningState;
 import pl.baczkowicz.spy.utils.FileUtils;
+import pl.baczkowicz.spy.utils.ThreadingUtils;
 import pl.baczkowicz.spy.utils.TimeUtils;
 
 public class TestCaseManager
@@ -125,7 +126,7 @@ public class TestCaseManager
 	
 	public void loadTestCases(final String testCaseLocation)
 	{
-		final List<File> scripts = FileUtils.getDirectoriesWithFile(testCaseLocation, "tc.*js");
+		final List<File> scripts = FileUtils.getDirectoriesWithFile(testCaseLocation, "tc.*.js");
 
 		for (final File scriptFile : scripts)
 		{
@@ -227,6 +228,8 @@ public class TestCaseManager
 		
 		running--;
 		
+		logger.info("Test case \"{}\" ended with result: {}", testCase.getName(), testCaseStatus.getStatus());
+		
 		if (autoExport)
 		{
 			final String parentDir = testCase.getScriptFile().getParent() + System.getProperty("file.separator");
@@ -253,6 +256,28 @@ public class TestCaseManager
 		}
 		
 		runAllTestCaseMethods(testCase);	
+	}
+	
+	public void runAllTestCases()
+	{
+		running = testCases.size();
+		
+		new Thread(new Runnable()
+		{			
+			@Override
+			public void run()
+			{
+				ThreadingUtils.logThreadStarting("runAllTestCases");
+
+				for (final TestCase testCase : testCases)
+				{
+					runTestCase(testCase, null);
+					running--;
+				}
+				
+				ThreadingUtils.logThreadEnding();
+			}
+		}).start();		
 	}
 
 	public void stopTestCase(final TestCase testCase)
@@ -340,5 +365,10 @@ public class TestCaseManager
 		{
 			logger.error("Cannot write to file", e);
 		}
+	}
+	
+	public boolean areTestCasesStillRunning()
+	{
+		return running > 0;
 	}
 }

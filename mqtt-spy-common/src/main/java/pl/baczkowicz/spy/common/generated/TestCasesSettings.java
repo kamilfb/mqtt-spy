@@ -9,12 +9,12 @@
 //
 
 
-package pl.baczkowicz.mqttspy.common.generated;
+package pl.baczkowicz.spy.common.generated;
 
 import java.io.Serializable;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 import org.jvnet.jaxb2_commons.lang.CopyStrategy;
 import org.jvnet.jaxb2_commons.lang.CopyTo;
@@ -33,15 +33,18 @@ import org.jvnet.jaxb2_commons.locator.util.LocatorUtils;
 
 
 /**
- * <p>Java class for PublicationDetails complex type.
+ * <p>Java class for TestCasesSettings complex type.
  * 
  * <p>The following schema fragment specifies the expected content contained within this class.
  * 
  * <pre>
- * &lt;complexType name="PublicationDetails"&gt;
+ * &lt;complexType name="TestCasesSettings"&gt;
  *   &lt;complexContent&gt;
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
- *       &lt;attribute name="topic" use="required" type="{http://www.w3.org/2001/XMLSchema}string" /&gt;
+ *       &lt;sequence&gt;
+ *         &lt;element name="Location" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
+ *         &lt;element name="ExportResults" type="{http://www.w3.org/2001/XMLSchema}boolean"/&gt;
+ *       &lt;/sequence&gt;
  *     &lt;/restriction&gt;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
@@ -51,19 +54,24 @@ import org.jvnet.jaxb2_commons.locator.util.LocatorUtils;
 */
 @SuppressWarnings("all")
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "PublicationDetails")
-public class PublicationDetails implements Serializable, Cloneable, CopyTo, Equals, HashCode, ToString
+@XmlType(name = "TestCasesSettings", propOrder = {
+    "location",
+    "exportResults"
+})
+public class TestCasesSettings implements Serializable, Cloneable, CopyTo, Equals, HashCode, ToString
 {
 
     private final static long serialVersionUID = 1L;
-    @XmlAttribute(name = "topic", required = true)
-    protected String topic;
+    @XmlElement(name = "Location", required = true)
+    protected String location;
+    @XmlElement(name = "ExportResults")
+    protected boolean exportResults;
 
     /**
      * Default no-arg constructor
      * 
      */
-    public PublicationDetails() {
+    public TestCasesSettings() {
         super();
     }
 
@@ -71,32 +79,49 @@ public class PublicationDetails implements Serializable, Cloneable, CopyTo, Equa
      * Fully-initialising value constructor
      * 
      */
-    public PublicationDetails(final String topic) {
-        this.topic = topic;
+    public TestCasesSettings(final String location, final boolean exportResults) {
+        this.location = location;
+        this.exportResults = exportResults;
     }
 
     /**
-     * Gets the value of the topic property.
+     * Gets the value of the location property.
      * 
      * @return
      *     possible object is
      *     {@link String }
      *     
      */
-    public String getTopic() {
-        return topic;
+    public String getLocation() {
+        return location;
     }
 
     /**
-     * Sets the value of the topic property.
+     * Sets the value of the location property.
      * 
      * @param value
      *     allowed object is
      *     {@link String }
      *     
      */
-    public void setTopic(String value) {
-        this.topic = value;
+    public void setLocation(String value) {
+        this.location = value;
+    }
+
+    /**
+     * Gets the value of the exportResults property.
+     * 
+     */
+    public boolean isExportResults() {
+        return exportResults;
+    }
+
+    /**
+     * Sets the value of the exportResults property.
+     * 
+     */
+    public void setExportResults(boolean value) {
+        this.exportResults = value;
     }
 
     public String toString() {
@@ -115,27 +140,41 @@ public class PublicationDetails implements Serializable, Cloneable, CopyTo, Equa
 
     public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy strategy) {
         {
-            String theTopic;
-            theTopic = this.getTopic();
-            strategy.appendField(locator, this, "topic", buffer, theTopic);
+            String theLocation;
+            theLocation = this.getLocation();
+            strategy.appendField(locator, this, "location", buffer, theLocation);
+        }
+        {
+            boolean theExportResults;
+            theExportResults = this.isExportResults();
+            strategy.appendField(locator, this, "exportResults", buffer, theExportResults);
         }
         return buffer;
     }
 
     public boolean equals(ObjectLocator thisLocator, ObjectLocator thatLocator, Object object, EqualsStrategy strategy) {
-        if (!(object instanceof PublicationDetails)) {
+        if (!(object instanceof TestCasesSettings)) {
             return false;
         }
         if (this == object) {
             return true;
         }
-        final PublicationDetails that = ((PublicationDetails) object);
+        final TestCasesSettings that = ((TestCasesSettings) object);
         {
-            String lhsTopic;
-            lhsTopic = this.getTopic();
-            String rhsTopic;
-            rhsTopic = that.getTopic();
-            if (!strategy.equals(LocatorUtils.property(thisLocator, "topic", lhsTopic), LocatorUtils.property(thatLocator, "topic", rhsTopic), lhsTopic, rhsTopic)) {
+            String lhsLocation;
+            lhsLocation = this.getLocation();
+            String rhsLocation;
+            rhsLocation = that.getLocation();
+            if (!strategy.equals(LocatorUtils.property(thisLocator, "location", lhsLocation), LocatorUtils.property(thatLocator, "location", rhsLocation), lhsLocation, rhsLocation)) {
+                return false;
+            }
+        }
+        {
+            boolean lhsExportResults;
+            lhsExportResults = this.isExportResults();
+            boolean rhsExportResults;
+            rhsExportResults = that.isExportResults();
+            if (!strategy.equals(LocatorUtils.property(thisLocator, "exportResults", lhsExportResults), LocatorUtils.property(thatLocator, "exportResults", rhsExportResults), lhsExportResults, rhsExportResults)) {
                 return false;
             }
         }
@@ -150,9 +189,14 @@ public class PublicationDetails implements Serializable, Cloneable, CopyTo, Equa
     public int hashCode(ObjectLocator locator, HashCodeStrategy strategy) {
         int currentHashCode = 1;
         {
-            String theTopic;
-            theTopic = this.getTopic();
-            currentHashCode = strategy.hashCode(LocatorUtils.property(locator, "topic", theTopic), currentHashCode, theTopic);
+            String theLocation;
+            theLocation = this.getLocation();
+            currentHashCode = strategy.hashCode(LocatorUtils.property(locator, "location", theLocation), currentHashCode, theLocation);
+        }
+        {
+            boolean theExportResults;
+            theExportResults = this.isExportResults();
+            currentHashCode = strategy.hashCode(LocatorUtils.property(locator, "exportResults", theExportResults), currentHashCode, theExportResults);
         }
         return currentHashCode;
     }
@@ -173,22 +217,28 @@ public class PublicationDetails implements Serializable, Cloneable, CopyTo, Equa
 
     public Object copyTo(ObjectLocator locator, Object target, CopyStrategy strategy) {
         final Object draftCopy = ((target == null)?createNewInstance():target);
-        if (draftCopy instanceof PublicationDetails) {
-            final PublicationDetails copy = ((PublicationDetails) draftCopy);
-            if (this.topic!= null) {
-                String sourceTopic;
-                sourceTopic = this.getTopic();
-                String copyTopic = ((String) strategy.copy(LocatorUtils.property(locator, "topic", sourceTopic), sourceTopic));
-                copy.setTopic(copyTopic);
+        if (draftCopy instanceof TestCasesSettings) {
+            final TestCasesSettings copy = ((TestCasesSettings) draftCopy);
+            if (this.location!= null) {
+                String sourceLocation;
+                sourceLocation = this.getLocation();
+                String copyLocation = ((String) strategy.copy(LocatorUtils.property(locator, "location", sourceLocation), sourceLocation));
+                copy.setLocation(copyLocation);
             } else {
-                copy.topic = null;
+                copy.location = null;
+            }
+            {
+                boolean sourceExportResults;
+                sourceExportResults = this.isExportResults();
+                boolean copyExportResults = strategy.copy(LocatorUtils.property(locator, "exportResults", sourceExportResults), sourceExportResults);
+                copy.setExportResults(copyExportResults);
             }
         }
         return draftCopy;
     }
 
     public Object createNewInstance() {
-        return new PublicationDetails();
+        return new TestCasesSettings();
     }
 
 }
