@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>pl.baczkowicz.mqttspy</groupId>
 	<artifactId>mqtt-spy-daemon</artifactId>
-	<version>0.0.7</version>
+	<version>0.1.0-beta</version>
 
   	<name>mqtt-spy-daemon</name>
   	<url>http://kamilfb.github.io/mqtt-spy/</url>
