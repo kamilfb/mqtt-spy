@@ -41,8 +41,6 @@ import pl.baczkowicz.spy.configuration.PropertyFileLoader;
 import pl.baczkowicz.spy.exceptions.SpyException;
 import pl.baczkowicz.spy.exceptions.XMLException;
 import pl.baczkowicz.spy.scripts.Script;
-import pl.baczkowicz.spy.scripts.ScriptIO;
-import pl.baczkowicz.spy.testcases.TestCase;
 import pl.baczkowicz.spy.testcases.TestCaseManager;
 import pl.baczkowicz.spy.testcases.TestCaseResult;
 import pl.baczkowicz.spy.utils.ThreadingUtils;
@@ -169,14 +167,23 @@ public class MqttSpyDaemon
 		// If in 'scripts only' mode, exit when all scripts finished
 		if (RunningMode.SCRIPTS_ONLY.equals(connectionSettings.getRunningMode()))
 		{
-			stop();
+			waitAndStop();
 		}
 	}
 	
 	/**
-	 * Tries to stop all running threads.
+	 * Tries to stop all running threads and close the connection.
 	 */
 	public void stop()
+	{
+		stopScripts();
+		waitAndStop();
+	}
+	
+	/**
+	 *  Tries to stop all running threads (apart from scripts) and close the connection.
+	 */
+	private void waitAndStop()
 	{
 		ThreadingUtils.sleep(1000);
 		
@@ -221,10 +228,7 @@ public class MqttSpyDaemon
 	
 	public TestCaseResult runTestCase(final String testCaseLocation, final Map<String, Object> args)	
 	{
-		final TestCase testCase = testCaseManager.addTestCase(new File(testCaseLocation));
-		// TODO: add protection against missing/invalid files
-		testCaseManager.runTestCase(testCase, args);
-		return testCase.getTestCaseResult();
+		return testCaseManager.addAndRunTestCase(testCaseLocation, args);
 	}	
 	
 	public Script runScript(final String scriptLocation)
@@ -234,9 +238,7 @@ public class MqttSpyDaemon
 	
 	public Script runScript(final String scriptLocation, final boolean async, final Map<String, Object> args)
 	{
-		final Script script = scriptManager.addScript(scriptLocation);
-		scriptManager.runScript(script, async, args);
-		return script;
+		return scriptManager.addAndRunScript(scriptLocation, async, args);
 	}	
 
 	public void stopScript(final Script script)
@@ -254,7 +256,7 @@ public class MqttSpyDaemon
 	 *  
 	 * @return The Script IO with the extra methods
 	 */
-	public ScriptIO more()
+	public MqttScriptIO more()
 	{
 		return scriptIO;
 	}

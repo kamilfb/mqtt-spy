@@ -258,6 +258,14 @@ public class TestCaseManager
 		runAllTestCaseMethods(testCase);	
 	}
 	
+	public TestCaseResult addAndRunTestCase(final String testCaseLocation, final Map<String, Object> args)	
+	{
+		final TestCase testCase = addTestCase(new File(testCaseLocation));
+		// TODO: add protection against missing/invalid files
+		runTestCase(testCase, args);
+		return testCase.getTestCaseResult();
+	}	
+	
 	public void runAllTestCases()
 	{
 		running = testCases.size();

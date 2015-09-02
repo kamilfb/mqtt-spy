@@ -387,6 +387,13 @@ public abstract class BaseScriptManager
 				script.getScriptRunner().run();
 			}
 		}
+	}
+	
+	public Script addAndRunScript(final String scriptLocation, final boolean async, final Map<String, Object> args)
+	{
+		final Script script = addScript(scriptLocation);
+		runScript(script, async, args);
+		return script;
 	}	
 	
 	/**
