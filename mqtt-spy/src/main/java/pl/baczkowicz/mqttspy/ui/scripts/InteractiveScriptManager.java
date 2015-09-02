@@ -129,17 +129,7 @@ public class InteractiveScriptManager extends MqttScriptManager
 	{
 		final Script script = getPublicationScriptProperties(observableScriptList, getScriptName(scriptFile)).getScript();
 		
-		logger.debug("Stopping script " + script.getName());
-		
-		if (script.getScriptRunner() != null)
-		{
-			final Thread scriptThread = script.getScriptRunner().getThread();
-	
-			if (scriptThread != null)
-			{
-				scriptThread.interrupt();
-			}
-		}
+		stopScript(script);
 	}
 	
 	public static PublicationScriptProperties getPublicationScriptProperties(final ObservableList<PublicationScriptProperties> observableScriptList, final String scriptName)
@@ -162,7 +152,7 @@ public class InteractiveScriptManager extends MqttScriptManager
 
 	public void removeScript(final PublicationScriptProperties item)
 	{
-		getScripts().remove(item.getScript().getScriptId());
+		getScriptsMap().remove(item.getScript().getScriptId());
 		observableScriptList.remove(item);
 	}		
 }

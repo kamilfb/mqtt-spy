@@ -219,7 +219,7 @@ public class MqttSpyDaemon
 		return runTestCase(testCaseLocation, null);
 	}	
 	
-	public TestCaseResult runTestCase(final String testCaseLocation, final Map<String, String> args)	
+	public TestCaseResult runTestCase(final String testCaseLocation, final Map<String, Object> args)	
 	{
 		final TestCase testCase = testCaseManager.addTestCase(new File(testCaseLocation));
 		// TODO: add protection against missing/invalid files
@@ -227,15 +227,26 @@ public class MqttSpyDaemon
 		return testCase.getTestCaseResult();
 	}	
 	
-	public void runScript(final String scriptLocation)
+	public Script runScript(final String scriptLocation)
 	{
-		runScript(scriptLocation, null);
+		return runScript(scriptLocation, false, null);
 	}
 	
-	public void runScript(final String scriptLocation, final Map<String, String> args)
+	public Script runScript(final String scriptLocation, final boolean async, final Map<String, Object> args)
 	{
 		final Script script = scriptManager.addScript(scriptLocation);
-		scriptManager.runScript(script, false, args);
+		scriptManager.runScript(script, async, args);
+		return script;
+	}	
+
+	public void stopScript(final Script script)
+	{
+		scriptManager.stopScript(script);		
+	}	
+
+	public void stopScripts()
+	{
+		scriptManager.stopScripts();		
 	}
 	
 	/**

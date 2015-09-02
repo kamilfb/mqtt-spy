@@ -28,16 +28,15 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.control.Tab;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import pl.baczkowicz.mqttspy.common.generated.MessageLog;
 import pl.baczkowicz.mqttspy.common.generated.MessageLogEnum;
 import pl.baczkowicz.mqttspy.common.generated.UserCredentials;
@@ -75,7 +74,6 @@ import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
 import pl.baczkowicz.spy.exceptions.ConfigurationException;
 import pl.baczkowicz.spy.exceptions.SpyException;
 import pl.baczkowicz.spy.formatting.FormattingManager;
-import pl.baczkowicz.spy.scripts.Script;
 import pl.baczkowicz.spy.ui.panes.PaneVisibilityStatus;
 import pl.baczkowicz.spy.ui.panes.TabStatus;
 import pl.baczkowicz.spy.ui.utils.DialogFactory;
@@ -402,14 +400,16 @@ public class ConnectionManager
 				connectionTabs.keySet().size());
 		
 		// Stop all scripts
-		for (final Script script : connection.getScriptManager().getScripts().values())
-		{
-			// Only stop file-based scripts
-			if (script.getScriptFile() != null)
-			{
-				connection.getScriptManager().stopScriptFile(script.getScriptFile());
-			}
-		}		
+		connection.getScriptManager().stopScripts();
+//		for (final Script script : connection.getScriptManager().getScripts())
+//		{
+//			// Only stop file-based scripts
+//			if (script.getScriptFile() != null)
+//			{
+//				// connection.getScriptManager().stopScriptFile(script.getScriptFile());
+//				connection.getScriptManager().stopScript(script);
+//			}
+//		}		
 		
 		for (final BaseMqttSubscription subscription : connection.getSubscriptions().values())
 		{

@@ -21,6 +21,7 @@ package pl.baczkowicz.spy.scripts;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -364,7 +365,7 @@ public abstract class BaseScriptManager
 	 * @param asynchronous Whether to run the script asynchronously or not
 	 * @param args Arguments/parameters passed onto the script
 	 */
-	public void runScript(final Script script, final boolean asynchronous, final Map<String, String> args)
+	public void runScript(final Script script, final boolean asynchronous, final Map<String, Object> args)
 	{
 		// Only start if not running already
 		if (!ScriptRunningState.RUNNING.equals(script.getStatus()))
@@ -513,6 +514,34 @@ public abstract class BaseScriptManager
 		}
 		
 		return result;
+	}	
+	
+	public void stopScript(final Script script)
+	{
+		logger.debug("Stopping script " + script.getName());
+		
+		if (script.getScriptRunner() != null)
+		{
+			final Thread scriptThread = script.getScriptRunner().getThread();
+	
+			if (scriptThread != null)
+			{
+				scriptThread.interrupt();
+			}
+		}
+	}
+	
+	public void stopScripts()
+	{
+		// Stop all scripts
+		for (final Script script : getScripts())
+		{
+			// Only stop file-based scripts
+			if (script.getScriptFile() != null)
+			{
+				stopScript(script);
+			}
+		}		
 	}
 	
 	/**
@@ -547,13 +576,23 @@ public abstract class BaseScriptManager
 	}
 	
 	/**
-	 * Gets the scripts value.
+	 * Gets the name to script object mapping.
 	 *  
-	 * @return The scripts value
+	 * @return Script name to object mapping
 	 */
-	public Map<String, Script> getScripts()
+	public Map<String, Script> getScriptsMap()
 	{
 		return scripts;
+	}
+	
+	/**
+	 * Gets the collection of scripts.
+	 *  
+	 * @return All scripts
+	 */
+	public Collection<Script> getScripts()
+	{
+		return scripts.values();
 	}
 	
 	public void addScript(final Script script)

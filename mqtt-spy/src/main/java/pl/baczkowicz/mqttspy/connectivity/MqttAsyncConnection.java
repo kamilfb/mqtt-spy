@@ -244,7 +244,7 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection
 			for (final ScriptDetails scriptDetails : properties.getConfiguredProperties().getBackgroundScript())
 			{
 				final File scriptFile = new File(scriptDetails.getFile());							
-				final Script script = scriptManager.getScripts().get(Script.getScriptIdFromFile(scriptFile));
+				final Script script = scriptManager.getScriptsMap().get(Script.getScriptIdFromFile(scriptFile));
 				
 				if (scriptDetails.isAutoStart() && scriptFile.exists() && script != null)
 				{					

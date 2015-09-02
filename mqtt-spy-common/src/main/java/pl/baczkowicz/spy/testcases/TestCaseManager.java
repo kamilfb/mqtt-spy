@@ -237,7 +237,7 @@ public class TestCaseManager
 		}
 	}
 	
-	public void runTestCase(final TestCase testCase, final Map<String, String> args)
+	public void runTestCase(final TestCase testCase, final Map<String, Object> args)
 	{				
 		testCase.setStatus(ScriptRunningState.RUNNING);
 		testCase.setTestCaseStatus(TestCaseStatus.IN_PROGRESS);

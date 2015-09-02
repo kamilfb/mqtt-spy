@@ -275,7 +275,7 @@ public class SearchPaneController implements Initializable, MessageFormatChangeO
 	
 	public void onScriptListChange()
 	{
-		final Collection<Script> scripts = scriptManager.getScripts().values();
+		final Collection<Script> scripts = scriptManager.getScripts();
 		
 		final List<Script> pubScripts = new ArrayList<>();
 		
