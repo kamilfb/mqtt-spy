@@ -36,7 +36,7 @@
 	-->
 	<MessageLog logBeforeScripts="false">DISABLED</MessageLog>
 
-	<!-- Use CONTINUOUS or SCRIPTS_ONLY -->
+	<!-- Note: this configuration does nothing apart from establishing a connection and keeping it - used for daemon integration to perform additional actions -->
 	<RunningMode>CONTINUOUS</RunningMode>
   </Connection>
   

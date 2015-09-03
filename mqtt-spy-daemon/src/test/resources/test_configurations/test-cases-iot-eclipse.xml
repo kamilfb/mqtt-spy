@@ -36,6 +36,7 @@
 	-->
 	<MessageLog logBeforeScripts="false">DISABLED</MessageLog>
 	
+	<!-- Run all test cases that have been defined in the given directory -->
 	<TestCases>
 		<Location>src/test/resources/test_cases/</Location>
 		<ExportResults>true</ExportResults>

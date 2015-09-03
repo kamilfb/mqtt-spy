@@ -246,7 +246,7 @@ public class MqttSpyDaemon
 		scriptManager.stopScript(script);		
 	}	
 
-	public void stopScripts()
+	private void stopScripts()
 	{
 		scriptManager.stopScripts();		
 	}
