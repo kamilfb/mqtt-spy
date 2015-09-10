@@ -44,6 +44,8 @@ import pl.baczkowicz.spy.utils.TimeUtils;
 
 public class TestCaseManager
 {	
+	public static final int DEFAULT_STEP_INTERVAL = 1000;
+
 	public static String GET_INFO_METHOD = "getInfo";
 	
 	public static SimpleDateFormat testCaseFileSdf = new SimpleDateFormat("yyyyMMdd_HHmmss");
@@ -59,6 +61,8 @@ public class TestCaseManager
 	protected int running = 0;
 
 	private boolean autoExport;
+	
+	private long stepInterval = DEFAULT_STEP_INTERVAL;
 
 	public TestCaseManager(final BaseScriptManager scriptManager)	
 	{
@@ -68,6 +72,11 @@ public class TestCaseManager
 	public void setAutoExport(final boolean autoExport)
 	{
 		this.autoExport = autoExport;
+	}
+	
+	public void setStepInterval(final long interval)
+	{
+		this.stepInterval = interval;
 	}
 	
 	public TestCase addTestCase(final File scriptFile)
@@ -179,7 +188,7 @@ public class TestCaseManager
 			
 			try
 			{
-				Thread.sleep(1000);
+				Thread.sleep(stepInterval);
 			}
 			catch (InterruptedException e)
 			{
