@@ -226,6 +226,11 @@ public class MqttSpyDaemon
 		return runTestCase(testCaseLocation, null, TestCaseManager.DEFAULT_STEP_INTERVAL);
 	}	
 	
+	public TestCaseResult runTestCase(final String testCaseLocation, final Map<String, Object> args)	
+	{
+		return runTestCase(testCaseLocation, args, TestCaseManager.DEFAULT_STEP_INTERVAL);
+	}	
+	
 	public TestCaseResult runTestCase(final String testCaseLocation, final Map<String, Object> args, final long stepInterval)	
 	{
 		testCaseManager.setStepInterval(stepInterval);
