@@ -31,6 +31,14 @@
 	<xs:simpleType name="ProtocolEnum">
 		<xs:restriction base="xs:string">
 			<xs:enumeration value="MQTT" />
+			<xs:enumeration value="JMS" />
+		</xs:restriction>
+	</xs:simpleType>	
+				
+	<xs:simpleType name="RunningMode">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="CONTINUOUS" />
+			<xs:enumeration value="SCRIPTS_ONLY" />
 		</xs:restriction>
 	</xs:simpleType>
 	

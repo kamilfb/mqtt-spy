@@ -7,10 +7,10 @@
 
   	<name>mqtt-spy-daemon</name>
   	<url>http://kamilfb.github.io/mqtt-spy/</url>
-
-	<scm>
-    	<connection>scm:git:/home/kamil/Programming/Git/mqtt-spy-logger/.git</connection>
-        <url>/home/kamil/Programming/Git/mqtt-spy-logger/.git</url>
+  	
+  	<scm>
+    	<connection>scm:git:../.git</connection>
+        <url>../.git</url>
     </scm>
     
 	<properties>
@@ -198,7 +198,7 @@
 			                	</catalog>
 			                </catalogs>
 			                
-			                <episode>false</episode>
+			                <episode>true</episode>
 			                
 			                <episodes>
 			                	<episode>

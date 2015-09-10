@@ -33,6 +33,7 @@ import org.jvnet.jaxb2_commons.locator.util.LocatorUtils;
 import pl.baczkowicz.mqttspy.common.generated.MessageLog;
 import pl.baczkowicz.mqttspy.common.generated.MqttConnectionDetails;
 import pl.baczkowicz.mqttspy.common.generated.SubscriptionDetails;
+import pl.baczkowicz.spy.common.generated.RunningMode;
 import pl.baczkowicz.spy.common.generated.ScriptDetails;
 import pl.baczkowicz.spy.common.generated.TestCasesSettings;
 
@@ -52,7 +53,7 @@ import pl.baczkowicz.spy.common.generated.TestCasesSettings;
  *         &lt;element name="Subscription" type="{http://baczkowicz.pl/mqtt-spy/common}SubscriptionDetails" maxOccurs="unbounded" minOccurs="0"/&gt;
  *         &lt;element name="BackgroundScript" type="{http://baczkowicz.pl/spy/common}ScriptDetails" maxOccurs="unbounded" minOccurs="0"/&gt;
  *         &lt;element name="TestCases" type="{http://baczkowicz.pl/spy/common}TestCasesSettings" minOccurs="0"/&gt;
- *         &lt;element name="RunningMode" type="{http://baczkowicz.pl/mqtt-spy/daemon/configuration}RunningMode" minOccurs="0"/&gt;
+ *         &lt;element name="RunningMode" type="{http://baczkowicz.pl/spy/common}RunningMode" minOccurs="0"/&gt;
  *       &lt;/sequence&gt;
  *     &lt;/extension&gt;
  *   &lt;/complexContent&gt;

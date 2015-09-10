@@ -24,6 +24,7 @@ import javax.xml.bind.annotation.XmlType;
  * &lt;simpleType name="ProtocolEnum"&gt;
  *   &lt;restriction base="{http://www.w3.org/2001/XMLSchema}string"&gt;
  *     &lt;enumeration value="MQTT"/&gt;
+ *     &lt;enumeration value="JMS"/&gt;
  *   &lt;/restriction&gt;
  * &lt;/simpleType&gt;
  * </pre>
@@ -34,7 +35,8 @@ import javax.xml.bind.annotation.XmlType;
 @XmlEnum
 public enum ProtocolEnum {
 
-    MQTT;
+    MQTT,
+    JMS;
 
     public String value() {
         return name();

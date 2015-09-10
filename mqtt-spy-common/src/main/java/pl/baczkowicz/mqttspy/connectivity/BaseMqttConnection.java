@@ -33,11 +33,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.connectivity.topicmatching.TopicMatcher;
-import pl.baczkowicz.mqttspy.scripts.MqttScriptManager;
 import pl.baczkowicz.mqttspy.utils.ConnectionUtils;
 import pl.baczkowicz.spy.common.generated.ProtocolEnum;
 import pl.baczkowicz.spy.common.generated.ScriptDetails;
 import pl.baczkowicz.spy.exceptions.SpyException;
+import pl.baczkowicz.spy.scripts.BaseScriptManager;
 import pl.baczkowicz.spy.scripts.Script;
 import pl.baczkowicz.spy.utils.TimeUtils;
 
@@ -78,7 +78,7 @@ public abstract class BaseMqttConnection implements IMqttConnection
 	private final TopicMatcher topicMatcher;
 
 	/** Used for calling subscription scripts. */
-	private MqttScriptManager scriptManager;
+	private BaseScriptManager scriptManager;
 	
 	/**
 	 * Instantiates the BaseMqttConnection.
@@ -539,7 +539,7 @@ public abstract class BaseMqttConnection implements IMqttConnection
 		this.client = client;
 	}
 	
-	public void setScriptManager(final MqttScriptManager scriptManager)
+	public void setScriptManager(final BaseScriptManager scriptManager)
 	{
 		this.scriptManager = scriptManager;
 	}

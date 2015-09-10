@@ -9,10 +9,10 @@
 
 	<name>mqtt-spy</name>
 	<url>http://kamilfb.github.io/mqtt-spy/</url>
-
+	
 	<scm>
-    	<connection>scm:git:/home/kamil/Programming/Git/mqtt-spy/.git</connection>
-        <url>/home/kamil/Programming/Git/mqtt-spy/.git</url>
+    	<connection>scm:git:../.git</connection>
+        <url>../.git</url>
     </scm>
     
 	<properties>

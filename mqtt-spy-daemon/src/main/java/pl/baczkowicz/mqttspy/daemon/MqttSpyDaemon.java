@@ -20,8 +20,6 @@
 package pl.baczkowicz.mqttspy.daemon;
 
 import java.io.File;
-import java.util.List;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,39 +29,32 @@ import pl.baczkowicz.mqttspy.connectivity.SimpleMqttConnection;
 import pl.baczkowicz.mqttspy.connectivity.reconnection.ReconnectionManager;
 import pl.baczkowicz.mqttspy.daemon.configuration.ConfigurationLoader;
 import pl.baczkowicz.mqttspy.daemon.configuration.generated.DaemonMqttConnectionDetails;
-import pl.baczkowicz.mqttspy.daemon.configuration.generated.RunningMode;
+import pl.baczkowicz.mqttspy.daemon.configuration.generated.MqttSpyDaemonConfiguration;
 import pl.baczkowicz.mqttspy.daemon.connectivity.MqttCallbackHandler;
 import pl.baczkowicz.mqttspy.daemon.connectivity.SimpleMqttConnectionRunnable;
 import pl.baczkowicz.mqttspy.scripts.MqttScriptIO;
 import pl.baczkowicz.mqttspy.scripts.MqttScriptManager;
-import pl.baczkowicz.spy.common.generated.TestCasesSettings;
 import pl.baczkowicz.spy.configuration.PropertyFileLoader;
+import pl.baczkowicz.spy.daemon.BaseDaemon;
 import pl.baczkowicz.spy.exceptions.SpyException;
 import pl.baczkowicz.spy.exceptions.XMLException;
-import pl.baczkowicz.spy.scripts.Script;
 import pl.baczkowicz.spy.testcases.TestCaseManager;
-import pl.baczkowicz.spy.testcases.TestCaseResult;
-import pl.baczkowicz.spy.utils.ThreadingUtils;
 
 /**
  * The main class of the daemon.
  */
-public class MqttSpyDaemon
+public class MqttSpyDaemon extends BaseDaemon
 {
 	/** Diagnostic logger. */
 	private final static Logger logger = LoggerFactory.getLogger(MqttSpyDaemon.class);
 	
 	private ConfigurationLoader loader;
 
-	private MqttScriptManager scriptManager;
-	
-	private TestCaseManager testCaseManager;
+	private ReconnectionManager mqttReconnectionManager;
 
-	private ReconnectionManager reconnectionManager;
+	private SimpleMqttConnection mqttConnection;
 
-	private SimpleMqttConnection connection;
-
-	private MqttCallbackHandler callback;
+	private MqttCallbackHandler mqttCallback;
 
 	private MqttScriptIO scriptIO;
 	
@@ -77,30 +68,8 @@ public class MqttSpyDaemon
 		loader = new ConfigurationLoader();
 		showInfo();
 	}
-		
-	public boolean start(final String configurationFile)
-	{
-		try
-		{		
-			initialise();
-									
-			loadAndRun(configurationFile);
-			
-			return true;
-		}
-		catch (XMLException e)
-		{
-			logger.error("Cannot load the mqtt-spy-daemon's configuration", e);
-		}
-		catch (SpyException e)
-		{
-			logger.error("Error occurred while connecting to broker", e);
-		}
-		
-		return false;
-	}
 	
-	private void showInfo()
+	protected void showInfo()
 	{
 		logger.info("#######################################################");
 		logger.info("### Starting mqtt-spy-daemon v{}", loader.getFullVersionName());
@@ -113,148 +82,83 @@ public class MqttSpyDaemon
 	 * This is an internal method - requires "initialise" to be called first.
 	 * 
 	 * @param configurationFile Location of the configuration file
-	 * @throws MqttSpyException Thrown if cannot initialise
+	 * @throws SpyException Thrown if cannot initialise
 	 */
 	public void loadAndRun(final String configurationFile) throws SpyException
 	{
 		// Load the configuration
 		loader.loadConfiguration(new File(configurationFile));
 		
-		// Retrieve connection details
-		final DaemonMqttConnectionDetails connectionSettings = loader.getConfiguration().getConnection();
-
-		// Wire up all classes (assuming ID = 0)
-		reconnectionManager = new ReconnectionManager();
-		connection = new SimpleMqttConnection(reconnectionManager, "0", connectionSettings);
-		scriptManager = new MqttScriptManager(null, null, connection);
-		testCaseManager = new TestCaseManager(scriptManager);
-		callback = new MqttCallbackHandler(connection, connectionSettings, scriptManager); 
-				
-		// Set up reconnection
-		final ReconnectionSettings reconnectionSettings = connection.getMqttConnectionDetails().getReconnectionSettings();			
-		final Runnable connectionRunnable = new SimpleMqttConnectionRunnable(scriptManager, connection, connectionSettings);
-		
-		connection.setScriptManager(scriptManager);
-		connection.connect(callback, connectionRunnable);
-		scriptIO = new MqttScriptIO(connection, null, null, null);
-		if (reconnectionSettings != null)
-		{
-			new Thread(reconnectionManager).start();
-		}
-		
-		// Run all configured scripts
-		final List<Script> backgroundScripts = scriptManager.addScripts(connectionSettings.getBackgroundScript());
-		for (final Script script : backgroundScripts)
-		{
-			logger.info("About to start background script " + script.getName());
-			scriptManager.runScript(script, true);
-		}
-		
-		// Run all tests, one by one
-		final TestCasesSettings testCasesSettings = connectionSettings.getTestCases();
-		if (testCasesSettings != null)
-		{
-			testCaseManager.setAutoExport(testCasesSettings.isExportResults());
-			testCaseManager.loadTestCases(testCasesSettings.getLocation());
-			while (!connection.canPublish())
-			{
-				logger.debug("Client not connected yet - can't start test cases... [waiting another 1000ms]");
-				ThreadingUtils.sleep(1000);
-			}
-			testCaseManager.runAllTestCases();
-		}
-		
-		// If in 'scripts only' mode, exit when all scripts finished
-		if (RunningMode.SCRIPTS_ONLY.equals(connectionSettings.getRunningMode()))
-		{
-			waitAndStop();
-		}
+		loadAndRun(loader.getConfiguration());
 	}
 	
 	/**
-	 * Tries to stop all running threads and close the connection.
+	 * This is an internal method - requires "initialise" to be called first.
+	 * 
+	 * @param configuration Configuration object
+	 * @throws SpyException Thrown if cannot initialise
 	 */
-	public void stop()
+	protected void loadAndRun(final MqttSpyDaemonConfiguration configuration) throws SpyException
+	{			
+		// Retrieve connection details
+		final DaemonMqttConnectionDetails connectionSettings = configuration.getConnection();
+
+		configureMqtt(connectionSettings);
+		runScripts(connectionSettings.getBackgroundScript(), connectionSettings.getTestCases(), connectionSettings.getRunningMode());
+	}
+	
+	protected void configureMqtt(final DaemonMqttConnectionDetails connectionSettings) throws SpyException
 	{
-		stopScripts();
-		waitAndStop();
+		// Wire up all classes (assuming ID = 0)
+		mqttReconnectionManager = new ReconnectionManager();
+		mqttConnection = new SimpleMqttConnection(mqttReconnectionManager, "0", connectionSettings);
+		scriptManager = new MqttScriptManager(null, null, mqttConnection);
+		testCaseManager = new TestCaseManager(scriptManager);
+		mqttCallback = new MqttCallbackHandler(mqttConnection, connectionSettings, scriptManager); 
+				
+		// Set up reconnection
+		final ReconnectionSettings reconnectionSettings = mqttConnection.getMqttConnectionDetails().getReconnectionSettings();			
+		final Runnable connectionRunnable = new SimpleMqttConnectionRunnable(scriptManager, mqttConnection, connectionSettings);
+		
+		mqttConnection.setScriptManager(scriptManager);
+		mqttConnection.connect(mqttCallback, connectionRunnable);
+		scriptIO = new MqttScriptIO(mqttConnection, null, null, null);
+		if (reconnectionSettings != null)
+		{
+			new Thread(mqttReconnectionManager).start();
+		}
+	}
+	
+	protected boolean canPublish()
+	{
+		return mqttConnection.canPublish();
 	}
 	
 	/**
 	 *  Tries to stop all running threads (apart from scripts) and close the connection.
 	 */
-	private void waitAndStop()
+	protected void waitAndStop()
 	{
-		ThreadingUtils.sleep(1000);
+		waitForScripts();
 		
-		// Wait until all scripts have completed or got frozen
-		while (scriptManager.areScriptsRunning())
-		{
-			logger.debug("Scripts are still running... [waiting another 1000ms]");
-			ThreadingUtils.sleep(1000);
-		}
+		stopMqtt();
 		
-		// Wait until all test cases have completed or got frozen
-		while (testCaseManager.areTestCasesStillRunning())
-		{
-			logger.debug("Test cases are still running... [waiting another 1000ms]");
-			ThreadingUtils.sleep(1000);
-		}
-		
+		displayGoodbyeMessage();
+	}	
+	
+	private void stopMqtt()
+	{
 		// Stop reconnection manager
-		if (reconnectionManager != null)
+		if (mqttReconnectionManager != null)
 		{
-			reconnectionManager.stop();
+			mqttReconnectionManager.stop();
 		}
 						
 		// Disconnect
-		connection.disconnect();
+		mqttConnection.disconnect();
 		
 		// Stop message logger
-		callback.stop();
-		
-		ThreadingUtils.sleep(1000);
-		for (final Thread thread : Thread.getAllStackTraces().keySet())
-		{
-			logger.trace("Thread {} is still running", thread.getName());
-		}
-		logger.info("All tasks completed - bye bye...");
-	}
-	
-	public TestCaseResult runTestCase(final String testCaseLocation)	
-	{
-		return runTestCase(testCaseLocation, null, TestCaseManager.DEFAULT_STEP_INTERVAL);
-	}	
-	
-	public TestCaseResult runTestCase(final String testCaseLocation, final Map<String, Object> args)	
-	{
-		return runTestCase(testCaseLocation, args, TestCaseManager.DEFAULT_STEP_INTERVAL);
-	}	
-	
-	public TestCaseResult runTestCase(final String testCaseLocation, final Map<String, Object> args, final long stepInterval)	
-	{
-		testCaseManager.setStepInterval(stepInterval);
-		return testCaseManager.addAndRunTestCase(testCaseLocation, args);
-	}	
-	
-	public Script runScript(final String scriptLocation)
-	{
-		return runScript(scriptLocation, false, null);
-	}
-	
-	public Script runScript(final String scriptLocation, final boolean async, final Map<String, Object> args)
-	{
-		return scriptManager.addAndRunScript(scriptLocation, async, args);
-	}	
-
-	public void stopScript(final Script script)
-	{
-		scriptManager.stopScript(script);		
-	}	
-
-	private void stopScripts()
-	{
-		scriptManager.stopScripts();		
+		mqttCallback.stop();
 	}
 	
 	/**

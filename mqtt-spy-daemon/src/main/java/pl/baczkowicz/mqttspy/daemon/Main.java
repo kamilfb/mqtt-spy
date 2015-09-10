@@ -56,7 +56,7 @@ public class Main
 		}
 		catch (XMLException e)
 		{
-			logger.error("Cannot load the mqtt-spy-daemon's configuration", e);
+			logger.error("Cannot load the daemon's configuration", e);
 		}
 		catch (SpyException e)
 		{

@@ -38,10 +38,10 @@ import pl.baczkowicz.mqttspy.connectivity.BaseMqttSubscription;
 import pl.baczkowicz.mqttspy.daemon.configuration.generated.DaemonMqttConnectionDetails;
 import pl.baczkowicz.mqttspy.logger.MqttMessageLogger;
 import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
-import pl.baczkowicz.mqttspy.scripts.MqttScriptManager;
 import pl.baczkowicz.spy.common.generated.FormatterDetails;
 import pl.baczkowicz.spy.formatting.FormattingManager;
 import pl.baczkowicz.spy.messages.MessageIdGenerator;
+import pl.baczkowicz.spy.scripts.BaseScriptManager;
 
 /**
  * Callback handler for the MQTT connection.
@@ -67,7 +67,7 @@ public class MqttCallbackHandler implements MqttCallback
 	private final Map<String, SubscriptionDetails> subscriptionsDetails = new HashMap<String, SubscriptionDetails>();
 
 	/** Script manager - for running subscription scripts. */
-	private final MqttScriptManager scriptManager;
+	private final BaseScriptManager scriptManager;
 	
 	private final FormattingManager formattingManager;
 	
@@ -81,7 +81,8 @@ public class MqttCallbackHandler implements MqttCallback
 	 * @param connectionSettings Connection's details
 	 * @param scriptManager Script manager - for running subscription scripts
 	 */
-	public MqttCallbackHandler(final BaseMqttConnection connection, final DaemonMqttConnectionDetails connectionSettings, final MqttScriptManager scriptManager)
+	public MqttCallbackHandler(final BaseMqttConnection connection, final DaemonMqttConnectionDetails connectionSettings, 
+			final BaseScriptManager scriptManager)
 	{
 		this.connection = connection;
 		this.connectionSettings = connectionSettings;

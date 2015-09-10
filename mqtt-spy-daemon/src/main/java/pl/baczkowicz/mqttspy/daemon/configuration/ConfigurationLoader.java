@@ -37,15 +37,6 @@ import pl.baczkowicz.spy.xml.XMLParser;
  */
 public class ConfigurationLoader extends PropertyFileLoader
 {
-	/** Configuration package. */
-	public static final String PACKAGE = "pl.baczkowicz.mqttspy.daemon.configuration.generated";
-	
-	/** Configuration schema. */
-	public static final String SCHEMA = "/mqtt-spy-daemon-configuration.xsd";
-	
-	/** Location of the properties file. */
-	public static final String DEFAULT_PROPERTIES_FILE_NAME = "/mqtt-spy-daemon.properties";
-
 	/** Diagnostic logger. */
 	private final static Logger logger = LoggerFactory.getLogger(ConfigurationLoader.class);
 	
@@ -63,9 +54,12 @@ public class ConfigurationLoader extends PropertyFileLoader
 	public ConfigurationLoader() throws XMLException
 	{
 		super();
-		readFromClassPath(DEFAULT_PROPERTIES_FILE_NAME);
+		readFromClassPath(MqttSpyDaemonConstants.DEFAULT_PROPERTIES_FILE_NAME);
 		
-		this.parser = new XMLParser(PACKAGE, new String[] {ConfigurationUtils.SPY_COMMON_SCHEMA, ConfigurationUtils.MQTT_COMMON_SCHEMA, SCHEMA});					
+		this.parser = new XMLParser(MqttSpyDaemonConstants.PACKAGE, 
+				new String[] {	ConfigurationUtils.SPY_COMMON_SCHEMA, 
+								ConfigurationUtils.MQTT_COMMON_SCHEMA, 
+								MqttSpyDaemonConstants.SCHEMA});					
 	}
 	
 	/**
