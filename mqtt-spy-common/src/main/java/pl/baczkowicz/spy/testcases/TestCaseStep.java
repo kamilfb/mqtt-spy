@@ -57,6 +57,16 @@ public class TestCaseStep
 		this.executionInfo = info;
 	}
 
+	/**
+	 * Copying constructor.
+	 * 
+	 * @param step Step to copy
+	 */
+	public TestCaseStep(TestCaseStep step)
+	{
+		this(step.getStepNumber(), step.getDescription(), step.getStatus(), step.getExecutionInfo());
+	}
+
 	public String getStepNumber()
 	{
 		return stepNumber;

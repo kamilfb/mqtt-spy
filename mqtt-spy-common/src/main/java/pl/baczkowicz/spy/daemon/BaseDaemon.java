@@ -33,6 +33,7 @@ import pl.baczkowicz.spy.exceptions.XMLException;
 import pl.baczkowicz.spy.scripts.BaseScriptManager;
 import pl.baczkowicz.spy.scripts.Script;
 import pl.baczkowicz.spy.testcases.TestCaseManager;
+import pl.baczkowicz.spy.testcases.TestCaseOptions;
 import pl.baczkowicz.spy.testcases.TestCaseResult;
 import pl.baczkowicz.spy.utils.ThreadingUtils;
 
@@ -47,17 +48,21 @@ public abstract class BaseDaemon implements IDaemon
 
 	public TestCaseResult runTestCase(final String testCaseLocation)	
 	{
-		return runTestCase(testCaseLocation, null, TestCaseManager.DEFAULT_STEP_INTERVAL);
+		return runTestCase(testCaseLocation, null, null);
 	}	
 	
 	public TestCaseResult runTestCase(final String testCaseLocation, final Map<String, Object> args)	
 	{
-		return runTestCase(testCaseLocation, args, TestCaseManager.DEFAULT_STEP_INTERVAL);
+		return runTestCase(testCaseLocation, args, null);
 	}	
 	
-	public TestCaseResult runTestCase(final String testCaseLocation, final Map<String, Object> args, final long stepInterval)	
+	public TestCaseResult runTestCase(final String testCaseLocation, final Map<String, Object> args, final TestCaseOptions options)	
 	{
-		testCaseManager.setStepInterval(stepInterval);
+		if (options != null)
+		{
+			testCaseManager.setOptions(options);
+		}
+		
 		return testCaseManager.addAndRunTestCase(testCaseLocation, args);
 	}	
 	
@@ -126,7 +131,18 @@ public abstract class BaseDaemon implements IDaemon
 		// Run all tests, one by one
 		if (testCasesSettings != null)
 		{
-			testCaseManager.setAutoExport(testCasesSettings.isExportResults());
+			testCaseManager.getOptions().setAutoExport(testCasesSettings.isExportResults());
+			
+			if (testCasesSettings.isRecordRepeatedSteps() != null)
+			{
+				testCaseManager.getOptions().setRecordRepeatedSteps(testCasesSettings.isRecordRepeatedSteps());
+			}
+			
+			if (testCasesSettings.getStepInterval() != null)
+			{
+				testCaseManager.getOptions().setStepInterval(testCasesSettings.getStepInterval());
+			}
+			
 			testCaseManager.loadTestCases(testCasesSettings.getLocation());
 			while (!canPublish())
 			{

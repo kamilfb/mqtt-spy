@@ -43,9 +43,7 @@ import pl.baczkowicz.spy.utils.ThreadingUtils;
 import pl.baczkowicz.spy.utils.TimeUtils;
 
 public class TestCaseManager
-{	
-	public static final int DEFAULT_STEP_INTERVAL = 1000;
-
+{		
 	public static String GET_INFO_METHOD = "getInfo";
 	
 	public static SimpleDateFormat testCaseFileSdf = new SimpleDateFormat("yyyyMMdd_HHmmss");
@@ -59,24 +57,12 @@ public class TestCaseManager
 	protected List<TestCase> testCases = new ArrayList<>();
 			
 	protected int running = 0;
-
-	private boolean autoExport;
 	
-	private long stepInterval = DEFAULT_STEP_INTERVAL;
+	private TestCaseOptions options = new TestCaseOptions();
 
 	public TestCaseManager(final BaseScriptManager scriptManager)	
 	{
 		this.scriptManager = scriptManager;
-	}
-	
-	public void setAutoExport(final boolean autoExport)
-	{
-		this.autoExport = autoExport;
-	}
-	
-	public void setStepInterval(final long interval)
-	{
-		this.stepInterval = interval;
 	}
 	
 	public TestCase addTestCase(final File scriptFile)
@@ -167,9 +153,24 @@ public class TestCaseManager
 				step.setStatus(result.getStatus());
 				step.setExecutionInfo(result.getInfo());		
 				
-				// If not in progress any more, move to next
-				if (!TestCaseStatus.IN_PROGRESS.equals(result.getStatus()))
+				if (TestCaseStatus.IN_PROGRESS.equals(result.getStatus()))
 				{
+					// Add a copy of the step, as status and exec info might change later
+					testCase.getTestCaseResult().getStepResults().add(new TestCaseStep(step));
+					
+					try
+					{
+						Thread.sleep(options.getStepInterval());
+					}
+					catch (InterruptedException e)
+					{
+						break;
+					}	
+				}
+				// If not in progress any more, move to next
+				else
+				{			
+					testCase.getTestCaseResult().getStepResults().add(step);
 					testCase.setCurrentStep(testCase.getCurrentStep() + 1);
 				}														
 			}
@@ -183,17 +184,6 @@ public class TestCaseManager
 				step.setStatus(TestCaseStatus.FAILED);
 				logger.error("Step execution failure for step " + step.getStepNumber(), e);
 			}
-			
-			testCase.getTestCaseResult().getStepResults().add(step);
-			
-			try
-			{
-				Thread.sleep(stepInterval);
-			}
-			catch (InterruptedException e)
-			{
-				break;
-			}		
 		}				
 		
 		return lastResult;
@@ -239,7 +229,7 @@ public class TestCaseManager
 		
 		logger.info("Test case \"{}\" ended with result: {}", testCase.getName(), testCaseStatus.getStatus());
 		
-		if (autoExport)
+		if (options.isAutoExport())
 		{
 			final String parentDir = testCase.getScriptFile().getParent() + System.getProperty("file.separator");
 			exportTestCaseResultAsCSV(testCase, new File(parentDir + "result_" + testCaseFileSdf.format(new Date()) + "_" + testCaseStatus.getStatus() + ".csv"));
@@ -387,5 +377,15 @@ public class TestCaseManager
 	public boolean areTestCasesStillRunning()
 	{
 		return running > 0;
+	}
+
+	public void setOptions(final TestCaseOptions options)
+	{
+		this.options = options;		
+	}
+	
+	public TestCaseOptions getOptions()
+	{
+		return this.options;
 	}
 }

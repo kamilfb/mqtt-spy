@@ -22,6 +22,7 @@ package pl.baczkowicz.spy.daemon;
 import java.util.Map;
 
 import pl.baczkowicz.spy.scripts.Script;
+import pl.baczkowicz.spy.testcases.TestCaseOptions;
 import pl.baczkowicz.spy.testcases.TestCaseResult;
 
 public interface IDaemon
@@ -34,7 +35,7 @@ public interface IDaemon
 
 	TestCaseResult runTestCase(final String testCaseLocation, final Map<String, Object> args);	
 	
-	TestCaseResult runTestCase(final String testCaseLocation, final Map<String, Object> args, final long stepInterval);	
+	TestCaseResult runTestCase(final String testCaseLocation, final Map<String, Object> args, final TestCaseOptions options);	
 	
 	Script runScript(final String scriptLocation);
 	

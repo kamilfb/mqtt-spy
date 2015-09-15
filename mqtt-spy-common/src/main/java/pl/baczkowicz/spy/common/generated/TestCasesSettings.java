@@ -44,6 +44,8 @@ import org.jvnet.jaxb2_commons.locator.util.LocatorUtils;
  *       &lt;sequence&gt;
  *         &lt;element name="Location" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
  *         &lt;element name="ExportResults" type="{http://www.w3.org/2001/XMLSchema}boolean"/&gt;
+ *         &lt;element name="StepInterval" type="{http://www.w3.org/2001/XMLSchema}long" minOccurs="0"/&gt;
+ *         &lt;element name="RecordRepeatedSteps" type="{http://www.w3.org/2001/XMLSchema}boolean" minOccurs="0"/&gt;
  *       &lt;/sequence&gt;
  *     &lt;/restriction&gt;
  *   &lt;/complexContent&gt;
@@ -56,7 +58,9 @@ import org.jvnet.jaxb2_commons.locator.util.LocatorUtils;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "TestCasesSettings", propOrder = {
     "location",
-    "exportResults"
+    "exportResults",
+    "stepInterval",
+    "recordRepeatedSteps"
 })
 public class TestCasesSettings implements Serializable, Cloneable, CopyTo, Equals, HashCode, ToString
 {
@@ -66,6 +70,10 @@ public class TestCasesSettings implements Serializable, Cloneable, CopyTo, Equal
     protected String location;
     @XmlElement(name = "ExportResults")
     protected boolean exportResults;
+    @XmlElement(name = "StepInterval")
+    protected Long stepInterval;
+    @XmlElement(name = "RecordRepeatedSteps")
+    protected Boolean recordRepeatedSteps;
 
     /**
      * Default no-arg constructor
@@ -79,9 +87,11 @@ public class TestCasesSettings implements Serializable, Cloneable, CopyTo, Equal
      * Fully-initialising value constructor
      * 
      */
-    public TestCasesSettings(final String location, final boolean exportResults) {
+    public TestCasesSettings(final String location, final boolean exportResults, final Long stepInterval, final Boolean recordRepeatedSteps) {
         this.location = location;
         this.exportResults = exportResults;
+        this.stepInterval = stepInterval;
+        this.recordRepeatedSteps = recordRepeatedSteps;
     }
 
     /**
@@ -124,6 +134,54 @@ public class TestCasesSettings implements Serializable, Cloneable, CopyTo, Equal
         this.exportResults = value;
     }
 
+    /**
+     * Gets the value of the stepInterval property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link Long }
+     *     
+     */
+    public Long getStepInterval() {
+        return stepInterval;
+    }
+
+    /**
+     * Sets the value of the stepInterval property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link Long }
+     *     
+     */
+    public void setStepInterval(Long value) {
+        this.stepInterval = value;
+    }
+
+    /**
+     * Gets the value of the recordRepeatedSteps property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link Boolean }
+     *     
+     */
+    public Boolean isRecordRepeatedSteps() {
+        return recordRepeatedSteps;
+    }
+
+    /**
+     * Sets the value of the recordRepeatedSteps property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link Boolean }
+     *     
+     */
+    public void setRecordRepeatedSteps(Boolean value) {
+        this.recordRepeatedSteps = value;
+    }
+
     public String toString() {
         final ToStringStrategy strategy = JAXBToStringStrategy.INSTANCE;
         final StringBuilder buffer = new StringBuilder();
@@ -148,6 +206,16 @@ public class TestCasesSettings implements Serializable, Cloneable, CopyTo, Equal
             boolean theExportResults;
             theExportResults = this.isExportResults();
             strategy.appendField(locator, this, "exportResults", buffer, theExportResults);
+        }
+        {
+            Long theStepInterval;
+            theStepInterval = this.getStepInterval();
+            strategy.appendField(locator, this, "stepInterval", buffer, theStepInterval);
+        }
+        {
+            Boolean theRecordRepeatedSteps;
+            theRecordRepeatedSteps = this.isRecordRepeatedSteps();
+            strategy.appendField(locator, this, "recordRepeatedSteps", buffer, theRecordRepeatedSteps);
         }
         return buffer;
     }
@@ -178,6 +246,24 @@ public class TestCasesSettings implements Serializable, Cloneable, CopyTo, Equal
                 return false;
             }
         }
+        {
+            Long lhsStepInterval;
+            lhsStepInterval = this.getStepInterval();
+            Long rhsStepInterval;
+            rhsStepInterval = that.getStepInterval();
+            if (!strategy.equals(LocatorUtils.property(thisLocator, "stepInterval", lhsStepInterval), LocatorUtils.property(thatLocator, "stepInterval", rhsStepInterval), lhsStepInterval, rhsStepInterval)) {
+                return false;
+            }
+        }
+        {
+            Boolean lhsRecordRepeatedSteps;
+            lhsRecordRepeatedSteps = this.isRecordRepeatedSteps();
+            Boolean rhsRecordRepeatedSteps;
+            rhsRecordRepeatedSteps = that.isRecordRepeatedSteps();
+            if (!strategy.equals(LocatorUtils.property(thisLocator, "recordRepeatedSteps", lhsRecordRepeatedSteps), LocatorUtils.property(thatLocator, "recordRepeatedSteps", rhsRecordRepeatedSteps), lhsRecordRepeatedSteps, rhsRecordRepeatedSteps)) {
+                return false;
+            }
+        }
         return true;
     }
 
@@ -197,6 +283,16 @@ public class TestCasesSettings implements Serializable, Cloneable, CopyTo, Equal
             boolean theExportResults;
             theExportResults = this.isExportResults();
             currentHashCode = strategy.hashCode(LocatorUtils.property(locator, "exportResults", theExportResults), currentHashCode, theExportResults);
+        }
+        {
+            Long theStepInterval;
+            theStepInterval = this.getStepInterval();
+            currentHashCode = strategy.hashCode(LocatorUtils.property(locator, "stepInterval", theStepInterval), currentHashCode, theStepInterval);
+        }
+        {
+            Boolean theRecordRepeatedSteps;
+            theRecordRepeatedSteps = this.isRecordRepeatedSteps();
+            currentHashCode = strategy.hashCode(LocatorUtils.property(locator, "recordRepeatedSteps", theRecordRepeatedSteps), currentHashCode, theRecordRepeatedSteps);
         }
         return currentHashCode;
     }
@@ -232,6 +328,22 @@ public class TestCasesSettings implements Serializable, Cloneable, CopyTo, Equal
                 sourceExportResults = this.isExportResults();
                 boolean copyExportResults = strategy.copy(LocatorUtils.property(locator, "exportResults", sourceExportResults), sourceExportResults);
                 copy.setExportResults(copyExportResults);
+            }
+            if (this.stepInterval!= null) {
+                Long sourceStepInterval;
+                sourceStepInterval = this.getStepInterval();
+                Long copyStepInterval = ((Long) strategy.copy(LocatorUtils.property(locator, "stepInterval", sourceStepInterval), sourceStepInterval));
+                copy.setStepInterval(copyStepInterval);
+            } else {
+                copy.stepInterval = null;
+            }
+            if (this.recordRepeatedSteps!= null) {
+                Boolean sourceRecordRepeatedSteps;
+                sourceRecordRepeatedSteps = this.isRecordRepeatedSteps();
+                Boolean copyRecordRepeatedSteps = ((Boolean) strategy.copy(LocatorUtils.property(locator, "recordRepeatedSteps", sourceRecordRepeatedSteps), sourceRecordRepeatedSteps));
+                copy.setRecordRepeatedSteps(copyRecordRepeatedSteps);
+            } else {
+                copy.recordRepeatedSteps = null;
             }
         }
         return draftCopy;
