@@ -1,6 +1,8 @@
 var TestCaseStepResult = Java.type("pl.baczkowicz.spy.testcases.TestCaseStepResult");
 var TestCaseStatus = Java.type("pl.baczkowicz.spy.testcases.TestCaseStatus");
 
+var count = 0;
+
 var getInfo = function () 
 {
     var TestCaseInfo = Java.type("pl.baczkowicz.spy.testcases.TestCaseInfo");
@@ -28,13 +30,21 @@ var step2 = function ()
 
 var step3 = function ()
 {
-	var lastMessage = mqttspy.getMessages("testcase/3/#").get(0).getPayload();
+	count++;
+	var messages = mqttspy.getMessages("testcase/3/#");
 	
-	if (lastMessage.equals("sample message 1"))
+	if (count > 1 && messages.size() > 0)
 	{
-		return new TestCaseStepResult(TestCaseStatus.PASSED, "Correct message received");
+		var lastMessage = messages.get(0).getPayload();
+		
+		if (lastMessage.equals("sample message 1"))
+		{
+			return new TestCaseStepResult(TestCaseStatus.PASSED, "Correct message received");
+		}
+		
+		return new TestCaseStepResult(TestCaseStatus.FAILED, "Incorrect message received");	
 	}
 	
-	return new TestCaseStepResult(TestCaseStatus.FAILED, "Incorrect message received");
+	return new TestCaseStepResult(TestCaseStatus.IN_PROGRESS, "Waiting...");
 };
 
