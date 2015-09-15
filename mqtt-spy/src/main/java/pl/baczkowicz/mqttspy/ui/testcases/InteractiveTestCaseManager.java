@@ -95,7 +95,7 @@ public class InteractiveTestCaseManager extends TestCaseManager
 	public void runTestCase(final TestCaseProperties selectedTestCase)
 	{	
 		// Prepare
-		super.setAutoExport(testCaseExecutionController.isAutoExportEnabled());
+		super.getOptions().setAutoExport(testCaseExecutionController.isAutoExportEnabled());
 		final TestCase testCase = selectedTestCase.getScript();
 		
 		// Run
