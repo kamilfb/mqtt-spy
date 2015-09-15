@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 import pl.baczkowicz.mqttspy.common.generated.ReconnectionSettings;
 import pl.baczkowicz.mqttspy.connectivity.SimpleMqttConnection;
 import pl.baczkowicz.mqttspy.connectivity.reconnection.ReconnectionManager;
-import pl.baczkowicz.mqttspy.daemon.configuration.ConfigurationLoader;
+import pl.baczkowicz.mqttspy.daemon.configuration.MqttSpyDaemonConfigLoader;
 import pl.baczkowicz.mqttspy.daemon.configuration.generated.DaemonMqttConnectionDetails;
 import pl.baczkowicz.mqttspy.daemon.configuration.generated.MqttSpyDaemonConfiguration;
 import pl.baczkowicz.mqttspy.daemon.connectivity.MqttCallbackHandler;
@@ -48,7 +48,7 @@ public class MqttSpyDaemon extends BaseDaemon
 	/** Diagnostic logger. */
 	private final static Logger logger = LoggerFactory.getLogger(MqttSpyDaemon.class);
 	
-	private ConfigurationLoader loader;
+	private MqttSpyDaemonConfigLoader loader;
 
 	private ReconnectionManager mqttReconnectionManager;
 
@@ -65,7 +65,7 @@ public class MqttSpyDaemon extends BaseDaemon
 	 */
 	public void initialise() throws XMLException
 	{
-		loader = new ConfigurationLoader();
+		loader = new MqttSpyDaemonConfigLoader();
 		showInfo();
 	}
 	

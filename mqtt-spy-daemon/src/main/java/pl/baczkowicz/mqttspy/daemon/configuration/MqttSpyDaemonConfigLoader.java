@@ -21,12 +21,16 @@ package pl.baczkowicz.mqttspy.daemon.configuration;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import pl.baczkowicz.mqttspy.common.generated.MqttConnectionDetails;
+import pl.baczkowicz.mqttspy.common.generated.ProtocolVersionEnum;
 import pl.baczkowicz.mqttspy.daemon.configuration.generated.MqttSpyDaemonConfiguration;
 import pl.baczkowicz.mqttspy.utils.ConfigurationUtils;
+import pl.baczkowicz.mqttspy.utils.MqttUtils;
 import pl.baczkowicz.spy.common.generated.ScriptDetails;
 import pl.baczkowicz.spy.configuration.PropertyFileLoader;
 import pl.baczkowicz.spy.exceptions.XMLException;
@@ -35,10 +39,12 @@ import pl.baczkowicz.spy.xml.XMLParser;
 /**
  * Helper class for loading the daemon's configuration.
  */
-public class ConfigurationLoader extends PropertyFileLoader
+public class MqttSpyDaemonConfigLoader extends PropertyFileLoader
 {
 	/** Diagnostic logger. */
-	private final static Logger logger = LoggerFactory.getLogger(ConfigurationLoader.class);
+	private final static Logger logger = LoggerFactory.getLogger(MqttSpyDaemonConfigLoader.class);
+	
+	private static String CLIENT_ID_REFIX = "mqttspy";
 	
 	/** XML config parser. */
 	private final XMLParser parser;
@@ -51,7 +57,7 @@ public class ConfigurationLoader extends PropertyFileLoader
 	 * 
 	 * @throws XMLException Thrown if cannot read the properties file or instantiate the config parser
 	 */
-	public ConfigurationLoader() throws XMLException
+	public MqttSpyDaemonConfigLoader() throws XMLException
 	{
 		super();
 		readFromClassPath(MqttSpyDaemonConstants.DEFAULT_PROPERTIES_FILE_NAME);
@@ -75,6 +81,7 @@ public class ConfigurationLoader extends PropertyFileLoader
 		{
 			configuration = (MqttSpyDaemonConfiguration) parser.loadFromFile(file);	
 			populateDefaults();
+			
 			return true;
 		}
 		catch (XMLException e)
@@ -93,16 +100,32 @@ public class ConfigurationLoader extends PropertyFileLoader
 	 * Populates the connection configuration with default values.
 	 */
 	private void populateDefaults()
+	{				
+		ConfigurationUtils.populateMessageLogDefaults(configuration.getConnection().getMessageLog());
+		populateDaemonDefaults(configuration.getConnection().getBackgroundScript());
+		generateClientIdIfMissing(configuration.getConnection());
+	}
+	
+	public static void populateDaemonDefaults(List<ScriptDetails> scripts)
 	{
-		for (final ScriptDetails scriptDetails : configuration.getConnection().getBackgroundScript())
+		for (final ScriptDetails scriptDetails : scripts)
 		{
 			if (scriptDetails.isRepeat() == null)
 			{
 				scriptDetails.setRepeat(false);
 			}
 		}
-		
-		ConfigurationUtils.populateMessageLogDefaults(configuration.getConnection().getMessageLog());
+	}
+	
+	public static void generateClientIdIfMissing(final MqttConnectionDetails connection)
+	{
+		if (connection.getClientID().isEmpty() 
+				&& !ProtocolVersionEnum.MQTT_3_1_1.equals(connection.getProtocol()))
+		{
+			logger.info("Client ID is empty and protocol version is not 3.1.1, so going to generate one...");
+			connection.setClientID(MqttUtils.generateClientIdWithTimestamp(CLIENT_ID_REFIX, ProtocolVersionEnum.MQTT_3_1));
+			logger.info("Generated Client ID is " + connection.getClientID());
+		}
 	}
 
 	/**
@@ -113,5 +136,15 @@ public class ConfigurationLoader extends PropertyFileLoader
 	public MqttSpyDaemonConfiguration getConfiguration()
 	{
 		return configuration;
+	}
+
+	/**
+	 * Sets the MQTT client ID prefix.
+	 * 
+	 * @param prefix the prefix to set
+	 */
+	public static void setClientIdPrefix(final String prefix)
+	{
+		CLIENT_ID_REFIX = prefix;
 	}
 }

@@ -8,7 +8,8 @@
 	<!-- Server URI can be supplied without the tcp:// prefix or the port number (default is 1883) -->
 	<ServerURI>localhost</ServerURI>
   			
-	<ClientID>mqtt-spy-daemon</ClientID>
+  	<!-- Leaving it empty will auto-generate it -->
+	<ClientID></ClientID>
 			
 	<UserCredentials>
 		<Username>test2</Username>
