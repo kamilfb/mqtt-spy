@@ -22,6 +22,8 @@ package pl.baczkowicz.spy.daemon;
 import java.util.List;
 import java.util.Map;
 
+import javax.script.ScriptException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -74,6 +76,28 @@ public abstract class BaseDaemon implements IDaemon
 	public Script runScript(final String scriptLocation, final boolean async, final Map<String, Object> args)
 	{
 		return scriptManager.addAndRunScript(scriptLocation, async, args);
+	}	
+	
+	public Object runScriptFunction(final String scriptLocation, final String functionName, final Map<String, Object> args)
+	{		
+		try
+		{
+			Script script = scriptManager.getScriptObjectFromName(scriptLocation);
+			
+			// Check if the script has been run before
+			if (script == null)
+			{
+				script = runScript(scriptLocation);
+			}
+			
+			scriptManager.setVariable(script, "args", args);	
+			return scriptManager.invokeFunction(script, functionName);
+		}
+		catch (NoSuchMethodException | ScriptException e)
+		{
+			logger.error("Coundn't run function {} for script {}", functionName, scriptLocation, e);
+			return null;
+		}		
 	}	
 
 	public void stopScript(final Script script)
