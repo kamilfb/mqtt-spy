@@ -5,13 +5,6 @@
 		<jxb:serializable uid="1" />
 	</jxb:globalBindings>
 
-	<jxb:bindings namespace="http://baczkowicz.pl/spy/common"
-		schemaLocation="spy-common.xsd">
-		<jxb:schemaBindings>
-			<jxb:package name="pl.baczkowicz.spy.common.generated" />
-		</jxb:schemaBindings>
-	</jxb:bindings>
-
 	<jxb:bindings namespace="http://baczkowicz.pl/mqtt-spy/common"
 		schemaLocation="mqtt-spy-common.xsd">
 		<jxb:schemaBindings>

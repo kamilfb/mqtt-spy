@@ -36,7 +36,6 @@ import pl.baczkowicz.spy.scripts.ScriptIO;
 /**
  * Implementation of the interface between a script and the rest of the application.
  */
-// TODO: remove the MQTT elements from here
 public class MqttScriptIO extends ScriptIO implements IMqttScriptIO
 {
 	/** Diagnostic logger. */
@@ -53,7 +52,7 @@ public class MqttScriptIO extends ScriptIO implements IMqttScriptIO
 	//private int publishedMessages;	
 
 	/** Event manager for notifying about various events. */
-	private final IScriptEventManager eventManager;
+	// private final IScriptEventManager eventManager;
 
 	/** Task executor. */
 	//private Executor executor;
@@ -77,7 +76,7 @@ public class MqttScriptIO extends ScriptIO implements IMqttScriptIO
 	{
 		super(/*connection, eventManager, */script, executor);	
 		this.connection = connection;
-		this.eventManager = eventManager;
+		// this.eventManager = eventManager;
 	}
 
 //	@Override
