@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>pl.baczkowicz.mqttspy</groupId>
 	<artifactId>mqtt-spy-daemon</artifactId>
-	<version>0.1.0-beta</version>
+	<version>0.1.0</version>
 
   	<name>mqtt-spy-daemon</name>
   	<url>http://kamilfb.github.io/mqtt-spy/</url>
@@ -25,6 +25,12 @@
 	
   <dependencies>
   		
+  		<dependency>
+			<groupId>pl.baczkowicz.spy</groupId>
+			<artifactId>spy-common</artifactId>
+			<version>0.0.1</version>
+		</dependency>	
+		
 		<dependency>
 			<groupId>pl.baczkowicz.mqttspy</groupId>
 			<artifactId>mqtt-spy-common</artifactId>

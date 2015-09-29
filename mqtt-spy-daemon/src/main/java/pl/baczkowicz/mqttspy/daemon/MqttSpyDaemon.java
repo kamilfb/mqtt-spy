@@ -52,7 +52,7 @@ public class MqttSpyDaemon extends BaseDaemon
 
 	private ReconnectionManager mqttReconnectionManager;
 
-	private SimpleMqttConnection mqttConnection;
+	protected SimpleMqttConnection mqttConnection;
 
 	private MqttCallbackHandler mqttCallback;
 
@@ -146,7 +146,7 @@ public class MqttSpyDaemon extends BaseDaemon
 		displayGoodbyeMessage();
 	}	
 	
-	private void stopMqtt()
+	protected void stopMqtt()
 	{
 		// Stop reconnection manager
 		if (mqttReconnectionManager != null)
