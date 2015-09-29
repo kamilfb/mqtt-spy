@@ -29,12 +29,18 @@
 			<groupId>pl.baczkowicz.spy</groupId>
 			<artifactId>spy-common</artifactId>
 			<version>0.0.1</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>maven-jaxb2-plugin</artifactId>
+					<groupId>org.jvnet.jaxb2.maven2</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>	
 		
 		<dependency>
 			<groupId>pl.baczkowicz.mqttspy</groupId>
 			<artifactId>mqtt-spy-common</artifactId>
-			<version>0.0.13</version>			 
+			<version>0.0.14</version>			 
 			<exclusions>
 				<exclusion>
 					<artifactId>maven-jaxb2-plugin</artifactId>
@@ -202,6 +208,14 @@
 			                			<resource>mqtt-spy-common.catalog</resource>
 			                		</dependencyResource>
 			                	</catalog>
+			                	
+			                	<catalog>
+			                		<dependencyResource>
+			                			<groupId>pl.baczkowicz.spy</groupId>
+			                			<artifactId>spy-common</artifactId>
+			                			<resource>spy-common.catalog</resource>
+			                		</dependencyResource>
+			                	</catalog>
 			                </catalogs>
 			                
 			                <episode>true</episode>
@@ -210,6 +224,11 @@
 			                	<episode>
 			                		<groupId>pl.baczkowicz.mqttspy</groupId>
 			                		<artifactId>mqtt-spy-common</artifactId>
+			                	</episode>
+			                	
+			                	<episode>
+			                		<groupId>pl.baczkowicz.spy</groupId>
+			                		<artifactId>spy-common</artifactId>
 			                	</episode>
 			                </episodes>
 			                
