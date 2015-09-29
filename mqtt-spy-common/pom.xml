@@ -3,7 +3,7 @@
 	
 	<groupId>pl.baczkowicz.mqttspy</groupId>
 	<artifactId>mqtt-spy-common</artifactId>
-	<version>0.0.13</version>
+	<version>0.0.14</version>
 	
 	<name>mqtt-spy-common</name>
 	<url>http://kamilfb.github.io/mqtt-spy/</url>
@@ -209,26 +209,9 @@
 			                </schemaIncludes>			                 
 			                <generateDirectory>src/main/java/</generateDirectory>
 			                <removeOldOutput>false</removeOldOutput>			               
-			                
-			                 <catalogs>
-			                	<catalog>
-			                		<dependencyResource>
-			                			<groupId>pl.baczkowicz.spy</groupId>
-			                			<artifactId>spy-common</artifactId>
-			                			<resource>spy-common.catalog</resource>
-			                		</dependencyResource>
-			                	</catalog>
-			                </catalogs>
-			                
+
 			                <episode>true</episode>
-			                
-			                <episodes>
-			                	<episode>
-			                		<groupId>pl.baczkowicz.spy</groupId>
-			                		<artifactId>spy-common</artifactId>
-			                	</episode>
-			                </episodes>
-			                
+
 			                <args>			                
 						        <arg>-XtoString</arg>
 						        <arg>-Xequals</arg>
