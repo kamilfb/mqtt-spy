@@ -24,13 +24,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.common.generated.MessageLog;
+import pl.baczkowicz.mqttspy.common.generated.MessageLogEnum;
 import pl.baczkowicz.mqttspy.common.generated.MqttConnectionDetails;
 import pl.baczkowicz.mqttspy.common.generated.ProtocolVersionEnum;
 
 /**
  * Configuration utilities.
  */
-public class ConfigurationUtils
+public class MqttConfigurationUtils
 {
 	/** Commons schema. */
 	public static final String SPY_COMMON_SCHEMA = "/spy-common.xsd";
@@ -39,7 +40,7 @@ public class ConfigurationUtils
 	public static final String MQTT_COMMON_SCHEMA = "/mqtt-spy-common.xsd";
 
 	/** Diagnostic logger. */
-	private final static Logger logger = LoggerFactory.getLogger(ConfigurationUtils.class);
+	private final static Logger logger = LoggerFactory.getLogger(MqttConfigurationUtils.class);
 	
 	/**
 	 * Goes through all server URIs and completes them with the TCP prefix if necessary.
@@ -97,6 +98,11 @@ public class ConfigurationUtils
 	
 	public static void populateMessageLogDefaults(final MessageLog messageLog)
 	{
+		if (messageLog.getValue() == null)
+		{
+			messageLog.setValue(MessageLogEnum.DISABLED);
+		}
+		
 		// Connection
 		if (messageLog.isLogConnection() == null)
 		{
