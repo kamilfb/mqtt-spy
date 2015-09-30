@@ -31,8 +31,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.Main;
+import pl.baczkowicz.mqttspy.common.generated.MessageLog;
 import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnectionDetails;
 import pl.baczkowicz.mqttspy.storage.MessageList;
+import pl.baczkowicz.mqttspy.utils.MqttConfigurationUtils;
 import pl.baczkowicz.spy.utils.ConversionUtils;
 
 public class ConfigurationUtils
@@ -43,11 +45,16 @@ public class ConfigurationUtils
 		
 	public static void populateConnectionDefaults(final UserInterfaceMqttConnectionDetails connection)
 	{
-		pl.baczkowicz.mqttspy.utils.ConfigurationUtils.populateConnectionDefaults(connection);
+		MqttConfigurationUtils.populateConnectionDefaults(connection);
 		
-		if (connection.getMessageLog() != null)
+		if (connection.getMessageLog() == null)
 		{
-			pl.baczkowicz.mqttspy.utils.ConfigurationUtils.populateMessageLogDefaults(connection.getMessageLog());
+			connection.setMessageLog(new MessageLog());
+			MqttConfigurationUtils.populateMessageLogDefaults(connection.getMessageLog());
+		}
+		else
+		{
+			MqttConfigurationUtils.populateMessageLogDefaults(connection.getMessageLog());
 		}
 				
 		if (connection.getMaxMessagesStored() == null)

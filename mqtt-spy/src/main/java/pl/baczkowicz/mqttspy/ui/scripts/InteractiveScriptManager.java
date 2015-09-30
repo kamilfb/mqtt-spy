@@ -23,9 +23,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
@@ -45,7 +42,7 @@ import pl.baczkowicz.spy.utils.FileUtils;
 public class InteractiveScriptManager extends MqttScriptManager
 {
 	/** Diagnostic logger. */
-	private final static Logger logger = LoggerFactory.getLogger(InteractiveScriptManager.class);
+	// private final static Logger logger = LoggerFactory.getLogger(InteractiveScriptManager.class);
 	
 	/** List of scripts, as displayed on the UI. */
 	private final ObservableList<PublicationScriptProperties> observableScriptList = FXCollections.observableArrayList();
