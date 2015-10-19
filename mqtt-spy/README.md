@@ -1,6 +1,6 @@
 The following documents the origin of all graphics (images/icons) used in mqtt-spy. All can be found in src/main/resources/images.
 
-Oxygen Icons (GNU Lesser General Public License):
+Oxygen Icons (version 4.3.1, CC-BY-SA 3.0; from the Open Icon Library):
 
     * button-add.png
     * button-apply.png
@@ -8,11 +8,6 @@ Oxygen Icons (GNU Lesser General Public License):
     * button-copy.png
     * button-delete.png
     * button-undo.png
-    
-    * dialog-error.png
-    * dialog-information.png  
-    * dialog-ok-apply.png
-    * dialog-warning.png
     
     * formatting.png
     
@@ -45,30 +40,18 @@ Oxygen Icons (GNU Lesser General Public License):
 MQTT.org
 
 	* mqtt-icon.png
-	
-Crystal Clear Icons (GNU Lesser General Public License):
-
-    * login.png
     
 Pretty Office 9 Icons (Free for non-commercial use):
 
     * receive-icon.png
     * send-icon.png
-     
-FS Ubuntu Icons (GNU General Public License):
-
-	 * search.png
-
-Phuzion Icons (CC Attribution-Noncommercial-Share Alike 4.0):
-
-	 * stats.png
  	 
-Font Awesome (Creative Commons, Attribution 3.0 Unported)
+Font Awesome (CC-BY 3.0)
 
 	 * lock_yes.png
 	 * lock_no.png
 
-Users. Android L (Lollipop) (Creative Commons, Attribution 3.0 Unported)
+Users. Android L (Lollipop) (CC-BY 3.0)
 
      * auth-yes.png
      

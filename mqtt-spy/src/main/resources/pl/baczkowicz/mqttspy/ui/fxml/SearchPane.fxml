@@ -46,7 +46,7 @@
 	        	<graphic>
 	      		<ImageView fx:id="searchIcon" fitHeight="17" fitWidth="17" pickOnBounds="true">
 			         <image>
-			            <Image url="/images/search.png" />
+			            <Image url="/images/small/search.png" />
 			         </image>
 			      </ImageView>
 	      		</graphic>

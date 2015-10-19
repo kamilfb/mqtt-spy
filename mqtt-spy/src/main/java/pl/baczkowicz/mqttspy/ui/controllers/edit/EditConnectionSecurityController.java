@@ -57,7 +57,7 @@ import javafx.util.StringConverter;
 import javax.net.ssl.SSLContext;
 
 import pl.baczkowicz.mqttspy.common.generated.SslModeEnum;
-import pl.baczkowicz.mqttspy.common.generated.SslProperty;
+import pl.baczkowicz.spy.common.generated.Property;
 import pl.baczkowicz.mqttspy.common.generated.SslSettings;
 import pl.baczkowicz.mqttspy.common.generated.UserCredentials;
 import pl.baczkowicz.mqttspy.configuration.ConfigurationUtils;
@@ -376,7 +376,7 @@ public class EditConnectionSecurityController extends AnchorPane implements Init
 			{
 				for (final KeyValueProperty property : sslPropertiesTable.getItems())
 				{
-					sslSettings.getProperty().add(new SslProperty(property.keyProperty().getValue(), property.valueProperty().getValue()));
+					sslSettings.getProperty().add(new Property(property.keyProperty().getValue(), property.valueProperty().getValue()));
 				}
 			}
 			else
@@ -494,7 +494,7 @@ public class EditConnectionSecurityController extends AnchorPane implements Init
 				}
 			}			
 
-			for (final SslProperty property : connection.getSSL().getProperty())
+			for (final Property property : connection.getSSL().getProperty())
 			{
 				sslPropertiesTable.getItems().add(new KeyValueProperty(property.getName(), property.getValue()));
 			}

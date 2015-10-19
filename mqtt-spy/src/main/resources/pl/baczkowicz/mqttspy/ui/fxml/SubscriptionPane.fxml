@@ -131,7 +131,7 @@
         <graphic>
       		<ImageView fitHeight="20" fitWidth="20" pickOnBounds="true">
 		         <image>
-		            <Image url="/images/search.png" />
+		            <Image url="/images/small/search.png" />
 		         </image>
 		      </ImageView>
       	</graphic>

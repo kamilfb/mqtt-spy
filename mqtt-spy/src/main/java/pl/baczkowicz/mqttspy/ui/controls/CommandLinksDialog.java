@@ -86,7 +86,7 @@ public class CommandLinksDialog
         dialog.getDialogPane().getScene().getStylesheets().addAll(stylesheets);
         dialog.getDialogPane().getButtonTypes().clear();
         
-     	dialog.setGraphic(UiUtils.createImage(DialogUtils.class.getResource("/images/dialog-information.png").toString(), 55));
+     	dialog.setGraphic(UiUtils.createImage(DialogUtils.class.getResource("/images/large/dialog-information.png").toString(), 55));
         dialog.setResizable(true);
         // dialog.setHeaderText(message);
         

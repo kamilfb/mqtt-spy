@@ -122,22 +122,22 @@ public class ControlPanelItemController extends AnchorPane implements Initializa
 		switch (status)
 		{
 			case OK:
-				imageLocation = "/images/dialog-ok-apply.png";
+				imageLocation = "/images/large/dialog-ok-apply.png";
 				break;
 			case INFO:
-				imageLocation = "/images/dialog-information.png";
+				imageLocation = "/images/large/dialog-information.png";
 				break;
 			case WARN:
-				imageLocation = "/images/dialog-warning.png";
+				imageLocation = "/images/large/dialog-warning.png";
 				break;
 			case ERROR:
-				imageLocation = "/images/dialog-error.png";
+				imageLocation = "/images/large/dialog-error.png";
 				break;
 			case STATS:
-				imageLocation = "/images/stats.png";
+				imageLocation = "/images/large/stats.png";
 				break;
 			default:
-				imageLocation = "/images/dialog-error.png";
+				imageLocation = "/images/large/dialog-error.png";
 				break;
 		}
 		
