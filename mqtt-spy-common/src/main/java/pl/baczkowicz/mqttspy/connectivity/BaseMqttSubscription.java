@@ -20,9 +20,10 @@
 package pl.baczkowicz.mqttspy.connectivity;
 
 import pl.baczkowicz.mqttspy.common.generated.SubscriptionDetails;
-import pl.baczkowicz.mqttspy.storage.BasicMessageStore;
-import pl.baczkowicz.mqttspy.storage.MessageList;
+import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
 import pl.baczkowicz.spy.scripts.Script;
+import pl.baczkowicz.spy.storage.BasicMessageStore;
+import pl.baczkowicz.spy.storage.MessageList;
 
 public class BaseMqttSubscription
 {
@@ -42,7 +43,7 @@ public class BaseMqttSubscription
 	
 	private SubscriptionDetails details;
 	
-	private BasicMessageStore store;
+	private BasicMessageStore<FormattedMqttMessage> store;
 
 	private Script script;
 
@@ -63,7 +64,8 @@ public class BaseMqttSubscription
 	{
 		this(topic, qos);
 		
-		this.store = new BasicMessageStore(new MessageList(minMessagesPerTopic, preferredStoreSize, topic));
+		this.store = new BasicMessageStore<FormattedMqttMessage>(
+				new MessageList<FormattedMqttMessage>(minMessagesPerTopic, preferredStoreSize, topic));
 	}
 
 	public String getTopic()
@@ -146,7 +148,7 @@ public class BaseMqttSubscription
 		this.details = details;
 	}
 
-	public BasicMessageStore getStore()
+	public BasicMessageStore<FormattedMqttMessage> getStore()
 	{
 		return store;
 	}

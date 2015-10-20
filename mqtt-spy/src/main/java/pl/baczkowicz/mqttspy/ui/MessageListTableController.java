@@ -47,11 +47,11 @@ import pl.baczkowicz.mqttspy.connectivity.BaseMqttSubscription;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
 import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
-import pl.baczkowicz.mqttspy.storage.BasicMessageStoreWithSummary;
 import pl.baczkowicz.mqttspy.ui.events.EventManager;
 import pl.baczkowicz.mqttspy.ui.events.observers.MessageIndexChangeObserver;
-import pl.baczkowicz.mqttspy.ui.properties.MqttContentProperties;
+import pl.baczkowicz.mqttspy.ui.properties.MessageContentProperties;
 import pl.baczkowicz.mqttspy.ui.utils.StylingUtils;
+import pl.baczkowicz.spy.ui.storage.BasicMessageStoreWithSummary;
 import pl.baczkowicz.spy.ui.utils.UiUtils;
 
 /**
@@ -61,21 +61,21 @@ public class MessageListTableController implements Initializable, MessageIndexCh
 {
 	final static Logger logger = LoggerFactory.getLogger(MessageListTableController.class);
 	
-	private ObservableList<MqttContentProperties> items; 
+	private ObservableList<MessageContentProperties<FormattedMqttMessage>> items; 
 	
 	@FXML
-	private TableView<MqttContentProperties> messageTable;
+	private TableView<MessageContentProperties<FormattedMqttMessage>> messageTable;
 
 	@FXML
-	private TableColumn<MqttContentProperties, String> messageTopicColumn;
+	private TableColumn<MessageContentProperties<FormattedMqttMessage>, String> messageTopicColumn;
 	
 	@FXML
-	private TableColumn<MqttContentProperties, String> messageContentColumn;
+	private TableColumn<MessageContentProperties<FormattedMqttMessage>, String> messageContentColumn;
 
 	@FXML
-	private TableColumn<MqttContentProperties, String> messageReceivedAtColumn;
+	private TableColumn<MessageContentProperties<FormattedMqttMessage>, String> messageReceivedAtColumn;
 
-	private BasicMessageStoreWithSummary store;
+	private BasicMessageStoreWithSummary<FormattedMqttMessage> store;
 	
 	private MqttAsyncConnection connection;
 
@@ -84,20 +84,22 @@ public class MessageListTableController implements Initializable, MessageIndexCh
 	public void initialize(URL location, ResourceBundle resources)
 	{				
 		// Table
-		messageTopicColumn.setCellValueFactory(new PropertyValueFactory<MqttContentProperties, String>(
+		messageTopicColumn.setCellValueFactory(new PropertyValueFactory<MessageContentProperties<FormattedMqttMessage>, String>(
 				"topic"));
 
 		messageContentColumn
-				.setCellValueFactory(new PropertyValueFactory<MqttContentProperties, String>(
+				.setCellValueFactory(new PropertyValueFactory<MessageContentProperties<FormattedMqttMessage>, String>(
 						"lastReceivedPayload"));
 
-		messageReceivedAtColumn.setCellValueFactory(new PropertyValueFactory<MqttContentProperties, String>("lastReceivedTimestamp"));
-		messageReceivedAtColumn.setCellFactory(new Callback<TableColumn<MqttContentProperties, String>, TableCell<MqttContentProperties, String>>()
+		messageReceivedAtColumn.setCellValueFactory(new PropertyValueFactory<MessageContentProperties<FormattedMqttMessage>, String>("lastReceivedTimestamp"));
+		messageReceivedAtColumn.setCellFactory(new Callback<TableColumn<MessageContentProperties<FormattedMqttMessage>, String>, 
+				TableCell<MessageContentProperties<FormattedMqttMessage>, String>>()
 		{
-			public TableCell<MqttContentProperties, String> call(
-					TableColumn<MqttContentProperties, String> param)
+			public TableCell<MessageContentProperties<FormattedMqttMessage>, String> call(
+					TableColumn<MessageContentProperties<FormattedMqttMessage>, String> param)
 			{
-				final TableCell<MqttContentProperties, String> cell = new TableCell<MqttContentProperties, String>()
+				final TableCell<MessageContentProperties<FormattedMqttMessage>, String> cell = 
+						new TableCell<MessageContentProperties<FormattedMqttMessage>, String>()
 				{
 					@Override
 					public void updateItem(String item, boolean empty)
@@ -129,15 +131,15 @@ public class MessageListTableController implements Initializable, MessageIndexCh
 		});
 		
 		messageTable
-				.setRowFactory(new Callback<TableView<MqttContentProperties>, TableRow<MqttContentProperties>>()
+				.setRowFactory(new Callback<TableView<MessageContentProperties<FormattedMqttMessage>>, TableRow<MessageContentProperties<FormattedMqttMessage>>>()
 				{
-					public TableRow<MqttContentProperties> call(
-							TableView<MqttContentProperties> tableView)
+					public TableRow<MessageContentProperties<FormattedMqttMessage>> call(
+							TableView<MessageContentProperties<FormattedMqttMessage>> tableView)
 					{
-						final TableRow<MqttContentProperties> row = new TableRow<MqttContentProperties>()
+						final TableRow<MessageContentProperties<FormattedMqttMessage>> row = new TableRow<MessageContentProperties<FormattedMqttMessage>>()
 						{
 							@Override
-							protected void updateItem(MqttContentProperties item, boolean empty)
+							protected void updateItem(final MessageContentProperties<FormattedMqttMessage> item, boolean empty)
 							{
 								super.updateItem(item, empty);															
 								
@@ -171,7 +173,7 @@ public class MessageListTableController implements Initializable, MessageIndexCh
 	
 	private void selectItem()
 	{
-		final MqttContentProperties item = messageTable.getSelectionModel().getSelectedItem();
+		final MessageContentProperties<FormattedMqttMessage> item = messageTable.getSelectionModel().getSelectedItem();
 		if (item != null)
 		{
 			final List<FormattedMqttMessage> list = store.getMessages();
@@ -193,7 +195,7 @@ public class MessageListTableController implements Initializable, MessageIndexCh
 		{
 			final long id = (store.getMessages().get(messageIndex - 1)).getId();
 
-			for (final MqttContentProperties item : items)
+			for (final MessageContentProperties<FormattedMqttMessage> item : items)
 			{
 				if (item.getId() == id)
 				{
@@ -218,12 +220,12 @@ public class MessageListTableController implements Initializable, MessageIndexCh
 		this.eventManager = eventManager;
 	}
 	
-	public void setItems(final ObservableList<MqttContentProperties> items)
+	public void setItems(final ObservableList<MessageContentProperties<FormattedMqttMessage>> items)
 	{
 		this.items = items;
 	}
 	
-	public void setStore(final BasicMessageStoreWithSummary store)
+	public void setStore(final BasicMessageStoreWithSummary<FormattedMqttMessage> store)
 	{
 		this.store = store;
 	}
@@ -233,7 +235,7 @@ public class MessageListTableController implements Initializable, MessageIndexCh
 		this.connection = connection;
 	}
 	
-	public static ContextMenu createMessageListTableContextMenu(final TableView<MqttContentProperties> messageTable)
+	public static ContextMenu createMessageListTableContextMenu(final TableView<MessageContentProperties<FormattedMqttMessage>> messageTable)
 	{
 		final ContextMenu contextMenu = new ContextMenu();
 		
@@ -243,7 +245,7 @@ public class MessageListTableController implements Initializable, MessageIndexCh
 		{
 			public void handle(ActionEvent e)
 			{
-				final MqttContentProperties item = messageTable.getSelectionModel()
+				final MessageContentProperties<FormattedMqttMessage> item = messageTable.getSelectionModel()
 						.getSelectedItem();
 				if (item != null)
 				{
@@ -262,7 +264,7 @@ public class MessageListTableController implements Initializable, MessageIndexCh
 		{
 			public void handle(ActionEvent e)
 			{
-				final MqttContentProperties item = messageTable.getSelectionModel()
+				final MessageContentProperties<FormattedMqttMessage> item = messageTable.getSelectionModel()
 						.getSelectedItem();
 				if (item != null)
 				{

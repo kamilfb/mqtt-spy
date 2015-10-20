@@ -27,8 +27,8 @@ import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import pl.baczkowicz.mqttspy.common.generated.MqttConnectionDetails;
 import pl.baczkowicz.mqttspy.common.generated.ProtocolVersionEnum;
 import pl.baczkowicz.mqttspy.common.generated.SslModeEnum;
-import pl.baczkowicz.mqttspy.common.generated.SslProperty;
-import pl.baczkowicz.mqttspy.utils.ConfigurationUtils;
+import pl.baczkowicz.spy.common.generated.Property;
+import pl.baczkowicz.mqttspy.utils.MqttConfigurationUtils;
 import pl.baczkowicz.spy.exceptions.ConfigurationException;
 import pl.baczkowicz.spy.exceptions.SpyException;
 import pl.baczkowicz.spy.utils.ConversionUtils;
@@ -75,8 +75,8 @@ public class MqttConnectionDetailsWithOptions extends MqttConnectionDetails
 		this.setSSL(details.getSSL());
 		final boolean sslEnabled = details.getSSL() != null && details.getSSL().getMode() != null && !details.getSSL().getMode().equals(SslModeEnum.DISABLED);
 		
-		ConfigurationUtils.completeServerURIs(this, sslEnabled);
-		ConfigurationUtils.populateConnectionDefaults(this);
+		MqttConfigurationUtils.completeServerURIs(this, sslEnabled);
+		MqttConfigurationUtils.populateConnectionDefaults(this);
 		
 		try
 		{
@@ -143,7 +143,7 @@ public class MqttConnectionDetailsWithOptions extends MqttConnectionDetails
 			if (SslModeEnum.PROPERTIES.equals(getSSL().getMode()))			
 			{
 				Properties props = new Properties();
-				for (final SslProperty prop : getSSL().getProperty())
+				for (final Property prop : getSSL().getProperty())
 				{
 					props.put(prop.getName(), prop.getValue());
 				}

@@ -21,9 +21,10 @@ package pl.baczkowicz.mqttspy.ui.events.observers;
 
 import java.util.List;
 
-import pl.baczkowicz.mqttspy.ui.events.queuable.ui.BrowseReceivedMessageEvent;
+import pl.baczkowicz.spy.messages.FormattedMessage;
+import pl.baczkowicz.spy.ui.events.queuable.ui.BrowseReceivedMessageEvent;
 
-public interface MessageAddedObserver
+public interface MessageAddedObserver<T extends FormattedMessage>
 {
-	void onMessageAdded(final List<BrowseReceivedMessageEvent> message);
+	void onMessageAdded(final List<BrowseReceivedMessageEvent<T>> message);
 }

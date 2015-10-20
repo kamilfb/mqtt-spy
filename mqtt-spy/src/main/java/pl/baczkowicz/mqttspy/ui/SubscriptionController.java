@@ -65,21 +65,21 @@ import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
 import pl.baczkowicz.mqttspy.connectivity.RuntimeConnectionProperties;
 import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.stats.StatisticsManager;
-import pl.baczkowicz.mqttspy.storage.BasicMessageStoreWithSummary;
-import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
 import pl.baczkowicz.mqttspy.ui.connections.SubscriptionManager;
 import pl.baczkowicz.mqttspy.ui.events.EventManager;
 import pl.baczkowicz.mqttspy.ui.events.observers.ClearTabObserver;
 import pl.baczkowicz.mqttspy.ui.events.observers.SubscriptionStatusChangeObserver;
-import pl.baczkowicz.mqttspy.ui.events.queuable.ui.BrowseReceivedMessageEvent;
 import pl.baczkowicz.mqttspy.ui.messagelog.MessageLogUtils;
 import pl.baczkowicz.mqttspy.ui.search.UniqueContentOnlyFilter;
 import pl.baczkowicz.spy.common.generated.FormatterDetails;
 import pl.baczkowicz.spy.common.generated.Formatting;
 import pl.baczkowicz.spy.formatting.FormattingManager;
 import pl.baczkowicz.spy.formatting.FormattingUtils;
+import pl.baczkowicz.spy.ui.events.queuable.ui.BrowseReceivedMessageEvent;
 import pl.baczkowicz.spy.ui.panes.TabController;
 import pl.baczkowicz.spy.ui.panes.TabStatus;
+import pl.baczkowicz.spy.ui.storage.BasicMessageStoreWithSummary;
+import pl.baczkowicz.spy.ui.storage.ManagedMessageStoreWithFiltering;
 import pl.baczkowicz.spy.ui.utils.FxmlUtils;
 import pl.baczkowicz.spy.ui.utils.UiUtils;
 import pl.baczkowicz.spy.utils.ConversionUtils;
@@ -155,9 +155,9 @@ public class SubscriptionController implements Initializable, ClearTabObserver, 
 	@FXML
 	private ToggleButton searchButton;
 
-	private ManagedMessageStoreWithFiltering store; 
+	private ManagedMessageStoreWithFiltering<FormattedMqttMessage> store; 
 	
-	private BasicMessageStoreWithSummary statsHistory;
+	private BasicMessageStoreWithSummary<FormattedMqttMessage> statsHistory;
 
 	private Tab tab;
 
@@ -185,7 +185,7 @@ public class SubscriptionController implements Initializable, ClearTabObserver, 
 
 	private Formatting formatting;
 
-	private UniqueContentOnlyFilter uniqueContentOnlyFilter;
+	private UniqueContentOnlyFilter<FormattedMqttMessage> uniqueContentOnlyFilter;
 
 	private TabStatus tabStatus;
 
@@ -285,7 +285,7 @@ public class SubscriptionController implements Initializable, ClearTabObserver, 
 				"Load, the average number of messages per second, is calculated over the following intervals: " 
 						+ StatisticsManager.getPeriodList() + ".");
 				
-		statsHistory = new BasicMessageStoreWithSummary(
+		statsHistory = new BasicMessageStoreWithSummary<FormattedMqttMessage>(
 				"stats" + store.getName(), 
 				store.getMessageList().getPreferredSize(), store.getMessageList().getMaxSize(), 
 				0, formattingManager);

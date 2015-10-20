@@ -19,7 +19,7 @@
  */
 package pl.baczkowicz.mqttspy.ui.events.observers;
 
-import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
+import pl.baczkowicz.spy.ui.storage.ManagedMessageStoreWithFiltering;
 
 public interface ClearTabObserver
 {

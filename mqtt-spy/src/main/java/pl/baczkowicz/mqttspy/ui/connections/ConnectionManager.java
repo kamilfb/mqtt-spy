@@ -58,12 +58,10 @@ import pl.baczkowicz.mqttspy.messages.BaseMqttMessage;
 import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.scripts.MqttScriptManager;
 import pl.baczkowicz.mqttspy.stats.StatisticsManager;
-import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
 import pl.baczkowicz.mqttspy.ui.ConnectionController;
 import pl.baczkowicz.mqttspy.ui.MainController;
 import pl.baczkowicz.mqttspy.ui.SubscriptionController;
 import pl.baczkowicz.mqttspy.ui.events.EventManager;
-import pl.baczkowicz.mqttspy.ui.events.queuable.EventQueueManager;
 import pl.baczkowicz.mqttspy.ui.events.queuable.UIEventHandler;
 import pl.baczkowicz.mqttspy.ui.events.queuable.connectivity.MqttConnectionAttemptFailureEvent;
 import pl.baczkowicz.mqttspy.ui.events.queuable.connectivity.MqttDisconnectionAttemptFailureEvent;
@@ -74,8 +72,10 @@ import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
 import pl.baczkowicz.spy.exceptions.ConfigurationException;
 import pl.baczkowicz.spy.exceptions.SpyException;
 import pl.baczkowicz.spy.formatting.FormattingManager;
+import pl.baczkowicz.spy.ui.events.queuable.EventQueueManager;
 import pl.baczkowicz.spy.ui.panes.PaneVisibilityStatus;
 import pl.baczkowicz.spy.ui.panes.TabStatus;
+import pl.baczkowicz.spy.ui.storage.ManagedMessageStoreWithFiltering;
 import pl.baczkowicz.spy.ui.utils.DialogFactory;
 import pl.baczkowicz.spy.ui.utils.FxmlUtils;
 import pl.baczkowicz.spy.ui.utils.TabUtils;
@@ -111,7 +111,7 @@ public class ConnectionManager
 	private final Map<ConnectionController, SubscriptionManager> subscriptionManagers = new HashMap<>();
 	
 	/** UI event queue. */
-	private final EventQueueManager uiEventQueue;
+	private final EventQueueManager<FormattedMqttMessage> uiEventQueue;
 
 	/** Reconnection manager. */
 	private ReconnectionManager reconnectionManager;
@@ -120,7 +120,7 @@ public class ConnectionManager
 
 	public ConnectionManager(final EventManager eventManager, final StatisticsManager statisticsManager, final ConfigurationManager configurationManager)
 	{
-		this.uiEventQueue = new EventQueueManager();
+		this.uiEventQueue = new EventQueueManager<FormattedMqttMessage>();
 		
 		this.eventManager = eventManager;
 		this.statisticsManager = statisticsManager;
@@ -305,8 +305,8 @@ public class ConnectionManager
 		final Tab replayTab = createConnectionTab(name, connectionPane, connectionController);
 		final SubscriptionManager subscriptionManager = new SubscriptionManager(eventManager, configurationManager, uiEventQueue);			
 		
-        final ManagedMessageStoreWithFiltering store = new ManagedMessageStoreWithFiltering(
-        		name, 0, list.size(), list.size(), uiEventQueue, eventManager, 
+        final ManagedMessageStoreWithFiltering<FormattedMqttMessage> store = new ManagedMessageStoreWithFiltering<FormattedMqttMessage>(
+        		name, 0, list.size(), list.size(), uiEventQueue, //eventManager, 
         		new FormattingManager(new MqttScriptManager(null, null, null)), UiProperties.getSummaryMaxPayloadLength(configurationManager));               
         
 		final SubscriptionController subscriptionController = subscriptionManager.createSubscriptionTab(
@@ -443,7 +443,7 @@ public class ConnectionManager
 		return tab;
 	}	
 
-	public MqttAsyncConnection createConnection(final RuntimeConnectionProperties connectionProperties, final EventQueueManager uiEventQueue)
+	public MqttAsyncConnection createConnection(final RuntimeConnectionProperties connectionProperties, final EventQueueManager<FormattedMqttMessage> uiEventQueue)
 	{
 		final InteractiveScriptManager scriptManager = new InteractiveScriptManager(eventManager, null);
 		final FormattingManager formattingManager = new FormattingManager(scriptManager);

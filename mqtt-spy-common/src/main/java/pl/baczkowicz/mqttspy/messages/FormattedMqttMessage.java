@@ -29,8 +29,8 @@ import pl.baczkowicz.spy.utils.ConversionUtils;
 
 public class FormattedMqttMessage extends BaseMqttMessage
 {
-	/** The first matching subscription. */ 
-	private String subscription;
+//	/** The first matching subscription. */ 
+//	private String subscription;
 	
 	/** Subscriptions matching the message's topic. */
 	private List<String> matchingSubscriptionTopics;
@@ -66,17 +66,6 @@ public class FormattedMqttMessage extends BaseMqttMessage
 		this(message.getId(), message.getTopic(), message.getRawMessage(), message.getDate(), connection);
 		setFormattedPayload(message.getPayload());
 	}	
-
-	public String getSubscription()
-	{
-		return subscription;
-	}
-
-	public void setSubscription(final String subscription)
-	{
-		this.subscription = subscription;
-	}
-	
 
 	/**
 	 * Gets the list of matching subscriptions.

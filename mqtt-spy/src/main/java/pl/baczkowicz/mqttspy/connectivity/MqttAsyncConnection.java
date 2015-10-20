@@ -36,13 +36,13 @@ import pl.baczkowicz.mqttspy.connectivity.reconnection.ReconnectionManager;
 import pl.baczkowicz.mqttspy.logger.MqttMessageLogger;
 import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.stats.StatisticsManager;
-import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
 import pl.baczkowicz.mqttspy.ui.events.EventManager;
-import pl.baczkowicz.mqttspy.ui.events.queuable.EventQueueManager;
 import pl.baczkowicz.mqttspy.ui.scripts.InteractiveScriptManager;
 import pl.baczkowicz.spy.common.generated.ScriptDetails;
 import pl.baczkowicz.spy.formatting.FormattingManager;
 import pl.baczkowicz.spy.scripts.Script;
+import pl.baczkowicz.spy.ui.events.queuable.EventQueueManager;
+import pl.baczkowicz.spy.ui.storage.ManagedMessageStoreWithFiltering;
 import pl.baczkowicz.spy.utils.ConversionUtils;
 
 /**
@@ -58,7 +58,7 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection
 	
 	private boolean isOpening;
 	
-	private final ManagedMessageStoreWithFiltering store;
+	private final ManagedMessageStoreWithFiltering<FormattedMqttMessage> store;
 
 	/** Maximum number of messages to store for this connection in each message store. */
 	private int preferredStoreSize;
@@ -74,17 +74,17 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection
 	public MqttAsyncConnection(final ReconnectionManager reconnectionManager, final RuntimeConnectionProperties properties, 
 			final MqttConnectionStatus status, final EventManager eventManager, 
 			final InteractiveScriptManager scriptManager, final FormattingManager formattingManager,
-			final EventQueueManager uiEventQueue, final ConfigurationManager configurationManager)
+			final EventQueueManager<FormattedMqttMessage> uiEventQueue, final ConfigurationManager configurationManager)
 	{ 
 		super(reconnectionManager, properties);
 		setScriptManager(scriptManager);
 		
 		// Max size is double the preferred size
-		store = new ManagedMessageStoreWithFiltering(properties.getName(), 
+		store = new ManagedMessageStoreWithFiltering<FormattedMqttMessage>(properties.getName(), 
 				properties.getConfiguredProperties().getMinMessagesStoredPerTopic(), 
 				properties.getMaxMessagesStored(), 
 				properties.getMaxMessagesStored() * 2, 
-				uiEventQueue, eventManager,
+				uiEventQueue, //eventManager,
 				formattingManager,
 				UiProperties.getSummaryMaxPayloadLength(configurationManager));
 		
@@ -414,7 +414,7 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection
 		eventManager.notifyConnectionStatusChanged(this);
 	}
 
-	public ManagedMessageStoreWithFiltering getStore()
+	public ManagedMessageStoreWithFiltering<FormattedMqttMessage> getStore()
 	{
 		return store;
 	}

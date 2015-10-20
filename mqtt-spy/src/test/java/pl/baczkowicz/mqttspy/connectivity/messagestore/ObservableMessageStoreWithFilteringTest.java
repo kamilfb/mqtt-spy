@@ -28,18 +28,18 @@ import org.junit.Before;
 import org.junit.Test;
 
 import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
-import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
-import pl.baczkowicz.mqttspy.ui.events.queuable.EventQueueManager;
+import pl.baczkowicz.spy.ui.events.queuable.EventQueueManager;
+import pl.baczkowicz.spy.ui.storage.ManagedMessageStoreWithFiltering;
 
 public class ObservableMessageStoreWithFilteringTest
 {
 	/** Class under test. */
-	private ManagedMessageStoreWithFiltering store;
+	private ManagedMessageStoreWithFiltering<FormattedMqttMessage> store;
 	
 	@Before
 	public void setUp() throws Exception
 	{
-		store = new ManagedMessageStoreWithFiltering("test", 5, 5, 5, new EventQueueManager(), null, null, 0);
+		store = new ManagedMessageStoreWithFiltering<FormattedMqttMessage>("test", 5, 5, 5, new EventQueueManager<FormattedMqttMessage>(), null, 0);
 	}
 
 	@Test

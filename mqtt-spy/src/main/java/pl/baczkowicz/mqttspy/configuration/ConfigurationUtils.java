@@ -33,8 +33,8 @@ import org.slf4j.LoggerFactory;
 import pl.baczkowicz.mqttspy.Main;
 import pl.baczkowicz.mqttspy.common.generated.MessageLog;
 import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnectionDetails;
-import pl.baczkowicz.mqttspy.storage.MessageList;
 import pl.baczkowicz.mqttspy.utils.MqttConfigurationUtils;
+import pl.baczkowicz.spy.storage.MessageList;
 import pl.baczkowicz.spy.utils.ConversionUtils;
 
 public class ConfigurationUtils

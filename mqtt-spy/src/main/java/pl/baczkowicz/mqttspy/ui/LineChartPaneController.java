@@ -73,12 +73,12 @@ import org.gillius.jfxutils.chart.StableTicksAxis;
 
 import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
 import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
-import pl.baczkowicz.mqttspy.storage.BasicMessageStoreWithSummary;
 import pl.baczkowicz.mqttspy.ui.charts.ChartMode;
 import pl.baczkowicz.mqttspy.ui.events.EventManager;
 import pl.baczkowicz.mqttspy.ui.events.observers.MessageAddedObserver;
-import pl.baczkowicz.mqttspy.ui.events.queuable.ui.BrowseReceivedMessageEvent;
 import pl.baczkowicz.mqttspy.ui.properties.MessageLimitProperties;
+import pl.baczkowicz.spy.ui.events.queuable.ui.BrowseReceivedMessageEvent;
+import pl.baczkowicz.spy.ui.storage.BasicMessageStoreWithSummary;
 import pl.baczkowicz.spy.ui.utils.DialogFactory;
 import pl.baczkowicz.mqttspy.ui.utils.StylingUtils;
 import pl.baczkowicz.spy.utils.TimeUtils;
@@ -86,7 +86,7 @@ import pl.baczkowicz.spy.utils.TimeUtils;
 /**
  * Controller for line chart pane.
  */
-public class LineChartPaneController implements Initializable, MessageAddedObserver
+public class LineChartPaneController implements Initializable, MessageAddedObserver<FormattedMqttMessage>
 {
 	private static boolean lastAutoRefresh = true;
 	
@@ -116,7 +116,7 @@ public class LineChartPaneController implements Initializable, MessageAddedObser
 	@FXML
 	private MenuButton optionsButton;
 	
-	private BasicMessageStoreWithSummary store;
+	private BasicMessageStoreWithSummary<FormattedMqttMessage> store;
 
 	private EventManager eventManager;
 	
@@ -537,9 +537,9 @@ public class LineChartPaneController implements Initializable, MessageAddedObser
 	
 	// TODO: optimise message handling
 	@Override
-	public void onMessageAdded(final List<BrowseReceivedMessageEvent> events)
+	public void onMessageAdded(final List<BrowseReceivedMessageEvent<FormattedMqttMessage>> events)
 	{
-		for (final BrowseReceivedMessageEvent event : events)
+		for (final BrowseReceivedMessageEvent<FormattedMqttMessage> event : events)
 		{
 			onMessageAdded(event.getMessage());
 		}
@@ -623,7 +623,7 @@ public class LineChartPaneController implements Initializable, MessageAddedObser
 		this.eventManager = eventManager;
 	}
 	
-	public void setStore(final BasicMessageStoreWithSummary store)
+	public void setStore(final BasicMessageStoreWithSummary<FormattedMqttMessage> store)
 	{
 		this.store = store;		
 	}	

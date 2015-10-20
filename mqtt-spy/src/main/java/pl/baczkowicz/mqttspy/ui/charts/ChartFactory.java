@@ -28,18 +28,19 @@ import javafx.scene.Scene;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
-import pl.baczkowicz.mqttspy.storage.BasicMessageStoreWithSummary;
+import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.ui.LineChartPaneController;
 import pl.baczkowicz.mqttspy.ui.PieChartPaneController;
 import pl.baczkowicz.mqttspy.ui.events.EventManager;
 import pl.baczkowicz.mqttspy.ui.properties.SubscriptionTopicSummaryProperties;
+import pl.baczkowicz.spy.ui.storage.BasicMessageStoreWithSummary;
 import pl.baczkowicz.spy.ui.utils.FxmlUtils;
 
 public class ChartFactory
 {
 
 	public static void createMessageBasedLineChart(Collection<String> topics, 
-			final BasicMessageStoreWithSummary store,
+			final BasicMessageStoreWithSummary<FormattedMqttMessage> store,
 			final ChartMode mode, 
 			final String seriesType, final String seriesValueName, 
 			final String seriesUnit, final String title, 
@@ -79,7 +80,7 @@ public class ChartFactory
 	}
 	
 	public static void createMessageBasedPieChart(final String title, 
-			final Scene parentScene, final ObservableList<SubscriptionTopicSummaryProperties> observableList)
+			final Scene parentScene, final ObservableList<SubscriptionTopicSummaryProperties<FormattedMqttMessage>> observableList)
 	{
 		final FXMLLoader loader = FxmlUtils.createFxmlLoaderForProjectFile("PieChartPane.fxml");
 		final AnchorPane chartWindow = FxmlUtils.loadAnchorPane(loader);

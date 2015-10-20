@@ -26,18 +26,18 @@ import pl.baczkowicz.mqttspy.common.generated.MessageLog;
 import pl.baczkowicz.mqttspy.common.generated.MessageLogEnum;
 import pl.baczkowicz.mqttspy.logger.SimpleMqttMessageLogComposer;
 import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
-import pl.baczkowicz.mqttspy.storage.BasicMessageStoreWithSummary;
+import pl.baczkowicz.spy.ui.storage.BasicMessageStoreWithSummary;
 
 public class MessageLogUtils
 {
-	public static String getCurrentMessageAsMessageLog(final BasicMessageStoreWithSummary store, final int messageIndex)
+	public static String getCurrentMessageAsMessageLog(final BasicMessageStoreWithSummary<FormattedMqttMessage> store, final int messageIndex)
 	{
 		final FormattedMqttMessage message = store.getMessages().get(messageIndex);
 		return SimpleMqttMessageLogComposer.createReceivedMessageLog(message, 
 				new MessageLog(MessageLogEnum.XML_WITH_PLAIN_PAYLOAD, "", true, true, false, false, false));
 	}
 	
-	public static String getAllMessagesAsMessageLog(final BasicMessageStoreWithSummary store)
+	public static String getAllMessagesAsMessageLog(final BasicMessageStoreWithSummary<FormattedMqttMessage> store)
 	{
 		final StringBuffer messagesAsString = new StringBuffer();
 		

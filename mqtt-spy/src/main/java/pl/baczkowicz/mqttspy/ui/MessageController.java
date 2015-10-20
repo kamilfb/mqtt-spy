@@ -44,7 +44,6 @@ import org.slf4j.LoggerFactory;
 import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
 import pl.baczkowicz.mqttspy.configuration.UiProperties;
 import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
-import pl.baczkowicz.mqttspy.storage.BasicMessageStoreWithSummary;
 import pl.baczkowicz.mqttspy.ui.events.observers.MessageFormatChangeObserver;
 import pl.baczkowicz.mqttspy.ui.events.observers.MessageIndexChangeObserver;
 import pl.baczkowicz.mqttspy.ui.search.SearchOptions;
@@ -54,6 +53,7 @@ import pl.baczkowicz.spy.formatting.FormattingUtils;
 import pl.baczkowicz.spy.ui.controls.StyledTextAreaWrapper;
 import pl.baczkowicz.spy.ui.controls.TextAreaInterface;
 import pl.baczkowicz.spy.ui.controls.TextAreaWrapper;
+import pl.baczkowicz.spy.ui.storage.BasicMessageStoreWithSummary;
 import pl.baczkowicz.spy.utils.TimeUtils;
 
 /**
@@ -99,7 +99,7 @@ public class MessageController implements Initializable, MessageIndexChangeObser
 	@FXML
 	private Label qosFieldLabel;
 
-	private BasicMessageStoreWithSummary store;
+	private BasicMessageStoreWithSummary<FormattedMqttMessage> store;
 	
 	private FormattedMqttMessage message;
 
@@ -453,7 +453,7 @@ public class MessageController implements Initializable, MessageIndexChangeObser
 		this.formattingManager = formattingManager;
 	}
 	
-	public void setStore(final BasicMessageStoreWithSummary store)
+	public void setStore(final BasicMessageStoreWithSummary<FormattedMqttMessage> store)
 	{
 		this.store = store;
 	}

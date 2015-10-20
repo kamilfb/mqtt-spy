@@ -29,13 +29,14 @@ import javafx.application.Platform;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import pl.baczkowicz.mqttspy.storage.MessageList;
 import pl.baczkowicz.mqttspy.ui.events.EventManager;
-import pl.baczkowicz.mqttspy.ui.events.queuable.ui.BrowseReceivedMessageEvent;
-import pl.baczkowicz.mqttspy.ui.events.queuable.ui.BrowseRemovedMessageEvent;
-import pl.baczkowicz.mqttspy.ui.events.queuable.ui.MqttSpyUIEvent;
-import pl.baczkowicz.mqttspy.ui.events.queuable.ui.TopicSummaryNewMessageEvent;
-import pl.baczkowicz.mqttspy.ui.events.queuable.ui.TopicSummaryRemovedMessageEvent;
+import pl.baczkowicz.spy.storage.MessageList;
+import pl.baczkowicz.spy.ui.events.queuable.EventQueueManager;
+import pl.baczkowicz.spy.ui.events.queuable.ui.BrowseReceivedMessageEvent;
+import pl.baczkowicz.spy.ui.events.queuable.ui.BrowseRemovedMessageEvent;
+import pl.baczkowicz.spy.ui.events.queuable.ui.SpyUIEvent;
+import pl.baczkowicz.spy.ui.events.queuable.ui.TopicSummaryNewMessageEvent;
+import pl.baczkowicz.spy.ui.events.queuable.ui.TopicSummaryRemovedMessageEvent;
 import pl.baczkowicz.spy.utils.ThreadingUtils;
 import pl.baczkowicz.spy.utils.TimeUtils;
 
@@ -87,12 +88,12 @@ public class UIEventHandler implements Runnable
 		long processed = 0;
 		while (uiEventQueue.getEventCount() > 0)
 		{
-			final Map<String, List<MqttSpyUIEvent>> events = uiEventQueue.getEvents();
+			final Map<String, List<SpyUIEvent>> events = uiEventQueue.getEvents();
 			{
 				for (final String type : events.keySet())
 				{
 					// Remove the event queue from the manager
-					final List<MqttSpyUIEvent> eventQueue = uiEventQueue.getAndRemoveEvents(type);
+					final List<SpyUIEvent> eventQueue = uiEventQueue.getAndRemoveEvents(type);
 					
 					if (eventQueue.isEmpty())
 					{
@@ -111,13 +112,13 @@ public class UIEventHandler implements Runnable
 		}
 	}
 	
-	private void processEventType(final List<MqttSpyUIEvent> eventQueue)
+	private void processEventType(final List<SpyUIEvent> eventQueue)
 	{
 		// Split by parent
-		final Map<MessageList, List<MqttSpyUIEvent>> parentToEvent = new HashMap<>();		
-		for (final MqttSpyUIEvent event : eventQueue)
+		final Map<MessageList, List<SpyUIEvent>> parentToEvent = new HashMap<>();		
+		for (final SpyUIEvent event : eventQueue)
 		{
-			List<MqttSpyUIEvent> parentQueue = parentToEvent.get(event.getList());
+			List<SpyUIEvent> parentQueue = parentToEvent.get(event.getList());
 			
 			if (parentQueue == null)
 			{
@@ -143,9 +144,9 @@ public class UIEventHandler implements Runnable
 	}
 
 	@SuppressWarnings("unchecked")
-	private void handleEvents(final List<MqttSpyUIEvent> eventQueue)
+	private void handleEvents(final List<SpyUIEvent> eventQueue)
 	{
-		final MqttSpyUIEvent event = eventQueue.get(0);
+		final SpyUIEvent event = eventQueue.get(0);
 		
 		if (event instanceof BrowseReceivedMessageEvent)
 		{
@@ -161,14 +162,14 @@ public class UIEventHandler implements Runnable
 		}
 		else if (event instanceof TopicSummaryNewMessageEvent)
 		{
-			for (final MqttSpyUIEvent item : eventQueue)
+			for (final SpyUIEvent item : eventQueue)
 			{
 				handleTopicSummaryNewMessageEvent((TopicSummaryNewMessageEvent) item);
 			}
 		}
 		else if (event instanceof TopicSummaryRemovedMessageEvent)
 		{
-			for (final MqttSpyUIEvent item : eventQueue)
+			for (final SpyUIEvent item : eventQueue)
 			{
 				handleTopicSummaryRemovedMessageEvent((TopicSummaryRemovedMessageEvent) item);
 			}			

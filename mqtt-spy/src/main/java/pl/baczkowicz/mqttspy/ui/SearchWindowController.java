@@ -43,21 +43,23 @@ import org.slf4j.LoggerFactory;
 import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
-import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
+import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.ui.events.EventManager;
 import pl.baczkowicz.mqttspy.ui.events.observers.MessageAddedObserver;
 import pl.baczkowicz.mqttspy.ui.events.observers.MessageListChangedObserver;
 import pl.baczkowicz.mqttspy.ui.events.observers.MessageRemovedObserver;
-import pl.baczkowicz.mqttspy.ui.events.queuable.ui.BrowseReceivedMessageEvent;
-import pl.baczkowicz.mqttspy.ui.events.queuable.ui.BrowseRemovedMessageEvent;
 import pl.baczkowicz.mqttspy.ui.utils.StylingUtils;
 import pl.baczkowicz.spy.formatting.FormattingManager;
+import pl.baczkowicz.spy.ui.events.queuable.ui.BrowseReceivedMessageEvent;
+import pl.baczkowicz.spy.ui.events.queuable.ui.BrowseRemovedMessageEvent;
+import pl.baczkowicz.spy.ui.storage.ManagedMessageStoreWithFiltering;
 import pl.baczkowicz.spy.ui.utils.FxmlUtils;
 
 /**
  * Controller for the search window.
  */
-public class SearchWindowController extends AnchorPane implements Initializable, MessageAddedObserver, MessageRemovedObserver, MessageListChangedObserver
+public class SearchWindowController extends AnchorPane implements Initializable, 
+	MessageAddedObserver<FormattedMqttMessage>, MessageRemovedObserver<FormattedMqttMessage>, MessageListChangedObserver
 {
 	/** Initial and minimal scene/stage width. */	
 	public final static int WIDTH = 780;
@@ -77,7 +79,7 @@ public class SearchWindowController extends AnchorPane implements Initializable,
 	
 	private Map<Tab, SearchPaneController> searchPaneControllers = new HashMap<Tab, SearchPaneController>();
 
-	private ManagedMessageStoreWithFiltering store;
+	private ManagedMessageStoreWithFiltering<FormattedMqttMessage> store;
 
 	private MqttSubscription subscription;
 
@@ -208,14 +210,14 @@ public class SearchWindowController extends AnchorPane implements Initializable,
 	
 	// TODO: optimise message handling
 	@Override
-	public void onMessageAdded(final List<BrowseReceivedMessageEvent> events)
+	public void onMessageAdded(final List<BrowseReceivedMessageEvent<FormattedMqttMessage>> events)
 	{
 		updateTitle();		
 	}
 	
 	// TODO: optimise message handling
 	@Override
-	public void onMessageRemoved(final List<BrowseRemovedMessageEvent> events)
+	public void onMessageRemoved(final List<BrowseRemovedMessageEvent<FormattedMqttMessage>> events)
 	{
 		updateTitle();
 	}
@@ -230,7 +232,7 @@ public class SearchWindowController extends AnchorPane implements Initializable,
 	// === Setters and getters =======
 	// ===============================
 
-	public void setStore(ManagedMessageStoreWithFiltering store)
+	public void setStore(ManagedMessageStoreWithFiltering<FormattedMqttMessage> store)
 	{
 		this.store = store;	
 	}

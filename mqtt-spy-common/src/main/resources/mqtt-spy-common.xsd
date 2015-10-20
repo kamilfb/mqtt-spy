@@ -22,8 +22,11 @@
 -->
 <xs:schema 	xmlns:xs="http://www.w3.org/2001/XMLSchema" 
 			xmlns:mqttspycommon="http://baczkowicz.pl/mqtt-spy/common"
+			xmlns:spycommon="http://baczkowicz.pl/spy/common"
 			targetNamespace="http://baczkowicz.pl/mqtt-spy/common">
 
+	<xs:import namespace="http://baczkowicz.pl/spy/common" />
+	
 	<!-- ====================== -->
 	<!-- === MESSAGES ========= -->
 	<!-- ====================== -->
@@ -87,17 +90,18 @@
        		<xs:element name="ClientCertificateFile"	type="xs:string" 	minOccurs="0" />
        		<xs:element name="ClientKeyFile" 			type="xs:string" 	minOccurs="0" />
        		<xs:element name="ClientKeyPassword" 		type="xs:string" 	minOccurs="0" />
-       		<xs:element name="Property" 				type="mqttspycommon:SslProperty" 	minOccurs="0" maxOccurs="unbounded"	/>       		
+       		<xs:element name="Property" 				type="spycommon:Property" 	minOccurs="0" maxOccurs="unbounded"	/>       		
    		</xs:sequence>
 	</xs:complexType>	
 	
+	<!-- 
 	<xs:complexType name="SslProperty">
 		<xs:sequence>
        		<xs:element name="Name" 	type="xs:string" 	/>
        		<xs:element name="Value"	type="xs:string" 	/>
    		</xs:sequence>
 	</xs:complexType>		
-	
+	 -->
 	<xs:simpleType name="SslModeEnum">
 		<xs:restriction base="xs:string">
 			<xs:enumeration value="DISABLED" />

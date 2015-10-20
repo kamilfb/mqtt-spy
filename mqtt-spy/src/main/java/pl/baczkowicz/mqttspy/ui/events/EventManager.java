@@ -26,10 +26,6 @@ import java.util.Map;
 import javafx.application.Platform;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
-import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
-import pl.baczkowicz.mqttspy.storage.MessageList;
-import pl.baczkowicz.mqttspy.storage.MessageListWithObservableTopicSummary;
-import pl.baczkowicz.mqttspy.storage.MessageStore;
 import pl.baczkowicz.mqttspy.ui.events.observers.ClearTabObserver;
 import pl.baczkowicz.mqttspy.ui.events.observers.ConnectionStatusChangeObserver;
 import pl.baczkowicz.mqttspy.ui.events.observers.MessageAddedObserver;
@@ -42,10 +38,14 @@ import pl.baczkowicz.mqttspy.ui.events.observers.MessageRemovedObserver;
 import pl.baczkowicz.mqttspy.ui.events.observers.ScriptListChangeObserver;
 import pl.baczkowicz.mqttspy.ui.events.observers.ScriptStateChangeObserver;
 import pl.baczkowicz.mqttspy.ui.events.observers.SubscriptionStatusChangeObserver;
-import pl.baczkowicz.mqttspy.ui.events.queuable.ui.BrowseReceivedMessageEvent;
-import pl.baczkowicz.mqttspy.ui.events.queuable.ui.BrowseRemovedMessageEvent;
 import pl.baczkowicz.spy.scripts.IScriptEventManager;
 import pl.baczkowicz.spy.scripts.ScriptRunningState;
+import pl.baczkowicz.spy.storage.MessageList;
+import pl.baczkowicz.spy.storage.MessageStore;
+import pl.baczkowicz.spy.ui.events.queuable.ui.BrowseReceivedMessageEvent;
+import pl.baczkowicz.spy.ui.events.queuable.ui.BrowseRemovedMessageEvent;
+import pl.baczkowicz.spy.ui.storage.ManagedMessageStoreWithFiltering;
+import pl.baczkowicz.spy.ui.storage.MessageListWithObservableTopicSummary;
 
 /**
  * There are two ways events are distributed around the application. First,

@@ -19,13 +19,14 @@
  */
 package pl.baczkowicz.mqttspy.ui.search;
 
-import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
-import pl.baczkowicz.mqttspy.storage.BasicMessageStore;
-import pl.baczkowicz.mqttspy.storage.MessageList;
-import pl.baczkowicz.mqttspy.ui.events.queuable.EventQueueManager;
-import pl.baczkowicz.mqttspy.ui.events.queuable.ui.BrowseRemovedMessageEvent;
+import pl.baczkowicz.spy.messages.FormattedMessage;
+import pl.baczkowicz.spy.storage.BasicMessageStore;
+import pl.baczkowicz.spy.storage.MessageList;
+import pl.baczkowicz.spy.ui.events.queuable.EventQueueManager;
+import pl.baczkowicz.spy.ui.events.queuable.ui.BrowseRemovedMessageEvent;
+import pl.baczkowicz.spy.ui.search.MessageFilter;
 
-public class UniqueContentOnlyFilter implements MessageFilter
+public class UniqueContentOnlyFilter<T extends FormattedMessage> implements MessageFilter<T>
 {
 	private boolean uniqueContentOnly;
 	
@@ -34,31 +35,31 @@ public class UniqueContentOnlyFilter implements MessageFilter
 	/** Stores events for the UI to be updated. */
 	protected final EventQueueManager uiEventQueue;
 
-	private BasicMessageStore store;
+	private BasicMessageStore<T> store;
 	
-	public UniqueContentOnlyFilter(final BasicMessageStore store, final EventQueueManager uiEventQueue)
+	public UniqueContentOnlyFilter(final BasicMessageStore<T> store, final EventQueueManager uiEventQueue)
 	{
 		this.uiEventQueue = uiEventQueue;
 		this.store = store;
 	}
 	
 	@Override
-	public boolean filter(final FormattedMqttMessage message, final MessageList messageList, final boolean updateUi)
+	public boolean filter(final T message, final MessageList<T> messageList, final boolean updateUi)
 	{
 		if (!uniqueContentOnly || messageList.getMessages().size() == 0)
 		{
 			return false;			
 		}
 		
-		final FormattedMqttMessage lastMessage = messageList.getMessages().get(0);
+		final T lastMessage = messageList.getMessages().get(0);
 		
 		if (message.getFormattedPayload().equals(lastMessage.getFormattedPayload()) && message.getTopic().equals(lastMessage.getTopic()))
 		{
-			final FormattedMqttMessage deletedMessage = messageList.getMessages().remove(0);
+			final T deletedMessage = messageList.getMessages().remove(0);
 			
 			if (updateUi)
 			{
-				uiEventQueue.add(store, new BrowseRemovedMessageEvent(messageList, deletedMessage, 0));
+				uiEventQueue.add(store, new BrowseRemovedMessageEvent<T>(messageList, deletedMessage, 0));
 			}
 			deleted++;
 		}

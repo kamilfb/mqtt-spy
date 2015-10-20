@@ -44,12 +44,13 @@ import javafx.scene.layout.AnchorPane;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.ui.properties.SubscriptionTopicSummaryProperties;
 
 /**
  * Controller for pie chart pane.
  */
-public class PieChartPaneController implements Initializable, ListChangeListener<SubscriptionTopicSummaryProperties>
+public class PieChartPaneController implements Initializable, ListChangeListener<SubscriptionTopicSummaryProperties<FormattedMqttMessage>>
 {
 	private final static Logger logger = LoggerFactory.getLogger(PieChartPaneController.class);
 	
@@ -73,7 +74,7 @@ public class PieChartPaneController implements Initializable, ListChangeListener
 	
 	private Map<String, PieChart.Data> pieChartDataMapping = new HashMap<>();
 
-	private ObservableList<SubscriptionTopicSummaryProperties> observableList;
+	private ObservableList<SubscriptionTopicSummaryProperties<FormattedMqttMessage>> observableList;
 
 	public void initialize(URL location, ResourceBundle resources)
 	{
@@ -112,7 +113,7 @@ public class PieChartPaneController implements Initializable, ListChangeListener
 	}
 	
 	@Override
-	public void onChanged(final ListChangeListener.Change<? extends SubscriptionTopicSummaryProperties> c)
+	public void onChanged(final ListChangeListener.Change<? extends SubscriptionTopicSummaryProperties<FormattedMqttMessage>> c)
 	{
 		logger.info("New data available");
 		if (autoRefreshCheckBox.isSelected())
@@ -131,14 +132,14 @@ public class PieChartPaneController implements Initializable, ListChangeListener
 		refreshFromList(observableList);
 	}
 	
-	private void refreshFromList(final Collection<SubscriptionTopicSummaryProperties> list)
+	private void refreshFromList(final Collection<SubscriptionTopicSummaryProperties<FormattedMqttMessage>> list)
 	{
 		final Set<String> currentTopics = new HashSet<String>();
 		currentTopics.addAll(pieChartDataMapping.keySet());
 		
 		synchronized (pieChartData)
 		{
-			for (final SubscriptionTopicSummaryProperties newValue : list)
+			for (final SubscriptionTopicSummaryProperties<FormattedMqttMessage> newValue : list)
 			{
 				final String topic = newValue.topicProperty().getValue();
 				final Data lastValue = pieChartDataMapping.get(topic);
@@ -170,7 +171,7 @@ public class PieChartPaneController implements Initializable, ListChangeListener
 	// === Setters and getters =======
 	// ===============================
 	
-	public void setObservableList(final ObservableList<SubscriptionTopicSummaryProperties> observableList)
+	public void setObservableList(final ObservableList<SubscriptionTopicSummaryProperties<FormattedMqttMessage>> observableList)
 	{
 		this.observableList = observableList;		
 	}	
