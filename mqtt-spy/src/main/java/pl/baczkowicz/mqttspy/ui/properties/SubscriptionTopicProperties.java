@@ -19,6 +19,7 @@
  */
 package pl.baczkowicz.mqttspy.ui.properties;
 
+import pl.baczkowicz.spy.ui.properties.BaseTopicProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;

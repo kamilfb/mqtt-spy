@@ -35,7 +35,6 @@ import pl.baczkowicz.mqttspy.common.generated.MessageLog;
 import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnectionDetails;
 import pl.baczkowicz.mqttspy.utils.MqttConfigurationUtils;
 import pl.baczkowicz.spy.storage.MessageList;
-import pl.baczkowicz.spy.utils.ConversionUtils;
 
 public class ConfigurationUtils
 {
@@ -151,92 +150,4 @@ public class ConfigurationUtils
 		
 		return false;
 	} 
-	
-	
-	public static boolean getBooleanProperty(final String propertyName, final boolean defaultValue, final ConfigurationManager configurationManager)
-	{
-		final String value = configurationManager.getUiPropertyFile().getProperty(propertyName);
-		Boolean returnValue = defaultValue;
-		
-		// Default, when non present is X
-		if (value == null || value.isEmpty())
-		{
-			returnValue = defaultValue; 
-		}
-		else
-		{			
-			try
-			{
-				returnValue = Boolean.valueOf(value);
-			}
-			catch (IllegalArgumentException e)
-			{
-				logger.error("Invalid format " + value);
-			}
-		}
-		
-		configurationManager.getUiPropertyFile().setProperty(propertyName, String.valueOf(returnValue));
-		return returnValue;
-	}
-	
-	public static double getDoubleProperty(final String propertyName, final double defaultValue, final ConfigurationManager configurationManager)
-	{
-		final String value = configurationManager.getUiPropertyFile().getProperty(propertyName);		
-		Double returnValue = defaultValue;
-		
-		try
-		{
-			returnValue = Double.valueOf(value);
-		}
-		catch (NumberFormatException e)
-		{
-			logger.error("Invalid number format " + value);
-		}
-		
-		configurationManager.getUiPropertyFile().setProperty(propertyName, String.valueOf(returnValue));
-		return returnValue;
-	}	
-	
-	public static int getIntegerProperty(final String propertyName, final int defaultValue, final ConfigurationManager configurationManager)
-	{
-		final String value = configurationManager.getUiPropertyFile().getProperty(propertyName);
-		Integer returnValue = defaultValue;
-		
-		try
-		{
-			returnValue = Integer.valueOf(value);
-		}
-		catch (NumberFormatException e)
-		{
-			logger.error("Invalid number format " + value);
-		}
-		
-		configurationManager.getUiPropertyFile().setProperty(propertyName, String.valueOf(returnValue));
-		return returnValue;
-	}	
-	
-	
-	/**
-	 * Encodes the given password to Base 64.
-	 * 
-	 * @param value The password to encode
-	 * 
-	 * @return The encoded password
-	 */
-	public static String encodePassword(final String value)
-	{
-		return ConversionUtils.stringToBase64(value);
-	}
-	
-	/**
-	 * Decodes the given password from Base 64.
-	 * 
-	 * @param value The password to decode
-	 * 
-	 * @return The decoded password
-	 */
-	public static String decodePassword(final String value)
-	{
-		return ConversionUtils.base64ToString(value);
-	}
 }

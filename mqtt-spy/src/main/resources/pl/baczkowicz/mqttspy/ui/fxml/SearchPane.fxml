@@ -79,7 +79,7 @@
 	      	<graphic>
 	      		<ImageView fitHeight="18.0" fitWidth="18.0" pickOnBounds="true">
 			         <image>
-			            <Image url="/images/tools.png"/>
+			            <Image url="/images/small/tools.png"/>
 			         </image>
 			      </ImageView>
 	      	</graphic>

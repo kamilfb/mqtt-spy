@@ -51,11 +51,11 @@ import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.ui.events.EventManager;
-import pl.baczkowicz.mqttspy.ui.events.observers.MessageAddedObserver;
-import pl.baczkowicz.mqttspy.ui.events.observers.MessageIndexIncrementObserver;
-import pl.baczkowicz.mqttspy.ui.events.observers.MessageIndexToFirstObserver;
-import pl.baczkowicz.mqttspy.ui.events.observers.MessageRemovedObserver;
 import pl.baczkowicz.mqttspy.ui.messagelog.MessageLogUtils;
+import pl.baczkowicz.spy.ui.events.observers.MessageAddedObserver;
+import pl.baczkowicz.spy.ui.events.observers.MessageIndexIncrementObserver;
+import pl.baczkowicz.spy.ui.events.observers.MessageIndexToFirstObserver;
+import pl.baczkowicz.spy.ui.events.observers.MessageRemovedObserver;
 import pl.baczkowicz.spy.ui.events.queuable.ui.BrowseReceivedMessageEvent;
 import pl.baczkowicz.spy.ui.events.queuable.ui.BrowseRemovedMessageEvent;
 import pl.baczkowicz.spy.ui.storage.BasicMessageStoreWithSummary;

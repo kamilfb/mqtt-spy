@@ -55,7 +55,7 @@
 					        <graphic>
 					      		<ImageView fx:id="searchIcon" fitHeight="16" fitWidth="16" pickOnBounds="true">
 							         <image>
-							            <Image url="/images/button-delete.png" />
+							            <Image url="/images/small/button-delete.png" />
 							         </image>
 							      </ImageView>
 					      	</graphic>
@@ -68,7 +68,7 @@
 					        <graphic>
 					      		<ImageView fx:id="searchIcon" fitHeight="16" fitWidth="16" pickOnBounds="true">
 							         <image>
-							            <Image url="/images/button-add.png" />
+							            <Image url="/images/small/button-add.png" />
 							         </image>
 							      </ImageView>
 					      	</graphic>

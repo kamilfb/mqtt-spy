@@ -3,15 +3,8 @@
  * Copyright (c) 2013-2015 ControlsFX, Kamil Baczkowicz
  * 
  * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0, 
- * Eclipse Distribution License v1.0, and BSD 3-Clause License which 
+ * are made available under the terms of the BSD 3-Clause License which 
  * accompany this distribution.
- *
- * The Eclipse Public License is available at
- *    http://www.eclipse.org/legal/epl-v10.html
- *    
- * The Eclipse Distribution License is available at
- *   http://www.eclipse.org/org/documents/edl-v10.php
  *    
  * The BSD 3-Clause License is available at
  *    http://opensource.org/licenses/BSD-3-Clause
@@ -63,8 +56,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.text.TextAlignment;
-import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
-import pl.baczkowicz.spy.ui.utils.UiUtils;
+import pl.baczkowicz.spy.ui.utils.ImageUtils;
 
 public class CommandLinksDialog
 {
@@ -86,7 +78,7 @@ public class CommandLinksDialog
         dialog.getDialogPane().getScene().getStylesheets().addAll(stylesheets);
         dialog.getDialogPane().getButtonTypes().clear();
         
-     	dialog.setGraphic(UiUtils.createImage(DialogUtils.class.getResource("/images/large/dialog-information.png").toString(), 55));
+     	dialog.setGraphic(ImageUtils.createLargeIcon("dialog-information", 55));
         dialog.setResizable(true);
         // dialog.setHeaderText(message);
         
@@ -204,7 +196,7 @@ public class CommandLinksDialog
         // GridPane.setVgrow(messageLabel, Priority.SOMETIMES);
         GridPane.setVgrow(messageLabel, Priority.ALWAYS);
         
-        Pane graphicContainer = new Pane(UiUtils.createImage(CommandLinksDialog.class.getResource("/images/go-next-green.png").toString(), 20));
+        Pane graphicContainer = new Pane(ImageUtils.createIcon("go-next-green", 20));
         graphicContainer.getStyleClass().add("graphic-container");
         GridPane.setValignment(graphicContainer, VPos.TOP);
         GridPane.setMargin(graphicContainer, new Insets(0,15,0,0));

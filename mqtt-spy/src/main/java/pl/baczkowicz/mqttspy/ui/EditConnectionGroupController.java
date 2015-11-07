@@ -133,7 +133,7 @@ public class EditConnectionGroupController extends AnchorPane implements Initial
 						{
 							if (item.contains("MQTT"))
 							{
-								final ImageView image = new ImageView(new Image(EditConnectionsController.class.getResource("/images/mqtt-icon.png").toString()));
+								final ImageView image = new ImageView(new Image(EditConnectionsController.class.getResource("/images/small/mqtt-icon.png").toString()));
 								image.setFitHeight(18);
 								image.setFitWidth(18);
 								setGraphic(image);

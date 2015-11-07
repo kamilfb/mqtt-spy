@@ -40,8 +40,6 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TitledPane;
 import javafx.scene.control.Tooltip;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
@@ -66,6 +64,7 @@ import pl.baczkowicz.spy.ui.panes.TabStatus;
 import pl.baczkowicz.spy.ui.panes.TitledPaneStatus;
 import pl.baczkowicz.spy.ui.utils.DialogFactory;
 import pl.baczkowicz.spy.ui.utils.FxmlUtils;
+import pl.baczkowicz.spy.ui.utils.ImageUtils;
 
 /**
  * Controller looking after the connection tab.
@@ -416,17 +415,11 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 	{
 		if (tlsEnabled)
 		{
-			final ImageView image = new ImageView(new Image(ConnectionController.class.getResource("/images/lock_yes.png").toString()));
-			image.setFitHeight(16);
-			image.setFitWidth(16);
-			icons.getChildren().add(image);
+			icons.getChildren().add(ImageUtils.createIcon("lock-yes", 16));
 		}
 		else if (!tlsEnabled && showBothStates)
 		{
-			final ImageView image = new ImageView(new Image(ConnectionController.class.getResource("/images/lock_no.png").toString()));
-			image.setFitHeight(16);
-			image.setFitWidth(16);
-			icons.getChildren().add(image);
+			icons.getChildren().add(ImageUtils.createIcon("lock-no", 16));
 		}		
 	}
 	
@@ -434,17 +427,11 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 	{
 		if (userAuthEnabled)
 		{
-			final ImageView image = new ImageView(new Image(ConnectionController.class.getResource("/images/auth-yes.png").toString()));
-			image.setFitHeight(19);
-			image.setFitWidth(19);
-			icons.getChildren().add(image);
+			icons.getChildren().add(ImageUtils.createIcon("auth-yes", 19));
 		}
 		else if (!userAuthEnabled && showBothStates)
 		{
-			final ImageView image = new ImageView(new Image(ConnectionController.class.getResource("/images/auth-none.png").toString()));
-			image.setFitHeight(19);
-			image.setFitWidth(19);
-			icons.getChildren().add(image);
+			icons.getChildren().add(ImageUtils.createIcon("auth-none", 19));
 		}
 	}
 	

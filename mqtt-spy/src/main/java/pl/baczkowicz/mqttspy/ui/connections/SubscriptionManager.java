@@ -40,6 +40,7 @@ import pl.baczkowicz.mqttspy.configuration.generated.TabbedSubscriptionDetails;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.connectivity.MqttConnectionStatus;
 import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
+import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.scripts.MqttScriptManager;
 import pl.baczkowicz.mqttspy.ui.ConnectionController;
 import pl.baczkowicz.mqttspy.ui.SubscriptionController;
@@ -72,7 +73,7 @@ public class SubscriptionManager
 	private final Map<String, SubscriptionController> subscriptionControllers = new LinkedHashMap<>();
 	
 	/** UI event queue to be used. */
-	private final EventQueueManager uiEventQueue;
+	private final EventQueueManager<FormattedMqttMessage> uiEventQueue;
 
 	/** Configuration manager. */
 	private ConfigurationManager configurationManager;
@@ -84,7 +85,8 @@ public class SubscriptionManager
 	 * @param configurationManager The configuration manager
 	 * @param uiEventQueue The UI event queue to be used
 	 */
-	public SubscriptionManager(final EventManager eventManager, final ConfigurationManager configurationManager, final EventQueueManager uiEventQueue)
+	public SubscriptionManager(final EventManager eventManager, final ConfigurationManager configurationManager, 
+		final EventQueueManager<FormattedMqttMessage> uiEventQueue)
 	{
 		this.eventManager = eventManager;
 		this.configurationManager = configurationManager;
@@ -161,7 +163,7 @@ public class SubscriptionManager
 	 * @return Created subscription controller for the tab
 	 */
 	protected SubscriptionController createSubscriptionTab(final boolean allTab, 
-			final ManagedMessageStoreWithFiltering observableMessageStore, final MqttSubscription subscription,
+			final ManagedMessageStoreWithFiltering<FormattedMqttMessage> observableMessageStore, final MqttSubscription subscription,
 			final MqttAsyncConnection connection, final ConnectionController connectionController)
 	{
 		// Load a new tab and connection pane

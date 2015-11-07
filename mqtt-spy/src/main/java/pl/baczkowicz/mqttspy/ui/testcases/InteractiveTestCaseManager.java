@@ -26,12 +26,12 @@ import javafx.application.Platform;
 import pl.baczkowicz.mqttspy.scripts.MqttScriptManager;
 import pl.baczkowicz.mqttspy.ui.TestCaseExecutionController;
 import pl.baczkowicz.mqttspy.ui.TestCasesExecutionController;
-import pl.baczkowicz.mqttspy.ui.properties.TestCaseProperties;
 import pl.baczkowicz.spy.scripts.ScriptRunningState;
 import pl.baczkowicz.spy.testcases.TestCase;
 import pl.baczkowicz.spy.testcases.TestCaseManager;
 import pl.baczkowicz.spy.testcases.TestCaseStatus;
 import pl.baczkowicz.spy.testcases.TestCaseStep;
+import pl.baczkowicz.spy.ui.properties.TestCaseProperties;
 import pl.baczkowicz.spy.utils.ThreadingUtils;
 
 public class InteractiveTestCaseManager extends TestCaseManager

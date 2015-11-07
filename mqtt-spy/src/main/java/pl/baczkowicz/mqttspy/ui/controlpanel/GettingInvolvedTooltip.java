@@ -60,7 +60,7 @@ public class GettingInvolvedTooltip extends Tooltip
 	public GettingInvolvedTooltip()
 	{
 		final HBox tooltipContent = new HBox();		
-		final ImageView logo = new ImageView(new Image(ControlPanelController.class.getResource("/images/mqtt-spy-logo.png").toString()));
+		final ImageView logo = new ImageView(new Image(ControlPanelController.class.getResource("/images/large/mqtt-spy-logo.png").toString()));
 		logo.setFitHeight(70);
 		logo.setFitWidth(70);
 		final Label text = new Label(

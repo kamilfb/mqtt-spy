@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 import pl.baczkowicz.mqttspy.common.generated.MqttConnectionDetails;
 import pl.baczkowicz.mqttspy.common.generated.ProtocolVersionEnum;
 import pl.baczkowicz.mqttspy.daemon.configuration.generated.MqttSpyDaemonConfiguration;
-import pl.baczkowicz.mqttspy.utils.ConfigurationUtils;
+import pl.baczkowicz.mqttspy.utils.MqttConfigurationUtils;
 import pl.baczkowicz.mqttspy.utils.MqttUtils;
 import pl.baczkowicz.spy.common.generated.ScriptDetails;
 import pl.baczkowicz.spy.configuration.PropertyFileLoader;
@@ -63,8 +63,8 @@ public class MqttSpyDaemonConfigLoader extends PropertyFileLoader
 		readFromClassPath(MqttSpyDaemonConstants.DEFAULT_PROPERTIES_FILE_NAME);
 		
 		this.parser = new XMLParser(MqttSpyDaemonConstants.PACKAGE, 
-				new String[] {	ConfigurationUtils.SPY_COMMON_SCHEMA, 
-								ConfigurationUtils.MQTT_COMMON_SCHEMA, 
+				new String[] {	MqttConfigurationUtils.SPY_COMMON_SCHEMA, 
+								MqttConfigurationUtils.MQTT_COMMON_SCHEMA, 
 								MqttSpyDaemonConstants.SCHEMA});					
 	}
 	
@@ -101,7 +101,7 @@ public class MqttSpyDaemonConfigLoader extends PropertyFileLoader
 	 */
 	private void populateDefaults()
 	{				
-		ConfigurationUtils.populateMessageLogDefaults(configuration.getConnection().getMessageLog());
+		MqttConfigurationUtils.populateMessageLogDefaults(configuration.getConnection().getMessageLog());
 		populateDaemonDefaults(configuration.getConnection().getBackgroundScript());
 		generateClientIdIfMissing(configuration.getConnection());
 	}

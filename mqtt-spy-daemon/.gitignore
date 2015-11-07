@@ -2,3 +2,8 @@
 /target/
 /mqtt-spy-daemon.messages
 /mqtt-spy-daemon.log
+/mqtt-spy-daemon.log.1
+/.settings/
+/.classpath
+/.gitignore
+/.project

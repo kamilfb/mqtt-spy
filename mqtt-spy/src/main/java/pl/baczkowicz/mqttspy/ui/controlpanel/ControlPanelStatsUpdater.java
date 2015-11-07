@@ -137,19 +137,19 @@ public class ControlPanelStatsUpdater implements Runnable
 		controlPanelItemController.getDetails().getChildren().addAll(items);
 		
 		statsPlaying = true;
-		ControlPanelItemController.setButtonProperties(controlPanelItemController.getButton1(), "/images/pause.png", true, new EventHandler<ActionEvent>()
+		ControlPanelItemController.setButtonProperties(controlPanelItemController.getButton1(), "/images/small/pause.png", true, new EventHandler<ActionEvent>()
 		{			
 			@Override
 			public void handle(ActionEvent event)
 			{
 				if (statsPlaying)
 				{
-					ControlPanelItemController.setButtonProperties(controlPanelItemController.getButton1(), "/images/play.png", true);
+					ControlPanelItemController.setButtonProperties(controlPanelItemController.getButton1(), "/images/small/play.png", true);
 					statsPlaying = false;
 				}
 				else
 				{
-					ControlPanelItemController.setButtonProperties(controlPanelItemController.getButton1(), "/images/pause.png", true);
+					ControlPanelItemController.setButtonProperties(controlPanelItemController.getButton1(), "/images/small/pause.png", true);
 					statsPlaying = true;
 				}
 				event.consume();

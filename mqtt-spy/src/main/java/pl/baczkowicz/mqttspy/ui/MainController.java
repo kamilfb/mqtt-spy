@@ -62,6 +62,7 @@ import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
 import pl.baczkowicz.spy.exceptions.ConfigurationException;
 import pl.baczkowicz.spy.exceptions.SpyUncaughtExceptionHandler;
 import pl.baczkowicz.spy.exceptions.XMLException;
+import pl.baczkowicz.spy.ui.panes.SpyPerspective;
 import pl.baczkowicz.spy.ui.panes.PaneVisibilityStatus;
 import pl.baczkowicz.spy.ui.utils.FxmlUtils;
 
@@ -125,7 +126,7 @@ public class MainController
 	
 	private Stage testCasesStage;
 
-	private MqttSpyPerspective selectedPerspective = MqttSpyPerspective.DEFAULT;
+	private SpyPerspective selectedPerspective = SpyPerspective.DEFAULT;
 	
 	private double lastWidth;
 	
@@ -360,7 +361,7 @@ public class MainController
 	 * 
 	 * @param selectedPerspective the selectedPerspective to set
 	 */
-	public void setSelectedPerspective(final MqttSpyPerspective selectedPerspective)
+	public void setSelectedPerspective(final SpyPerspective selectedPerspective)
 	{
 		this.selectedPerspective = selectedPerspective;
 		
@@ -505,19 +506,19 @@ public class MainController
 	{
 		if (spyPerspective.isSelected())
 		{
-			selectedPerspective = MqttSpyPerspective.SPY;
+			selectedPerspective = SpyPerspective.SPY;
 		}
 		else if (superSpyPerspective.isSelected())
 		{
-			selectedPerspective = MqttSpyPerspective.SUPER_SPY;
+			selectedPerspective = SpyPerspective.SUPER_SPY;
 		}		
 		else if (detailedPerspective.isSelected())
 		{
-			selectedPerspective = MqttSpyPerspective.DETAILED;
+			selectedPerspective = SpyPerspective.DETAILED;
 		}
 		else
 		{
-			selectedPerspective = MqttSpyPerspective.DEFAULT;
+			selectedPerspective = SpyPerspective.DEFAULT;
 		}
 		
 		for (final ConnectionController connectionController : connectionManager.getConnectionControllers())

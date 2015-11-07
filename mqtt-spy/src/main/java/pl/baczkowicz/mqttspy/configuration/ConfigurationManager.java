@@ -43,12 +43,13 @@ import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnection
 import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnectionDetailsV010;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
-import pl.baczkowicz.mqttspy.ui.MqttSpyPerspective;
 import pl.baczkowicz.mqttspy.ui.events.EventManager;
 import pl.baczkowicz.spy.common.generated.FormatterDetails;
 import pl.baczkowicz.spy.common.generated.Formatting;
 import pl.baczkowicz.spy.configuration.PropertyFileLoader;
 import pl.baczkowicz.spy.exceptions.XMLException;
+import pl.baczkowicz.spy.ui.configuration.UiProperties;
+import pl.baczkowicz.spy.ui.panes.SpyPerspective;
 import pl.baczkowicz.spy.ui.utils.DialogFactory;
 import pl.baczkowicz.spy.utils.ThreadingUtils;
 import pl.baczkowicz.spy.utils.TimeUtils;
@@ -526,7 +527,7 @@ public class ConfigurationManager
 	}
 
 	public void saveUiProperties(final double width, final double height, boolean maximized, 
-			final MqttSpyPerspective selectedPerspective, final boolean resizeMessagePane)
+			final SpyPerspective selectedPerspective, final boolean resizeMessagePane)
 	{
 		uiPropertyFile.setProperty(UiProperties.WIDTH_PROPERTY, String.valueOf(width));
 		uiPropertyFile.setProperty(UiProperties.HEIGHT_PROPERTY, String.valueOf(height));

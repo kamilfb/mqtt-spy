@@ -50,7 +50,7 @@
 		    <graphic>
 		  		<ImageView fitHeight="22" fitWidth="22" pickOnBounds="true">
 		       <image>
-		          <Image url="/images/button-connect.png" />
+		          <Image url="/images/small/button-connect.png" />
 		       </image>
 		    </ImageView>
 		  	</graphic>
@@ -61,7 +61,7 @@
 		        <graphic>
 		      		<ImageView fitHeight="16" fitWidth="16" pickOnBounds="true">
 				         <image>
-				            <Image url="/images/button-apply.png" />
+				            <Image url="/images/small/button-apply.png" />
 				         </image>
 				      </ImageView>
 		      	</graphic>
@@ -72,7 +72,7 @@
 		        <graphic>
 		      		<ImageView fitHeight="16" fitWidth="16" pickOnBounds="true">
 				         <image>
-				            <Image url="/images/button-undo.png" />
+				            <Image url="/images/small/button-undo.png" />
 				         </image>
 				      </ImageView>
 		      	</graphic>

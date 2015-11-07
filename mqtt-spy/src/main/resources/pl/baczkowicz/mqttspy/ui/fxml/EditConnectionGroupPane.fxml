@@ -44,7 +44,7 @@
 		    <graphic>
 		  		<ImageView fitHeight="22" fitWidth="22" pickOnBounds="true">
 		       <image>
-		          <Image url="/images/button-connect.png" />
+		          <Image url="/images/small/button-connect.png" />
 		       </image>
 		    </ImageView>
 		  	</graphic>
@@ -55,7 +55,7 @@
 	        <graphic>
 	      		<ImageView fitHeight="16" fitWidth="16" pickOnBounds="true">
 			         <image>
-			            <Image url="/images/button-apply.png" />
+			            <Image url="/images/small/button-apply.png" />
 			         </image>
 			      </ImageView>
 	      	</graphic>
@@ -66,7 +66,7 @@
 	        <graphic>
 	      		<ImageView fitHeight="16" fitWidth="16" pickOnBounds="true">
 			         <image>
-			            <Image url="/images/button-undo.png" />
+			            <Image url="/images/small/button-undo.png" />
 			         </image>
 			      </ImageView>
 	      	</graphic>
@@ -77,8 +77,7 @@
         <columns>
           <TableColumn fx:id="nameColumn" maxWidth="1000.0" minWidth="100.0" prefWidth="180.0" text="Name" />
           <TableColumn fx:id="protocolColumn" maxWidth="150" minWidth="100" prefWidth="120" text="Protocol" />
-            <TableColumn fx:id="detailsColumn" maxWidth="1000.0" minWidth="100.0" prefWidth="250.0" text="Connection details" />
-          <!-- <TableColumn fx:id="securityColumn" maxWidth="90" minWidth="80.0" prefWidth="90" resizable="false" text="Security" /> -->  
+          <TableColumn fx:id="detailsColumn" maxWidth="1000.0" minWidth="100.0" prefWidth="250.0" text="Connection details" />  
         </columns>
       </TableView>          
       

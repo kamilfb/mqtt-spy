@@ -36,6 +36,7 @@ import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.connectivity.MqttConnectionStatus;
 import pl.baczkowicz.mqttspy.ui.controls.CommandLinksDialog;
 import pl.baczkowicz.mqttspy.ui.controls.DialogAction;
+import pl.baczkowicz.spy.configuration.BaseConfigurationUtils;
 import pl.baczkowicz.spy.ui.utils.DialogFactory;
 
 /**
@@ -58,7 +59,7 @@ public class DialogUtils
 	{
 		final Pair<String, String> userInfo = new Pair<String, String>(
 				userCredentials.getUsername(), 
-				ConfigurationUtils.decodePassword(userCredentials.getPassword()));
+				BaseConfigurationUtils.decodePassword(userCredentials.getPassword()));
 		
 		Optional<Pair<String, String>> response = DialogFactory.createUsernameAndPasswordDialog(
 				"MQTT user credentials",
@@ -68,7 +69,7 @@ public class DialogUtils
 		if (response.isPresent())
 		{
 			userCredentials.setUsername(response.get().getKey());			
-			userCredentials.setPassword(ConfigurationUtils.encodePassword(response.get().getValue()));
+			userCredentials.setPassword(BaseConfigurationUtils.encodePassword(response.get().getValue()));
 			return true;
 		}
 		

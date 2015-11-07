@@ -134,7 +134,7 @@ public class ControlPanelItemController extends AnchorPane implements Initializa
 				imageLocation = "/images/large/dialog-error.png";
 				break;
 			case STATS:
-				imageLocation = "/images/large/stats.png";
+				imageLocation = "/images/large/rating.png";
 				break;
 			default:
 				imageLocation = "/images/large/dialog-error.png";
@@ -159,13 +159,13 @@ public class ControlPanelItemController extends AnchorPane implements Initializa
 				statusIcon.setFitHeight(64);
 				statusIcon.setFitWidth(64);
 			}
-			else if (status == ItemStatus.STATS)
-			{
-				statusIcon.setLayoutY(20);
-				statusIcon.setLayoutX(20);
-				statusIcon.setFitHeight(55);
-				statusIcon.setFitWidth(55);
-			}
+//			else if (status == ItemStatus.STATS)
+//			{
+//				statusIcon.setLayoutY(10);
+//				statusIcon.setLayoutX(10);
+//				statusIcon.setFitHeight(64);
+//				statusIcon.setFitWidth(64);
+//			}
 			else
 			{
 				statusIcon.setLayoutY(10);

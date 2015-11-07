@@ -48,9 +48,9 @@ import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
 import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.ui.events.EventManager;
-import pl.baczkowicz.mqttspy.ui.events.observers.MessageIndexChangeObserver;
-import pl.baczkowicz.mqttspy.ui.properties.MessageContentProperties;
 import pl.baczkowicz.mqttspy.ui.utils.StylingUtils;
+import pl.baczkowicz.spy.ui.events.observers.MessageIndexChangeObserver;
+import pl.baczkowicz.spy.ui.properties.MessageContentProperties;
 import pl.baczkowicz.spy.ui.storage.BasicMessageStoreWithSummary;
 import pl.baczkowicz.spy.ui.utils.UiUtils;
 

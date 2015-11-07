@@ -49,13 +49,13 @@ import javafx.scene.layout.AnchorPane;
 import javafx.util.Callback;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.ui.events.EventManager;
-import pl.baczkowicz.mqttspy.ui.events.observers.ScriptStateChangeObserver;
-import pl.baczkowicz.mqttspy.ui.properties.PublicationScriptProperties;
 import pl.baczkowicz.mqttspy.ui.scripts.InteractiveScriptManager;
-import pl.baczkowicz.mqttspy.ui.scripts.ScriptTypeEnum;
 import pl.baczkowicz.spy.scripts.ScriptRunningState;
+import pl.baczkowicz.spy.ui.events.observers.ScriptStateChangeObserver;
 import pl.baczkowicz.spy.ui.panes.PaneVisibilityStatus;
 import pl.baczkowicz.spy.ui.panes.TitledPaneController;
+import pl.baczkowicz.spy.ui.properties.PublicationScriptProperties;
+import pl.baczkowicz.spy.ui.scripts.ScriptTypeEnum;
 import pl.baczkowicz.spy.ui.utils.DialogFactory;
 import pl.baczkowicz.spy.ui.utils.UiUtils;
 

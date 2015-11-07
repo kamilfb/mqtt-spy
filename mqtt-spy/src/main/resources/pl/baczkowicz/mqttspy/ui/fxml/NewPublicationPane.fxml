@@ -82,9 +82,9 @@
 			<!-- <padding><Insets bottom="1.0" left="2.0" right="2.0" top="1.0" /></padding> -->
 
 			<graphic>
-	      		<ImageView fx:id="settingsIcon" fitHeight="24" fitWidth="24" pickOnBounds="true">
+	      		<ImageView fitHeight="24" fitWidth="24" pickOnBounds="true">
 			         <image>
-			            <Image url="/images/send-icon.png" />
+			            <Image url="/images/small/mail-forward-6.png" />
 			         </image>
 			      </ImageView>
 	      	</graphic>

@@ -42,7 +42,7 @@
 		        <graphic>
 		      		<ImageView fitHeight="16" fitWidth="16" pickOnBounds="true">
 				         <image>
-				            <Image url="/images/refresh.png" />
+				            <Image url="/images/small/refresh.png" />
 				         </image>
 				      </ImageView>
 		      	</graphic>

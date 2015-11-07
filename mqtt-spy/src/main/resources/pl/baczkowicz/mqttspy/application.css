@@ -151,14 +151,6 @@
 	-fx-base: tan;
 }
 
-/* pane-settings-button is the ID of a MenuButton */
-
-/*
- *       -fx-border-width: 0 0 0 0, 0, 0, 0;
- * 	 -fx-background-insets: 0 0 0 0, 0, 0, 0;
-    -fx-background-radius: 0 0 0 0, 0, 0, 0;
- */
- 
 .pane-settings-menu-item {
 	-fx-font: 11px "System"; 
 	-fx-padding: 5;

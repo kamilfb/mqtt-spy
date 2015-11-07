@@ -48,9 +48,9 @@ import pl.baczkowicz.mqttspy.common.generated.PublicationDetails;
 import pl.baczkowicz.mqttspy.configuration.ConfiguredConnectionDetails;
 import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnectionDetails;
 import pl.baczkowicz.mqttspy.ui.EditConnectionController;
-import pl.baczkowicz.mqttspy.ui.properties.BackgroundScriptProperties;
-import pl.baczkowicz.mqttspy.ui.properties.BaseTopicProperty;
 import pl.baczkowicz.spy.common.generated.ScriptDetails;
+import pl.baczkowicz.spy.ui.properties.BackgroundScriptProperties;
+import pl.baczkowicz.spy.ui.properties.BaseTopicProperty;
 
 /**
  * Controller for editing a single connection - publications tab.

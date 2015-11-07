@@ -28,11 +28,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
-import org.eclipse.paho.client.mqttv3.MqttMessage;
-import org.fxmisc.richtext.StyleClassedTextArea;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -63,24 +58,30 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.TextAlignment;
+
+import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.fxmisc.richtext.StyleClassedTextArea;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import pl.baczkowicz.mqttspy.common.generated.SimpleMqttMessage;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.messages.BaseMqttMessage;
 import pl.baczkowicz.mqttspy.scripts.MqttScriptManager;
 import pl.baczkowicz.mqttspy.ui.events.EventManager;
-import pl.baczkowicz.mqttspy.ui.events.observers.ScriptListChangeObserver;
-import pl.baczkowicz.mqttspy.ui.properties.PublicationScriptProperties;
 import pl.baczkowicz.mqttspy.ui.scripts.InteractiveScriptManager;
-import pl.baczkowicz.mqttspy.ui.scripts.ScriptTypeEnum;
 import pl.baczkowicz.mqttspy.utils.MqttUtils;
 import pl.baczkowicz.spy.common.generated.ConversionMethod;
 import pl.baczkowicz.spy.exceptions.ConversionException;
 import pl.baczkowicz.spy.scripts.Script;
+import pl.baczkowicz.spy.ui.events.observers.ScriptListChangeObserver;
 import pl.baczkowicz.spy.ui.keyboard.TimeBasedKeyEventFilter;
 import pl.baczkowicz.spy.ui.panes.PaneVisibilityStatus;
 import pl.baczkowicz.spy.ui.panes.TitledPaneController;
+import pl.baczkowicz.spy.ui.properties.PublicationScriptProperties;
+import pl.baczkowicz.spy.ui.scripts.ScriptTypeEnum;
 import pl.baczkowicz.spy.ui.utils.DialogFactory;
-import pl.baczkowicz.spy.ui.utils.UiUtils;
+import pl.baczkowicz.spy.ui.utils.ImageUtils;
 import pl.baczkowicz.spy.utils.ConversionUtils;
 import pl.baczkowicz.spy.utils.FileUtils;
 import pl.baczkowicz.spy.utils.TimeUtils;
@@ -357,10 +358,10 @@ public class NewPublicationController implements Initializable, ScriptListChange
 		button.setFocusTraversable(false);
 		// button.setMaxHeight(16);
 		
-		button.setGraphic(UiUtils.createImage(iconLocation, 14));
+		button.setGraphic(ImageUtils.createImage(iconLocation, 14));
 		
 		// TODO: actions
-		final MenuItem detach = new MenuItem("Detach to a separate window", UiUtils.createImage("images/tab-detach.png", 14, "pane-settings-menu-graphic"));
+		final MenuItem detach = new MenuItem("Detach to a separate window", ImageUtils.createImage("images/small/tab-detach.png", 14, "pane-settings-menu-graphic"));
 		detach.setOnAction(new EventHandler<ActionEvent>()
 		{
 			@Override
@@ -371,7 +372,7 @@ public class NewPublicationController implements Initializable, ScriptListChange
 						PaneVisibilityStatus.DETACHED);				
 			}
 		});
-		final MenuItem hide = new MenuItem("Hide this pane", UiUtils.createImage("images/tab-close.png", 14, "pane-settings-menu-graphic"));
+		final MenuItem hide = new MenuItem("Hide this pane", ImageUtils.createImage("images/small/tab-close.png", 14, "pane-settings-menu-graphic"));
 		hide.setOnAction(new EventHandler<ActionEvent>()
 		{
 			@Override
@@ -399,7 +400,7 @@ public class NewPublicationController implements Initializable, ScriptListChange
 	
 	public static MenuButton createTitleButtons(final TitledPane pane, final AnchorPane paneTitle, final ConnectionController connectionController)	
 	{
-		final MenuButton settingsButton = createTitleButton("Pane settings", "images/settings.png", -5, connectionController, pane);
+		final MenuButton settingsButton = createTitleButton("Pane settings", "images/small/settings.png", -5, connectionController, pane);
 			      
 		HBox titleBox = new HBox();
 		titleBox.setPadding(new Insets(0, 0, 0, 0));	

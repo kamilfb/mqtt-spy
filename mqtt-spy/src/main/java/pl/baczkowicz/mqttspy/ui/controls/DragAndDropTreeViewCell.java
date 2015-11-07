@@ -287,7 +287,7 @@ public class DragAndDropTreeViewCell extends TreeCell<ConnectionTreeItemProperti
 			
 			if (!item.isGroup())
 			{
-				image = new ImageView(new Image(EditConnectionsController.class.getResource("/images/mqtt-icon.png").toString()));
+				image = new ImageView(new Image(EditConnectionsController.class.getResource("/images/small/mqtt-icon.png").toString()));
 			}		
 			else
 			{
@@ -298,11 +298,11 @@ public class DragAndDropTreeViewCell extends TreeCell<ConnectionTreeItemProperti
 				
 				if (item.getChildren().isEmpty())
 				{
-					image = new ImageView(new Image(EditConnectionsController.class.getResource("/images/folder-grey.png").toString()));
+					image = new ImageView(new Image(EditConnectionsController.class.getResource("/images/small/folder-grey.png").toString()));
 				}
 				else
 				{
-					image = new ImageView(new Image(EditConnectionsController.class.getResource("/images/folder-yellow.png").toString()));
+					image = new ImageView(new Image(EditConnectionsController.class.getResource("/images/small/folder-yellow.png").toString()));
 				}
 			}
 			

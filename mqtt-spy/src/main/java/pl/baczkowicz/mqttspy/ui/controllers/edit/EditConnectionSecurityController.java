@@ -57,16 +57,16 @@ import javafx.util.StringConverter;
 import javax.net.ssl.SSLContext;
 
 import pl.baczkowicz.mqttspy.common.generated.SslModeEnum;
-import pl.baczkowicz.spy.common.generated.Property;
 import pl.baczkowicz.mqttspy.common.generated.SslSettings;
 import pl.baczkowicz.mqttspy.common.generated.UserCredentials;
-import pl.baczkowicz.mqttspy.configuration.ConfigurationUtils;
 import pl.baczkowicz.mqttspy.configuration.ConfiguredConnectionDetails;
 import pl.baczkowicz.mqttspy.configuration.generated.UserAuthenticationOptions;
 import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnectionDetails;
 import pl.baczkowicz.mqttspy.ui.ConnectionController;
 import pl.baczkowicz.mqttspy.ui.EditConnectionController;
-import pl.baczkowicz.mqttspy.ui.properties.KeyValueProperty;
+import pl.baczkowicz.spy.common.generated.Property;
+import pl.baczkowicz.spy.configuration.BaseConfigurationUtils;
+import pl.baczkowicz.spy.ui.properties.KeyValueProperty;
 
 /**
  * Controller for editing a single connection - security tab.
@@ -357,7 +357,7 @@ public class EditConnectionSecurityController extends AnchorPane implements Init
 			
 			final UserCredentials userCredentials = new UserCredentials();
 			userCredentials.setUsername(username.getText());
-			userCredentials.setPassword(ConfigurationUtils.encodePassword(password.getText()));			
+			userCredentials.setPassword(BaseConfigurationUtils.encodePassword(password.getText()));			
 			
 			connection.setUserAuthentication(userAuthentication);
 			connection.setUserCredentials(userCredentials);
@@ -442,7 +442,7 @@ public class EditConnectionSecurityController extends AnchorPane implements Init
 		if (userAuthentication.isSelected())
 		{			
 			username.setText(connection.getUserCredentials().getUsername());			
-			password.setText(ConfigurationUtils.decodePassword(connection.getUserCredentials().getPassword()));	
+			password.setText(BaseConfigurationUtils.decodePassword(connection.getUserCredentials().getPassword()));	
 			
 			askForUsername.setSelected(connection.getUserAuthentication().isAskForUsername());
 			askForPassword.setSelected(connection.getUserAuthentication().isAskForPassword());
