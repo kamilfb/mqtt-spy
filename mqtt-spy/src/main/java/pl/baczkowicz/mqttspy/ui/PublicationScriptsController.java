@@ -48,6 +48,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
 import javafx.util.Callback;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
+import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.ui.events.EventManager;
 import pl.baczkowicz.mqttspy.ui.scripts.InteractiveScriptManager;
 import pl.baczkowicz.spy.scripts.ScriptRunningState;
@@ -92,7 +93,7 @@ public class PublicationScriptsController implements Initializable, ScriptStateC
 
 	private InteractiveScriptManager scriptManager;
 
-	private EventManager eventManager;
+	private EventManager<FormattedMqttMessage> eventManager;
 
 	private Map<ScriptTypeEnum, ContextMenu> contextMenus = new HashMap<>();
 
@@ -344,7 +345,7 @@ public class PublicationScriptsController implements Initializable, ScriptStateC
 		scriptManager.stopScriptFile(file);
 	}
 	
-	public void setEventManager(final EventManager eventManager)
+	public void setEventManager(final EventManager<FormattedMqttMessage> eventManager)
 	{
 		this.eventManager = eventManager;
 	}

@@ -52,6 +52,7 @@ import pl.baczkowicz.mqttspy.configuration.ConfiguredConnectionDetails;
 import pl.baczkowicz.mqttspy.configuration.generated.TabbedSubscriptionDetails;
 import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnectionDetails;
 import pl.baczkowicz.mqttspy.messages.BaseMqttMessage;
+import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.stats.ConnectionStatsUpdater;
 import pl.baczkowicz.mqttspy.stats.StatisticsManager;
 import pl.baczkowicz.mqttspy.ui.connections.ConnectionManager;
@@ -116,7 +117,7 @@ public class MainController
 	
 	private Scene scene;
 
-	private EventManager eventManager;
+	private EventManager<FormattedMqttMessage> eventManager;
 	
 	private StatisticsManager statisticsManager;
 
@@ -648,7 +649,7 @@ public class MainController
 	 *  
 	 * @param eventManager the eventManager to set
 	 */
-	public void setEventManager(EventManager eventManager)
+	public void setEventManager(EventManager<FormattedMqttMessage> eventManager)
 	{
 		this.eventManager = eventManager;
 	}

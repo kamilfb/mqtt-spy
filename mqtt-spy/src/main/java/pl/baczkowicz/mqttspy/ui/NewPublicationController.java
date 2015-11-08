@@ -67,6 +67,7 @@ import org.slf4j.LoggerFactory;
 import pl.baczkowicz.mqttspy.common.generated.SimpleMqttMessage;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.messages.BaseMqttMessage;
+import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.scripts.MqttScriptManager;
 import pl.baczkowicz.mqttspy.ui.events.EventManager;
 import pl.baczkowicz.mqttspy.ui.scripts.InteractiveScriptManager;
@@ -156,7 +157,7 @@ public class NewPublicationController implements Initializable, ScriptListChange
 	
 	private InteractiveScriptManager scriptManager;
 
-	private EventManager eventManager;
+	private EventManager<FormattedMqttMessage> eventManager;
 	
 	private List<BaseMqttMessage> recentMessages = new ArrayList<>();
 
@@ -945,7 +946,7 @@ public class NewPublicationController implements Initializable, ScriptListChange
 		this.scriptManager = scriptManager;
 	}
 	
-	public void setEventManager(final EventManager eventManager)
+	public void setEventManager(final EventManager<FormattedMqttMessage> eventManager)
 	{
 		this.eventManager = eventManager;
 	}

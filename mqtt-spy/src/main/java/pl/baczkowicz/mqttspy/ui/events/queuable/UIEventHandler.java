@@ -29,6 +29,7 @@ import javafx.application.Platform;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.ui.events.EventManager;
 import pl.baczkowicz.spy.storage.MessageList;
 import pl.baczkowicz.spy.ui.events.queuable.EventQueueManager;
@@ -50,11 +51,11 @@ public class UIEventHandler implements Runnable
 {
 	final static Logger logger = LoggerFactory.getLogger(UIEventHandler.class);
 	
-	private final EventQueueManager uiEventQueue;
+	private final EventQueueManager<FormattedMqttMessage> uiEventQueue;
 	
-	private final EventManager eventManager;
+	private final EventManager<FormattedMqttMessage> eventManager;
 
-	public UIEventHandler(final EventQueueManager uiEventQueue, final EventManager eventManager)
+	public UIEventHandler(final EventQueueManager<FormattedMqttMessage> uiEventQueue, final EventManager<FormattedMqttMessage> eventManager)
 	{
 		this.uiEventQueue = uiEventQueue;
 		this.eventManager = eventManager;
@@ -88,12 +89,12 @@ public class UIEventHandler implements Runnable
 		long processed = 0;
 		while (uiEventQueue.getEventCount() > 0)
 		{
-			final Map<String, List<SpyUIEvent>> events = uiEventQueue.getEvents();
+			final Map<String, List<SpyUIEvent<FormattedMqttMessage>>> events = uiEventQueue.getEvents();
 			{
 				for (final String type : events.keySet())
 				{
 					// Remove the event queue from the manager
-					final List<SpyUIEvent> eventQueue = uiEventQueue.getAndRemoveEvents(type);
+					final List<SpyUIEvent<FormattedMqttMessage>> eventQueue = uiEventQueue.getAndRemoveEvents(type);
 					
 					if (eventQueue.isEmpty())
 					{
@@ -112,13 +113,13 @@ public class UIEventHandler implements Runnable
 		}
 	}
 	
-	private void processEventType(final List<SpyUIEvent> eventQueue)
+	private void processEventType(final List<SpyUIEvent<FormattedMqttMessage>> eventQueue)
 	{
 		// Split by parent
-		final Map<MessageList, List<SpyUIEvent>> parentToEvent = new HashMap<>();		
-		for (final SpyUIEvent event : eventQueue)
+		final Map<MessageList<FormattedMqttMessage>, List<SpyUIEvent<FormattedMqttMessage>>> parentToEvent = new HashMap<>();		
+		for (final SpyUIEvent<FormattedMqttMessage> event : eventQueue)
 		{
-			List<SpyUIEvent> parentQueue = parentToEvent.get(event.getList());
+			List<SpyUIEvent<FormattedMqttMessage>> parentQueue = parentToEvent.get(event.getList());
 			
 			if (parentQueue == null)
 			{
@@ -130,7 +131,7 @@ public class UIEventHandler implements Runnable
 		}
 
 		// Process in batches
-		for (final MessageList parent : parentToEvent.keySet())
+		for (final MessageList<FormattedMqttMessage> parent : parentToEvent.keySet())
 		{
 			Platform.runLater(new Runnable()
 			{				
@@ -144,39 +145,39 @@ public class UIEventHandler implements Runnable
 	}
 
 	@SuppressWarnings("unchecked")
-	private void handleEvents(final List<SpyUIEvent> eventQueue)
+	private void handleEvents(final List<SpyUIEvent<FormattedMqttMessage>> eventQueue)
 	{
-		final SpyUIEvent event = eventQueue.get(0);
+		final SpyUIEvent<FormattedMqttMessage> event = eventQueue.get(0);
 		
 		if (event instanceof BrowseReceivedMessageEvent)
 		{
 			eventManager.notifyMessageAdded(
-					(List<BrowseReceivedMessageEvent>)(Object)eventQueue, 
-					((BrowseReceivedMessageEvent) event).getList());
+					(List<BrowseReceivedMessageEvent<FormattedMqttMessage>>)(Object)eventQueue, 
+					((BrowseReceivedMessageEvent<FormattedMqttMessage>) event).getList());
 		}
 		else if (event instanceof BrowseRemovedMessageEvent)
 		{
 			eventManager.notifyMessageRemoved(
-					(List<BrowseRemovedMessageEvent>)(Object)eventQueue, 
+					(List<BrowseRemovedMessageEvent<FormattedMqttMessage>>)(Object)eventQueue, 
 					event.getList());
 		}
 		else if (event instanceof TopicSummaryNewMessageEvent)
 		{
-			for (final SpyUIEvent item : eventQueue)
+			for (final SpyUIEvent<FormattedMqttMessage> item : eventQueue)
 			{
-				handleTopicSummaryNewMessageEvent((TopicSummaryNewMessageEvent) item);
+				handleTopicSummaryNewMessageEvent((TopicSummaryNewMessageEvent<FormattedMqttMessage>) item);
 			}
 		}
 		else if (event instanceof TopicSummaryRemovedMessageEvent)
 		{
-			for (final SpyUIEvent item : eventQueue)
+			for (final SpyUIEvent<FormattedMqttMessage> item : eventQueue)
 			{
-				handleTopicSummaryRemovedMessageEvent((TopicSummaryRemovedMessageEvent) item);
+				handleTopicSummaryRemovedMessageEvent((TopicSummaryRemovedMessageEvent<FormattedMqttMessage>) item);
 			}			
 		}
 	}
 	
-	private void handleTopicSummaryNewMessageEvent(final TopicSummaryNewMessageEvent updateEvent)
+	private void handleTopicSummaryNewMessageEvent(final TopicSummaryNewMessageEvent<FormattedMqttMessage> updateEvent)
 	{
 		// Calculate the overall message count per topic
 		updateEvent.getList().getTopicSummary().addMessage(updateEvent.getAdded());
@@ -188,7 +189,7 @@ public class UIEventHandler implements Runnable
 		}
 	}
 	
-	private void handleTopicSummaryRemovedMessageEvent(final TopicSummaryRemovedMessageEvent removeEvent)
+	private void handleTopicSummaryRemovedMessageEvent(final TopicSummaryRemovedMessageEvent<FormattedMqttMessage> removeEvent)
 	{
 		// Remove old message from stats
 		if (removeEvent.getRemoved() != null)

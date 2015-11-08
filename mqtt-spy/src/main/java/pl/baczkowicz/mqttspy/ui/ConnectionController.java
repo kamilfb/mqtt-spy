@@ -52,6 +52,7 @@ import pl.baczkowicz.mqttspy.connectivity.BaseMqttSubscription;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.connectivity.MqttConnectionStatus;
 import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
+import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.stats.StatisticsManager;
 import pl.baczkowicz.mqttspy.ui.connections.ConnectionManager;
 import pl.baczkowicz.mqttspy.ui.events.EventManager;
@@ -164,7 +165,7 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 
 	private ConnectionManager connectionManager;
 
-	private EventManager eventManager;
+	private EventManager<FormattedMqttMessage> eventManager;
 	
 	private Map<TitledPane, TitledPaneStatus> paneToStatus = new HashMap<>();
 
@@ -527,7 +528,7 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 		return newSubscriptionPaneController;
 	}
 
-	public void setEventManager(final EventManager eventManager)
+	public void setEventManager(final EventManager<FormattedMqttMessage> eventManager)
 	{
 		this.eventManager = eventManager;
 	}

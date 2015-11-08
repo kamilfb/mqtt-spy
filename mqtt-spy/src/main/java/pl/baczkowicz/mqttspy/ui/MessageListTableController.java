@@ -79,7 +79,7 @@ public class MessageListTableController implements Initializable, MessageIndexCh
 	
 	private MqttAsyncConnection connection;
 
-	private EventManager eventManager;
+	private EventManager<FormattedMqttMessage> eventManager;
 
 	public void initialize(URL location, ResourceBundle resources)
 	{				
@@ -215,7 +215,7 @@ public class MessageListTableController implements Initializable, MessageIndexCh
 		messageTable.setItems(items);	
 	}
 
-	public void setEventManager(final EventManager eventManager)
+	public void setEventManager(final EventManager<FormattedMqttMessage> eventManager)
 	{
 		this.eventManager = eventManager;
 	}

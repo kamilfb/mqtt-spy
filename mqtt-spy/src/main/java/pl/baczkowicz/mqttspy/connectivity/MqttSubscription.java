@@ -39,10 +39,11 @@ public class MqttSubscription extends BaseMqttSubscription
 	
 	private final ManagedMessageStoreWithFiltering<FormattedMqttMessage> store;
 
-	private EventManager eventManager;
+	private EventManager<FormattedMqttMessage> eventManager;
 
 	public MqttSubscription(final String topic, final Integer qos, final Color color, 
-			final int minMessagesPerTopic, final int preferredStoreSize, final EventQueueManager<FormattedMqttMessage> uiEventQueue, final EventManager eventManager, 
+			final int minMessagesPerTopic, final int preferredStoreSize, final EventQueueManager<FormattedMqttMessage> uiEventQueue,
+			final EventManager<FormattedMqttMessage> eventManager, 
 			final ConfigurationManager configurationManager, final FormattingManager formattingManager)
 	{
 		super(topic, qos, minMessagesPerTopic, preferredStoreSize);

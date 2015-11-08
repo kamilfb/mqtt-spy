@@ -57,6 +57,7 @@ import pl.baczkowicz.mqttspy.configuration.generated.TabbedSubscriptionDetails;
 import pl.baczkowicz.mqttspy.connectivity.BaseMqttSubscription;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
+import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.ui.charts.ChartFactory;
 import pl.baczkowicz.mqttspy.ui.charts.ChartMode;
 import pl.baczkowicz.mqttspy.ui.events.EventManager;
@@ -69,13 +70,14 @@ import pl.baczkowicz.mqttspy.ui.utils.StylingUtils;
 /**
  * Controller for the subscription summary table.
  */
+@SuppressWarnings("rawtypes")
 public class SubscriptionSummaryTableController implements Initializable
 {
 	private static final int CHART_TOPIC_COUNT = 10;
 
 	private final static Logger logger = LoggerFactory.getLogger(SubscriptionSummaryTableController.class);
 
-	private ManagedMessageStoreWithFiltering store; 
+	private ManagedMessageStoreWithFiltering<FormattedMqttMessage> store; 
 	
 	@FXML
 	private TableView<SubscriptionTopicSummaryProperties> filterTable;
@@ -95,15 +97,15 @@ public class SubscriptionSummaryTableController implements Initializable
 	@FXML
 	private TableColumn<SubscriptionTopicSummaryProperties, String> lastReceivedColumn;
 
-	private FilteredList<SubscriptionTopicSummaryProperties> filteredData;
+	private FilteredList<SubscriptionTopicSummaryProperties<FormattedMqttMessage>> filteredData;
 	
 	private ConnectionController connectionController;
 	
-	private EventManager eventManager;
+	private EventManager<FormattedMqttMessage> eventManager;
 
 	private Menu filteredTopicsMenu;
 
-	private ObservableList<SubscriptionTopicSummaryProperties> nonFilteredData;
+	private ObservableList<SubscriptionTopicSummaryProperties<FormattedMqttMessage>> nonFilteredData;
 	
 	private Set<String> shownTopics = new HashSet<>();
 	
@@ -370,13 +372,13 @@ public class SubscriptionSummaryTableController implements Initializable
 		
 		if (ChartMode.USER_DRIVEN_MSG_SIZE.equals(mode))
 		{
-			ChartFactory.createMessageBasedLineChart(topics, store, mode, 
+			new ChartFactory<FormattedMqttMessage>().createMessageBasedLineChart(topics, store, mode, 
 					"Topic", "Size", "bytes", "Message size chart" + connectionName, 
 					filterTable.getScene(), eventManager);
 		}
 		else
 		{
-			ChartFactory.createMessageBasedLineChart(topics, store, mode, 
+			new ChartFactory<FormattedMqttMessage>().createMessageBasedLineChart(topics, store, mode, 
 					"Topic", "Value", "", "Message content chart" + connectionName,
 					filterTable.getScene(), eventManager);
 		}		
@@ -697,12 +699,12 @@ public class SubscriptionSummaryTableController implements Initializable
 		return contextMenu;
 	}
 		
-	public void setEventManager(final EventManager eventManager)
+	public void setEventManager(final EventManager<FormattedMqttMessage> eventManager)
 	{
 		this.eventManager = eventManager;
 	}
 	
-	public void setStore(final ManagedMessageStoreWithFiltering store)
+	public void setStore(final ManagedMessageStoreWithFiltering<FormattedMqttMessage> store)
 	{
 		this.store = store;
 	}

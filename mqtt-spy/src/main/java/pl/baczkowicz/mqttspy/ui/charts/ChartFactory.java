@@ -32,23 +32,24 @@ import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.ui.LineChartPaneController;
 import pl.baczkowicz.mqttspy.ui.PieChartPaneController;
 import pl.baczkowicz.mqttspy.ui.events.EventManager;
+import pl.baczkowicz.spy.messages.FormattedMessage;
 import pl.baczkowicz.spy.ui.properties.SubscriptionTopicSummaryProperties;
 import pl.baczkowicz.spy.ui.storage.BasicMessageStoreWithSummary;
 import pl.baczkowicz.spy.ui.utils.FxmlUtils;
 
-public class ChartFactory
+@SuppressWarnings("unchecked")
+public class ChartFactory<T extends FormattedMessage>
 {
-
-	public static void createMessageBasedLineChart(Collection<String> topics, 
-			final BasicMessageStoreWithSummary<FormattedMqttMessage> store,
+	public void createMessageBasedLineChart(Collection<String> topics, 
+			final BasicMessageStoreWithSummary<T> store,
 			final ChartMode mode, 
 			final String seriesType, final String seriesValueName, 
 			final String seriesUnit, final String title, 
-			final Scene parentScene, final EventManager eventManager)
+			final Scene parentScene, final EventManager<T> eventManager)
 	{
 		final FXMLLoader loader = FxmlUtils.createFxmlLoaderForProjectFile("LineChartPane.fxml");
 		final AnchorPane statsWindow = FxmlUtils.loadAnchorPane(loader);
-		final LineChartPaneController statsPaneController = ((LineChartPaneController) loader.getController());		
+		final LineChartPaneController<T> statsPaneController = ((LineChartPaneController<T>) loader.getController());		
 		statsPaneController.setEventManager(eventManager);
 		statsPaneController.setStore(store);
 		statsPaneController.setSeriesTypeName(seriesType);
@@ -79,7 +80,7 @@ public class ChartFactory
 		});
 	}
 	
-	public static void createMessageBasedPieChart(final String title, 
+	public void createMessageBasedPieChart(final String title, 
 			final Scene parentScene, final ObservableList<SubscriptionTopicSummaryProperties<FormattedMqttMessage>> observableList)
 	{
 		final FXMLLoader loader = FxmlUtils.createFxmlLoaderForProjectFile("PieChartPane.fxml");

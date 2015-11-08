@@ -126,7 +126,7 @@ public class MessageNavigationController implements Initializable,
 	
 	private Label totalMessagesValueLabel;
 	
-	private EventManager eventManager;
+	private EventManager<FormattedMqttMessage> eventManager;
 
 	public void initialize(URL location, ResourceBundle resources)
 	{				
@@ -552,7 +552,7 @@ public class MessageNavigationController implements Initializable,
 		return selectedMessage;
 	}
 	
-	public void setEventManager(final EventManager eventManager)
+	public void setEventManager(final EventManager<FormattedMqttMessage> eventManager)
 	{
 		this.eventManager = eventManager;
 	}

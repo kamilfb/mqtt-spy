@@ -33,6 +33,7 @@ import javafx.stage.Stage;
 import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
+import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.ui.MainController;
 import pl.baczkowicz.mqttspy.ui.events.EventManager;
 import pl.baczkowicz.spy.ui.configuration.UiProperties;
@@ -55,7 +56,7 @@ public class Main extends Application
 	 */
 	public void start(final Stage primaryStage)
 	{
-		final EventManager eventManager = new EventManager();			
+		final EventManager<FormattedMqttMessage> eventManager = new EventManager<FormattedMqttMessage>();			
 				
 		try
 		{

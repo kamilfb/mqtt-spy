@@ -87,7 +87,8 @@ import pl.baczkowicz.spy.utils.ConversionUtils;
 /**
  * Controller for the subscription tab.
  */
-public class SubscriptionController implements Initializable, ClearTabObserver, SubscriptionStatusChangeObserver, TabController
+public class SubscriptionController implements Initializable, ClearTabObserver<FormattedMqttMessage>, 
+	SubscriptionStatusChangeObserver, TabController
 {
 	/** Diagnostic logger. */
 	private final static Logger logger = LoggerFactory.getLogger(SubscriptionController.class);
@@ -169,7 +170,7 @@ public class SubscriptionController implements Initializable, ClearTabObserver, 
 
 	private SearchWindowController searchWindowController;
 
-	private EventManager eventManager;
+	private EventManager<FormattedMqttMessage> eventManager;
 
 	private ConnectionController connectionController;
 
@@ -394,7 +395,7 @@ public class SubscriptionController implements Initializable, ClearTabObserver, 
 		// logger.info("init(); finished on SubscriptionController");
 		
 		// Filtering
-		uniqueContentOnlyFilter = new UniqueContentOnlyFilter(store, store.getUiEventQueue());
+		uniqueContentOnlyFilter = new UniqueContentOnlyFilter<FormattedMqttMessage>(store, store.getUiEventQueue());
 		uniqueContentOnlyFilter.setUniqueContentOnly(messageNavigationPaneController.getUniqueOnlyMenu().isSelected());
 		store.getFilteredMessageStore().addMessageFilter(uniqueContentOnlyFilter);
 		messageNavigationPaneController.getUniqueOnlyMenu().setOnAction(new EventHandler<ActionEvent>()
@@ -431,7 +432,7 @@ public class SubscriptionController implements Initializable, ClearTabObserver, 
 	}
 	
 	@Override
-	public void onClearTab(final ManagedMessageStoreWithFiltering subscription)
+	public void onClearTab(final ManagedMessageStoreWithFiltering<FormattedMqttMessage> subscription)
 	{	
 		messagePaneController.clear();
 		messageNavigationPaneController.clear();
@@ -494,12 +495,12 @@ public class SubscriptionController implements Initializable, ClearTabObserver, 
 		return titledPaneWidth;
 	}
 
-	public void setStore(final ManagedMessageStoreWithFiltering store)
+	public void setStore(final ManagedMessageStoreWithFiltering<FormattedMqttMessage> store)
 	{
 		this.store = store;
 	}
 	
-	public void setEventManager(final EventManager eventManager)
+	public void setEventManager(final EventManager<FormattedMqttMessage> eventManager)
 	{
 		this.eventManager = eventManager;
 	}
@@ -653,20 +654,20 @@ public class SubscriptionController implements Initializable, ClearTabObserver, 
 		statsHistory.storeMessage(avg30message);
 		statsHistory.storeMessage(avg300message);
 		eventManager.notifyMessageAdded(
-				Arrays.asList(new BrowseReceivedMessageEvent(statsHistory.getMessageList(), avg5message)),
+				Arrays.asList(new BrowseReceivedMessageEvent<FormattedMqttMessage>(statsHistory.getMessageList(), avg5message)),
 				statsHistory.getMessageList());
 		eventManager.notifyMessageAdded(
-				Arrays.asList(new BrowseReceivedMessageEvent(statsHistory.getMessageList(), avg30message)),
+				Arrays.asList(new BrowseReceivedMessageEvent<FormattedMqttMessage>(statsHistory.getMessageList(), avg30message)),
 				statsHistory.getMessageList());
 		eventManager.notifyMessageAdded(
-				Arrays.asList(new BrowseReceivedMessageEvent(statsHistory.getMessageList(), avg300message)),
+				Arrays.asList(new BrowseReceivedMessageEvent<FormattedMqttMessage>(statsHistory.getMessageList(), avg300message)),
 				statsHistory.getMessageList());
 	}
 
 	/**
 	 * @return the statsHistory
 	 */
-	public BasicMessageStoreWithSummary getStatsHistory()
+	public BasicMessageStoreWithSummary<FormattedMqttMessage> getStatsHistory()
 	{
 		return statsHistory;
 	}

@@ -50,6 +50,7 @@ import pl.baczkowicz.mqttspy.configuration.ConfiguredConnectionDetails;
 import pl.baczkowicz.mqttspy.configuration.ConfiguredConnectionGroupDetails;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.connectivity.MqttConnectionStatus;
+import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.ui.connections.ConnectionManager;
 import pl.baczkowicz.mqttspy.ui.controlpanel.ControlPanelStatsUpdater;
 import pl.baczkowicz.mqttspy.ui.controlpanel.GettingInvolvedTooltip;
@@ -112,7 +113,7 @@ public class ControlPanelController extends AnchorPane implements Initializable,
 
 	private MainController mainController;
 
-	private EventManager eventManager;
+	private EventManager<FormattedMqttMessage> eventManager;
 
 	private ConnectionManager connectionManager;
 	
@@ -572,7 +573,7 @@ public class ControlPanelController extends AnchorPane implements Initializable,
 		this.mainController = mainController;
 	}
 
-	public void setEventManager(EventManager eventManager)
+	public void setEventManager(EventManager<FormattedMqttMessage> eventManager)
 	{
 		this.eventManager = eventManager;		
 	}

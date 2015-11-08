@@ -87,7 +87,7 @@ public class SearchWindowController extends AnchorPane implements Initializable,
 
 	private Stage stage;
 
-	private EventManager eventManager;
+	private EventManager<FormattedMqttMessage> eventManager;
 
 	private MqttAsyncConnection connection;
 
@@ -247,7 +247,7 @@ public class SearchWindowController extends AnchorPane implements Initializable,
 		this.subscriptionName = name;		
 	}
 	
-	public void setEventManager(final EventManager eventManager)
+	public void setEventManager(final EventManager<FormattedMqttMessage> eventManager)
 	{
 		this.eventManager = eventManager;
 	}

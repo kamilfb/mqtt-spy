@@ -28,6 +28,7 @@ import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
 import pl.baczkowicz.mqttspy.ui.events.observers.ConnectionStatusChangeObserver;
 import pl.baczkowicz.mqttspy.ui.events.observers.SubscriptionStatusChangeObserver;
+import pl.baczkowicz.spy.messages.FormattedMessage;
 import pl.baczkowicz.spy.scripts.IScriptEventManager;
 import pl.baczkowicz.spy.scripts.ScriptRunningState;
 import pl.baczkowicz.spy.storage.MessageList;
@@ -53,27 +54,27 @@ import pl.baczkowicz.spy.ui.storage.MessageListWithObservableTopicSummary;
  * notifications. Second is by using individual events, that can be buffered on
  * a queue or list - see the pl.baczkowicz.mqttspy.events.queuable package.
  */
-public class EventManager implements IScriptEventManager
+public class EventManager<T extends FormattedMessage> implements IScriptEventManager
 {
-	private final Map<MessageAddedObserver, MessageListWithObservableTopicSummary> messageAddedObservers = new HashMap<>();
+	private final Map<MessageAddedObserver<T>, MessageListWithObservableTopicSummary<T>> messageAddedObservers = new HashMap<>();
 	
-	private final Map<MessageRemovedObserver, MessageList> messageRemovedObservers = new HashMap<>();
+	private final Map<MessageRemovedObserver<T>, MessageList<T>> messageRemovedObservers = new HashMap<>();
 	
-	private final Map<MessageListChangedObserver, MessageListWithObservableTopicSummary> messageListChangeObservers = new HashMap<>();
+	private final Map<MessageListChangedObserver, MessageListWithObservableTopicSummary<T>> messageListChangeObservers = new HashMap<>();
 	
 	private final Map<ConnectionStatusChangeObserver, MqttAsyncConnection> connectionStatusChangeObservers = new HashMap<>();
 	
 	private final Map<SubscriptionStatusChangeObserver, MqttSubscription> subscriptionStatusChangeObservers = new HashMap<>();
 	
-	private final Map<ClearTabObserver, ManagedMessageStoreWithFiltering> clearTabObservers = new HashMap<>();
+	private final Map<ClearTabObserver<T>, ManagedMessageStoreWithFiltering<T>> clearTabObservers = new HashMap<>();
 
-	private final Map<MessageIndexChangeObserver, MessageStore> changeMessageIndexObservers = new HashMap<>();
+	private final Map<MessageIndexChangeObserver, MessageStore<T>> changeMessageIndexObservers = new HashMap<>();
 	
-	private final Map<MessageIndexToFirstObserver, MessageStore> displayFirstMessageObservers = new HashMap<>();
+	private final Map<MessageIndexToFirstObserver, MessageStore<T>> displayFirstMessageObservers = new HashMap<>();
 	
-	private final Map<MessageIndexIncrementObserver, MessageStore> incrementMessageIndexObservers = new HashMap<>();
+	private final Map<MessageIndexIncrementObserver, MessageStore<T>> incrementMessageIndexObservers = new HashMap<>();
 	
-	private final Map<MessageFormatChangeObserver, MessageStore> formatChangeObservers = new HashMap<>();
+	private final Map<MessageFormatChangeObserver, MessageStore<T>> formatChangeObservers = new HashMap<>();
 	
 	private final Map<ScriptStateChangeObserver, String> scriptStateChangeObservers = new HashMap<>();
 	
@@ -91,22 +92,22 @@ public class EventManager implements IScriptEventManager
 		connectionStatusChangeObservers.put(observer, filter);
 	}
 	
-	public void registerMessageAddedObserver(final MessageAddedObserver observer, final MessageListWithObservableTopicSummary filter)
+	public void registerMessageAddedObserver(final MessageAddedObserver<T> observer, final MessageListWithObservableTopicSummary<T> filter)
 	{
 		messageAddedObservers.put(observer, filter);
 	}
 	
-	public void deregisterMessageAddedObserver(final MessageAddedObserver observer)
+	public void deregisterMessageAddedObserver(final MessageAddedObserver<T> observer)
 	{
 		messageAddedObservers.remove(observer);
 	}
 	
-	public void registerMessageRemovedObserver(final MessageRemovedObserver observer, final MessageList filter)
+	public void registerMessageRemovedObserver(final MessageRemovedObserver<T> observer, final MessageList<T> filter)
 	{
 		messageRemovedObservers.put(observer, filter);
 	}
 	
-	public void registerMessageListChangedObserver(final MessageListChangedObserver observer, final MessageListWithObservableTopicSummary filter)
+	public void registerMessageListChangedObserver(final MessageListChangedObserver observer, final MessageListWithObservableTopicSummary<T> filter)
 	{
 		messageListChangeObservers.put(observer, filter);
 	}
@@ -121,27 +122,27 @@ public class EventManager implements IScriptEventManager
 		connectionStatusChangeObservers.remove(observer);
 	}
 	
-	public void registerClearTabObserver(final ClearTabObserver observer, final ManagedMessageStoreWithFiltering filter)
+	public void registerClearTabObserver(final ClearTabObserver<T> observer, final ManagedMessageStoreWithFiltering<T> filter)
 	{
 		clearTabObservers.put(observer, filter);
 	}
 	
-	public void registerChangeMessageIndexObserver(final MessageIndexChangeObserver observer, final MessageStore filter)
+	public void registerChangeMessageIndexObserver(final MessageIndexChangeObserver observer, final MessageStore<T> filter)
 	{
 		changeMessageIndexObservers.put(observer, filter);
 	}
 	
-	public void registerChangeMessageIndexFirstObserver(final MessageIndexToFirstObserver observer, final MessageStore filter)
+	public void registerChangeMessageIndexFirstObserver(final MessageIndexToFirstObserver observer, final MessageStore<T> filter)
 	{
 		displayFirstMessageObservers.put(observer, filter);
 	}
 	
-	public void registerIncrementMessageIndexObserver(final MessageIndexIncrementObserver observer, final MessageStore filter)
+	public void registerIncrementMessageIndexObserver(final MessageIndexIncrementObserver observer, final MessageStore<T> filter)
 	{
 		incrementMessageIndexObservers.put(observer, filter);
 	}
 	
-	public void registerFormatChangeObserver(final MessageFormatChangeObserver observer, final MessageStore filter)
+	public void registerFormatChangeObserver(final MessageFormatChangeObserver observer, final MessageStore<T> filter)
 	{
 		formatChangeObservers.put(observer, filter);
 	}
@@ -161,11 +162,12 @@ public class EventManager implements IScriptEventManager
 		scriptListChangeObservers.put(observer, filter);
 	}
 	
-	public void notifyMessageAdded(final List<BrowseReceivedMessageEvent> browseEvents, final MessageListWithObservableTopicSummary list)
+	public void notifyMessageAdded(final List<BrowseReceivedMessageEvent<T>> browseEvents, 
+			final MessageListWithObservableTopicSummary<T> list)
 	{
-		for (final MessageAddedObserver observer : messageAddedObservers.keySet())
+		for (final MessageAddedObserver<T> observer : messageAddedObservers.keySet())
 		{
-			final MessageListWithObservableTopicSummary filter = messageAddedObservers.get(observer);
+			final MessageListWithObservableTopicSummary<T> filter = messageAddedObservers.get(observer);
 			
 			if (filter == null || filter.equals(list))
 			{				
@@ -174,11 +176,12 @@ public class EventManager implements IScriptEventManager
 		}				
 	}
 	
-	public void notifyMessageRemoved(final List<BrowseRemovedMessageEvent> browseEvents, final MessageList messageList)
+	public void notifyMessageRemoved(final List<BrowseRemovedMessageEvent<T>> browseEvents, 
+			final MessageList<T> messageList)
 	{
-		for (final MessageRemovedObserver observer : messageRemovedObservers.keySet())
+		for (final MessageRemovedObserver<T> observer : messageRemovedObservers.keySet())
 		{
-			final MessageList filter = messageRemovedObservers.get(observer);
+			final MessageList<T> filter = messageRemovedObservers.get(observer);
 			
 			if (filter == null || filter.equals(messageList))
 			{				
@@ -188,11 +191,11 @@ public class EventManager implements IScriptEventManager
 		}		
 	}
 	
-	public void notifyMessageListChanged(final MessageListWithObservableTopicSummary list)
+	public void notifyMessageListChanged(final MessageListWithObservableTopicSummary<T> list)
 	{
 		for (final MessageListChangedObserver observer : messageListChangeObservers.keySet())
 		{
-			final MessageListWithObservableTopicSummary filter = messageListChangeObservers.get(observer);
+			final MessageListWithObservableTopicSummary<T> filter = messageListChangeObservers.get(observer);
 			
 			if (filter == null || filter.equals(list))
 			{				
@@ -242,7 +245,7 @@ public class EventManager implements IScriptEventManager
 		
 	}
 		
-	public void notifyFormatChanged(final MessageStore store)
+	public void notifyFormatChanged(final MessageStore<T> store)
 	{
 		Platform.runLater(new Runnable()
 		{			
@@ -251,7 +254,7 @@ public class EventManager implements IScriptEventManager
 			{
 				for (final MessageFormatChangeObserver observer : formatChangeObservers.keySet())
 				{
-					final MessageStore filter = formatChangeObservers.get(observer);
+					final MessageStore<T> filter = formatChangeObservers.get(observer);
 					
 					if (filter == null || filter.equals(store))
 					{				
@@ -262,11 +265,11 @@ public class EventManager implements IScriptEventManager
 		});		
 	}
 	
-	public void navigateToFirst(final MessageStore store)
+	public void navigateToFirst(final MessageStore<T> store)
 	{
 		for (final MessageIndexToFirstObserver observer : displayFirstMessageObservers.keySet())
 		{
-			final MessageStore filter = displayFirstMessageObservers.get(observer);
+			final MessageStore<T> filter = displayFirstMessageObservers.get(observer);
 
 			if (filter == null || filter.equals(store))
 			{
@@ -275,7 +278,7 @@ public class EventManager implements IScriptEventManager
 		}
 	}
 	
-	public void changeMessageIndex(final MessageStore store, final Object dispatcher, final int index)
+	public void changeMessageIndex(final MessageStore<T> store, final Object dispatcher, final int index)
 	{
 		Platform.runLater(new Runnable()
 		{
@@ -284,7 +287,7 @@ public class EventManager implements IScriptEventManager
 			{
 				for (final MessageIndexChangeObserver observer : changeMessageIndexObservers.keySet())
 				{
-					final MessageStore filter = changeMessageIndexObservers.get(observer);
+					final MessageStore<T> filter = changeMessageIndexObservers.get(observer);
 
 					if ((filter == null || filter.equals(store)) && (dispatcher != observer))
 					{
@@ -295,11 +298,11 @@ public class EventManager implements IScriptEventManager
 		});
 	}
 	
-	public void incrementMessageIndex(final MessageStore store)
+	public void incrementMessageIndex(final MessageStore<T> store)
 	{
 		for (final MessageIndexIncrementObserver observer : incrementMessageIndexObservers.keySet())
 		{
-			final MessageStore filter = incrementMessageIndexObservers.get(observer);
+			final MessageStore<T> filter = incrementMessageIndexObservers.get(observer);
 
 			if (filter == null || filter.equals(store))
 			{
@@ -323,11 +326,11 @@ public class EventManager implements IScriptEventManager
 		// No action
 	}
 
-	public void notifyClearHistory(final ManagedMessageStoreWithFiltering store)
+	public void notifyClearHistory(final ManagedMessageStoreWithFiltering<T> store)
 	{
-		for (final ClearTabObserver observer : clearTabObservers.keySet())
+		for (final ClearTabObserver<T> observer : clearTabObservers.keySet())
 		{
-			final ManagedMessageStoreWithFiltering filter = clearTabObservers.get(observer);
+			final ManagedMessageStoreWithFiltering<T> filter = clearTabObservers.get(observer);
 			
 			if (filter == null || filter.equals(store))
 			{

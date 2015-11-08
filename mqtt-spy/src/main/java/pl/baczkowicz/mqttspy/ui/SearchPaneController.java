@@ -130,7 +130,7 @@ public class SearchPaneController implements Initializable, MessageFormatChangeO
 	@FXML 
 	private SplitPane splitPane;
 	
-	private EventManager eventManager;
+	private EventManager<FormattedMqttMessage> eventManager;
 	
 	private ManagedMessageStoreWithFiltering<FormattedMqttMessage> store; 
 	
@@ -524,7 +524,7 @@ public class SearchPaneController implements Initializable, MessageFormatChangeO
 	// === Setters and getters =======
 	// ===============================
 
-	public void setEventManager(final EventManager eventManager)
+	public void setEventManager(final EventManager<FormattedMqttMessage> eventManager)
 	{
 		this.eventManager = eventManager;
 	}

@@ -36,6 +36,7 @@ import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
 import pl.baczkowicz.mqttspy.configuration.generated.TabbedSubscriptionDetails;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
+import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.stats.StatisticsManager;
 import pl.baczkowicz.mqttspy.ui.ConnectionController;
 import pl.baczkowicz.mqttspy.ui.SubscriptionController;
@@ -72,7 +73,7 @@ public class ContextMenuUtils
 	public static ContextMenu createSubscriptionTabContextMenu(
 			final MqttAsyncConnection connection, 
 			final MqttSubscription subscription, 
-			final EventManager eventManager, 
+			final EventManager<FormattedMqttMessage> eventManager, 
 			final SubscriptionManager subscriptionManager,
 			final ConfigurationManager configurationManager,
 			final SubscriptionController subscriptionController)
@@ -162,7 +163,7 @@ public class ContextMenuUtils
 		{
 			public void handle(ActionEvent e)
 			{			
-				ChartFactory.createMessageBasedLineChart(
+				new ChartFactory<FormattedMqttMessage>().createMessageBasedLineChart(
 						Arrays.asList(SubscriptionController.AVG5_TOPIC, SubscriptionController.AVG30_TOPIC, SubscriptionController.AVG300_TOPIC),
 						subscriptionController.getStatsHistory(), 
 						ChartMode.USER_DRIVEN_MSG_PAYLOAD,
@@ -179,7 +180,7 @@ public class ContextMenuUtils
 		{
 			public void handle(ActionEvent e)
 			{			
-				ChartFactory.createMessageBasedPieChart("Message count statistics for " + subscription.getTopic(), 
+				new ChartFactory<FormattedMqttMessage>().createMessageBasedPieChart("Message count statistics for " + subscription.getTopic(), 
 						subscriptionController.getScene(),
 						subscriptionController.getSubscription().getStore().getNonFilteredMessageList().getTopicSummary().getObservableMessagesPerTopic());
 			}
@@ -273,7 +274,7 @@ public class ContextMenuUtils
 	 */
 	public static ContextMenu createAllSubscriptionsTabContextMenu(
 			final MqttAsyncConnection connection, 
-			final EventManager eventManager,
+			final EventManager<FormattedMqttMessage> eventManager,
 			final SubscriptionManager subscriptionManager,
 			final ConfigurationManager configurationManager,
 			final SubscriptionController subscriptionController)
@@ -327,7 +328,7 @@ public class ContextMenuUtils
 		{
 			public void handle(ActionEvent e)
 			{
-				ChartFactory.createMessageBasedLineChart(
+				new ChartFactory<FormattedMqttMessage>().createMessageBasedLineChart(
 						Arrays.asList(SubscriptionController.AVG5_TOPIC, SubscriptionController.AVG30_TOPIC, SubscriptionController.AVG300_TOPIC),
 						subscriptionController.getStatsHistory(), 
 						ChartMode.USER_DRIVEN_MSG_PAYLOAD,

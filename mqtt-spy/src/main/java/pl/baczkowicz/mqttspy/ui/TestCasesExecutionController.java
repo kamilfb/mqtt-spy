@@ -49,6 +49,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.stage.DirectoryChooser;
 import javafx.util.Callback;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
+import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.ui.events.EventManager;
 import pl.baczkowicz.mqttspy.ui.scripts.InteractiveScriptManager;
 import pl.baczkowicz.mqttspy.ui.testcases.InteractiveTestCaseManager;
@@ -137,7 +138,7 @@ public class TestCasesExecutionController extends AnchorPane implements Initiali
 		
 	private String scriptsLocation;
 	
-	private EventManager eventManager;
+	private EventManager<FormattedMqttMessage> eventManager;
 	
 	private InteractiveScriptManager scriptManager;
 
@@ -430,7 +431,7 @@ public class TestCasesExecutionController extends AnchorPane implements Initiali
 	// === Setters and getters =======
 	// ===============================
 	
-	public void setEventManager(final EventManager eventManager)
+	public void setEventManager(final EventManager<FormattedMqttMessage> eventManager)
 	{
 		this.eventManager = eventManager;
 	}

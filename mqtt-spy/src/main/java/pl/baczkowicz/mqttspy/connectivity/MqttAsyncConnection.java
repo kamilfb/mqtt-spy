@@ -65,14 +65,14 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection
 
 	private StatisticsManager statisticsManager;
 
-	private final EventManager eventManager;
+	private final EventManager<FormattedMqttMessage> eventManager;
 
 	private final InteractiveScriptManager scriptManager;
 
 	private MqttMessageLogger messageLogger;
 
 	public MqttAsyncConnection(final ReconnectionManager reconnectionManager, final RuntimeConnectionProperties properties, 
-			final MqttConnectionStatus status, final EventManager eventManager, 
+			final MqttConnectionStatus status, final EventManager<FormattedMqttMessage> eventManager, 
 			final InteractiveScriptManager scriptManager, final FormattingManager formattingManager,
 			final EventQueueManager<FormattedMqttMessage> uiEventQueue, final ConfigurationManager configurationManager)
 	{ 
