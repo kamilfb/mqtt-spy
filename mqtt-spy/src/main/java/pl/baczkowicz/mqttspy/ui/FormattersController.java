@@ -59,6 +59,7 @@ import pl.baczkowicz.spy.formatting.ScriptBasedFormatter;
 import pl.baczkowicz.spy.scripts.Script;
 import pl.baczkowicz.spy.ui.utils.DialogFactory;
 import pl.baczkowicz.spy.ui.utils.TooltipFactory;
+import pl.baczkowicz.spy.ui.utils.UiUtils;
 import pl.baczkowicz.spy.utils.ConversionUtils;
 
 /**
@@ -173,7 +174,7 @@ public class FormattersController implements Initializable
 						}
 						else
 						{									
-							setText(item == newFormatter ? EditConnectionsController.MODIFIED_ITEM + item.getName() : item.getName());
+							setText(item == newFormatter ? UiUtils.MODIFIED_ITEM + item.getName() : item.getName());
 						}
 					}
 				};

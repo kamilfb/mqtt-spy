@@ -51,11 +51,12 @@ import org.slf4j.LoggerFactory;
 import pl.baczkowicz.mqttspy.common.generated.ProtocolVersionEnum;
 import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
 import pl.baczkowicz.mqttspy.configuration.ConfiguredConnectionDetails;
-import pl.baczkowicz.mqttspy.configuration.ConfiguredConnectionGroupDetails;
-import pl.baczkowicz.mqttspy.ui.properties.ConnectionListItemProperties;
-import pl.baczkowicz.mqttspy.ui.properties.ConnectionTreeItemProperties;
 import pl.baczkowicz.mqttspy.utils.ConnectionUtils;
+import pl.baczkowicz.spy.configuration.BaseConfigurationUtils;
 import pl.baczkowicz.spy.exceptions.ConfigurationException;
+import pl.baczkowicz.spy.ui.configuration.ConfiguredConnectionGroupDetails;
+import pl.baczkowicz.spy.ui.properties.ConnectionListItemProperties;
+import pl.baczkowicz.spy.ui.properties.ConnectionTreeItemProperties;
 
 /**
  * Controller for editing a single connection.
@@ -318,7 +319,7 @@ public class EditConnectionGroupController extends AnchorPane implements Initial
 	private void displayConnectionDetails(final ConfiguredConnectionGroupDetails group)
 	{	
 		connectionGroupNameText.setText(group.getName());
-		connectionGroupNameText.setDisable(group.getID().equals(ConfigurationManager.DEFAULT_GROUP));
+		connectionGroupNameText.setDisable(group.getID().equals(BaseConfigurationUtils.DEFAULT_GROUP));
 		connectionList.getItems().clear();
 		connectionMapping = new HashMap<>();
 		

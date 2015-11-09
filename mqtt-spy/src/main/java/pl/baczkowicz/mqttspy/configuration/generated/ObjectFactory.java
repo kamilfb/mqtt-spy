@@ -77,30 +77,6 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link ConnectionGroup }
-     * 
-     */
-    public ConnectionGroup createConnectionGroup() {
-        return new ConnectionGroup();
-    }
-
-    /**
-     * Create an instance of {@link ConnectionGroupReference }
-     * 
-     */
-    public ConnectionGroupReference createConnectionGroupReference() {
-        return new ConnectionGroupReference();
-    }
-
-    /**
-     * Create an instance of {@link ConnectionReference }
-     * 
-     */
-    public ConnectionReference createConnectionReference() {
-        return new ConnectionReference();
-    }
-
-    /**
      * Create an instance of {@link UserInterfaceMqttConnectionDetails }
      * 
      */

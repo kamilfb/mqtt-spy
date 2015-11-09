@@ -28,7 +28,6 @@ import javafx.scene.Scene;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
-import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.ui.LineChartPaneController;
 import pl.baczkowicz.mqttspy.ui.PieChartPaneController;
 import pl.baczkowicz.mqttspy.ui.events.EventManager;
@@ -81,11 +80,11 @@ public class ChartFactory<T extends FormattedMessage>
 	}
 	
 	public void createMessageBasedPieChart(final String title, 
-			final Scene parentScene, final ObservableList<SubscriptionTopicSummaryProperties<FormattedMqttMessage>> observableList)
+			final Scene parentScene, final ObservableList<SubscriptionTopicSummaryProperties<T>> observableList)
 	{
 		final FXMLLoader loader = FxmlUtils.createFxmlLoaderForProjectFile("PieChartPane.fxml");
 		final AnchorPane chartWindow = FxmlUtils.loadAnchorPane(loader);
-		final PieChartPaneController chartPaneController = ((PieChartPaneController) loader.getController());		
+		final PieChartPaneController<T> chartPaneController = ((PieChartPaneController<T>) loader.getController());		
 		chartPaneController.setObservableList(observableList);
 		chartPaneController.init();
 		

@@ -34,9 +34,9 @@ import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
 import pl.baczkowicz.mqttspy.configuration.ConfigurationUtils;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.connectivity.MqttConnectionStatus;
-import pl.baczkowicz.mqttspy.ui.controls.CommandLinksDialog;
-import pl.baczkowicz.mqttspy.ui.controls.DialogAction;
 import pl.baczkowicz.spy.configuration.BaseConfigurationUtils;
+import pl.baczkowicz.spy.ui.controls.CommandLinksDialog;
+import pl.baczkowicz.spy.ui.controls.DialogAction;
 import pl.baczkowicz.spy.ui.utils.DialogFactory;
 
 /**

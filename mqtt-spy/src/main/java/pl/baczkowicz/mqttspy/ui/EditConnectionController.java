@@ -47,7 +47,6 @@ import pl.baczkowicz.mqttspy.common.generated.ProtocolVersionEnum;
 import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
 import pl.baczkowicz.mqttspy.configuration.ConfigurationUtils;
 import pl.baczkowicz.mqttspy.configuration.ConfiguredConnectionDetails;
-import pl.baczkowicz.mqttspy.configuration.generated.ConnectionGroupReference;
 import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnectionDetails;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.ui.connections.ConnectionManager;
@@ -59,10 +58,11 @@ import pl.baczkowicz.mqttspy.ui.controllers.edit.EditConnectionPublicationsContr
 import pl.baczkowicz.mqttspy.ui.controllers.edit.EditConnectionSecurityController;
 import pl.baczkowicz.mqttspy.ui.controllers.edit.EditConnectionSubscriptionsController;
 import pl.baczkowicz.mqttspy.ui.utils.ConnectivityUtils;
+import pl.baczkowicz.mqttspy.utils.ConnectionUtils;
+import pl.baczkowicz.spy.common.generated.ConnectionGroupReference;
+import pl.baczkowicz.spy.exceptions.ConfigurationException;
 import pl.baczkowicz.spy.ui.utils.DialogFactory;
 import pl.baczkowicz.spy.ui.utils.TooltipFactory;
-import pl.baczkowicz.mqttspy.utils.ConnectionUtils;
-import pl.baczkowicz.spy.exceptions.ConfigurationException;
 
 /**
  * Controller for editing a single connection.

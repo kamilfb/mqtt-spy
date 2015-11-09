@@ -31,6 +31,7 @@ import org.jvnet.jaxb2_commons.lang.ToString;
 import org.jvnet.jaxb2_commons.lang.ToStringStrategy;
 import org.jvnet.jaxb2_commons.locator.ObjectLocator;
 import org.jvnet.jaxb2_commons.locator.util.LocatorUtils;
+import pl.baczkowicz.spy.common.generated.ConnectionGroup;
 import pl.baczkowicz.spy.common.generated.Formatting;
 
 
@@ -44,7 +45,7 @@ import pl.baczkowicz.spy.common.generated.Formatting;
  *   &lt;complexContent&gt;
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
  *       &lt;sequence&gt;
- *         &lt;element name="ConnectionGroups" type="{http://baczkowicz.pl/mqtt-spy-configuration}ConnectionGroup" maxOccurs="unbounded" minOccurs="0"/&gt;
+ *         &lt;element name="ConnectionGroups" type="{http://baczkowicz.pl/spy/common}ConnectionGroup" maxOccurs="unbounded" minOccurs="0"/&gt;
  *         &lt;element name="Connectivity" type="{http://baczkowicz.pl/mqtt-spy-configuration}Connectivity"/&gt;
  *         &lt;element name="Formatting" type="{http://baczkowicz.pl/spy/common}Formatting" minOccurs="0"/&gt;
  *       &lt;/sequence&gt;

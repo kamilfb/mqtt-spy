@@ -19,14 +19,13 @@
  */
 package pl.baczkowicz.mqttspy.configuration;
 
-import java.util.List;
-
-import pl.baczkowicz.mqttspy.configuration.generated.ConnectionGroup;
-import pl.baczkowicz.mqttspy.configuration.generated.ConnectionGroupReference;
-import pl.baczkowicz.mqttspy.configuration.generated.ConnectionReference;
 import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnectionDetails;
+import pl.baczkowicz.spy.common.generated.ConnectionGroup;
+import pl.baczkowicz.spy.common.generated.ConnectionGroupReference;
+import pl.baczkowicz.spy.ui.configuration.ConfiguredConnectionGroupDetails;
+import pl.baczkowicz.spy.ui.properties.ModifiableItem;
 
-public class ConfiguredConnectionDetails extends UserInterfaceMqttConnectionDetails
+public class ConfiguredConnectionDetails extends UserInterfaceMqttConnectionDetails implements ModifiableItem
 {
 	private static final long serialVersionUID = -111271741915161354L;
 
@@ -180,22 +179,7 @@ public class ConfiguredConnectionDetails extends UserInterfaceMqttConnectionDeta
 	
 	public void removeFromGroup()
 	{
-		removeFromGroup(this, (ConnectionGroup) getGroup().getReference());
-	}
-	
-	public static void removeFromGroup(final ConfiguredConnectionDetails connectionToRemove, final ConnectionGroup groupToRemoveFrom)
-	{
-		ConnectionReference refToDelete = null;
-		final List<ConnectionReference> connections = groupToRemoveFrom.getConnections(); 
-		for (ConnectionReference connectionRef : connections)
-		{
-			if (connectionRef.getReference().equals(connectionToRemove))
-			{
-				refToDelete = connectionRef;
-				break;
-			}
-		}
-		connections.remove(refToDelete);
+		ConfiguredConnectionGroupDetails.removeFromGroup(this, (ConnectionGroup) getGroup().getReference());
 	}
 	
 	public void setGroupingModified(boolean modified)

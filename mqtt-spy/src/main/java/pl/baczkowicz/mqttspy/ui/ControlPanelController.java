@@ -47,7 +47,6 @@ import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
 import pl.baczkowicz.mqttspy.configuration.ConfiguredConnectionDetails;
-import pl.baczkowicz.mqttspy.configuration.ConfiguredConnectionGroupDetails;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.connectivity.MqttConnectionStatus;
 import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
@@ -66,6 +65,7 @@ import pl.baczkowicz.mqttspy.versions.generated.ReleaseStatus;
 import pl.baczkowicz.spy.configuration.PropertyFileLoader;
 import pl.baczkowicz.spy.exceptions.ConfigurationException;
 import pl.baczkowicz.spy.exceptions.XMLException;
+import pl.baczkowicz.spy.ui.configuration.ConfiguredConnectionGroupDetails;
 import pl.baczkowicz.spy.utils.ThreadingUtils;
 
 /**

@@ -32,9 +32,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.common.generated.SimpleMqttMessage;
-import pl.baczkowicz.mqttspy.configuration.generated.ConnectionGroup;
-import pl.baczkowicz.mqttspy.configuration.generated.ConnectionGroupReference;
-import pl.baczkowicz.mqttspy.configuration.generated.ConnectionReference;
 import pl.baczkowicz.mqttspy.configuration.generated.Connectivity;
 import pl.baczkowicz.mqttspy.configuration.generated.MqttSpyConfiguration;
 import pl.baczkowicz.mqttspy.configuration.generated.TabbedSubscriptionDetails;
@@ -44,10 +41,15 @@ import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnection
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
 import pl.baczkowicz.mqttspy.ui.events.EventManager;
+import pl.baczkowicz.spy.common.generated.ConnectionGroup;
+import pl.baczkowicz.spy.common.generated.ConnectionGroupReference;
+import pl.baczkowicz.spy.common.generated.ConnectionReference;
 import pl.baczkowicz.spy.common.generated.FormatterDetails;
 import pl.baczkowicz.spy.common.generated.Formatting;
+import pl.baczkowicz.spy.configuration.BaseConfigurationUtils;
 import pl.baczkowicz.spy.configuration.PropertyFileLoader;
 import pl.baczkowicz.spy.exceptions.XMLException;
+import pl.baczkowicz.spy.ui.configuration.ConfiguredConnectionGroupDetails;
 import pl.baczkowicz.spy.ui.configuration.UiProperties;
 import pl.baczkowicz.spy.ui.panes.SpyPerspective;
 import pl.baczkowicz.spy.ui.utils.DialogFactory;
@@ -61,8 +63,6 @@ import pl.baczkowicz.spy.xml.XMLParser;
 @SuppressWarnings({"unchecked", "rawtypes"})
 public class ConfigurationManager
 {
-	public static final String DEFAULT_GROUP = "default_group";
-
 	final static Logger logger = LoggerFactory.getLogger(ConfigurationManager.class);
 	
 	public static final String VERSION_INFO_URL = "application.update.url";
@@ -580,7 +580,7 @@ public class ConfigurationManager
 		if (connectionGroups.isEmpty() || groupsWithoutParent.isEmpty())
 		{
 			rootGroup = new ConfiguredConnectionGroupDetails(new ConnectionGroup(
-					ConfigurationManager.DEFAULT_GROUP, "All connections", new ArrayList(), new ArrayList()), false);
+					BaseConfigurationUtils.DEFAULT_GROUP, "All connections", new ArrayList(), new ArrayList()), false);
 			
 			connectionGroups.add(rootGroup);
 			

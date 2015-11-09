@@ -31,7 +31,7 @@
 
 	<xs:complexType name="MqttSpyConfiguration">
 		<xs:sequence>
-			<xs:element name="ConnectionGroups" type="config:ConnectionGroup" minOccurs="0" maxOccurs="unbounded" />
+			<xs:element name="ConnectionGroups" type="spycommon:ConnectionGroup" minOccurs="0" maxOccurs="unbounded" />
 			<xs:element name="Connectivity" type="config:Connectivity" />
 			<xs:element name="Formatting" 	type="spycommon:Formatting"	minOccurs="0" maxOccurs="1"/>
 		</xs:sequence>
@@ -68,27 +68,6 @@
 			<xs:element name="ConnectionV2" type="config:UserInterfaceMqttConnectionDetails" />
 		</xs:choice>
 	</xs:complexType>
-	
-	<xs:complexType name="ConnectionGroup">
-		<xs:sequence>			
-			<xs:element name="ID" 			type="xs:ID" />
-			<xs:element name="Name" 		type="xs:string" />		
-			<xs:element name="Subgroups" 	type="config:ConnectionGroupReference" minOccurs="0" maxOccurs="unbounded" />
-			<xs:element name="Connections" 	type="config:ConnectionReference" minOccurs="0" maxOccurs="unbounded" />
-		</xs:sequence>
-	</xs:complexType>	
-	
-	<xs:complexType name="ConnectionGroupReference">
-		<xs:sequence>			
-			<xs:element name="Reference" 			type="xs:IDREF" />
-		</xs:sequence>
-	</xs:complexType>	
-	
-	<xs:complexType name="ConnectionReference">
-		<xs:sequence>			
-			<xs:element name="Reference" 			type="xs:IDREF" />
-		</xs:sequence>
-	</xs:complexType>	
 		
 	<xs:complexType name="UserInterfaceMqttConnectionDetails">
 		<xs:complexContent>
