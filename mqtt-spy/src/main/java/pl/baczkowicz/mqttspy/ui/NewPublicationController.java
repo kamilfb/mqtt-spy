@@ -641,6 +641,8 @@ public class NewPublicationController implements Initializable, ScriptListChange
 	{
 		// Note: here using the editor, as the value stored directly in the ComboBox might
 		// not be committed yet, whereas the editor (TextField) has got the current text in it
+		
+		// Note: this is also a workaround for bug in JRE 8 Update 60-66 (https://bugs.openjdk.java.net/browse/JDK-8136838)
 		final String topic = publicationTopicText.getEditor().getText();
 		
 		if (verify && (topic == null || topic.isEmpty()))

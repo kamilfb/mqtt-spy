@@ -149,6 +149,15 @@ public class NewSubscriptionController implements Initializable, TitledPaneContr
 	        	}
 	        }
 	    });	
+		
+		// Workaround for bug in JRE 8 Update 60-66 (https://bugs.openjdk.java.net/browse/JDK-8136838)
+		subscriptionTopicText.getEditor().focusedProperty().addListener((obs, old, isFocused) -> 
+		{ 
+            if (!isFocused) 
+            { 
+            	//subscriptionTopicText.setValue(subscriptionTopicText.getConverter().fromString(subscriptionTopicText.getEditor().getText())); 
+            } 
+        }); 
 	}
 	
 	public void init()
@@ -200,10 +209,14 @@ public class NewSubscriptionController implements Initializable, TitledPaneContr
 	@FXML
 	public void subscribe()
 	{
-		if (subscriptionTopicText.getValue() != null)
-		{
-			final String subscriptionTopic = subscriptionTopicText.getValue().toString();
-			
+		// Note: here using the editor, as the value stored directly in the ComboBox might
+		// not be committed yet, whereas the editor (TextField) has got the current text in it
+		
+		// Note: this is also a workaround for bug in JRE 8 Update 60-66 (https://bugs.openjdk.java.net/browse/JDK-8136838)
+		final String subscriptionTopic = subscriptionTopicText.getEditor().getText();
+		
+		if (subscriptionTopic != null)
+		{			
 			try
 			{
 				MqttUtils.validateTopic(subscriptionTopic);
