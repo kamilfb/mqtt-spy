@@ -274,6 +274,9 @@ public class SubscriptionManager
 	 */
 	public static void updateSubscriptionTabContextMenu(final Tab tab, final MqttSubscription subscription)
 	{
+		logger.debug("Updating subscription tab context menu [{}, {}, {}]", 
+				subscription.getTopic(), subscription.getConnection().getConnectionStatus(), subscription.isActive());
+		
 		// Update title style
 		tab.getGraphic().getStyleClass().remove(tab.getGraphic().getStyleClass().size() - 1);
 		if (subscription.isActive())

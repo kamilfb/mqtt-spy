@@ -393,7 +393,7 @@ public class ControlPanelController extends AnchorPane implements Initializable,
 							}
 							for (final Label label : labels)
 							{
-								logger.debug("Setting min width for " + label.getText() + " to " + maxWidth);
+								logger.trace("Setting min width for " + label.getText() + " to " + maxWidth);
 								label.setMinWidth(maxWidth);
 							}							
 						}

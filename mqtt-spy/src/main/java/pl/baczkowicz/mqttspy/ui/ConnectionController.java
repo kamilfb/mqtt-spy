@@ -440,6 +440,8 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 	{
 		final MqttConnectionStatus connectionStatus = changedConnection.getConnectionStatus();
 		
+		logger.debug("Updating {} connection status to {}", changedConnection.getName(), connectionStatus);		
+		
 		newSubscriptionPaneController.setConnected(false);
 		getNewPublicationPaneController().setConnected(false);
 		

@@ -319,7 +319,8 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection
 		}
 
 		logger.debug("Unsubscribing from " + subscription.getTopic());
-		removeSubscription(subscription);
+		removeSubscriptionFromMatcher(subscription);
+		
 		final boolean unsubscribed = unsubscribe(subscription.getTopic());
 
 		// Run 'after' for script - TODO: move to BaseMqttConnection?
