@@ -26,6 +26,7 @@ import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 
 import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
 import pl.baczkowicz.mqttspy.ui.controlpanel.ItemStatus;
+import pl.baczkowicz.mqttspy.ui.properties.VersionInfoProperties;
 import pl.baczkowicz.mqttspy.versions.generated.MqttSpyVersions;
 import pl.baczkowicz.mqttspy.versions.generated.ReleaseStatus;
 import pl.baczkowicz.spy.configuration.PropertyFileLoader;
@@ -48,6 +49,8 @@ public class VersionManager extends XMLParser
 	
 	/** The version information retrieved from the URL. */
 	private MqttSpyVersions versions;
+	
+	private boolean loading = false;
 
 	/**
 	 * Creates the VersionManager.
@@ -73,16 +76,20 @@ public class VersionManager extends XMLParser
 	 */
 	public MqttSpyVersions loadVersions() throws XMLException
 	{
+		setLoading(true);
+		
 		try
 		{
 			final URL url = new URL(propertyLoader.getProperty(ConfigurationManager.VERSION_INFO_URL));
 
 			versions = (MqttSpyVersions) loadFromInputStream(url.openStream());			
 		}
-		catch (IOException e)
+		catch (IOException | NullPointerException e)
 		{
 			throw new XMLException("Cannot read version info from " + propertyLoader.getProperty(ConfigurationManager.VERSION_INFO_URL), e);
 		}
+		
+		setLoading(false);
 				
 		return versions;
 	}
@@ -139,5 +146,66 @@ public class VersionManager extends XMLParser
 			default:
 				return ItemStatus.ERROR;		
 		}
+	}
+	
+	public VersionInfoProperties getVersionInfoProperties(final ConfigurationManager configurationManager)
+	{
+		final VersionInfoProperties properties = new VersionInfoProperties();
+		
+		if (getVersions() != null)
+		{
+			boolean versionFound = false;
+			
+			for (final ReleaseStatus release : getVersions().getReleaseStatuses().getReleaseStatus())
+			{
+				if (VersionManager.isInRange(configurationManager.getDefaultPropertyFile().getFullVersionNumber(), release))
+				{					
+					properties.setStatus(VersionManager.convertVersionStatus(release));
+					properties.setTitle(replaceTokens(release.getUpdateTitle(), configurationManager));
+					properties.setDetails(replaceTokens(release.getUpdateDetails(), configurationManager));
+					versionFound = true;
+					break;
+				}
+			}
+			
+			if (!versionFound)
+			{
+				properties.setStatus(ItemStatus.INFO);
+				properties.setTitle("Couldn't find any information about your version - please check manually.");
+				properties.setDetails("Your version is " + configurationManager.getDefaultPropertyFile().getFullVersionName() + ".");
+			}
+		}	
+		else
+		{
+			// Set the default state
+			properties.setStatus(ItemStatus.WARN);
+			properties.setTitle("Cannot check for updates - is your internet connection up?");
+			properties.setDetails("Click here to go to the download page for mqtt-spy.");
+		}
+		
+		
+		
+		return properties;
+	}
+	
+	public static String replaceTokens(final String value, final ConfigurationManager configurationManager)
+	{
+		return value.replace("[newline]", System.lineSeparator()).replace("[version]", configurationManager.getDefaultPropertyFile().getFullVersionName());
+	}
+
+	/**
+	 * @return the loading
+	 */
+	public boolean isLoading()
+	{
+		return loading;
+	}
+
+	/**
+	 * @param loading the loading to set
+	 */
+	public void setLoading(boolean loading)
+	{
+		this.loading = loading;
 	}
 }

@@ -60,6 +60,7 @@ import pl.baczkowicz.mqttspy.ui.events.EventManager;
 import pl.baczkowicz.mqttspy.ui.messagelog.LogReaderTask;
 import pl.baczkowicz.mqttspy.ui.messagelog.TaskWithProgressUpdater;
 import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
+import pl.baczkowicz.mqttspy.versions.VersionManager;
 import pl.baczkowicz.spy.exceptions.ConfigurationException;
 import pl.baczkowicz.spy.exceptions.SpyUncaughtExceptionHandler;
 import pl.baczkowicz.spy.exceptions.XMLException;
@@ -126,12 +127,18 @@ public class MainController
 	private Stage formattersStage;
 	
 	private Stage testCasesStage;
+	
+	private Stage aboutStage;
 
 	private SpyPerspective selectedPerspective = SpyPerspective.DEFAULT;
 	
 	private double lastWidth;
 	
 	private double lastHeight;
+
+	private VersionManager versionManager;
+
+	private AboutController aboutController;
 	
 	public MainController() throws XMLException
 	{
@@ -181,11 +188,21 @@ public class MainController
 		// Clear any test tabs
 		stage.setTitle("mqtt-spy");
 		
+		try
+		{
+			this.versionManager = new VersionManager(configurationManager.getDefaultPropertyFile());
+		}
+		catch (XMLException e)
+		{
+			e.printStackTrace();
+		}
+		
 		controlPanelPaneController.setMainController(this);
 		controlPanelPaneController.setConfigurationMananger(configurationManager);
 		controlPanelPaneController.setApplication(application);
 		controlPanelPaneController.setEventManager(eventManager);
 		controlPanelPaneController.setConnectionManager(connectionManager);
+		controlPanelPaneController.setVersionManager(versionManager);
 		controlPanelPaneController.init();	
 		
 		new Thread(new ConnectionStatsUpdater(connectionManager)).start();
@@ -308,6 +325,31 @@ public class MainController
 		formattersStage.initModality(Modality.WINDOW_MODAL);
 		formattersStage.initOwner(getParentWindow());
 		formattersStage.setScene(scene);
+	}
+	
+	private void initialiseAboutWindow()
+	{
+		final FXMLLoader loader = FxmlUtils.createFxmlLoaderForProjectFile("AboutWindow.fxml");
+		final AnchorPane window = FxmlUtils.loadAnchorPane(loader);
+		
+		aboutController = ((AboutController) loader.getController());
+		aboutController.setApplication(application);
+		aboutController.setConfigurationManager(configurationManager);
+		aboutController.setVersionManager(versionManager);
+		aboutController.setEventManager(eventManager);
+		
+		eventManager.registerVersionInfoObserver(aboutController);
+		
+		aboutController.init();
+		
+		Scene scene = new Scene(window);
+		scene.getStylesheets().addAll(mainPane.getScene().getStylesheets());		
+
+		aboutStage = new Stage();
+		aboutStage.setTitle("About mqtt-spy");		
+		aboutStage.initModality(Modality.WINDOW_MODAL);
+		aboutStage.initOwner(getParentWindow());
+		aboutStage.setScene(scene);
 	}
 	
 	private void initialiseTestCasesWindow()
@@ -578,9 +620,15 @@ public class MainController
 	}
 	
 	@FXML
-	private void openProjectWebsite()
+	private void showAbout()
 	{
-		application.getHostServices().showDocument("http://kamilfb.github.io/mqtt-spy/");
+		if (aboutStage == null)
+		{
+			initialiseAboutWindow();
+		}
+		
+		aboutController.reloadVersionInfo();
+		aboutStage.show();		
 	}
 	
 	@FXML

@@ -50,6 +50,9 @@ Oxygen Icons (version 4.3.1, CC-BY-SA 3.0; from the Open Icon Library):
 	
 	* search.png
 	* login.png
+	* application-internet.png
+	* help-hint.png
+	* system-run.png
      
 Authored by Kamil Baczkowicz:
 

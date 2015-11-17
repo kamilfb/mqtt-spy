@@ -116,9 +116,10 @@ public class ControlPanelItemController extends AnchorPane implements Initializa
 		return smallButton2;
 	}
 	
-	public void refresh()
+	public static String getStatusIconLocation(ItemStatus status)
 	{
-		String imageLocation = "";
+		String imageLocation;
+		
 		switch (status)
 		{
 			case OK:
@@ -140,6 +141,13 @@ public class ControlPanelItemController extends AnchorPane implements Initializa
 				imageLocation = "/images/large/dialog-error.png";
 				break;
 		}
+		
+		return imageLocation;
+	}
+	
+	public void refresh()
+	{
+		String imageLocation = getStatusIconLocation(status);
 		
 		if (showProgress)
 		{
@@ -210,19 +218,14 @@ public class ControlPanelItemController extends AnchorPane implements Initializa
 		this.status = status;
 	}
 	
-	public String replaceTokens(final String value)
-	{
-		return value.replace("[newline]", System.lineSeparator()).replace("[version]", configurationManager.getDefaultPropertyFile().getFullVersionName());
-	}
-	
 	public void setTitle(final String title)
 	{
-		this.titleText.setText(replaceTokens(title));
+		this.titleText.setText(title);
 	}
 	
 	public void setDetails(final String details)
 	{
-		this.detailsText.setText(replaceTokens(details));
+		this.detailsText.setText(details);
 	}
 	
 	public VBox getCustomItems()

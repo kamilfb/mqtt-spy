@@ -56,12 +56,13 @@ import pl.baczkowicz.mqttspy.ui.controlpanel.GettingInvolvedTooltip;
 import pl.baczkowicz.mqttspy.ui.controlpanel.ItemStatus;
 import pl.baczkowicz.mqttspy.ui.events.EventManager;
 import pl.baczkowicz.mqttspy.ui.events.observers.ConnectionStatusChangeObserver;
+import pl.baczkowicz.mqttspy.ui.events.observers.VersionInfoObserver;
+import pl.baczkowicz.mqttspy.ui.properties.VersionInfoProperties;
 import pl.baczkowicz.mqttspy.ui.utils.ActionUtils;
 import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
 import pl.baczkowicz.mqttspy.ui.utils.StylingUtils;
 import pl.baczkowicz.mqttspy.versions.VersionManager;
 import pl.baczkowicz.mqttspy.versions.generated.MqttSpyVersions;
-import pl.baczkowicz.mqttspy.versions.generated.ReleaseStatus;
 import pl.baczkowicz.spy.configuration.PropertyFileLoader;
 import pl.baczkowicz.spy.exceptions.ConfigurationException;
 import pl.baczkowicz.spy.exceptions.XMLException;
@@ -71,7 +72,7 @@ import pl.baczkowicz.spy.utils.ThreadingUtils;
 /**
  * The controller looking after the control panel.
  */
-public class ControlPanelController extends AnchorPane implements Initializable, ConnectionStatusChangeObserver
+public class ControlPanelController extends AnchorPane implements Initializable, ConnectionStatusChangeObserver, VersionInfoObserver
 {
 	private final static Logger logger = LoggerFactory.getLogger(ControlPanelController.class);
 
@@ -137,16 +138,8 @@ public class ControlPanelController extends AnchorPane implements Initializable,
 	}
 		
 	public void init()
-	{			
-		try
-		{
-			this.versionManager = new VersionManager(configurationManager.getDefaultPropertyFile());
-		}
-		catch (XMLException e)
-		{
-			e.printStackTrace();
-		}
-		
+	{					
+		eventManager.registerVersionInfoObserver(this);
 		eventManager.registerConnectionStatusObserver(this, null);
 		controlPanelItem1Controller.setConfigurationMananger(configurationManager);
 		controlPanelItem2Controller.setConfigurationMananger(configurationManager);
@@ -419,18 +412,6 @@ public class ControlPanelController extends AnchorPane implements Initializable,
 					}
 				});
 			}
-//			double maxWidth = 0;
-//			for (final Label label : labels)
-//			{
-//				if (maxWidth < label.getWidth())
-//				{
-//					maxWidth = label.getWidth();
-//				}
-//			}
-//			for (final Label label : labels)
-//			{
-//				label.setMinWidth(maxWidth);
-//			}
 		}
 		else
 		{
@@ -475,40 +456,20 @@ public class ControlPanelController extends AnchorPane implements Initializable,
 			{
 				try
 				{
+					versionManager.setLoading(true);
+					
 					// Wait some time for the app to start properly
 					ThreadingUtils.sleep(5000);					
 					
 					final MqttSpyVersions versions = versionManager.loadVersions();
-					logger.debug("Retrieved version info = " + versions.toString());
 					
-					// If all OK
-					Platform.runLater(new Runnable()
-					{						
-						@Override
-						public void run()
-						{
-							showUpdateInfo(controller, button);							
-						}
-					});
-
+					logger.debug("Retrieved version info = " + versions.toString());
+					eventManager.notifyVersionInfoRetrieved(versions);
 				}
 				catch (final XMLException e)
 				{
-					// If an error occurred
-					Platform.runLater(new Runnable()
-					{						
-						@Override
-						public void run()
-						{
-							controller.setStatus(ItemStatus.ERROR);
-							controller.setShowProgress(false);
-							controller.setTitle("Error occurred while getting version info. Please perform manual update.");
-							logger.error("Cannot retrieve version info", e);
-							
-							controller.refresh();
-						}
-					});
-
+					// If an error occurred					
+					eventManager.notifyVersionInfoError(e);				
 				}
 			}
 		}).start();		
@@ -519,37 +480,43 @@ public class ControlPanelController extends AnchorPane implements Initializable,
 	public void showUpdateInfo(final ControlPanelItemController controller, final Button button)
 	{
 		controller.setShowProgress(false);
-		if (versionManager.getVersions() != null)
-		{
-			boolean versionFound = false;
-			
-			for (final ReleaseStatus release : versionManager.getVersions().getReleaseStatuses().getReleaseStatus())
-			{
-				if (VersionManager.isInRange(configurationManager.getDefaultPropertyFile().getFullVersionNumber(), release))
-				{					
-					controller.setStatus(VersionManager.convertVersionStatus(release));
-					controller.setTitle(release.getUpdateTitle());
-					// TODO: might need to append version info
-					controller.setDetails(release.getUpdateDetails());
-					versionFound = true;
-					break;
-				}
-			}
-			
-			if (!versionFound)
-			{
-				controller.setStatus(ItemStatus.INFO);
-				controller.setTitle("Couldn't find any information about your version - please check manually.");
-				controller.setDetails("Your version is " + configurationManager.getDefaultPropertyFile().getFullVersionName() + ".");
-			}
-		}	
-		else
-		{
-			// Set the default state
-			controller.setStatus(ItemStatus.WARN);
-			controller.setTitle("Cannot check for updates - is your internet connection up?");
-			controller.setDetails("Click here to go to the download page for mqtt-spy.");
-		}
+		
+		final VersionInfoProperties properties = versionManager.getVersionInfoProperties(configurationManager);
+		controller.setStatus(properties.getStatus());
+		controller.setTitle(properties.getTitle());
+		controller.setDetails(properties.getDetails());
+		
+//		if (versionManager.getVersions() != null)
+//		{
+//			boolean versionFound = false;
+//			
+//			for (final ReleaseStatus release : versionManager.getVersions().getReleaseStatuses().getReleaseStatus())
+//			{
+//				if (VersionManager.isInRange(configurationManager.getDefaultPropertyFile().getFullVersionNumber(), release))
+//				{					
+//					controller.setStatus(VersionManager.convertVersionStatus(release));
+//					controller.setTitle(release.getUpdateTitle());
+//					// TODO: might need to append version info
+//					controller.setDetails(release.getUpdateDetails());
+//					versionFound = true;
+//					break;
+//				}
+//			}
+//			
+//			if (!versionFound)
+//			{
+//				controller.setStatus(ItemStatus.INFO);
+//				controller.setTitle("Couldn't find any information about your version - please check manually.");
+//				controller.setDetails("Your version is " + configurationManager.getDefaultPropertyFile().getFullVersionName() + ".");
+//			}
+//		}	
+//		else
+//		{
+//			// Set the default state
+//			controller.setStatus(ItemStatus.WARN);
+//			controller.setTitle("Cannot check for updates - is your internet connection up?");
+//			controller.setDetails("Click here to go to the download page for mqtt-spy.");
+//		}
 		
 		controller.refresh();
 	}
@@ -581,5 +548,42 @@ public class ControlPanelController extends AnchorPane implements Initializable,
 	public void setConnectionManager(final ConnectionManager connectionManager)
 	{
 		this.connectionManager = connectionManager;		
+	}
+
+	@Override
+	public void onVersionInfoReceived(final MqttSpyVersions versions)
+	{
+		// If all OK
+		Platform.runLater(new Runnable()
+		{						
+			@Override
+			public void run()
+			{
+				showUpdateInfo(controlPanelItem3Controller, button3);							
+			}
+		});
+	}
+
+	@Override
+	public void onVersionInfoError(final Exception e)
+	{
+		Platform.runLater(new Runnable()
+		{						
+			@Override
+			public void run()
+			{
+				controlPanelItem3Controller.setStatus(ItemStatus.ERROR);
+				controlPanelItem3Controller.setShowProgress(false);
+				controlPanelItem3Controller.setTitle("Error occurred while getting version info. Please perform manual update.");
+				logger.error("Cannot retrieve version info", e);
+				
+				controlPanelItem3Controller.refresh();
+			}
+		});		
+	}
+
+	public void setVersionManager(VersionManager versionManager)
+	{
+		this.versionManager = versionManager;		
 	}
 }

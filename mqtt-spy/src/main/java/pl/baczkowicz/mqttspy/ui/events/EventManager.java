@@ -28,6 +28,8 @@ import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
 import pl.baczkowicz.mqttspy.ui.events.observers.ConnectionStatusChangeObserver;
 import pl.baczkowicz.mqttspy.ui.events.observers.SubscriptionStatusChangeObserver;
+import pl.baczkowicz.mqttspy.ui.events.observers.VersionInfoObserver;
+import pl.baczkowicz.mqttspy.versions.generated.MqttSpyVersions;
 import pl.baczkowicz.spy.messages.FormattedMessage;
 import pl.baczkowicz.spy.scripts.IScriptEventManager;
 import pl.baczkowicz.spy.scripts.ScriptRunningState;
@@ -79,6 +81,8 @@ public class EventManager<T extends FormattedMessage> implements IScriptEventMan
 	private final Map<ScriptStateChangeObserver, String> scriptStateChangeObservers = new HashMap<>();
 	
 	private final Map<ScriptListChangeObserver, MqttAsyncConnection> scriptListChangeObservers = new HashMap<>();
+
+	private final Map<VersionInfoObserver, Object> versionInfoObservers = new HashMap<>();
 	
 	/**
 	 * 
@@ -160,6 +164,28 @@ public class EventManager<T extends FormattedMessage> implements IScriptEventMan
 	public void registerScriptListChangeObserver(final ScriptListChangeObserver observer, final MqttAsyncConnection filter)
 	{
 		scriptListChangeObservers.put(observer, filter);
+	}	
+
+	public void registerVersionInfoObserver(final VersionInfoObserver observer)
+	{
+		versionInfoObservers.put(observer, null);
+		
+	}
+	
+	public void notifyVersionInfoRetrieved(final MqttSpyVersions versions)
+	{
+		for (final VersionInfoObserver observer : versionInfoObservers.keySet())
+		{
+			observer.onVersionInfoReceived(versions);			
+		}				
+	}
+	
+	public void notifyVersionInfoError(final Exception e)
+	{
+		for (final VersionInfoObserver observer : versionInfoObservers.keySet())
+		{
+			observer.onVersionInfoError(e);			
+		}				
 	}
 	
 	public void notifyMessageAdded(final List<BrowseReceivedMessageEvent<T>> browseEvents, 
