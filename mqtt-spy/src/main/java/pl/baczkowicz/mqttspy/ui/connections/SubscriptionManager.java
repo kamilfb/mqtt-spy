@@ -48,6 +48,7 @@ import pl.baczkowicz.mqttspy.ui.events.EventManager;
 import pl.baczkowicz.mqttspy.ui.utils.ContextMenuUtils;
 import pl.baczkowicz.mqttspy.ui.utils.StylingUtils;
 import pl.baczkowicz.spy.formatting.FormattingManager;
+import pl.baczkowicz.spy.ui.configuration.UiProperties;
 import pl.baczkowicz.spy.ui.events.queuable.EventQueueManager;
 import pl.baczkowicz.spy.ui.panes.PaneVisibilityStatus;
 import pl.baczkowicz.spy.ui.panes.TabStatus;
@@ -112,8 +113,9 @@ public class SubscriptionManager
 		final MqttSubscription subscription = new MqttSubscription(subscriptionDetails.getTopic(),
 				subscriptionDetails.getQos(), color,
 				connection.getProperties().getConfiguredProperties().getMinMessagesStoredPerTopic(),
-				connection.getPreferredStoreSize(), uiEventQueue, eventManager, configurationManager, 
-				connection.getStore().getFormattingManager());
+				connection.getPreferredStoreSize(), uiEventQueue, eventManager, 
+				connection.getStore().getFormattingManager(),
+				UiProperties.getSummaryMaxPayloadLength(configurationManager.getUiPropertyFile()));
 		subscription.setConnection(connection);
 		subscription.setDetails(subscriptionDetails);
 		

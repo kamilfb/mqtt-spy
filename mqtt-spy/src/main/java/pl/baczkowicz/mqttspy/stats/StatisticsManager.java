@@ -234,7 +234,7 @@ public class StatisticsManager implements Runnable
 		}
 	}
 	
-	public static ConnectionIntervalStats getMessagesPublished(final int connectionId, final int period)
+	public static ConnectionIntervalStats getMessagesPublished(final String connectionId, final int period)
 	{
 		if (runtimeMessagesPublished.get(connectionId) == null)
 		{

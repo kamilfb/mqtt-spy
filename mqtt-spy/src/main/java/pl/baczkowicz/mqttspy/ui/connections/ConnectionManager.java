@@ -449,7 +449,8 @@ public class ConnectionManager
 		final FormattingManager formattingManager = new FormattingManager(scriptManager);
 		final MqttAsyncConnection connection = new MqttAsyncConnection(reconnectionManager,
 				connectionProperties, MqttConnectionStatus.DISCONNECTED, 
-				eventManager, scriptManager, formattingManager, uiEventQueue, configurationManager);
+				eventManager, scriptManager, formattingManager, uiEventQueue, 
+				UiProperties.getSummaryMaxPayloadLength(configurationManager.getUiPropertyFile()));
 
 		formattingManager.initialiseFormatter(connection.getProperties().getFormatter());
 		scriptManager.setConnection(connection);

@@ -329,12 +329,22 @@ public abstract class BaseMqttConnection implements IMqttConnection
 		}
 		
 		logger.debug("Adding topic " + subscription.getTopic() + " to the subsciption store");
-		getTopicMatcher().addSubscriptionToStore(subscription.getTopic(), "subscription" + subscription.getId());
+		addSubscriptionToMatcher(subscription);
 	}	
 
 	public void removeSubscription(final BaseMqttSubscription subscription)
 	{
 		subscriptions.remove(subscription.getTopic());
+		removeSubscriptionFromMatcher(subscription);
+	}
+	
+	public void addSubscriptionToMatcher(final BaseMqttSubscription subscription)
+	{
+		getTopicMatcher().addSubscriptionToStore(subscription.getTopic(), "subscription" + subscription.getId());
+	}
+	
+	public void removeSubscriptionFromMatcher(final BaseMqttSubscription subscription)
+	{
 		getTopicMatcher().removeSubscriptionFromStore(subscription.getTopic(), "subscription" + subscription.getId());
 	}
 	

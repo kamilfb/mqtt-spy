@@ -38,7 +38,7 @@ public class XMLParserTest
 	{
 		parser = new XMLParser(
 				ConfigurationManager.PACKAGE, 
-				new String[] {ConfigurationManager.MQTT_COMMON_SCHEMA, ConfigurationManager.SCHEMA});
+				new String[] {ConfigurationManager.SPY_COMMON_SCHEMA, ConfigurationManager.MQTT_COMMON_SCHEMA, ConfigurationManager.SCHEMA});
 	}
 
 	@Test

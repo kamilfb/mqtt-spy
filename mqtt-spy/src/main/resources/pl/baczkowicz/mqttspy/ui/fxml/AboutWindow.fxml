@@ -59,7 +59,7 @@
             <Image url="/images/small/help-hint.png" />
          </image>
       </ImageView>
-      <ImageView fitHeight="28.0" fitWidth="28.0" layoutX="12.0" layoutY="301.0" pickOnBounds="true" preserveRatio="true">
+      <ImageView fitHeight="28.0" fitWidth="28.0" layoutX="12.0" layoutY="303.0" pickOnBounds="true" preserveRatio="true">
          <image>
             <Image url="/images/small/applications-internet.png" />
          </image>

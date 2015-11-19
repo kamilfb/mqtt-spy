@@ -116,7 +116,7 @@ public abstract class BaseScriptManager
 				
 		createFileBasedScript(script, scriptName, scriptFile, scriptDetails);
 		
-		logger.info("Adding script {}", scriptDetails.getFile());
+		logger.info("Adding script {} at {}", scriptName, scriptFile.getAbsolutePath());
 		scripts.put(scriptFile.getAbsolutePath(), script);
 		
 		return script;

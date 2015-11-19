@@ -31,23 +31,32 @@ import org.jmock.lib.legacy.ClassImposteriser;
 import org.junit.Before;
 import org.junit.Test;
 
+import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
 import pl.baczkowicz.mqttspy.configuration.ConfiguredConnectionDetails;
 import pl.baczkowicz.mqttspy.connectivity.reconnection.ReconnectionManager;
 import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.stats.StatisticsManager;
 import pl.baczkowicz.mqttspy.ui.events.EventManager;
+import pl.baczkowicz.spy.common.generated.FormatterDetails;
 import pl.baczkowicz.spy.exceptions.ConfigurationException;
 import pl.baczkowicz.spy.exceptions.XMLException;
+import pl.baczkowicz.spy.formatting.FormattingManager;
 import pl.baczkowicz.spy.ui.events.queuable.EventQueueManager;
 
 public class MqttConnectionTest extends TestCase
 {
 	private static final String name = "testClient";
+	
 	private static final String serverURI = "localhost";
+	
 	private static final String clientId = "testClientId";
+	
 	private static final String subscription_TOPIC = "/#";
+	
 	private static final String message_TOPIC = "/topic";
+	
 	private MqttAsyncClient mockClient;
+	
 	private Mockery context = new Mockery()
 	{
 		{
@@ -56,8 +65,12 @@ public class MqttConnectionTest extends TestCase
 	};
 	
 	private EventManager mockEventManager;
+	
 	private StatisticsManager statisticsManager;
+	
 	private ReconnectionManager mockedReconnectionManager;
+	
+	private FormattingManager mockedFormattingManager;
 
 	@Before
 	public void setUp() throws XMLException
@@ -65,6 +78,7 @@ public class MqttConnectionTest extends TestCase
 		mockClient = context.mock(MqttAsyncClient.class);		
 		mockEventManager = context.mock(EventManager.class);
 		mockedReconnectionManager = context.mock(ReconnectionManager.class);
+		mockedFormattingManager = context.mock(FormattingManager.class);
 		statisticsManager = new StatisticsManager();
 		statisticsManager.loadStats();
 	}
@@ -93,7 +107,7 @@ public class MqttConnectionTest extends TestCase
 		
 		final MqttAsyncConnection connection = new MqttAsyncConnection(
 				mockedReconnectionManager, connectionProperties, MqttConnectionStatus.CONNECTING, 
-				mockEventManager, null, null, new EventQueueManager(), null);
+				mockEventManager, null, mockedFormattingManager, new EventQueueManager(), 100);
 		connection.setStatisticsManager(statisticsManager);
 		context.assertIsSatisfied();
 		
@@ -101,7 +115,7 @@ public class MqttConnectionTest extends TestCase
 
 		// This should add a subscription
 		final MqttSubscription subscription = new MqttSubscription(subscription_TOPIC, 0, Color.WHITE, 10, 100, 
-				new EventQueueManager(), mockEventManager, null, null);
+				new EventQueueManager(), mockEventManager, mockedFormattingManager, 100);
 
 		context.checking(new Expectations()
 		{
@@ -113,6 +127,8 @@ public class MqttConnectionTest extends TestCase
 				will(returnValue(true));
 				
 				allowing(mockEventManager).notifySubscriptionStatusChanged(subscription);
+				
+				allowing(mockedFormattingManager).formatMessage(with(any(FormattedMqttMessage.class)), with(any(FormatterDetails.class)));
 			}
 		});
 
@@ -157,7 +173,7 @@ public class MqttConnectionTest extends TestCase
 		
 		final MqttAsyncConnection connection = new MqttAsyncConnection(
 				mockedReconnectionManager, connectionProperties, MqttConnectionStatus.CONNECTING, 
-				mockEventManager, null, null, new EventQueueManager(), null);
+				mockEventManager, null, mockedFormattingManager, new EventQueueManager(), 100);
 		connection.setStatisticsManager(statisticsManager);
 		context.assertIsSatisfied();
 		
@@ -165,9 +181,11 @@ public class MqttConnectionTest extends TestCase
 
 		// This should add a subscription
 		final MqttSubscription subscription = new MqttSubscription(subscription_TOPIC, 0, Color.WHITE, 10, 100, 
-				new EventQueueManager(), mockEventManager, null, null);
-		//subscription.addObserver(mockObserver);
+				new EventQueueManager(), mockEventManager, mockedFormattingManager, 100);
 		
+		// This should handle the message
+		FormattedMqttMessage message = new FormattedMqttMessage(1, message_TOPIC, new MqttMessage("test".getBytes()), connection);
+				
 		context.checking(new Expectations()
 		{
 			{
@@ -178,13 +196,13 @@ public class MqttConnectionTest extends TestCase
 				will(returnValue(true));
 				
 				allowing(mockEventManager).notifySubscriptionStatusChanged(subscription);
+				
+				allowing(mockedFormattingManager).formatMessage(with(any(FormattedMqttMessage.class)), with(any(FormatterDetails.class)));
 			}
 		});
 	
 		assertTrue(connection.subscribe(subscription));
 
-		// This should handle the message
-		FormattedMqttMessage message = new FormattedMqttMessage(1, message_TOPIC, new MqttMessage("test".getBytes()), connection);
 		connection.messageReceived(message);
 
 		// This should remove the subscription

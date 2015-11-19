@@ -30,7 +30,6 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
 import pl.baczkowicz.mqttspy.connectivity.reconnection.ReconnectionManager;
 import pl.baczkowicz.mqttspy.logger.MqttMessageLogger;
 import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
@@ -40,7 +39,6 @@ import pl.baczkowicz.mqttspy.ui.scripts.InteractiveScriptManager;
 import pl.baczkowicz.spy.common.generated.ScriptDetails;
 import pl.baczkowicz.spy.formatting.FormattingManager;
 import pl.baczkowicz.spy.scripts.Script;
-import pl.baczkowicz.spy.ui.configuration.UiProperties;
 import pl.baczkowicz.spy.ui.events.queuable.EventQueueManager;
 import pl.baczkowicz.spy.ui.storage.ManagedMessageStoreWithFiltering;
 import pl.baczkowicz.spy.utils.ConversionUtils;
@@ -74,7 +72,7 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection
 	public MqttAsyncConnection(final ReconnectionManager reconnectionManager, final RuntimeConnectionProperties properties, 
 			final MqttConnectionStatus status, final EventManager<FormattedMqttMessage> eventManager, 
 			final InteractiveScriptManager scriptManager, final FormattingManager formattingManager,
-			final EventQueueManager<FormattedMqttMessage> uiEventQueue, final ConfigurationManager configurationManager)
+			final EventQueueManager<FormattedMqttMessage> uiEventQueue, final int summaryMaxPayloadLength)
 	{ 
 		super(reconnectionManager, properties);
 		setScriptManager(scriptManager);
@@ -86,7 +84,7 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection
 				properties.getMaxMessagesStored() * 2, 
 				uiEventQueue, //eventManager,
 				formattingManager,
-				UiProperties.getSummaryMaxPayloadLength(configurationManager.getUiPropertyFile()));
+				summaryMaxPayloadLength);
 		
 		this.setPreferredStoreSize(properties.getMaxMessagesStored());
 		this.properties = properties;

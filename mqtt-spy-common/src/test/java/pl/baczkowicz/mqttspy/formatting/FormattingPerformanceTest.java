@@ -19,6 +19,8 @@
  */
 package pl.baczkowicz.mqttspy.formatting;
 
+import java.io.File;
+
 import javax.script.ScriptException;
 
 import org.eclipse.paho.client.mqttv3.MqttMessage;
@@ -93,14 +95,14 @@ public class FormattingPerformanceTest
 		
 		// 2. Script file-based		
 		MqttScriptManager scriptManager = new MqttScriptManager(null, null, null);
-		final String scriptFile1 = "/home/kamil/Programming/Git/mqtt-spy-common/src/test/resources/scripts/base64-body-decoder.js";
+		final String scriptFile1 = "src/test/resources/scripts/base64-body-decoder.js";
 		scriptManager.addScript(new ScriptDetails(false, false, scriptFile1));
 		
 		startTime = System.nanoTime();
 		for (int i = 0; i < repeat; i++)
 		{
 			message.setPayload(payload);
-			scriptManager.runScriptFileWithReceivedMessage(scriptFile1, message);	
+			scriptManager.runScriptFileWithReceivedMessage(new File(scriptFile1).getAbsolutePath(), message);	
 		}
 		System.out.println("Message payload = " + message.getPayload());
 		
