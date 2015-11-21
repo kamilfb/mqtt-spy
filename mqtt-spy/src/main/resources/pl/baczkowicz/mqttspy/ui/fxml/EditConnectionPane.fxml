@@ -31,7 +31,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane prefHeight="398.0" prefWidth="594.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.baczkowicz.mqttspy.ui.EditConnectionController">
+<AnchorPane prefHeight="420" prefWidth="594.0" AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.baczkowicz.mqttspy.ui.EditConnectionController">
    <children>
       
       <!-- Connection name -->
@@ -80,7 +80,7 @@
        
       <Button fx:id="cancelButton" cancelButton="true" focusTraversable="false" layoutX="192.0" layoutY="317.0" mnemonicParsing="false" onAction="#cancel" prefHeight="28" prefWidth="80.0" text="Close" visible="false" AnchorPane.bottomAnchor="14.0" AnchorPane.rightAnchor="322.0" />
             
-      <TabPane layoutY="301.0" prefHeight="241.0" prefWidth="594.0" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="61.0" AnchorPane.leftAnchor="4.0" AnchorPane.rightAnchor="4.0">
+      <TabPane tabClosingPolicy="UNAVAILABLE" AnchorPane.topAnchor="93" AnchorPane.bottomAnchor="61.0" AnchorPane.leftAnchor="4.0" AnchorPane.rightAnchor="4.0">
         <tabs>
           	<Tab text="Connectivity">
               <content>

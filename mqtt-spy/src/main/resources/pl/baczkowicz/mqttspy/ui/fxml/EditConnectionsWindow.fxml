@@ -32,7 +32,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.control.SeparatorMenuItem?>
 
-<AnchorPane fx:id="editConnectionsWindow" minWidth="800.0" prefHeight="356.0" prefWidth="945.0" xmlns="http://javafx.com/javafx/8.0.51" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.baczkowicz.mqttspy.ui.EditConnectionsController">
+<AnchorPane fx:id="editConnectionsWindow" minWidth="800.0" prefHeight="420" prefWidth="945.0" xmlns="http://javafx.com/javafx/8.0.51" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.baczkowicz.mqttspy.ui.EditConnectionsController">
    <children>
       <TreeView fx:id="connectionList" focusTraversable="false" AnchorPane.bottomAnchor="98.0" AnchorPane.leftAnchor="-15" AnchorPane.rightAnchor="596.0" AnchorPane.topAnchor="0.0" />
       
