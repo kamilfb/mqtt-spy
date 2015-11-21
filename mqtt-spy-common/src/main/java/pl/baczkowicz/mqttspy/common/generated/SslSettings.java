@@ -34,6 +34,7 @@ import org.jvnet.jaxb2_commons.lang.ToStringStrategy;
 import org.jvnet.jaxb2_commons.locator.ObjectLocator;
 import org.jvnet.jaxb2_commons.locator.util.LocatorUtils;
 import pl.baczkowicz.spy.common.generated.Property;
+import pl.baczkowicz.spy.common.generated.SecureSocketModeEnum;
 
 
 /**
@@ -46,12 +47,17 @@ import pl.baczkowicz.spy.common.generated.Property;
  *   &lt;complexContent&gt;
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
  *       &lt;sequence&gt;
- *         &lt;element name="Mode" type="{http://baczkowicz.pl/mqtt-spy/common}SslModeEnum"/&gt;
+ *         &lt;element name="Mode" type="{http://baczkowicz.pl/spy/common}SecureSocketModeEnum"/&gt;
  *         &lt;element name="Protocol" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
  *         &lt;element name="CertificateAuthorityFile" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
  *         &lt;element name="ClientCertificateFile" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
  *         &lt;element name="ClientKeyFile" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
  *         &lt;element name="ClientKeyPassword" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *         &lt;element name="ClientKeyPEM" type="{http://www.w3.org/2001/XMLSchema}boolean" minOccurs="0"/&gt;
+ *         &lt;element name="ServerKeyStoreFile" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *         &lt;element name="ServerKeyStorePassword" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *         &lt;element name="ClientKeyStoreFile" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
+ *         &lt;element name="ClientKeyStorePassword" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
  *         &lt;element name="Property" type="{http://baczkowicz.pl/spy/common}Property" maxOccurs="unbounded" minOccurs="0"/&gt;
  *       &lt;/sequence&gt;
  *     &lt;/restriction&gt;
@@ -70,6 +76,11 @@ import pl.baczkowicz.spy.common.generated.Property;
     "clientCertificateFile",
     "clientKeyFile",
     "clientKeyPassword",
+    "clientKeyPEM",
+    "serverKeyStoreFile",
+    "serverKeyStorePassword",
+    "clientKeyStoreFile",
+    "clientKeyStorePassword",
     "property"
 })
 public class SslSettings implements Serializable, Cloneable, CopyTo, Equals, HashCode, ToString
@@ -78,7 +89,7 @@ public class SslSettings implements Serializable, Cloneable, CopyTo, Equals, Has
     private final static long serialVersionUID = 1L;
     @XmlElement(name = "Mode", required = true)
     @XmlSchemaType(name = "string")
-    protected SslModeEnum mode;
+    protected SecureSocketModeEnum mode;
     @XmlElement(name = "Protocol")
     protected String protocol;
     @XmlElement(name = "CertificateAuthorityFile")
@@ -89,6 +100,16 @@ public class SslSettings implements Serializable, Cloneable, CopyTo, Equals, Has
     protected String clientKeyFile;
     @XmlElement(name = "ClientKeyPassword")
     protected String clientKeyPassword;
+    @XmlElement(name = "ClientKeyPEM")
+    protected Boolean clientKeyPEM;
+    @XmlElement(name = "ServerKeyStoreFile")
+    protected String serverKeyStoreFile;
+    @XmlElement(name = "ServerKeyStorePassword")
+    protected String serverKeyStorePassword;
+    @XmlElement(name = "ClientKeyStoreFile")
+    protected String clientKeyStoreFile;
+    @XmlElement(name = "ClientKeyStorePassword")
+    protected String clientKeyStorePassword;
     @XmlElement(name = "Property")
     protected List<Property> property;
 
@@ -104,13 +125,18 @@ public class SslSettings implements Serializable, Cloneable, CopyTo, Equals, Has
      * Fully-initialising value constructor
      * 
      */
-    public SslSettings(final SslModeEnum mode, final String protocol, final String certificateAuthorityFile, final String clientCertificateFile, final String clientKeyFile, final String clientKeyPassword, final List<Property> property) {
+    public SslSettings(final SecureSocketModeEnum mode, final String protocol, final String certificateAuthorityFile, final String clientCertificateFile, final String clientKeyFile, final String clientKeyPassword, final Boolean clientKeyPEM, final String serverKeyStoreFile, final String serverKeyStorePassword, final String clientKeyStoreFile, final String clientKeyStorePassword, final List<Property> property) {
         this.mode = mode;
         this.protocol = protocol;
         this.certificateAuthorityFile = certificateAuthorityFile;
         this.clientCertificateFile = clientCertificateFile;
         this.clientKeyFile = clientKeyFile;
         this.clientKeyPassword = clientKeyPassword;
+        this.clientKeyPEM = clientKeyPEM;
+        this.serverKeyStoreFile = serverKeyStoreFile;
+        this.serverKeyStorePassword = serverKeyStorePassword;
+        this.clientKeyStoreFile = clientKeyStoreFile;
+        this.clientKeyStorePassword = clientKeyStorePassword;
         this.property = property;
     }
 
@@ -119,10 +145,10 @@ public class SslSettings implements Serializable, Cloneable, CopyTo, Equals, Has
      * 
      * @return
      *     possible object is
-     *     {@link SslModeEnum }
+     *     {@link SecureSocketModeEnum }
      *     
      */
-    public SslModeEnum getMode() {
+    public SecureSocketModeEnum getMode() {
         return mode;
     }
 
@@ -131,10 +157,10 @@ public class SslSettings implements Serializable, Cloneable, CopyTo, Equals, Has
      * 
      * @param value
      *     allowed object is
-     *     {@link SslModeEnum }
+     *     {@link SecureSocketModeEnum }
      *     
      */
-    public void setMode(SslModeEnum value) {
+    public void setMode(SecureSocketModeEnum value) {
         this.mode = value;
     }
 
@@ -259,6 +285,126 @@ public class SslSettings implements Serializable, Cloneable, CopyTo, Equals, Has
     }
 
     /**
+     * Gets the value of the clientKeyPEM property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link Boolean }
+     *     
+     */
+    public Boolean isClientKeyPEM() {
+        return clientKeyPEM;
+    }
+
+    /**
+     * Sets the value of the clientKeyPEM property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link Boolean }
+     *     
+     */
+    public void setClientKeyPEM(Boolean value) {
+        this.clientKeyPEM = value;
+    }
+
+    /**
+     * Gets the value of the serverKeyStoreFile property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getServerKeyStoreFile() {
+        return serverKeyStoreFile;
+    }
+
+    /**
+     * Sets the value of the serverKeyStoreFile property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setServerKeyStoreFile(String value) {
+        this.serverKeyStoreFile = value;
+    }
+
+    /**
+     * Gets the value of the serverKeyStorePassword property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getServerKeyStorePassword() {
+        return serverKeyStorePassword;
+    }
+
+    /**
+     * Sets the value of the serverKeyStorePassword property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setServerKeyStorePassword(String value) {
+        this.serverKeyStorePassword = value;
+    }
+
+    /**
+     * Gets the value of the clientKeyStoreFile property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getClientKeyStoreFile() {
+        return clientKeyStoreFile;
+    }
+
+    /**
+     * Sets the value of the clientKeyStoreFile property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setClientKeyStoreFile(String value) {
+        this.clientKeyStoreFile = value;
+    }
+
+    /**
+     * Gets the value of the clientKeyStorePassword property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getClientKeyStorePassword() {
+        return clientKeyStorePassword;
+    }
+
+    /**
+     * Sets the value of the clientKeyStorePassword property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setClientKeyStorePassword(String value) {
+        this.clientKeyStorePassword = value;
+    }
+
+    /**
      * Gets the value of the property property.
      * 
      * <p>
@@ -303,7 +449,7 @@ public class SslSettings implements Serializable, Cloneable, CopyTo, Equals, Has
 
     public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy strategy) {
         {
-            SslModeEnum theMode;
+            SecureSocketModeEnum theMode;
             theMode = this.getMode();
             strategy.appendField(locator, this, "mode", buffer, theMode);
         }
@@ -333,6 +479,31 @@ public class SslSettings implements Serializable, Cloneable, CopyTo, Equals, Has
             strategy.appendField(locator, this, "clientKeyPassword", buffer, theClientKeyPassword);
         }
         {
+            Boolean theClientKeyPEM;
+            theClientKeyPEM = this.isClientKeyPEM();
+            strategy.appendField(locator, this, "clientKeyPEM", buffer, theClientKeyPEM);
+        }
+        {
+            String theServerKeyStoreFile;
+            theServerKeyStoreFile = this.getServerKeyStoreFile();
+            strategy.appendField(locator, this, "serverKeyStoreFile", buffer, theServerKeyStoreFile);
+        }
+        {
+            String theServerKeyStorePassword;
+            theServerKeyStorePassword = this.getServerKeyStorePassword();
+            strategy.appendField(locator, this, "serverKeyStorePassword", buffer, theServerKeyStorePassword);
+        }
+        {
+            String theClientKeyStoreFile;
+            theClientKeyStoreFile = this.getClientKeyStoreFile();
+            strategy.appendField(locator, this, "clientKeyStoreFile", buffer, theClientKeyStoreFile);
+        }
+        {
+            String theClientKeyStorePassword;
+            theClientKeyStorePassword = this.getClientKeyStorePassword();
+            strategy.appendField(locator, this, "clientKeyStorePassword", buffer, theClientKeyStorePassword);
+        }
+        {
             List<Property> theProperty;
             theProperty = (((this.property!= null)&&(!this.property.isEmpty()))?this.getProperty():null);
             strategy.appendField(locator, this, "property", buffer, theProperty);
@@ -349,9 +520,9 @@ public class SslSettings implements Serializable, Cloneable, CopyTo, Equals, Has
         }
         final SslSettings that = ((SslSettings) object);
         {
-            SslModeEnum lhsMode;
+            SecureSocketModeEnum lhsMode;
             lhsMode = this.getMode();
-            SslModeEnum rhsMode;
+            SecureSocketModeEnum rhsMode;
             rhsMode = that.getMode();
             if (!strategy.equals(LocatorUtils.property(thisLocator, "mode", lhsMode), LocatorUtils.property(thatLocator, "mode", rhsMode), lhsMode, rhsMode)) {
                 return false;
@@ -403,6 +574,51 @@ public class SslSettings implements Serializable, Cloneable, CopyTo, Equals, Has
             }
         }
         {
+            Boolean lhsClientKeyPEM;
+            lhsClientKeyPEM = this.isClientKeyPEM();
+            Boolean rhsClientKeyPEM;
+            rhsClientKeyPEM = that.isClientKeyPEM();
+            if (!strategy.equals(LocatorUtils.property(thisLocator, "clientKeyPEM", lhsClientKeyPEM), LocatorUtils.property(thatLocator, "clientKeyPEM", rhsClientKeyPEM), lhsClientKeyPEM, rhsClientKeyPEM)) {
+                return false;
+            }
+        }
+        {
+            String lhsServerKeyStoreFile;
+            lhsServerKeyStoreFile = this.getServerKeyStoreFile();
+            String rhsServerKeyStoreFile;
+            rhsServerKeyStoreFile = that.getServerKeyStoreFile();
+            if (!strategy.equals(LocatorUtils.property(thisLocator, "serverKeyStoreFile", lhsServerKeyStoreFile), LocatorUtils.property(thatLocator, "serverKeyStoreFile", rhsServerKeyStoreFile), lhsServerKeyStoreFile, rhsServerKeyStoreFile)) {
+                return false;
+            }
+        }
+        {
+            String lhsServerKeyStorePassword;
+            lhsServerKeyStorePassword = this.getServerKeyStorePassword();
+            String rhsServerKeyStorePassword;
+            rhsServerKeyStorePassword = that.getServerKeyStorePassword();
+            if (!strategy.equals(LocatorUtils.property(thisLocator, "serverKeyStorePassword", lhsServerKeyStorePassword), LocatorUtils.property(thatLocator, "serverKeyStorePassword", rhsServerKeyStorePassword), lhsServerKeyStorePassword, rhsServerKeyStorePassword)) {
+                return false;
+            }
+        }
+        {
+            String lhsClientKeyStoreFile;
+            lhsClientKeyStoreFile = this.getClientKeyStoreFile();
+            String rhsClientKeyStoreFile;
+            rhsClientKeyStoreFile = that.getClientKeyStoreFile();
+            if (!strategy.equals(LocatorUtils.property(thisLocator, "clientKeyStoreFile", lhsClientKeyStoreFile), LocatorUtils.property(thatLocator, "clientKeyStoreFile", rhsClientKeyStoreFile), lhsClientKeyStoreFile, rhsClientKeyStoreFile)) {
+                return false;
+            }
+        }
+        {
+            String lhsClientKeyStorePassword;
+            lhsClientKeyStorePassword = this.getClientKeyStorePassword();
+            String rhsClientKeyStorePassword;
+            rhsClientKeyStorePassword = that.getClientKeyStorePassword();
+            if (!strategy.equals(LocatorUtils.property(thisLocator, "clientKeyStorePassword", lhsClientKeyStorePassword), LocatorUtils.property(thatLocator, "clientKeyStorePassword", rhsClientKeyStorePassword), lhsClientKeyStorePassword, rhsClientKeyStorePassword)) {
+                return false;
+            }
+        }
+        {
             List<Property> lhsProperty;
             lhsProperty = (((this.property!= null)&&(!this.property.isEmpty()))?this.getProperty():null);
             List<Property> rhsProperty;
@@ -422,7 +638,7 @@ public class SslSettings implements Serializable, Cloneable, CopyTo, Equals, Has
     public int hashCode(ObjectLocator locator, HashCodeStrategy strategy) {
         int currentHashCode = 1;
         {
-            SslModeEnum theMode;
+            SecureSocketModeEnum theMode;
             theMode = this.getMode();
             currentHashCode = strategy.hashCode(LocatorUtils.property(locator, "mode", theMode), currentHashCode, theMode);
         }
@@ -452,6 +668,31 @@ public class SslSettings implements Serializable, Cloneable, CopyTo, Equals, Has
             currentHashCode = strategy.hashCode(LocatorUtils.property(locator, "clientKeyPassword", theClientKeyPassword), currentHashCode, theClientKeyPassword);
         }
         {
+            Boolean theClientKeyPEM;
+            theClientKeyPEM = this.isClientKeyPEM();
+            currentHashCode = strategy.hashCode(LocatorUtils.property(locator, "clientKeyPEM", theClientKeyPEM), currentHashCode, theClientKeyPEM);
+        }
+        {
+            String theServerKeyStoreFile;
+            theServerKeyStoreFile = this.getServerKeyStoreFile();
+            currentHashCode = strategy.hashCode(LocatorUtils.property(locator, "serverKeyStoreFile", theServerKeyStoreFile), currentHashCode, theServerKeyStoreFile);
+        }
+        {
+            String theServerKeyStorePassword;
+            theServerKeyStorePassword = this.getServerKeyStorePassword();
+            currentHashCode = strategy.hashCode(LocatorUtils.property(locator, "serverKeyStorePassword", theServerKeyStorePassword), currentHashCode, theServerKeyStorePassword);
+        }
+        {
+            String theClientKeyStoreFile;
+            theClientKeyStoreFile = this.getClientKeyStoreFile();
+            currentHashCode = strategy.hashCode(LocatorUtils.property(locator, "clientKeyStoreFile", theClientKeyStoreFile), currentHashCode, theClientKeyStoreFile);
+        }
+        {
+            String theClientKeyStorePassword;
+            theClientKeyStorePassword = this.getClientKeyStorePassword();
+            currentHashCode = strategy.hashCode(LocatorUtils.property(locator, "clientKeyStorePassword", theClientKeyStorePassword), currentHashCode, theClientKeyStorePassword);
+        }
+        {
             List<Property> theProperty;
             theProperty = (((this.property!= null)&&(!this.property.isEmpty()))?this.getProperty():null);
             currentHashCode = strategy.hashCode(LocatorUtils.property(locator, "property", theProperty), currentHashCode, theProperty);
@@ -478,9 +719,9 @@ public class SslSettings implements Serializable, Cloneable, CopyTo, Equals, Has
         if (draftCopy instanceof SslSettings) {
             final SslSettings copy = ((SslSettings) draftCopy);
             if (this.mode!= null) {
-                SslModeEnum sourceMode;
+                SecureSocketModeEnum sourceMode;
                 sourceMode = this.getMode();
-                SslModeEnum copyMode = ((SslModeEnum) strategy.copy(LocatorUtils.property(locator, "mode", sourceMode), sourceMode));
+                SecureSocketModeEnum copyMode = ((SecureSocketModeEnum) strategy.copy(LocatorUtils.property(locator, "mode", sourceMode), sourceMode));
                 copy.setMode(copyMode);
             } else {
                 copy.mode = null;
@@ -524,6 +765,46 @@ public class SslSettings implements Serializable, Cloneable, CopyTo, Equals, Has
                 copy.setClientKeyPassword(copyClientKeyPassword);
             } else {
                 copy.clientKeyPassword = null;
+            }
+            if (this.clientKeyPEM!= null) {
+                Boolean sourceClientKeyPEM;
+                sourceClientKeyPEM = this.isClientKeyPEM();
+                Boolean copyClientKeyPEM = ((Boolean) strategy.copy(LocatorUtils.property(locator, "clientKeyPEM", sourceClientKeyPEM), sourceClientKeyPEM));
+                copy.setClientKeyPEM(copyClientKeyPEM);
+            } else {
+                copy.clientKeyPEM = null;
+            }
+            if (this.serverKeyStoreFile!= null) {
+                String sourceServerKeyStoreFile;
+                sourceServerKeyStoreFile = this.getServerKeyStoreFile();
+                String copyServerKeyStoreFile = ((String) strategy.copy(LocatorUtils.property(locator, "serverKeyStoreFile", sourceServerKeyStoreFile), sourceServerKeyStoreFile));
+                copy.setServerKeyStoreFile(copyServerKeyStoreFile);
+            } else {
+                copy.serverKeyStoreFile = null;
+            }
+            if (this.serverKeyStorePassword!= null) {
+                String sourceServerKeyStorePassword;
+                sourceServerKeyStorePassword = this.getServerKeyStorePassword();
+                String copyServerKeyStorePassword = ((String) strategy.copy(LocatorUtils.property(locator, "serverKeyStorePassword", sourceServerKeyStorePassword), sourceServerKeyStorePassword));
+                copy.setServerKeyStorePassword(copyServerKeyStorePassword);
+            } else {
+                copy.serverKeyStorePassword = null;
+            }
+            if (this.clientKeyStoreFile!= null) {
+                String sourceClientKeyStoreFile;
+                sourceClientKeyStoreFile = this.getClientKeyStoreFile();
+                String copyClientKeyStoreFile = ((String) strategy.copy(LocatorUtils.property(locator, "clientKeyStoreFile", sourceClientKeyStoreFile), sourceClientKeyStoreFile));
+                copy.setClientKeyStoreFile(copyClientKeyStoreFile);
+            } else {
+                copy.clientKeyStoreFile = null;
+            }
+            if (this.clientKeyStorePassword!= null) {
+                String sourceClientKeyStorePassword;
+                sourceClientKeyStorePassword = this.getClientKeyStorePassword();
+                String copyClientKeyStorePassword = ((String) strategy.copy(LocatorUtils.property(locator, "clientKeyStorePassword", sourceClientKeyStorePassword), sourceClientKeyStorePassword));
+                copy.setClientKeyStorePassword(copyClientKeyStorePassword);
+            } else {
+                copy.clientKeyStorePassword = null;
             }
             if ((this.property!= null)&&(!this.property.isEmpty())) {
                 List<Property> sourceProperty;

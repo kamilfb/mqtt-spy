@@ -33,10 +33,10 @@ import org.junit.Test;
 
 import pl.baczkowicz.mqttspy.common.generated.MqttConnectionDetails;
 import pl.baczkowicz.mqttspy.common.generated.ProtocolVersionEnum;
-import pl.baczkowicz.mqttspy.common.generated.SslModeEnum;
 import pl.baczkowicz.mqttspy.common.generated.SslSettings;
 import pl.baczkowicz.mqttspy.common.generated.UserCredentials;
 import pl.baczkowicz.mqttspy.connectivity.reconnection.ReconnectionManager;
+import pl.baczkowicz.spy.common.generated.SecureSocketModeEnum;
 import pl.baczkowicz.spy.exceptions.SpyException;
 import pl.baczkowicz.spy.utils.ConversionUtils;
 
@@ -242,9 +242,9 @@ public class ConnectionTestingWithMosquitto
 		final MqttConnectionDetails connectionDetails = createMqttConnectionDetails(
 				"ssl://localhost:10010", 
 				new UserCredentials("nopassword", ""),
-				new SslSettings(SslModeEnum.SERVER_ONLY, "TLSv1", 
+				new SslSettings(SecureSocketModeEnum.SERVER_ONLY, "TLSv1", 
 						"src/test/resources/mosquitto/ssl/ca.crt", 
-						null, null, null, null));
+						null, null, null, null, null, null, null, null, null));
 		
 		final SimpleMqttConnection connection = new SimpleMqttConnection(reconnectionManager, "0", connectionDetails);
 		connection.createClient(createTestCallback("ssl://localhost:10010"));
@@ -275,11 +275,11 @@ public class ConnectionTestingWithMosquitto
 		final MqttConnectionDetails connectionDetails = createMqttConnectionDetails(
 				"ssl://localhost:10011", 
 				new UserCredentials("nopassword", ""),
-				new SslSettings(SslModeEnum.SERVER_AND_CLIENT, "TLSv1.1", 
+				new SslSettings(SecureSocketModeEnum.SERVER_AND_CLIENT, "TLSv1.1", 
 						"src/test/resources/mosquitto/ssl/ca.crt", 
 						"src/test/resources/mosquitto/ssl/bouncy_castle/client.crt", 
 						"src/test/resources/mosquitto/ssl/bouncy_castle/client.key", 
-						"", null));
+						"", null, null, null, null, null, null));
 		
 		final SimpleMqttConnection connection = new SimpleMqttConnection(reconnectionManager, "0", connectionDetails);
 		connection.createClient(createTestCallback("ssl://localhost:10011"));
@@ -318,9 +318,9 @@ public class ConnectionTestingWithMosquitto
 			throws InterruptedException, SpyException
 	{
 		final MqttConnectionDetails connectionDetails = createMqttConnectionDetails(server, null, 
-				new SslSettings(SslModeEnum.SERVER_ONLY, "TLSv1.2", 
+				new SslSettings(SecureSocketModeEnum.SERVER_ONLY, "TLSv1.2", 
 						certificateAuthorityFile, 
-						null, null, null, null));
+						null, null, null, null, null, null, null, null, null));
 		
 		final SimpleMqttConnection connection = new SimpleMqttConnection(reconnectionManager, "0", connectionDetails);
 		connection.createClient(createTestCallback(server));

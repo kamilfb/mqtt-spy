@@ -62,6 +62,18 @@
 			<xs:enumeration value="JMS" />
 		</xs:restriction>
 	</xs:simpleType>	
+	
+	<xs:simpleType name="SecureSocketModeEnum">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="DISABLED" />
+			<xs:enumeration value="BASIC" />
+			<xs:enumeration value="SERVER_ONLY" />		
+			<xs:enumeration value="SERVER_AND_CLIENT" />
+			<xs:enumeration value="SERVER_KEYSTORE" />
+			<xs:enumeration value="SERVER_AND_CLIENT_KEYSTORES" />
+			<xs:enumeration value="PROPERTIES" />
+		</xs:restriction>
+	</xs:simpleType>
 				
 	<xs:simpleType name="RunningMode">
 		<xs:restriction base="xs:string">

@@ -84,12 +84,20 @@
 	
 	<xs:complexType name="SslSettings">
 		<xs:sequence>
-       		<xs:element name="Mode" 					type="mqttspycommon:SslModeEnum" 	/>
+       		<xs:element name="Mode" 					type="spycommon:SecureSocketModeEnum" 	/>
        		<xs:element name="Protocol" 				type="xs:string" 	minOccurs="0" />
+       		
        		<xs:element name="CertificateAuthorityFile" type="xs:string" 	minOccurs="0" />
        		<xs:element name="ClientCertificateFile"	type="xs:string" 	minOccurs="0" />
        		<xs:element name="ClientKeyFile" 			type="xs:string" 	minOccurs="0" />
        		<xs:element name="ClientKeyPassword" 		type="xs:string" 	minOccurs="0" />
+       		<xs:element name="ClientKeyPEM" 			type="xs:boolean" 	minOccurs="0" />
+       		
+       		<xs:element name="ServerKeyStoreFile" 		type="xs:string" 	minOccurs="0" />
+       		<xs:element name="ServerKeyStorePassword" 	type="xs:string" 	minOccurs="0" />
+       		<xs:element name="ClientKeyStoreFile" 		type="xs:string" 	minOccurs="0" />
+       		<xs:element name="ClientKeyStorePassword" 	type="xs:string" 	minOccurs="0" />
+       		
        		<xs:element name="Property" 				type="spycommon:Property" 	minOccurs="0" maxOccurs="unbounded"	/>       		
    		</xs:sequence>
 	</xs:complexType>	
@@ -102,14 +110,6 @@
    		</xs:sequence>
 	</xs:complexType>		
 	 -->
-	<xs:simpleType name="SslModeEnum">
-		<xs:restriction base="xs:string">
-			<xs:enumeration value="DISABLED" />
-			<xs:enumeration value="SERVER_ONLY" />		
-			<xs:enumeration value="SERVER_AND_CLIENT" />
-			<xs:enumeration value="PROPERTIES" />
-		</xs:restriction>
-	</xs:simpleType>
 	
 	<xs:complexType name="UserCredentials">
 		<xs:sequence>

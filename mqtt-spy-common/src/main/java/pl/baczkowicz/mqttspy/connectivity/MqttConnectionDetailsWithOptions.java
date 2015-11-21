@@ -26,13 +26,13 @@ import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 
 import pl.baczkowicz.mqttspy.common.generated.MqttConnectionDetails;
 import pl.baczkowicz.mqttspy.common.generated.ProtocolVersionEnum;
-import pl.baczkowicz.mqttspy.common.generated.SslModeEnum;
-import pl.baczkowicz.spy.common.generated.Property;
 import pl.baczkowicz.mqttspy.utils.MqttConfigurationUtils;
+import pl.baczkowicz.spy.common.generated.Property;
+import pl.baczkowicz.spy.common.generated.SecureSocketModeEnum;
 import pl.baczkowicz.spy.exceptions.ConfigurationException;
 import pl.baczkowicz.spy.exceptions.SpyException;
+import pl.baczkowicz.spy.security.SecureSocketFactoryBuilder;
 import pl.baczkowicz.spy.utils.ConversionUtils;
-import pl.baczkowicz.spy.utils.SslUtils;
 
 /**
  * Extends JAXB-generated class for storing MQTT connection details, by adding the Paho's MqttConnectOptions.
@@ -73,7 +73,9 @@ public class MqttConnectionDetailsWithOptions extends MqttConnectionDetails
 		this.setReconnectionSettings(details.getReconnectionSettings());
 		
 		this.setSSL(details.getSSL());
-		final boolean sslEnabled = details.getSSL() != null && details.getSSL().getMode() != null && !details.getSSL().getMode().equals(SslModeEnum.DISABLED);
+		final boolean sslEnabled = details.getSSL() != null 
+				&& details.getSSL().getMode() != null 
+				&& !details.getSSL().getMode().equals(SecureSocketModeEnum.DISABLED);
 		
 		MqttConfigurationUtils.completeServerURIs(this, sslEnabled);
 		MqttConfigurationUtils.populateConnectionDefaults(this);
@@ -140,7 +142,7 @@ public class MqttConnectionDetailsWithOptions extends MqttConnectionDetails
 		} 
 		else 
 		{
-			if (SslModeEnum.PROPERTIES.equals(getSSL().getMode()))			
+			if (SecureSocketModeEnum.PROPERTIES.equals(getSSL().getMode()))			
 			{
 				Properties props = new Properties();
 				for (final Property prop : getSSL().getProperty())
@@ -149,20 +151,42 @@ public class MqttConnectionDetailsWithOptions extends MqttConnectionDetails
 				}
 				options.setSSLProperties(props);
 			}
-			else if (SslModeEnum.SERVER_AND_CLIENT.equals(getSSL().getMode()))
+			else if (SecureSocketModeEnum.BASIC.equals(getSSL().getMode()))
 			{
-				options.setSocketFactory(SslUtils.getSocketFactory(
+				options.setSocketFactory(SecureSocketFactoryBuilder.getSocketFactory(getSSL().getProtocol()));				
+			}
+			else if (SecureSocketModeEnum.SERVER_ONLY.equals(getSSL().getMode()))
+			{
+				options.setSocketFactory(SecureSocketFactoryBuilder.getSocketFactory(
+						getSSL().getProtocol(), 
+						getSSL().getCertificateAuthorityFile()));
+			}
+			else if (SecureSocketModeEnum.SERVER_KEYSTORE.equals(getSSL().getMode()))
+			{
+				options.setSocketFactory(SecureSocketFactoryBuilder.getSocketFactory(
+						getSSL().getProtocol(), 
+						getSSL().getServerKeyStoreFile(),
+						getSSL().getServerKeyStorePassword()));
+			}
+			else if (SecureSocketModeEnum.SERVER_AND_CLIENT.equals(getSSL().getMode()))
+			{
+				options.setSocketFactory(SecureSocketFactoryBuilder.getSocketFactory(
+						getSSL().getProtocol(),
 						getSSL().getCertificateAuthorityFile(), 
 						getSSL().getClientCertificateFile(),
 						getSSL().getClientKeyFile(),
 						getSSL().getClientKeyPassword(),
-						getSSL().getProtocol()));
+						getSSL().isClientKeyPEM()));
 			}
-			else if (SslModeEnum.SERVER_ONLY.equals(getSSL().getMode()))
+			else if (SecureSocketModeEnum.SERVER_AND_CLIENT_KEYSTORES.equals(getSSL().getMode()))
 			{
-				options.setSocketFactory(SslUtils.getSocketFactory(
-						getSSL().getCertificateAuthorityFile(), 
-						getSSL().getProtocol()));
+				options.setSocketFactory(SecureSocketFactoryBuilder.getSocketFactory(
+						getSSL().getProtocol(),
+						getSSL().getServerKeyStoreFile(), 
+						getSSL().getServerKeyStorePassword(),
+						getSSL().getClientKeyStoreFile(),
+						getSSL().getClientKeyStorePassword(),
+						getSSL().getClientKeyPassword()));
 			}
 			
 			// TODO: set connection protocol to SSL if not done already
