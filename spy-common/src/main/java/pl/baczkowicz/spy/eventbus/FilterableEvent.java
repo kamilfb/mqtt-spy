@@ -22,7 +22,7 @@ package pl.baczkowicz.spy.eventbus;
 /**
  * Base event object.
  */
-public abstract class KBusEvent
+public abstract class FilterableEvent implements IFilterableEvent
 {
 	private Object filter;
 	

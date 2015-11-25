@@ -22,7 +22,7 @@ package pl.baczkowicz.spy.eventbus.sample;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import pl.baczkowicz.spy.eventbus.KBusEvent;
+import pl.baczkowicz.spy.eventbus.FilterableEvent;
 
 public class SampleSubscriber implements ISampleSubscriber
 {
@@ -38,12 +38,12 @@ public class SampleSubscriber implements ISampleSubscriber
 	//	}
 	
 	@Override
-	public void onInfoChange(KBusEvent event)
+	public void onInfoChange(FilterableEvent event)
 	{
 		logger.info("onInfoChange: {}", event);
 	}
 	
-	public void onAnyEvent(KBusEvent event)
+	public void onAnyEvent(Object event)
 	{
 		setMessageCount(getMessageCount() + 1);
 		logger.info("onAnyEvent: {}", event);

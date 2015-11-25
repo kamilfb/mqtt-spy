@@ -34,20 +34,20 @@ public class KBus implements IKBus
 {
 	final static Logger logger = LoggerFactory.getLogger(KBus.class);
 	
-	private final Map<Object, Set<Consumer<? extends KBusEvent>>> subscribers = new HashMap<>();
+	private final Map<Object, Set<Consumer<?>>> subscribers = new HashMap<>();
 	
-	private final Map<Consumer<? extends KBusEvent>, Object> consumerFilters = new HashMap<>();
+	private final Map<Consumer<?>, Object> consumerFilters = new HashMap<>();
 
-	private final Map<Consumer<? extends KBusEvent>, Class<? extends KBusEvent>> consumerTypes = new HashMap<>();
+	private final Map<Consumer<?>, Class<?>> consumerTypes = new HashMap<>();
 	
-	private final Map<Class<? extends KBusEvent>, Collection<Consumer<? extends KBusEvent>>> typeConsumers = new HashMap<>();
+	private final Map<Class<?>, Collection<Consumer<?>>> typeConsumers = new HashMap<>();
 	
-	private Collection<Consumer<? extends KBusEvent>> getConsumersForType(final KBusEvent event)
+	private Collection<Consumer<?>> getConsumersForType(final Object event)
 	{
-		Collection<Consumer<? extends KBusEvent>> matchedConsumers;
+		Collection<Consumer<?>> matchedConsumers;
 		
 		// Try to get previously matched consumers
-		final Collection<Consumer<? extends KBusEvent>> previouslyMatchedConsumers = typeConsumers.get(event.getClass());
+		final Collection<Consumer<?>> previouslyMatchedConsumers = typeConsumers.get(event.getClass());
 		
 		// If none available, try to match
 		if (previouslyMatchedConsumers == null)
@@ -64,17 +64,17 @@ public class KBus implements IKBus
 		return matchedConsumers;
 	}
 	
-	private Collection<Consumer<? extends KBusEvent>> matchConsumersForType(final Class<? extends KBusEvent> eventType)
+	private Collection<Consumer<?>> matchConsumersForType(final Class<?> eventType)
 	{
-		final Collection<Consumer<? extends KBusEvent>> matchedConsumers = new ArrayList<>();
+		final Collection<Consumer<?>> matchedConsumers = new ArrayList<>();
 	
 		logger.debug("Matching consumers for type {}", eventType);
 		
 		synchronized (consumerTypes)
 		{
-			for (final Consumer<? extends KBusEvent> consumer : consumerTypes.keySet())
+			for (final Consumer<?> consumer : consumerTypes.keySet())
 			{
-				final Class<? extends KBusEvent> consumerType = consumerTypes.get(consumer);
+				final Class<?> consumerType = consumerTypes.get(consumer);
 				
 				// Compares two Classes with each other (because of that couldn't use instanceof or isInstance)
 				if (consumerType.isAssignableFrom(eventType))
@@ -94,18 +94,29 @@ public class KBus implements IKBus
 	/**
 	 * Publishes an event in a synchronous way.
 	 */
-	public void publish(final KBusEvent event)
+	public void publish(final Object event)
 	{
-		final Collection<Consumer<? extends KBusEvent>> matchedConsumers = getConsumersForType(event);
+		final Collection<Consumer<?>> matchedConsumers = getConsumersForType(event);
 		
-		for (final Consumer<? extends KBusEvent> observer : matchedConsumers)
+		for (final Consumer<?> observer : matchedConsumers)
 		{
 			// No need to synchronise here, read-only
 			final Object filter = consumerFilters.get(observer);
 				
-			if (filter == null || filter.equals(event.getFilter()))
-			{	
-				((Consumer<KBusEvent>) observer).accept(event);
+			try
+			{
+				if (filter == null)
+				{	
+					((Consumer<Object>) observer).accept(event);
+				}
+				else if (event instanceof IFilterableEvent && filter.equals(((IFilterableEvent) event).getFilter()))
+				{
+					((Consumer<Object>) observer).accept(event);
+				}				
+			}
+			catch (ClassCastException e)
+			{
+				logger.warn("Consumer {} can't accept events of type = {}", observer, event.getClass());
 			}
 		}
 	}
@@ -113,26 +124,24 @@ public class KBus implements IKBus
 	private void recalculateExistingMappings()
 	{
 		// Recalculate all existing eventType to consumer mappings
-		for (final Class<? extends KBusEvent> type : typeConsumers.keySet())
+		for (final Class<?> type : typeConsumers.keySet())
 		{	
 			typeConsumers.put(type, matchConsumersForType(type));
 		}
 	}
 
 	@Override
-	public void subscribe (final Object subscriber, final Consumer<? extends KBusEvent> consumer, 
-			final Class<? extends KBusEvent> eventType)
+	public void subscribe (final Object subscriber, final Consumer<?> consumer, final Class<?> eventType)
 	{
 		subscribe(subscriber, consumer, eventType, null);
 	}
 
 	@Override
-	public void subscribe(final Object subscriber, final Consumer<? extends KBusEvent> consumer, 
-			final Class<? extends KBusEvent> eventType, final Object filter)
+	public void subscribe(final Object subscriber, final Consumer<?> consumer, final Class<?> eventType, final Object filter)
 	{
 		synchronized (consumerTypes)
-		{
-			Set<Consumer<? extends KBusEvent>> consumers = subscribers.get(subscriber);
+		{	
+			Set<Consumer<?>> consumers = subscribers.get(subscriber);
 			
 			if (consumers == null)
 			{
@@ -156,11 +165,11 @@ public class KBus implements IKBus
 		{
 			logger.debug("Trying to remove {} from subscribers", subscriber);
 			
-			final Set<Consumer<? extends KBusEvent>> removed = subscribers.remove(subscriber);
+			final Set<Consumer<?>> removed = subscribers.remove(subscriber);
 						
 			if (removed != null)
 			{
-				for (final Consumer<? extends KBusEvent> consumer : removed)
+				for (final Consumer<?> consumer : removed)
 				{
 					consumerFilters.remove(consumer);		
 					consumerTypes.remove(consumer);				
@@ -177,14 +186,14 @@ public class KBus implements IKBus
 	}
 	
 	@Override
-	public void unsubscribeConsumer(final Object subscriber, final Consumer<? extends KBusEvent> consumer)
+	public void unsubscribeConsumer(final Object subscriber, final Consumer<?> consumer)
 	{
 		synchronized (consumerTypes)
 		{
 			logger.debug("Trying to remove {} owned by {}", consumer, subscriber);
 			
 			// Remove from subscriber's list of consumers
-			final Set<Consumer<? extends KBusEvent>> consumers = subscribers.get(subscriber);
+			final Set<Consumer<?>> consumers = subscribers.get(subscriber);
 			if (consumers != null)
 			{
 				consumers.remove(consumer);
@@ -201,18 +210,18 @@ public class KBus implements IKBus
 	}
 
 	@Override
-	public void unsubscribeConsumer(final Object subscriber, final Class<? extends KBusEvent> eventType)
+	public void unsubscribeConsumer(final Object subscriber, final Class<?> eventType)
 	{
 		synchronized (consumerTypes)
 		{
 			logger.debug("Trying to remove consumer of type {} from {}", eventType, subscriber);
 						
-			final Collection<Consumer<? extends KBusEvent>> consumers = subscribers.get(subscriber);
+			final Collection<Consumer<?>> consumers = subscribers.get(subscriber);
 			
-			Consumer<? extends KBusEvent> foundConsumer = null;
+			Consumer<?> foundConsumer = null;
 			
 			// Find the consumer based on its type
-			for (final Consumer<? extends KBusEvent> consumer : consumerTypes.keySet())
+			for (final Consumer<?> consumer : consumerTypes.keySet())
 			{
 				if (consumerTypes.get(consumer).equals(eventType) && consumers.contains(consumer))
 				{

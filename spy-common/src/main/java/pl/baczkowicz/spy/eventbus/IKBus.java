@@ -28,7 +28,7 @@ import java.util.function.Consumer;
  * 
  * TODO: Support for asynchronous execution, queueing and batching. 
  * 
- * TODO: subscribing could be extended to support batch, custom executors, etc - might need to relax type of the consumer
+ * TODO: subscribing could be extended to support batch, custom executors, etc
  */
 public interface IKBus
 {
@@ -37,7 +37,7 @@ public interface IKBus
 	 * 
 	 * @param event The event to publish
 	 */
-	void publish(final KBusEvent event);
+	void publish(final Object event);
 	
 	/**
 	 * Subscribes a consumer method for events of certain type.
@@ -45,8 +45,7 @@ public interface IKBus
 	 * @param consumer The consumer method that is subscribing (one subscription per consumer method allowed)
 	 * @param eventType Type of event the consumer is interested in
 	 */
-	void subscribe(final Object subscriber, final Consumer<? extends KBusEvent> consumer, 
-			final Class<? extends KBusEvent> eventType);
+	void subscribe(final Object subscriber, final Consumer<?> consumer, final Class<?> eventType);
 	
 	/**
 	 * Subscribes a consumer method for events of certain type and given filter object.
@@ -55,8 +54,7 @@ public interface IKBus
 	 * @param eventType Type of event the consumer is interested in
 	 * @param filter The filter object to perform filtering on (null => no filter)
 	 */
-	void subscribe(final Object subscriber, final Consumer<? extends KBusEvent> consumer, 
-			final Class<? extends KBusEvent> eventType, final Object filter);
+	void subscribe(final Object subscriber, final Consumer<?> consumer, final Class<?> eventType, final Object filter);
 	
 	/**
 	 * Unsubscribes the given subscriber.
@@ -71,7 +69,7 @@ public interface IKBus
 	 * @param subscriber The subscriber to unsubscribe
 	 * @param consumer The consumer to unsubscribe
 	 */
-	void unsubscribeConsumer(final Object subscriber, final Consumer<? extends KBusEvent> consumer);
+	void unsubscribeConsumer(final Object subscriber, final Consumer<?> consumer);
 	
 	/**
 	 * Unsubscribes the given consumer.
@@ -79,5 +77,5 @@ public interface IKBus
 	 * @param subscriber The subscriber to unsubscribe
 	 * @param consumer The consumer to unsubscribe
 	 */
-	void unsubscribeConsumer(final Object subscriber,  Class<? extends KBusEvent> eventType);
+	void unsubscribeConsumer(final Object subscriber,  Class<?> eventType);
 }

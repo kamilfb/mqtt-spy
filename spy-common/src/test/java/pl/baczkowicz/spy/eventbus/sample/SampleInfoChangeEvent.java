@@ -19,9 +19,9 @@
  */
 package pl.baczkowicz.spy.eventbus.sample;
 
-import pl.baczkowicz.spy.eventbus.KBusEvent;
+import pl.baczkowicz.spy.eventbus.FilterableEvent;
 
-public class SampleInfoChangeEvent extends KBusEvent
+public class SampleInfoChangeEvent extends FilterableEvent
 {
 	private final String info;
 

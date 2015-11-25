@@ -19,11 +19,11 @@
  */
 package pl.baczkowicz.spy.eventbus.sample;
 
-import pl.baczkowicz.spy.eventbus.KBusEvent;
+import pl.baczkowicz.spy.eventbus.FilterableEvent;
 
 public interface ISampleSubscriber
 {
-	public void onInfoChange(final KBusEvent event);
+	public void onInfoChange(final FilterableEvent event);
 	
 	public void onCountChange(final SampleCountChangeEvent event);
 }
