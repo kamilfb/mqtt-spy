@@ -25,9 +25,9 @@ import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.common.generated.MqttConnectionDetails;
 import pl.baczkowicz.mqttspy.connectivity.reconnection.ReconnectionManager;
-import pl.baczkowicz.mqttspy.exceptions.ConfigurationException;
-import pl.baczkowicz.mqttspy.exceptions.MqttSpyException;
-import pl.baczkowicz.mqttspy.utils.ConversionUtils;
+import pl.baczkowicz.spy.exceptions.ConfigurationException;
+import pl.baczkowicz.spy.exceptions.SpyException;
+import pl.baczkowicz.spy.utils.ConversionUtils;
 
 /**
  * Simple synchronous MQTT connection.
@@ -46,7 +46,7 @@ public class SimpleMqttConnection extends MqttConnectionWithReconnection
 	 *  
 	 * @throws ConfigurationException Thrown in case of an error
 	 */
-	public SimpleMqttConnection(final ReconnectionManager reconnectionManager, final int id, final MqttConnectionDetails connectionDetails) 
+	public SimpleMqttConnection(final ReconnectionManager reconnectionManager, final String id, final MqttConnectionDetails connectionDetails) 
 		throws ConfigurationException
 	{
 		super(reconnectionManager, new MqttConnectionDetailsWithOptions(id, connectionDetails));	
@@ -67,12 +67,24 @@ public class SimpleMqttConnection extends MqttConnectionWithReconnection
 			setConnectionStatus(MqttConnectionStatus.CONNECTED);
 			return true;
 		}
-		catch (MqttSpyException e)
+		catch (SpyException e)
 		{
 			logger.error("Connection attempt failed", e);
 			setConnectionStatus(MqttConnectionStatus.NOT_CONNECTED);
 		}
 		return false;
+	}
+	
+	/**
+	 * Tries to publish a message to the given topic, with the provided payload, quality of service and retained flag.
+	 * 
+	 * @param publicationTopic Topic to which to publish the message
+	 * @param payload Message payload
+	 * @param qos Requested quality of service
+	 */
+	public boolean publish(final String publicationTopic, final String payload, final int qos)	
+	{
+		return publish(publicationTopic, ConversionUtils.stringToArray(payload), qos, false);
 	}
 	
 	/**

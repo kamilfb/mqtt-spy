@@ -11,6 +11,7 @@
 
 package pl.baczkowicz.mqttspy.common.generated;
 
+import java.io.Serializable;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -60,9 +61,10 @@ import org.jvnet.jaxb2_commons.locator.util.LocatorUtils;
 @XmlSeeAlso({
     LoggedMqttMessage.class
 })
-public class SimpleMqttMessage implements Cloneable, CopyTo, Equals, HashCode, ToString
+public class SimpleMqttMessage implements Serializable, Cloneable, CopyTo, Equals, HashCode, ToString
 {
 
+    private final static long serialVersionUID = 1L;
     @XmlValue
     protected String value;
     @XmlAttribute(name = "topic", required = true)

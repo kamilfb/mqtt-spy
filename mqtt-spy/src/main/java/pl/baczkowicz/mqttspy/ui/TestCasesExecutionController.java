@@ -24,6 +24,9 @@ import java.net.URL;
 import java.util.Date;
 import java.util.ResourceBundle;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
@@ -45,19 +48,16 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.DirectoryChooser;
 import javafx.util.Callback;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
-import pl.baczkowicz.mqttspy.scripts.InteractiveScriptManager;
-import pl.baczkowicz.mqttspy.testcases.TestCase;
-import pl.baczkowicz.mqttspy.testcases.TestCaseManager;
-import pl.baczkowicz.mqttspy.testcases.TestCaseStatus;
+import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.ui.events.EventManager;
-import pl.baczkowicz.mqttspy.ui.panes.PaneVisibilityStatus;
-import pl.baczkowicz.mqttspy.ui.panes.TitledPaneController;
-import pl.baczkowicz.mqttspy.ui.properties.TestCaseProperties;
+import pl.baczkowicz.mqttspy.ui.scripts.InteractiveScriptManager;
+import pl.baczkowicz.mqttspy.ui.testcases.InteractiveTestCaseManager;
+import pl.baczkowicz.spy.testcases.TestCaseManager;
+import pl.baczkowicz.spy.testcases.TestCaseStatus;
+import pl.baczkowicz.spy.ui.panes.PaneVisibilityStatus;
+import pl.baczkowicz.spy.ui.panes.TitledPaneController;
+import pl.baczkowicz.spy.ui.properties.TestCaseProperties;
 
 /**
  * Controller for the test cases execution window.
@@ -138,11 +138,11 @@ public class TestCasesExecutionController extends AnchorPane implements Initiali
 		
 	private String scriptsLocation;
 	
-	private EventManager eventManager;
+	private EventManager<FormattedMqttMessage> eventManager;
 	
 	private InteractiveScriptManager scriptManager;
 
-	private TestCaseManager testCaseManager;
+	private InteractiveTestCaseManager testCaseManager;
 
 	private MqttAsyncConnection connection;
 
@@ -169,7 +169,7 @@ public class TestCasesExecutionController extends AnchorPane implements Initiali
 					testCaseManager.loadTestCases(scriptsLocation);
 					root.getChildren().clear();
 					
-					for (final TestCaseProperties properties : testCaseManager.getTestCases())
+					for (final TestCaseProperties properties : testCaseManager.getTestCasesProperties())
 					{
 						root.getChildren().add(new TreeItem<TestCaseProperties>(properties));
 					}				
@@ -276,6 +276,24 @@ public class TestCasesExecutionController extends AnchorPane implements Initiali
                 return p.getValue().getValue().lastUpdatedProperty();
             }
         });
+		lastRunColumn.setCellFactory(new Callback<TreeTableColumn<TestCaseProperties, String>, TreeTableCell<TestCaseProperties, String>>()
+		{
+			public TreeTableCell<TestCaseProperties, String> call(TreeTableColumn<TestCaseProperties, String> param)
+			{
+				final TreeTableCell<TestCaseProperties, String> cell = new TreeTableCell<TestCaseProperties, String>()
+				{
+					@Override
+					public void updateItem(String item, boolean empty)
+					{
+						super.updateItem(item, empty);
+						setText(item);
+					}
+				};
+				cell.setAlignment(Pos.CENTER);
+				
+				return cell;
+			}
+		});
 		
 		statusColumn.setCellValueFactory(new Callback<TreeTableColumn.CellDataFeatures<TestCaseProperties, TestCaseStatus>, ObservableValue<TestCaseStatus>>() 
 		{
@@ -322,7 +340,7 @@ public class TestCasesExecutionController extends AnchorPane implements Initiali
 	public void init()
 	{
 		scriptManager = new InteractiveScriptManager(eventManager, connection);
-		testCaseManager = new TestCaseManager(scriptManager, this, testCaseExecutionPaneController);
+		testCaseManager = new InteractiveTestCaseManager(scriptManager, this, testCaseExecutionPaneController);
 		
 		testCaseExecutionPaneController.setTestCaseManager(testCaseManager);
 		
@@ -357,20 +375,19 @@ public class TestCasesExecutionController extends AnchorPane implements Initiali
 			if (selected != null && selected.getValue() != null)
 			{
 				enqueueSelectedMenu.setDisable(false);
-			}
+			}			
 			
-			
-			for (final TestCaseProperties testCase : testCaseManager.getTestCases())
+			for (final TestCaseProperties testCase : testCaseManager.getTestCasesProperties())
 			{
-				if (testCase.statusProperty().getValue().equals(TestCaseStatus.PASSED))
+				if (TestCaseStatus.PASSED.equals(testCase.statusProperty().getValue()))
 				{
 					passes++;
 				}
-				else if (testCase.statusProperty().getValue().equals(TestCaseStatus.FAILED))
+				else if (TestCaseStatus.FAILED.equals(testCase.statusProperty().getValue()))
 				{
 					failures++;
 				} 
-				else if (testCase.statusProperty().getValue().equals(TestCaseStatus.SKIPPED))
+				else if (TestCaseStatus.SKIPPED.equals(testCase.statusProperty().getValue()))
 				{
 					skipped++;
 				}
@@ -389,7 +406,7 @@ public class TestCasesExecutionController extends AnchorPane implements Initiali
 		if (scriptsLocation != null)
 		{
 			final String parentDir = scriptsLocation + System.getProperty("file.separator");		
-			testCaseManager.exportTestCasesResults(new File(parentDir+ "results_" + TestCaseManager.testCasesFileSdf.format(new Date()) + ".csv"));
+			testCaseManager.exportTestCasesResultsAsCSV(new File(parentDir+ "results_" + TestCaseManager.testCasesFileSdf.format(new Date()) + ".csv"));
 		}
 	}
 	
@@ -401,7 +418,7 @@ public class TestCasesExecutionController extends AnchorPane implements Initiali
 		{					
 			final TestCaseProperties testCaseProperties = selected.getValue();
 			logger.info("About to display selected test case - " + testCaseProperties.getName());
-			testCaseExecutionPaneController.display(testCaseProperties, ((TestCase) testCaseProperties.getScript()).getSteps());
+			testCaseExecutionPaneController.display(testCaseProperties, testCaseProperties.getSteps());
 		}
 		else
 		{
@@ -414,7 +431,7 @@ public class TestCasesExecutionController extends AnchorPane implements Initiali
 	// === Setters and getters =======
 	// ===============================
 	
-	public void setEventManager(final EventManager eventManager)
+	public void setEventManager(final EventManager<FormattedMqttMessage> eventManager)
 	{
 		this.eventManager = eventManager;
 	}

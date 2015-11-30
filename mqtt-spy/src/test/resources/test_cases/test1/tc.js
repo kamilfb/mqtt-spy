@@ -1,12 +1,12 @@
-var TestCaseStepResult = Java.type("pl.baczkowicz.mqttspy.testcases.TestCaseStepResult");
-var TestCaseStatus = Java.type("pl.baczkowicz.mqttspy.testcases.TestCaseStatus");
+var TestCaseStepResult = Java.type("pl.baczkowicz.spy.testcases.TestCaseStepResult");
+var TestCaseStatus = Java.type("pl.baczkowicz.spy.testcases.TestCaseStatus");
 
 // This is to demonstrate updating a global variable
 var count = 0;
 
 var getInfo = function () 
 {
-    var TestCaseInfo = Java.type("pl.baczkowicz.mqttspy.testcases.TestCaseInfo");
+    var TestCaseInfo = Java.type("pl.baczkowicz.spy.testcases.TestCaseInfo");
 	var info = new TestCaseInfo();
 	info.setName("Sample test case 1");
 	info.getSteps().add("Step 1");

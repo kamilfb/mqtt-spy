@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<uml:Model xmi:version="20131001" xmlns:xmi="http://www.omg.org/spec/XMI/20131001" xmlns:uml="http://www.eclipse.org/uml2/5.0.0/UML" xmi:id="_1vRC4IclEeWrgOlO33uNTw" name="model" visibility="protected">
+  <packagedElement xmi:type="uml:Interaction" xmi:id="_1xFAwIclEeWrgOlO33uNTw" name="Interaction1"/>
+  <packagedElement xmi:type="uml:Component" xmi:id="_61n4sIclEeWrgOlO33uNTw" name="spy-common"/>
+  <packagedElement xmi:type="uml:Component" xmi:id="_9mjIMIclEeWrgOlO33uNTw" name="spy-common-ui"/>
+  <packagedElement xmi:type="uml:Component" xmi:id="_BCse8IcmEeWrgOlO33uNTw" name="commons / logging/ jaxb"/>
+  <packagedElement xmi:type="uml:Dependency" xmi:id="_ETe6QIcmEeWrgOlO33uNTw" client="_61n4sIclEeWrgOlO33uNTw" supplier="_BCse8IcmEeWrgOlO33uNTw"/>
+  <packagedElement xmi:type="uml:Component" xmi:id="_HdCsMIcmEeWrgOlO33uNTw" name="bouncycastle"/>
+  <packagedElement xmi:type="uml:Dependency" xmi:id="_opeb4IcmEeWrgOlO33uNTw" client="_61n4sIclEeWrgOlO33uNTw" supplier="_HdCsMIcmEeWrgOlO33uNTw"/>
+  <packagedElement xmi:type="uml:Component" xmi:id="_rhi1MIcmEeWrgOlO33uNTw" name="richtextfx"/>
+  <packagedElement xmi:type="uml:Dependency" xmi:id="_spR5UIcmEeWrgOlO33uNTw" client="_9mjIMIclEeWrgOlO33uNTw" supplier="_rhi1MIcmEeWrgOlO33uNTw"/>
+  <packagedElement xmi:type="uml:Dependency" xmi:id="_tCdOUIcmEeWrgOlO33uNTw" client="_9mjIMIclEeWrgOlO33uNTw" supplier="_61n4sIclEeWrgOlO33uNTw"/>
+  <packagedElement xmi:type="uml:Component" xmi:id="_xeIIYIcmEeWrgOlO33uNTw" name="mqtt-spy-common"/>
+  <packagedElement xmi:type="uml:Dependency" xmi:id="_y2MHgIcmEeWrgOlO33uNTw" client="_xeIIYIcmEeWrgOlO33uNTw" supplier="_61n4sIclEeWrgOlO33uNTw"/>
+  <packagedElement xmi:type="uml:Component" xmi:id="_zXTQgIcmEeWrgOlO33uNTw" name="paho"/>
+  <packagedElement xmi:type="uml:Component" xmi:id="_02nHIIcmEeWrgOlO33uNTw" name="moquette"/>
+  <packagedElement xmi:type="uml:Dependency" xmi:id="_3O-ssIcmEeWrgOlO33uNTw" client="_xeIIYIcmEeWrgOlO33uNTw" supplier="_02nHIIcmEeWrgOlO33uNTw"/>
+  <packagedElement xmi:type="uml:Dependency" xmi:id="_3pAWQIcmEeWrgOlO33uNTw" client="_xeIIYIcmEeWrgOlO33uNTw" supplier="_zXTQgIcmEeWrgOlO33uNTw"/>
+  <packagedElement xmi:type="uml:Component" xmi:id="_XfxTgIcnEeWrgOlO33uNTw" name="mqtt-spy-daemon"/>
+  <packagedElement xmi:type="uml:Dependency" xmi:id="_Yqmu8IcnEeWrgOlO33uNTw" client="_XfxTgIcnEeWrgOlO33uNTw" supplier="_xeIIYIcmEeWrgOlO33uNTw"/>
+  <packagedElement xmi:type="uml:Dependency" xmi:id="_ZG2mEIcnEeWrgOlO33uNTw" client="_XfxTgIcnEeWrgOlO33uNTw" supplier="_61n4sIclEeWrgOlO33uNTw"/>
+  <packagedElement xmi:type="uml:Component" xmi:id="_qEfy8IcnEeWrgOlO33uNTw" name="mqtt-spy"/>
+  <packagedElement xmi:type="uml:Dependency" xmi:id="_r_SEoIcnEeWrgOlO33uNTw" client="_qEfy8IcnEeWrgOlO33uNTw" supplier="_9mjIMIclEeWrgOlO33uNTw"/>
+  <packagedElement xmi:type="uml:Dependency" xmi:id="_soL3sIcnEeWrgOlO33uNTw" client="_qEfy8IcnEeWrgOlO33uNTw" supplier="_xeIIYIcmEeWrgOlO33uNTw"/>
+  <packagedElement xmi:type="uml:Dependency" xmi:id="_tDWJsIcnEeWrgOlO33uNTw" client="_qEfy8IcnEeWrgOlO33uNTw" supplier="_61n4sIclEeWrgOlO33uNTw"/>
+  <packagedElement xmi:type="uml:Component" xmi:id="_2e1zwIcnEeWrgOlO33uNTw" name="jfxutils"/>
+  <packagedElement xmi:type="uml:Dependency" xmi:id="_4EYOMIcnEeWrgOlO33uNTw" client="_qEfy8IcnEeWrgOlO33uNTw" supplier="_2e1zwIcnEeWrgOlO33uNTw"/>
+</uml:Model>

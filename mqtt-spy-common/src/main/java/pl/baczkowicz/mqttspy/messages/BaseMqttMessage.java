@@ -23,24 +23,18 @@ import java.util.Date;
 
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
-import pl.baczkowicz.mqttspy.utils.ConversionUtils;
+import pl.baczkowicz.spy.messages.FormattedMessage;
+import pl.baczkowicz.spy.utils.ConversionUtils;
 
 /**
  * Represents a message received on a topic (wraps the Paho's MqttMessage).
+ * 
+ * TODO: merge that with FormattedMqttMessage
  */
-public class BaseMqttMessage implements IBaseMessage
-{
-	/** Topic on which the message was received. */
-	private final String topic;
-	
+public class BaseMqttMessage extends FormattedMessage implements IBaseMqttMessage
+{	
 	/** The received message. */
 	private final MqttMessage rawMessage;
-
-	/** When the message was received. */
-	private Date date;
-
-	/** A unique message ID - guaranteed to be unique at runtime. */
-	private final long id;
 	
 	/**
 	 * Creates a BaseMqttMessage from the given parameters.
@@ -51,10 +45,8 @@ public class BaseMqttMessage implements IBaseMessage
 	 */
 	public BaseMqttMessage(final long id, final String topic, final MqttMessage message)
 	{
-		this.id = id;
-		this.topic = topic;
+		super(id, topic, null, new Date());
 		this.rawMessage = message;
-		this.date = new Date();
 	}
 	
 	/**
@@ -67,10 +59,8 @@ public class BaseMqttMessage implements IBaseMessage
 	 */
 	public BaseMqttMessage(final long id, final String topic, final MqttMessage message, final Date date)
 	{
-		this.id = id;
-		this.topic = topic;
+		super(id, topic, null, date);
 		this.rawMessage = message;
-		this.date = date;
 	}
 	
 	/**
@@ -100,34 +90,8 @@ public class BaseMqttMessage implements IBaseMessage
 	{
 		return rawMessage;
 	}
-
-	/**
-	 * Gets the date.
-	 * 
-	 * @return The received date
-	 */
-	public Date getDate()
-	{
-		return date;
-	}
-
-	/**
-	 * Gets the message ID.
-	 * 
-	 * @return Message ID
-	 */
-	public long getId()
-	{
-		return id;
-	}
 	
 	// Convenience methods for accessing the message object	
-
-	@Override
-	public String getTopic()
-	{
-		return topic;
-	}
 	
 	@Override
 	public String getPayload()
@@ -151,5 +115,10 @@ public class BaseMqttMessage implements IBaseMessage
 	public boolean isRetained()
 	{
 		return this.rawMessage.isRetained();
+	}
+	
+	public byte[] getRawBinaryPayload()
+	{
+		return getRawMessage().getPayload();
 	}
 }

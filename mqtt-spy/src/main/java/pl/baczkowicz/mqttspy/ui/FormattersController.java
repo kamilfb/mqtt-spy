@@ -30,6 +30,7 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
@@ -40,31 +41,31 @@ import javafx.util.Callback;
 
 import javax.script.ScriptException;
 
-import org.controlsfx.control.action.Action;
-import org.controlsfx.dialog.Dialog;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import pl.baczkowicz.mqttspy.common.generated.ConversionMethod;
-import pl.baczkowicz.mqttspy.common.generated.FormatterDetails;
-import pl.baczkowicz.mqttspy.common.generated.FormatterFunction;
-import pl.baczkowicz.mqttspy.common.generated.ScriptExecutionDetails;
 import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
 import pl.baczkowicz.mqttspy.configuration.ConfiguredConnectionDetails;
 import pl.baczkowicz.mqttspy.connectivity.BaseMqttConnection;
-import pl.baczkowicz.mqttspy.messages.BaseMqttMessageWithSubscriptions;
-import pl.baczkowicz.mqttspy.scripts.Script;
-import pl.baczkowicz.mqttspy.scripts.ScriptBasedFormatter;
-import pl.baczkowicz.mqttspy.scripts.ScriptManager;
-import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
-import pl.baczkowicz.mqttspy.utils.ConversionUtils;
-import pl.baczkowicz.mqttspy.utils.FormattingUtils;
+import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
+import pl.baczkowicz.mqttspy.scripts.MqttScriptManager;
+import pl.baczkowicz.spy.common.generated.ConversionMethod;
+import pl.baczkowicz.spy.common.generated.FormatterDetails;
+import pl.baczkowicz.spy.common.generated.FormatterFunction;
+import pl.baczkowicz.spy.common.generated.ScriptExecutionDetails;
+import pl.baczkowicz.spy.formatting.FormattingUtils;
+import pl.baczkowicz.spy.formatting.ScriptBasedFormatter;
+import pl.baczkowicz.spy.scripts.Script;
+import pl.baczkowicz.spy.ui.utils.DialogFactory;
+import pl.baczkowicz.spy.ui.utils.TooltipFactory;
+import pl.baczkowicz.spy.ui.utils.UiUtils;
+import pl.baczkowicz.spy.utils.ConversionUtils;
 
 /**
  * Controller for the converter window.
  */
-@SuppressWarnings({"rawtypes", "unchecked", "deprecation"})
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class FormattersController implements Initializable
 {
 	final static Logger logger = LoggerFactory.getLogger(FormattersController.class);
@@ -137,7 +138,7 @@ public class FormattersController implements Initializable
 				if (newFormatter != null)
 				{
 					sampleOutput.setText(scriptBasedFormatter.formatMessage(newFormatter, 
-							new BaseMqttMessageWithSubscriptions(0, "", new MqttMessage(sampleInput.getText().getBytes()), connection)));
+							new FormattedMqttMessage(0, "", new MqttMessage(sampleInput.getText().getBytes()), connection)));
 				}
 				else
 				{
@@ -173,7 +174,7 @@ public class FormattersController implements Initializable
 						}
 						else
 						{									
-							setText(item == newFormatter ? EditConnectionsController.MODIFIED_ITEM + item.getName() : item.getName());
+							setText(item == newFormatter ? UiUtils.MODIFIED_ITEM + item.getName() : item.getName());
 						}
 					}
 				};
@@ -183,7 +184,7 @@ public class FormattersController implements Initializable
 	
 	public void init()
 	{					
-		scriptBasedFormatter = new ScriptBasedFormatter(new ScriptManager(null, null, connection));
+		scriptBasedFormatter = new ScriptBasedFormatter(new MqttScriptManager(null, null, connection));
 		
 		formattersList.getItems().clear();
 		
@@ -217,7 +218,7 @@ public class FormattersController implements Initializable
 		else
 		{
 			sampleOutput.setText(scriptBasedFormatter.formatMessage(newFormatter, 
-				new BaseMqttMessageWithSubscriptions(0, "", new MqttMessage(sampleInput.getText().getBytes()), connection)));
+				new FormattedMqttMessage(0, "", new MqttMessage(sampleInput.getText().getBytes()), connection)));
 			formatterDetails.getStyleClass().add("valid");
 		}
 	}
@@ -314,15 +315,15 @@ public class FormattersController implements Initializable
 			}
 		}
 		
-		Action result = null;
+		Optional<ButtonType> result = null;
 		if (count > 0)
 		{
-			result = DialogUtils.showQuestion("Formatter is still in use", 
+			result = DialogFactory.createQuestionDialog("Formatter is still in use", 
 					"There are " + count + " connections configured with this formatter. Are you sure you want to delete it?", 
-					true);
+					false);
 		}
 		
-		if (count == 0 || result == Dialog.ACTION_YES)
+		if (count == 0 || result.get() == ButtonType.YES)
 		{
 			for (final ConfiguredConnectionDetails connectionDetails : configurationManager.getConnections())
 			{					
@@ -332,7 +333,7 @@ public class FormattersController implements Initializable
 			
 			if (configurationManager.saveConfiguration())
 			{
-				DialogUtils.showTooltip(deleteButton, "Formatter deleted. Changes saved.");
+				TooltipFactory.createTooltip(deleteButton, "Formatter deleted. Changes saved.");
 				init();
 				formattersList.getSelectionModel().selectFirst();
 			}
@@ -346,7 +347,8 @@ public class FormattersController implements Initializable
 		selectedFormatter = null;
 		newFormatter = new FormatterDetails();
 		
-		Optional<String> name = DialogUtils.askForInput(formattersWindow, "Enter formatter name", "Name for the new formatter");
+		Optional<String> name = DialogFactory.createInputDialog(
+				formattersWindow.getScene().getWindow(), "Enter formatter name", "Name for the new formatter");
 		
 		boolean cancelled = !name.isPresent();
 		boolean valid = false;
@@ -362,8 +364,9 @@ public class FormattersController implements Initializable
 				logger.info("{}, {}, {}, {}", formatter.getName(), newFormatter.getName(), formatter.getID(), newFormatter.getID());
 				if (formatter.getName().equals(newFormatter.getName()) || formatter.getID().equals(newFormatter.getID()))
 				{
-					DialogUtils.showWarning("Invalid name", "Entered formatter name/ID already exists. Please chose a different one.");
-					name = DialogUtils.askForInput(formattersWindow, "Enter formatter name", "Name for the new formatter");
+					DialogFactory.createWarningDialog("Invalid name", "Entered formatter name/ID already exists. Please chose a different one.");
+					name = DialogFactory.createInputDialog(
+							formattersWindow.getScene().getWindow(), "Enter formatter name", "Name for the new formatter");
 					cancelled = name.isPresent();
 					valid = false;
 					break;
@@ -388,7 +391,7 @@ public class FormattersController implements Initializable
 			scriptBasedFormatter.addFormatter(newFormatter);
 			formatterDetails.setText(scriptBasedFormatter.getScript(newFormatter).getScriptContent());
 			sampleOutput.setText(scriptBasedFormatter.formatMessage(newFormatter, 
-					new BaseMqttMessageWithSubscriptions(0, "", new MqttMessage(sampleInput.getText().getBytes()), connection)));
+					new FormattedMqttMessage(0, "", new MqttMessage(sampleInput.getText().getBytes()), connection)));
 			
 			newButton.setDisable(true);	
 			applyChangesButton.setDisable(false);
@@ -412,7 +415,7 @@ public class FormattersController implements Initializable
 		
 		if (configurationManager.saveConfiguration())
 		{
-			DialogUtils.showTooltip(newButton, "Formatter added. Changes saved.");
+			TooltipFactory.createTooltip(newButton, "Formatter added. Changes saved.");
 			init();
 			formattersList.getSelectionModel().selectFirst();
 		}
@@ -470,7 +473,7 @@ public class FormattersController implements Initializable
 				}
 				
 				sampleOutput.setText(scriptBasedFormatter.formatMessage(selectedFormatter, 
-						new BaseMqttMessageWithSubscriptions(0, "", new MqttMessage(sampleInput.getText().getBytes()), connection)));
+						new FormattedMqttMessage(0, "", new MqttMessage(sampleInput.getText().getBytes()), connection)));
 			} 
 			else
 			{

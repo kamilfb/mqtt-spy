@@ -31,8 +31,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.Main;
+import pl.baczkowicz.mqttspy.common.generated.MessageLog;
 import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnectionDetails;
-import pl.baczkowicz.mqttspy.storage.MessageList;
+import pl.baczkowicz.mqttspy.utils.MqttConfigurationUtils;
+import pl.baczkowicz.spy.storage.MessageList;
 
 public class ConfigurationUtils
 {
@@ -42,11 +44,16 @@ public class ConfigurationUtils
 		
 	public static void populateConnectionDefaults(final UserInterfaceMqttConnectionDetails connection)
 	{
-		pl.baczkowicz.mqttspy.utils.ConfigurationUtils.populateConnectionDefaults(connection);
+		MqttConfigurationUtils.populateConnectionDefaults(connection);
 		
-		if (connection.getMessageLog() != null)
+		if (connection.getMessageLog() == null)
 		{
-			pl.baczkowicz.mqttspy.utils.ConfigurationUtils.populateMessageLogDefaults(connection.getMessageLog());
+			connection.setMessageLog(new MessageLog());
+			MqttConfigurationUtils.populateMessageLogDefaults(connection.getMessageLog());
+		}
+		else
+		{
+			MqttConfigurationUtils.populateMessageLogDefaults(connection.getMessageLog());
 		}
 				
 		if (connection.getMaxMessagesStored() == null)
@@ -67,6 +74,11 @@ public class ConfigurationUtils
 		if (connection.isAutoConnect() == null)
 		{
 			connection.setAutoConnect(true);
+		}
+		
+		if (connection.isAutoSubscribe() == null)
+		{
+			connection.setAutoSubscribe(false);
 		}
 	}
 		
@@ -138,67 +150,4 @@ public class ConfigurationUtils
 		
 		return false;
 	} 
-	
-	
-	public static boolean getBooleanProperty(final String propertyName, final boolean defaultValue, final ConfigurationManager configurationManager)
-	{
-		final String value = configurationManager.getUiPropertyFile().getProperty(propertyName);
-		Boolean returnValue = defaultValue;
-		
-		// Default, when non present is X
-		if (value == null || value.isEmpty())
-		{
-			returnValue = defaultValue; 
-		}
-		else
-		{			
-			try
-			{
-				returnValue = Boolean.valueOf(value);
-			}
-			catch (IllegalArgumentException e)
-			{
-				logger.error("Invalid format " + value);
-			}
-		}
-		
-		configurationManager.getUiPropertyFile().setProperty(propertyName, String.valueOf(returnValue));
-		return returnValue;
-	}
-	
-	public static double getDoubleProperty(final String propertyName, final double defaultValue, final ConfigurationManager configurationManager)
-	{
-		final String value = configurationManager.getUiPropertyFile().getProperty(propertyName);		
-		Double returnValue = defaultValue;
-		
-		try
-		{
-			returnValue = Double.valueOf(value);
-		}
-		catch (NumberFormatException e)
-		{
-			logger.error("Invalid number format " + value);
-		}
-		
-		configurationManager.getUiPropertyFile().setProperty(propertyName, String.valueOf(returnValue));
-		return returnValue;
-	}	
-	
-	public static int getIntegerProperty(final String propertyName, final int defaultValue, final ConfigurationManager configurationManager)
-	{
-		final String value = configurationManager.getUiPropertyFile().getProperty(propertyName);
-		Integer returnValue = defaultValue;
-		
-		try
-		{
-			returnValue = Integer.valueOf(value);
-		}
-		catch (NumberFormatException e)
-		{
-			logger.error("Invalid number format " + value);
-		}
-		
-		configurationManager.getUiPropertyFile().setProperty(propertyName, String.valueOf(returnValue));
-		return returnValue;
-	}	
 }

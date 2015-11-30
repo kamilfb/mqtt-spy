@@ -19,7 +19,7 @@
  */
 package pl.baczkowicz.mqttspy.ui.messagelog;
 
-import pl.baczkowicz.mqttspy.tasks.ProgressUpdater;
+import pl.baczkowicz.spy.utils.tasks.ProgressUpdater;
 import javafx.concurrent.Task;
 
 /**

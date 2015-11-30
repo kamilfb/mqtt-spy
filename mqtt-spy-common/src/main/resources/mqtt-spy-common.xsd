@@ -22,8 +22,11 @@
 -->
 <xs:schema 	xmlns:xs="http://www.w3.org/2001/XMLSchema" 
 			xmlns:mqttspycommon="http://baczkowicz.pl/mqtt-spy/common"
+			xmlns:spycommon="http://baczkowicz.pl/spy/common"
 			targetNamespace="http://baczkowicz.pl/mqtt-spy/common">
 
+	<xs:import namespace="http://baczkowicz.pl/spy/common" />
+	
 	<!-- ====================== -->
 	<!-- === MESSAGES ========= -->
 	<!-- ====================== -->
@@ -44,8 +47,9 @@
 	
 	<xs:complexType name="ConnectionDetails">
 		<xs:sequence>
+				<xs:element name="ID" 					type="xs:ID" 						minOccurs="0" maxOccurs="1" />
 				<xs:element name="Name" 				type="xs:string" 					minOccurs="0" maxOccurs="1" />
-				<xs:element name="Protocol" 			type="mqttspycommon:ProtocolEnum" 	minOccurs="0" maxOccurs="1" />
+				<xs:element name="Protocol" 			type="mqttspycommon:ProtocolVersionEnum" 	minOccurs="0" maxOccurs="1" />
    		</xs:sequence>
 	</xs:complexType>	
 		
@@ -86,17 +90,18 @@
        		<xs:element name="ClientCertificateFile"	type="xs:string" 	minOccurs="0" />
        		<xs:element name="ClientKeyFile" 			type="xs:string" 	minOccurs="0" />
        		<xs:element name="ClientKeyPassword" 		type="xs:string" 	minOccurs="0" />
-       		<xs:element name="Property" 				type="mqttspycommon:SslProperty" 	minOccurs="0" maxOccurs="unbounded"	/>       		
+       		<xs:element name="Property" 				type="spycommon:Property" 	minOccurs="0" maxOccurs="unbounded"	/>       		
    		</xs:sequence>
 	</xs:complexType>	
 	
+	<!-- 
 	<xs:complexType name="SslProperty">
 		<xs:sequence>
        		<xs:element name="Name" 	type="xs:string" 	/>
        		<xs:element name="Value"	type="xs:string" 	/>
    		</xs:sequence>
 	</xs:complexType>		
-	
+	 -->
 	<xs:simpleType name="SslModeEnum">
 		<xs:restriction base="xs:string">
 			<xs:enumeration value="DISABLED" />
@@ -130,38 +135,13 @@
 		</xs:restriction>
 	</xs:simpleType>
 	
-	<xs:simpleType name="ProtocolEnum">
+	<xs:simpleType name="ProtocolVersionEnum">
 		<xs:restriction base="xs:string">
 			<xs:enumeration value="MQTT Default" />
 			<xs:enumeration value="MQTT 3.1.1" />		
 			<xs:enumeration value="MQTT 3.1" />
 		</xs:restriction>
 	</xs:simpleType>
-	
-	<!-- ==================== -->
-	<!-- === TASKS ========== -->
-	<!-- ==================== -->
-	
-	<xs:complexType name="Task">		
-		<!-- TODO
-		<xs:attribute 	name="name" 				type="xs:string" />
-		-->
-		<xs:attribute 	name="autoStart"			type="xs:boolean" />
-		<xs:attribute 	name="repeat"				type="xs:boolean" />
-	</xs:complexType>
-	
-	<xs:complexType name="ScriptDetails">
-		<xs:complexContent>
-			<xs:extension base="mqttspycommon:Task">
-				<xs:choice>
-					<xs:element name="File" 				type="xs:string" />
-					<!-- TODO
-					<xs:element name="Inline" 				type="xs:string" />
-					 -->
-				</xs:choice>
-			 </xs:extension>		
-        </xs:complexContent>
-	</xs:complexType>
 	
 	<!-- ===================== -->
 	<!-- === LOGGING ========= -->
@@ -199,111 +179,6 @@
 	        </xs:extension>		
         </xs:simpleContent>
 	</xs:complexType>
- 	
- 	
-	<!-- ================== -->
-	<!-- === FORMATTING === -->
-	<!-- ================== -->
-	
-	<xs:complexType name="Formatting">
-		<xs:sequence>
-			<xs:element name="Formatter" type="mqttspycommon:FormatterDetails" minOccurs="0" maxOccurs="unbounded"/>
-		</xs:sequence>
-	</xs:complexType>
-	
-	<xs:complexType name="FormatterDetails">
-		<xs:sequence>
-			<xs:element name="Name" type="xs:string" />
-			<xs:element name="ID" type="xs:ID" />
-			
-			<!-- Functions are executed in the order they are defined, so it is possible to perform multiple formatting functions -->
-			<xs:element name="Function" type="mqttspycommon:FormatterFunction" minOccurs="1" maxOccurs="unbounded" />		
-		</xs:sequence>
-	</xs:complexType>
-	
-	<xs:complexType name="FormatterFunction">
-		<xs:choice>			
-			<xs:element name="Conversion" 			type="mqttspycommon:ConversionFormatterDetails" />
-			<xs:element name="SubstringConversion" 	type="mqttspycommon:SubstringConversionFormatterDetails" />
-			<xs:element name="SubstringReplace" 	type="mqttspycommon:SubstringReplaceFormatterDetails" />
-			<xs:element name="SubstringExtract" 	type="mqttspycommon:SubstringExtractFormatterDetails" />
-			<xs:element name="CharacterReplace" 	type="mqttspycommon:CharacterReplaceFormatterDetails" />
-			<xs:element name="ScriptExecution" 		type="mqttspycommon:ScriptExecutionDetails" />
-		</xs:choice>
-	</xs:complexType>
-			
-	<xs:complexType name="ScriptExecutionDetails">
-		<xs:sequence>
-			<xs:element name="InlineScript" type="xs:string" />
-		</xs:sequence>
-	</xs:complexType>
-	
-	<xs:complexType name="SubstringFormatterDetails" abstract="true" >
-		<xs:sequence>
-			<xs:element name="StartTag" type="xs:string" />
-			<xs:element name="EndTag" 	type="xs:string" />
-			<xs:element name="KeepTags" type="xs:boolean" />
-		</xs:sequence>
-	</xs:complexType>
-	
-	<!-- Simple format conversion, as available in the GUI -->
-	<xs:complexType name="ConversionFormatterDetails" >
-		<xs:sequence>
-			<xs:element name="Format" type="mqttspycommon:ConversionMethod" />
-		</xs:sequence>
-	</xs:complexType>
-	
-	<!-- Replaces the defined substring using the defined formatter -->
-	<xs:complexType name="CharacterReplaceFormatterDetails">
-		<xs:complexContent>
-    		<xs:extension base="mqttspycommon:ConversionFormatterDetails">
-      			<xs:sequence>
-      				<xs:element name="CharacterRangeFrom" type="xs:int" />
-					<xs:element name="CharacterRangeTo"   type="xs:int" />
-					<xs:element name="WrapCharacter"   	  type="xs:string" minOccurs="0" />
-      			</xs:sequence>
-    		</xs:extension>
-  		</xs:complexContent>
-	</xs:complexType>
-	
-	<!-- Replaces the defined substring using the defined formatter -->
-	<xs:complexType name="SubstringConversionFormatterDetails">
-		<xs:complexContent>
-    		<xs:extension base="mqttspycommon:SubstringFormatterDetails">
-      			<xs:sequence>
-        			<xs:element name="Format" type="mqttspycommon:ConversionMethod" />
-      			</xs:sequence>
-    		</xs:extension>
-  		</xs:complexContent>
-	</xs:complexType>
-	
-	<!-- Replaces the defined substring with the given value -->
-	<xs:complexType name="SubstringReplaceFormatterDetails">
-		<xs:complexContent>
-    		<xs:extension base="mqttspycommon:SubstringFormatterDetails">
-      			<xs:sequence>
-        			<xs:element name="ReplaceWith" type="xs:string" />
-      			</xs:sequence>
-    		</xs:extension>
-  		</xs:complexContent>
-	</xs:complexType>
-	
-	<!-- Extracts the defined substring from the whole message -->
-	<xs:complexType name="SubstringExtractFormatterDetails">
-		<xs:complexContent>
-    		<xs:extension base="mqttspycommon:SubstringFormatterDetails" />
-  		</xs:complexContent>
-	</xs:complexType>
-	
-	<xs:simpleType name="ConversionMethod">
-		<xs:restriction base="xs:string">
-			<xs:enumeration value="Plain"></xs:enumeration>
-			<xs:enumeration value="HexDecode"></xs:enumeration>
-			<xs:enumeration value="HexEncode"></xs:enumeration>
-			<xs:enumeration value="Base64Decode"></xs:enumeration>
-			<xs:enumeration value="Base64Encode"></xs:enumeration>
-		</xs:restriction>
-	</xs:simpleType>
 	
 	<!-- ================ -->
 	<!-- === ELEMENTS === -->

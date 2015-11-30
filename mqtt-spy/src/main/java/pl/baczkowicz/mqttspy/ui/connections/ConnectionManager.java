@@ -28,22 +28,20 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.control.Tab;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import pl.baczkowicz.mqttspy.common.generated.MessageLog;
 import pl.baczkowicz.mqttspy.common.generated.MessageLogEnum;
 import pl.baczkowicz.mqttspy.common.generated.UserCredentials;
 import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
 import pl.baczkowicz.mqttspy.configuration.ConfiguredConnectionDetails;
-import pl.baczkowicz.mqttspy.configuration.UiProperties;
 import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnectionDetails;
 import pl.baczkowicz.mqttspy.connectivity.BaseMqttSubscription;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
@@ -54,33 +52,33 @@ import pl.baczkowicz.mqttspy.connectivity.handlers.MqttCallbackHandler;
 import pl.baczkowicz.mqttspy.connectivity.handlers.MqttDisconnectionResultHandler;
 import pl.baczkowicz.mqttspy.connectivity.handlers.MqttEventHandler;
 import pl.baczkowicz.mqttspy.connectivity.reconnection.ReconnectionManager;
-import pl.baczkowicz.mqttspy.exceptions.ConfigurationException;
-import pl.baczkowicz.mqttspy.exceptions.MqttSpyException;
 import pl.baczkowicz.mqttspy.logger.MqttMessageLogger;
 import pl.baczkowicz.mqttspy.messages.BaseMqttMessage;
-import pl.baczkowicz.mqttspy.messages.BaseMqttMessageWithSubscriptions;
-import pl.baczkowicz.mqttspy.scripts.FormattingManager;
-import pl.baczkowicz.mqttspy.scripts.InteractiveScriptManager;
-import pl.baczkowicz.mqttspy.scripts.Script;
-import pl.baczkowicz.mqttspy.scripts.ScriptManager;
+import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
+import pl.baczkowicz.mqttspy.scripts.MqttScriptManager;
 import pl.baczkowicz.mqttspy.stats.StatisticsManager;
-import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
-import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
 import pl.baczkowicz.mqttspy.ui.ConnectionController;
 import pl.baczkowicz.mqttspy.ui.MainController;
 import pl.baczkowicz.mqttspy.ui.SubscriptionController;
 import pl.baczkowicz.mqttspy.ui.events.EventManager;
-import pl.baczkowicz.mqttspy.ui.events.queuable.EventQueueManager;
 import pl.baczkowicz.mqttspy.ui.events.queuable.UIEventHandler;
 import pl.baczkowicz.mqttspy.ui.events.queuable.connectivity.MqttConnectionAttemptFailureEvent;
 import pl.baczkowicz.mqttspy.ui.events.queuable.connectivity.MqttDisconnectionAttemptFailureEvent;
-import pl.baczkowicz.mqttspy.ui.panes.PaneVisibilityStatus;
-import pl.baczkowicz.mqttspy.ui.panes.TabStatus;
+import pl.baczkowicz.mqttspy.ui.scripts.InteractiveScriptManager;
 import pl.baczkowicz.mqttspy.ui.utils.ConnectivityUtils;
 import pl.baczkowicz.mqttspy.ui.utils.ContextMenuUtils;
 import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
-import pl.baczkowicz.mqttspy.ui.utils.FxmlUtils;
-import pl.baczkowicz.mqttspy.ui.utils.TabUtils;
+import pl.baczkowicz.spy.exceptions.ConfigurationException;
+import pl.baczkowicz.spy.exceptions.SpyException;
+import pl.baczkowicz.spy.formatting.FormattingManager;
+import pl.baczkowicz.spy.ui.configuration.UiProperties;
+import pl.baczkowicz.spy.ui.events.queuable.EventQueueManager;
+import pl.baczkowicz.spy.ui.panes.PaneVisibilityStatus;
+import pl.baczkowicz.spy.ui.panes.TabStatus;
+import pl.baczkowicz.spy.ui.storage.ManagedMessageStoreWithFiltering;
+import pl.baczkowicz.spy.ui.utils.DialogFactory;
+import pl.baczkowicz.spy.ui.utils.FxmlUtils;
+import pl.baczkowicz.spy.ui.utils.TabUtils;
 
 /**
  * Class for managing connection tabs.
@@ -101,7 +99,7 @@ public class ConnectionManager
 	
 	// TODO: not sure this is needed
 	/** Map of connections and their IDs. */
-	private Map<Integer, MqttAsyncConnection> connections = new HashMap<Integer, MqttAsyncConnection>();
+	private Map<String, MqttAsyncConnection> connections = new HashMap<>();
 	
 	/** Map of connections and their connection controllers. */
 	private final Map<MqttAsyncConnection, ConnectionController> connectionControllers = new HashMap<>();
@@ -113,7 +111,7 @@ public class ConnectionManager
 	private final Map<ConnectionController, SubscriptionManager> subscriptionManagers = new HashMap<>();
 	
 	/** UI event queue. */
-	private final EventQueueManager uiEventQueue;
+	private final EventQueueManager<FormattedMqttMessage> uiEventQueue;
 
 	/** Reconnection manager. */
 	private ReconnectionManager reconnectionManager;
@@ -122,7 +120,7 @@ public class ConnectionManager
 
 	public ConnectionManager(final EventManager eventManager, final StatisticsManager statisticsManager, final ConfigurationManager configurationManager)
 	{
-		this.uiEventQueue = new EventQueueManager();
+		this.uiEventQueue = new EventQueueManager<FormattedMqttMessage>();
 		
 		this.eventManager = eventManager;
 		this.statisticsManager = statisticsManager;
@@ -138,8 +136,9 @@ public class ConnectionManager
 	{
 		// Note: this is not a complete ConfiguredConnectionDetails copy but ConnectionDetails copy - any user credentials entered won't be stored in config
 		final ConfiguredConnectionDetails connectionDetails = new ConfiguredConnectionDetails();
-		configuredConnectionDetails.copyTo(connectionDetails);
-		connectionDetails.setId(configuredConnectionDetails.getId());			
+		//configuredConnectionDetails.copyTo(connectionDetails);
+		connectionDetails.setConnectionDetails(configuredConnectionDetails);
+		connectionDetails.setID(configuredConnectionDetails.getID());			
 		
 		final boolean cancelled = completeUserAuthenticationCredentials(connectionDetails, mainController.getStage());		
 		
@@ -148,7 +147,7 @@ public class ConnectionManager
 			final String validationResult = ConnectivityUtils.validateConnectionDetails(connectionDetails, true);
 			if (validationResult != null)
 			{
-				DialogUtils.showValidationWarning(validationResult);
+				DialogFactory.createWarningDialog("Invalid value detected", validationResult);
 			}
 			else
 			{
@@ -177,7 +176,7 @@ public class ConnectionManager
 			if (connectionDetails.getUserAuthentication().isAskForPassword() || connectionDetails.getUserAuthentication().isAskForUsername())
 			{
 				// Password is decoded and encoded in this utility method
-				if (!DialogUtils.showUsernameAndPasswordDialog(stage, connectionDetails.getName(), userCredentials))
+				if (!DialogUtils.createMqttUsernameAndPasswordDialog(stage, connectionDetails.getName(), userCredentials))
 				{
 					return true;
 				}
@@ -306,9 +305,9 @@ public class ConnectionManager
 		final Tab replayTab = createConnectionTab(name, connectionPane, connectionController);
 		final SubscriptionManager subscriptionManager = new SubscriptionManager(eventManager, configurationManager, uiEventQueue);			
 		
-        final ManagedMessageStoreWithFiltering store = new ManagedMessageStoreWithFiltering(
-        		name, 0, list.size(), list.size(), uiEventQueue, eventManager, 
-        		new FormattingManager(new ScriptManager(null, null, null)), UiProperties.getSummaryMaxPayloadLength(configurationManager));               
+        final ManagedMessageStoreWithFiltering<FormattedMqttMessage> store = new ManagedMessageStoreWithFiltering<FormattedMqttMessage>(
+        		name, 0, list.size(), list.size(), uiEventQueue, //eventManager, 
+        		new FormattingManager(new MqttScriptManager(null, null, null)), UiProperties.getSummaryMaxPayloadLength(configurationManager.getUiPropertyFile()));               
         
 		final SubscriptionController subscriptionController = subscriptionManager.createSubscriptionTab(
 				true, store, null, null, connectionController);
@@ -347,6 +346,8 @@ public class ConnectionManager
 		        {		        	
 		        	store.messageReceived(new FormattedMqttMessage(mqttMessage, null));
 		        }
+		        
+		        replayTab.getTabPane().getSelectionModel().select(replayTab);
 			}
 		});		
 	}
@@ -399,14 +400,16 @@ public class ConnectionManager
 				connectionTabs.keySet().size());
 		
 		// Stop all scripts
-		for (final Script script : connection.getScriptManager().getScripts().values())
-		{
-			// Only stop file-based scripts
-			if (script.getScriptFile() != null)
-			{
-				connection.getScriptManager().stopScriptFile(script.getScriptFile());
-			}
-		}		
+		connection.getScriptManager().stopScripts();
+//		for (final Script script : connection.getScriptManager().getScripts())
+//		{
+//			// Only stop file-based scripts
+//			if (script.getScriptFile() != null)
+//			{
+//				// connection.getScriptManager().stopScriptFile(script.getScriptFile());
+//				connection.getScriptManager().stopScript(script);
+//			}
+//		}		
 		
 		for (final BaseMqttSubscription subscription : connection.getSubscriptions().values())
 		{
@@ -440,13 +443,14 @@ public class ConnectionManager
 		return tab;
 	}	
 
-	public MqttAsyncConnection createConnection(final RuntimeConnectionProperties connectionProperties, final EventQueueManager uiEventQueue)
+	public MqttAsyncConnection createConnection(final RuntimeConnectionProperties connectionProperties, final EventQueueManager<FormattedMqttMessage> uiEventQueue)
 	{
 		final InteractiveScriptManager scriptManager = new InteractiveScriptManager(eventManager, null);
 		final FormattingManager formattingManager = new FormattingManager(scriptManager);
 		final MqttAsyncConnection connection = new MqttAsyncConnection(reconnectionManager,
 				connectionProperties, MqttConnectionStatus.DISCONNECTED, 
-				eventManager, scriptManager, formattingManager, uiEventQueue, configurationManager);
+				eventManager, scriptManager, formattingManager, uiEventQueue, 
+				UiProperties.getSummaryMaxPayloadLength(configurationManager.getUiPropertyFile()));
 
 		formattingManager.initialiseFormatter(connection.getProperties().getFormatter());
 		scriptManager.setConnection(connection);
@@ -456,7 +460,7 @@ public class ConnectionManager
 		if (messageLog != null && !messageLog.getValue().equals(MessageLogEnum.DISABLED) 
 				&& messageLog.getLogFile() != null && !messageLog.getLogFile().isEmpty())
 		{
-			final Queue<BaseMqttMessageWithSubscriptions> messageQueue= new LinkedBlockingQueue<BaseMqttMessageWithSubscriptions>();
+			final Queue<FormattedMqttMessage> messageQueue= new LinkedBlockingQueue<FormattedMqttMessage>();
 			
 			if (connection.getMessageLogger() == null)
 			{
@@ -476,7 +480,7 @@ public class ConnectionManager
 		//connection.getStore().setFormattingManager(new FormattingManager(scriptManager));
 	
 		// Store the created connection
-		connections.put(connectionProperties.getConfiguredProperties().getId(), connection);
+		connections.put(connectionProperties.getConfiguredProperties().getID(), connection);
 
 		return connection;
 	}
@@ -495,7 +499,7 @@ public class ConnectionManager
 			connection.connect(new MqttCallbackHandler(connection), new MqttAsyncConnectionRunnable(connection));			
 			return true;
 		}
-		catch (MqttSpyException e)
+		catch (SpyException e)
 		{
 			// TODO: simplify this
 			Platform.runLater(new MqttEventHandler(new MqttConnectionAttemptFailureEvent(connection, e)));
@@ -516,7 +520,7 @@ public class ConnectionManager
 		{
 			connection.disconnect(new MqttDisconnectionResultHandler());
 		}
-		catch (MqttSpyException e)
+		catch (SpyException e)
 		{
 			// TODO: simplify this
 			Platform.runLater(new MqttEventHandler(new MqttDisconnectionAttemptFailureEvent(connection, e)));

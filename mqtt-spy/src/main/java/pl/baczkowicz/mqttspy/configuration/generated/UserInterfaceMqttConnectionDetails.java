@@ -36,7 +36,7 @@ import org.jvnet.jaxb2_commons.locator.util.LocatorUtils;
 import pl.baczkowicz.mqttspy.common.generated.MessageLog;
 import pl.baczkowicz.mqttspy.common.generated.MqttConnectionDetails;
 import pl.baczkowicz.mqttspy.common.generated.PublicationDetails;
-import pl.baczkowicz.mqttspy.common.generated.ScriptDetails;
+import pl.baczkowicz.spy.common.generated.ScriptDetails;
 
 
 /**
@@ -60,7 +60,7 @@ import pl.baczkowicz.mqttspy.common.generated.ScriptDetails;
  *         &lt;element name="MaxMessagesStored" type="{http://www.w3.org/2001/XMLSchema}int" minOccurs="0"/&gt;
  *         &lt;element name="PublicationScripts" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
  *         &lt;element name="SearchScripts" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="BackgroundScript" type="{http://baczkowicz.pl/mqtt-spy/common}ScriptDetails" maxOccurs="unbounded" minOccurs="0"/&gt;
+ *         &lt;element name="BackgroundScript" type="{http://baczkowicz.pl/spy/common}ScriptDetails" maxOccurs="unbounded" minOccurs="0"/&gt;
  *         &lt;element name="MessageLog" type="{http://baczkowicz.pl/mqtt-spy/common}MessageLog" minOccurs="0"/&gt;
  *       &lt;/sequence&gt;
  *     &lt;/extension&gt;

@@ -11,12 +11,16 @@
 
 package pl.baczkowicz.mqttspy.common.generated;
 
+import java.io.Serializable;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlID;
 import javax.xml.bind.annotation.XmlSchemaType;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.jvnet.jaxb2_commons.lang.CopyStrategy;
 import org.jvnet.jaxb2_commons.lang.CopyTo;
 import org.jvnet.jaxb2_commons.lang.Equals;
@@ -43,8 +47,9 @@ import org.jvnet.jaxb2_commons.locator.util.LocatorUtils;
  *   &lt;complexContent&gt;
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType"&gt;
  *       &lt;sequence&gt;
+ *         &lt;element name="ID" type="{http://www.w3.org/2001/XMLSchema}ID" minOccurs="0"/&gt;
  *         &lt;element name="Name" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="Protocol" type="{http://baczkowicz.pl/mqtt-spy/common}ProtocolEnum" minOccurs="0"/&gt;
+ *         &lt;element name="Protocol" type="{http://baczkowicz.pl/mqtt-spy/common}ProtocolVersionEnum" minOccurs="0"/&gt;
  *       &lt;/sequence&gt;
  *     &lt;/restriction&gt;
  *   &lt;/complexContent&gt;
@@ -56,20 +61,27 @@ import org.jvnet.jaxb2_commons.locator.util.LocatorUtils;
 @SuppressWarnings("all")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "ConnectionDetails", propOrder = {
+    "id",
     "name",
     "protocol"
 })
 @XmlSeeAlso({
     MqttConnectionDetails.class
 })
-public class ConnectionDetails implements Cloneable, CopyTo, Equals, HashCode, ToString
+public class ConnectionDetails implements Serializable, Cloneable, CopyTo, Equals, HashCode, ToString
 {
 
+    private final static long serialVersionUID = 1L;
+    @XmlElement(name = "ID")
+    @XmlJavaTypeAdapter(CollapsedStringAdapter.class)
+    @XmlID
+    @XmlSchemaType(name = "ID")
+    protected String id;
     @XmlElement(name = "Name")
     protected String name;
     @XmlElement(name = "Protocol")
     @XmlSchemaType(name = "string")
-    protected ProtocolEnum protocol;
+    protected ProtocolVersionEnum protocol;
 
     /**
      * Default no-arg constructor
@@ -83,9 +95,34 @@ public class ConnectionDetails implements Cloneable, CopyTo, Equals, HashCode, T
      * Fully-initialising value constructor
      * 
      */
-    public ConnectionDetails(final String name, final ProtocolEnum protocol) {
+    public ConnectionDetails(final String id, final String name, final ProtocolVersionEnum protocol) {
+        this.id = id;
         this.name = name;
         this.protocol = protocol;
+    }
+
+    /**
+     * Gets the value of the id property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getID() {
+        return id;
+    }
+
+    /**
+     * Sets the value of the id property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setID(String value) {
+        this.id = value;
     }
 
     /**
@@ -117,10 +154,10 @@ public class ConnectionDetails implements Cloneable, CopyTo, Equals, HashCode, T
      * 
      * @return
      *     possible object is
-     *     {@link ProtocolEnum }
+     *     {@link ProtocolVersionEnum }
      *     
      */
-    public ProtocolEnum getProtocol() {
+    public ProtocolVersionEnum getProtocol() {
         return protocol;
     }
 
@@ -129,10 +166,10 @@ public class ConnectionDetails implements Cloneable, CopyTo, Equals, HashCode, T
      * 
      * @param value
      *     allowed object is
-     *     {@link ProtocolEnum }
+     *     {@link ProtocolVersionEnum }
      *     
      */
-    public void setProtocol(ProtocolEnum value) {
+    public void setProtocol(ProtocolVersionEnum value) {
         this.protocol = value;
     }
 
@@ -152,12 +189,17 @@ public class ConnectionDetails implements Cloneable, CopyTo, Equals, HashCode, T
 
     public StringBuilder appendFields(ObjectLocator locator, StringBuilder buffer, ToStringStrategy strategy) {
         {
+            String theID;
+            theID = this.getID();
+            strategy.appendField(locator, this, "id", buffer, theID);
+        }
+        {
             String theName;
             theName = this.getName();
             strategy.appendField(locator, this, "name", buffer, theName);
         }
         {
-            ProtocolEnum theProtocol;
+            ProtocolVersionEnum theProtocol;
             theProtocol = this.getProtocol();
             strategy.appendField(locator, this, "protocol", buffer, theProtocol);
         }
@@ -173,6 +215,15 @@ public class ConnectionDetails implements Cloneable, CopyTo, Equals, HashCode, T
         }
         final ConnectionDetails that = ((ConnectionDetails) object);
         {
+            String lhsID;
+            lhsID = this.getID();
+            String rhsID;
+            rhsID = that.getID();
+            if (!strategy.equals(LocatorUtils.property(thisLocator, "id", lhsID), LocatorUtils.property(thatLocator, "id", rhsID), lhsID, rhsID)) {
+                return false;
+            }
+        }
+        {
             String lhsName;
             lhsName = this.getName();
             String rhsName;
@@ -182,9 +233,9 @@ public class ConnectionDetails implements Cloneable, CopyTo, Equals, HashCode, T
             }
         }
         {
-            ProtocolEnum lhsProtocol;
+            ProtocolVersionEnum lhsProtocol;
             lhsProtocol = this.getProtocol();
-            ProtocolEnum rhsProtocol;
+            ProtocolVersionEnum rhsProtocol;
             rhsProtocol = that.getProtocol();
             if (!strategy.equals(LocatorUtils.property(thisLocator, "protocol", lhsProtocol), LocatorUtils.property(thatLocator, "protocol", rhsProtocol), lhsProtocol, rhsProtocol)) {
                 return false;
@@ -201,12 +252,17 @@ public class ConnectionDetails implements Cloneable, CopyTo, Equals, HashCode, T
     public int hashCode(ObjectLocator locator, HashCodeStrategy strategy) {
         int currentHashCode = 1;
         {
+            String theID;
+            theID = this.getID();
+            currentHashCode = strategy.hashCode(LocatorUtils.property(locator, "id", theID), currentHashCode, theID);
+        }
+        {
             String theName;
             theName = this.getName();
             currentHashCode = strategy.hashCode(LocatorUtils.property(locator, "name", theName), currentHashCode, theName);
         }
         {
-            ProtocolEnum theProtocol;
+            ProtocolVersionEnum theProtocol;
             theProtocol = this.getProtocol();
             currentHashCode = strategy.hashCode(LocatorUtils.property(locator, "protocol", theProtocol), currentHashCode, theProtocol);
         }
@@ -231,6 +287,14 @@ public class ConnectionDetails implements Cloneable, CopyTo, Equals, HashCode, T
         final Object draftCopy = ((target == null)?createNewInstance():target);
         if (draftCopy instanceof ConnectionDetails) {
             final ConnectionDetails copy = ((ConnectionDetails) draftCopy);
+            if (this.id!= null) {
+                String sourceID;
+                sourceID = this.getID();
+                String copyID = ((String) strategy.copy(LocatorUtils.property(locator, "id", sourceID), sourceID));
+                copy.setID(copyID);
+            } else {
+                copy.id = null;
+            }
             if (this.name!= null) {
                 String sourceName;
                 sourceName = this.getName();
@@ -240,9 +304,9 @@ public class ConnectionDetails implements Cloneable, CopyTo, Equals, HashCode, T
                 copy.name = null;
             }
             if (this.protocol!= null) {
-                ProtocolEnum sourceProtocol;
+                ProtocolVersionEnum sourceProtocol;
                 sourceProtocol = this.getProtocol();
-                ProtocolEnum copyProtocol = ((ProtocolEnum) strategy.copy(LocatorUtils.property(locator, "protocol", sourceProtocol), sourceProtocol));
+                ProtocolVersionEnum copyProtocol = ((ProtocolVersionEnum) strategy.copy(LocatorUtils.property(locator, "protocol", sourceProtocol), sourceProtocol));
                 copy.setProtocol(copyProtocol);
             } else {
                 copy.protocol = null;

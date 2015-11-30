@@ -19,23 +19,25 @@
  */
 package pl.baczkowicz.mqttspy.formatting;
 
+import java.io.File;
+
 import javax.script.ScriptException;
 
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.junit.Test;
 
-import pl.baczkowicz.mqttspy.common.generated.ConversionMethod;
-import pl.baczkowicz.mqttspy.common.generated.FormatterDetails;
-import pl.baczkowicz.mqttspy.common.generated.FormatterFunction;
-import pl.baczkowicz.mqttspy.common.generated.ScriptDetails;
-import pl.baczkowicz.mqttspy.common.generated.ScriptExecutionDetails;
-import pl.baczkowicz.mqttspy.common.generated.SubstringConversionFormatterDetails;
-import pl.baczkowicz.mqttspy.common.generated.SubstringExtractFormatterDetails;
-import pl.baczkowicz.mqttspy.scripts.ScriptBasedFormatter;
-import pl.baczkowicz.mqttspy.scripts.ScriptManager;
-import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
-import pl.baczkowicz.mqttspy.utils.ConversionUtils;
-import pl.baczkowicz.mqttspy.utils.FormattingUtils;
+import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
+import pl.baczkowicz.mqttspy.scripts.MqttScriptManager;
+import pl.baczkowicz.spy.common.generated.ConversionMethod;
+import pl.baczkowicz.spy.common.generated.FormatterDetails;
+import pl.baczkowicz.spy.common.generated.FormatterFunction;
+import pl.baczkowicz.spy.common.generated.ScriptDetails;
+import pl.baczkowicz.spy.common.generated.ScriptExecutionDetails;
+import pl.baczkowicz.spy.common.generated.SubstringConversionFormatterDetails;
+import pl.baczkowicz.spy.common.generated.SubstringExtractFormatterDetails;
+import pl.baczkowicz.spy.formatting.FormattingUtils;
+import pl.baczkowicz.spy.formatting.ScriptBasedFormatter;
+import pl.baczkowicz.spy.utils.ConversionUtils;
 
 public class FormattingPerformanceTest
 {
@@ -92,15 +94,15 @@ public class FormattingPerformanceTest
 		System.out.println("Function-based took " + totalTime + " ns; avg = " + (totalTime / repeat) + " ns");
 		
 		// 2. Script file-based		
-		ScriptManager scriptManager = new ScriptManager(null, null, null);
-		final String scriptFile1 = "/home/kamil/Programming/Git/mqtt-spy-common/src/test/resources/scripts/base64-body-decoder.js";
+		MqttScriptManager scriptManager = new MqttScriptManager(null, null, null);
+		final String scriptFile1 = "src/test/resources/scripts/base64-body-decoder.js";
 		scriptManager.addScript(new ScriptDetails(false, false, scriptFile1));
 		
 		startTime = System.nanoTime();
 		for (int i = 0; i < repeat; i++)
 		{
 			message.setPayload(payload);
-			scriptManager.runScriptFileWithReceivedMessage(scriptFile1, message);	
+			scriptManager.runScriptFileWithReceivedMessage(new File(scriptFile1).getAbsolutePath(), message);	
 		}
 		System.out.println("Message payload = " + message.getPayload());
 		

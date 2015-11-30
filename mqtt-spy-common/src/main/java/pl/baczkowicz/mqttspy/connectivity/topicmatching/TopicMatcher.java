@@ -20,11 +20,15 @@
 package pl.baczkowicz.mqttspy.connectivity.topicmatching;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.dna.mqtt.moquette.messaging.spi.impl.subscriptions.Subscription;
 import org.dna.mqtt.moquette.messaging.spi.impl.subscriptions.SubscriptionsStore;
 import org.dna.mqtt.moquette.proto.messages.AbstractMessage.QOSType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class is responsible for matching topics against subscriptions, and
@@ -33,11 +37,14 @@ import org.dna.mqtt.moquette.proto.messages.AbstractMessage.QOSType;
  */
 public class TopicMatcher
 {
-	/** This dummy client ID is used for storing subscriptions. */
-	private static final String DUMMY_CLIENT_ID = "mqttspy";  
+	/** Diagnostic logger. */
+	private static final Logger logger = LoggerFactory.getLogger(TopicMatcher.class);
 	
 	/** Subscription store - used to matching topics against subscriptions - from moquette. */
 	private SubscriptionsStore subscriptionsStore;
+	
+	/** All topics that are in the store. */
+	private Set<String> topics = new HashSet<>();
 	
 	/**
 	 * Creates the topic matcher.
@@ -77,14 +84,16 @@ public class TopicMatcher
 	 *  
 	 * @param topic Topic to add
 	 */
-	public void addSubscriptionToStore(final String topic)
+	public void addSubscriptionToStore(final String topic, final String clientId)
 	{
-		final Subscription subscription = new Subscription(DUMMY_CLIENT_ID, topic, QOSType.MOST_ONE, true);
+		final Subscription subscription = new Subscription(clientId, topic, QOSType.MOST_ONE, true);
 		
-		if (!subscriptionsStore.contains(subscription))
+		if (!topics.contains(subscription))
 		{
+			logger.debug("Added subscription " + topic + " (" + clientId + ") to store");
 			// Store the subscription topic for further matching
 			subscriptionsStore.add(subscription);
+			topics.add(topic);
 		}
 	}
 	
@@ -93,8 +102,10 @@ public class TopicMatcher
 	 *  
 	 * @param topic Topic to remove
 	 */
-	public void removeSubscriptionFromStore(final String topic)
+	public void removeSubscriptionFromStore(final String topic, final String clientId)
 	{
-		subscriptionsStore.removeSubscription(topic, DUMMY_CLIENT_ID);
+		subscriptionsStore.removeSubscription(topic, clientId);
+		
+		topics.remove(topic);
 	}
 }

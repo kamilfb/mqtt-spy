@@ -23,6 +23,9 @@ import java.io.File;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -42,15 +45,11 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.FileChooser;
 import javafx.util.Callback;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import pl.baczkowicz.mqttspy.scripts.ScriptRunningState;
-import pl.baczkowicz.mqttspy.testcases.TestCaseManager;
-import pl.baczkowicz.mqttspy.testcases.TestCaseStatus;
-import pl.baczkowicz.mqttspy.ui.properties.TestCaseProperties;
-import pl.baczkowicz.mqttspy.ui.properties.TestCaseStepProperties;
+import pl.baczkowicz.mqttspy.ui.testcases.InteractiveTestCaseManager;
+import pl.baczkowicz.spy.scripts.ScriptRunningState;
+import pl.baczkowicz.spy.testcases.TestCaseStatus;
+import pl.baczkowicz.spy.ui.properties.TestCaseProperties;
+import pl.baczkowicz.spy.ui.properties.TestCaseStepProperties;
 
 /**
  * Controller for the search window.
@@ -85,19 +84,36 @@ public class TestCaseExecutionController extends AnchorPane implements Initializ
 
 	private TestCaseProperties testCaseProperties;
 
-	private TestCaseManager testCaseManager;
+	private InteractiveTestCaseManager testCaseManager;
 	
 	public void initialize(URL location, ResourceBundle resources)
 	{
 		stepNumberColumn.setCellValueFactory(new PropertyValueFactory<TestCaseStepProperties, String>("stepNumber"));
+		stepNumberColumn.setCellFactory(new Callback<TableColumn<TestCaseStepProperties, String>, TableCell<TestCaseStepProperties, String>>()
+		{
+			public TableCell<TestCaseStepProperties, String> call(TableColumn<TestCaseStepProperties, String> param)
+			{
+				final TableCell<TestCaseStepProperties, String> cell = new TableCell<TestCaseStepProperties, String>()
+				{
+					@Override
+					public void updateItem(String item, boolean empty)
+					{
+						super.updateItem(item, empty);
+						setText(item);
+					}
+				};
+				cell.setAlignment(Pos.CENTER);
+				
+				return cell;
+			}
+		});
 		
 		descriptionColumn.setCellValueFactory(new PropertyValueFactory<TestCaseStepProperties, String>("description"));
 		
 		statusColumn.setCellValueFactory(new PropertyValueFactory<TestCaseStepProperties, TestCaseStatus>("status"));
 		statusColumn.setCellFactory(new Callback<TableColumn<TestCaseStepProperties, TestCaseStatus>, TableCell<TestCaseStepProperties, TestCaseStatus>>()
 		{
-			public TableCell<TestCaseStepProperties, TestCaseStatus> call(
-					TableColumn<TestCaseStepProperties, TestCaseStatus> param)
+			public TableCell<TestCaseStepProperties, TestCaseStatus> call(TableColumn<TestCaseStepProperties, TestCaseStatus> param)
 			{
 				final TableCell<TestCaseStepProperties, TestCaseStatus> cell = new TableCell<TestCaseStepProperties, TestCaseStatus>()
 				{
@@ -153,7 +169,7 @@ public class TestCaseExecutionController extends AnchorPane implements Initializ
 
 		if (selectedFile != null)
 		{			
-			testCaseManager.exportTestCaseResult(testCaseProperties, selectedFile);
+			testCaseManager.exportTestCaseResultAsCSV(testCaseProperties.getScript(), selectedFile);
 		}
 	}
 	
@@ -242,7 +258,7 @@ public class TestCaseExecutionController extends AnchorPane implements Initializ
 	// === Setters and getters =======
 	// ===============================
 	
-	public void setTestCaseManager(final TestCaseManager testCaseManager)
+	public void setTestCaseManager(final InteractiveTestCaseManager testCaseManager)
 	{
 		this.testCaseManager = testCaseManager;
 	}

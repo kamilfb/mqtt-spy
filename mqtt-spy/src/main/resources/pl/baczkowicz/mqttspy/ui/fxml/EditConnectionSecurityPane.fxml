@@ -35,7 +35,8 @@
    <children>
       <TabPane side="LEFT" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <tabs>
-            <Tab closable="false" text="Authentication">
+         	<Tab fx:id="authTab" closable="false" text="User auth.">
+            <!-- <Tab fx:id="authTab" closable="false" text="Authentication"> -->
                <content>
                   <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="210.0" prefWidth="424.0">
                      <children>
@@ -62,7 +63,7 @@
                   </AnchorPane>
                </content>
             </Tab>
-            <Tab closable="false" text="SSL/TLS">
+            <Tab fx:id="tlsTab" closable="false" text="TLS">
               <content>
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
@@ -94,7 +95,7 @@
                                  <graphic>
                                     <ImageView fitHeight="16" fitWidth="16" pickOnBounds="true">
                                        <image>
-                                          <Image url="/images/button-add.png" />
+                                          <Image url="/images/small/button-add.png" />
                                        </image>
                                     </ImageView>
                                  </graphic>
@@ -106,7 +107,7 @@
                                  <graphic>
                                     <ImageView fitHeight="16" fitWidth="16" pickOnBounds="true">
                                        <image>
-                                          <Image url="/images/button-delete.png" />
+                                          <Image url="/images/small/button-delete.png" />
                                        </image>
                                     </ImageView>
                                  </graphic>

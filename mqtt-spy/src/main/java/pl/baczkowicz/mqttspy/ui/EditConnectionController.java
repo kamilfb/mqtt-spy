@@ -20,6 +20,7 @@
 package pl.baczkowicz.mqttspy.ui;
 
 import java.net.URL;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 import javafx.application.Platform;
@@ -28,6 +29,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
@@ -37,19 +39,16 @@ import javafx.stage.Stage;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
 
-import org.controlsfx.control.action.Action;
-import org.controlsfx.dialog.Dialog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.common.generated.MessageLog;
-import pl.baczkowicz.mqttspy.common.generated.ProtocolEnum;
+import pl.baczkowicz.mqttspy.common.generated.ProtocolVersionEnum;
 import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
 import pl.baczkowicz.mqttspy.configuration.ConfigurationUtils;
 import pl.baczkowicz.mqttspy.configuration.ConfiguredConnectionDetails;
 import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnectionDetails;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
-import pl.baczkowicz.mqttspy.exceptions.ConfigurationException;
 import pl.baczkowicz.mqttspy.ui.connections.ConnectionManager;
 import pl.baczkowicz.mqttspy.ui.controllers.edit.EditConnectionConnectivityController;
 import pl.baczkowicz.mqttspy.ui.controllers.edit.EditConnectionLastWillController;
@@ -59,13 +58,16 @@ import pl.baczkowicz.mqttspy.ui.controllers.edit.EditConnectionPublicationsContr
 import pl.baczkowicz.mqttspy.ui.controllers.edit.EditConnectionSecurityController;
 import pl.baczkowicz.mqttspy.ui.controllers.edit.EditConnectionSubscriptionsController;
 import pl.baczkowicz.mqttspy.ui.utils.ConnectivityUtils;
-import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
 import pl.baczkowicz.mqttspy.utils.ConnectionUtils;
+import pl.baczkowicz.spy.common.generated.ConnectionGroupReference;
+import pl.baczkowicz.spy.exceptions.ConfigurationException;
+import pl.baczkowicz.spy.ui.utils.DialogFactory;
+import pl.baczkowicz.spy.ui.utils.TooltipFactory;
 
 /**
  * Controller for editing a single connection.
  */
-@SuppressWarnings({"unchecked", "rawtypes", "deprecation"})
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class EditConnectionController extends AnchorPane implements Initializable
 {
 	final static Logger logger = LoggerFactory.getLogger(EditConnectionController.class);
@@ -74,7 +76,7 @@ public class EditConnectionController extends AnchorPane implements Initializabl
 	private TextField connectionNameText;
 	
 	@FXML
-	private ComboBox<ProtocolEnum> protocolCombo;
+	private ComboBox<ProtocolVersionEnum> protocolCombo;
 	
 	// Action buttons
 	
@@ -162,15 +164,15 @@ public class EditConnectionController extends AnchorPane implements Initializabl
 		});
 		
 		protocolCombo.getSelectionModel().selectedIndexProperty().addListener(basicOnChangeListener);
-		protocolCombo.setCellFactory(new Callback<ListView<ProtocolEnum>, ListCell<ProtocolEnum>>()
+		protocolCombo.setCellFactory(new Callback<ListView<ProtocolVersionEnum>, ListCell<ProtocolVersionEnum>>()
 		{
 			@Override
-			public ListCell<ProtocolEnum> call(ListView<ProtocolEnum> l)
+			public ListCell<ProtocolVersionEnum> call(ListView<ProtocolVersionEnum> l)
 			{
-				return new ListCell<ProtocolEnum>()
+				return new ListCell<ProtocolVersionEnum>()
 				{
 					@Override
-					protected void updateItem(ProtocolEnum item, boolean empty)
+					protected void updateItem(ProtocolVersionEnum item, boolean empty)
 					{
 						super.updateItem(item, empty);
 						if (item == null || empty)
@@ -185,10 +187,10 @@ public class EditConnectionController extends AnchorPane implements Initializabl
 				};
 			}
 		});
-		protocolCombo.setConverter(new StringConverter<ProtocolEnum>()
+		protocolCombo.setConverter(new StringConverter<ProtocolVersionEnum>()
 		{
 			@Override
-			public String toString(ProtocolEnum item)
+			public String toString(ProtocolVersionEnum item)
 			{
 				if (item == null)
 				{
@@ -201,13 +203,13 @@ public class EditConnectionController extends AnchorPane implements Initializabl
 			}
 
 			@Override
-			public ProtocolEnum fromString(String id)
+			public ProtocolVersionEnum fromString(String id)
 			{
 				return null;
 			}
 		});
 		
-		for (ProtocolEnum protocolEnum : ProtocolEnum.values())
+		for (ProtocolVersionEnum protocolEnum : ProtocolVersionEnum.values())
 		{
 			protocolCombo.getItems().add(protocolEnum);
 		}
@@ -258,16 +260,23 @@ public class EditConnectionController extends AnchorPane implements Initializabl
 	
 	@FXML
 	private void save()
-	{
-		editedConnectionDetails.apply();
-		editConnectionsController.listConnections();
-				
-		updateButtons();
-		
+	{		
 		logger.debug("Saving connection " + getConnectionName().getText());
 		if (configurationManager.saveConfiguration())
 		{
-			DialogUtils.showTooltip(saveButton, "Changes for connection " + editedConnectionDetails.getName() + " have been saved.");
+			editedConnectionDetails.apply();
+			editConnectionsController.listConnections();
+					
+			updateButtons();
+			
+			TooltipFactory.createTooltip(saveButton, "Changes for connection " + editedConnectionDetails.getName() + " have been saved.");
+		}
+		else
+		{
+			DialogFactory.createErrorDialog(
+					"Cannot save the configuration file", 
+					"Oops... an error has occurred while trying to save your configuration. "
+					+ "Please check the log file for more information. Your changes were not saved.");
 		}
 	}	
 	
@@ -281,26 +290,29 @@ public class EditConnectionController extends AnchorPane implements Initializabl
 		stage.close();
 	}
 	
-	@FXML
-	public void createConnection() throws ConfigurationException
+	public void openConnection(final ConfiguredConnectionDetails connectionDetails)
 	{
-		readAndDetectChanges();
-		final String validationResult = ConnectivityUtils.validateConnectionDetails(editedConnectionDetails, false);
+		final String validationResult = ConnectivityUtils.validateConnectionDetails(connectionDetails, false);
 		
 		if (validationResult != null)
 		{
-			DialogUtils.showValidationWarning(validationResult);
+			DialogFactory.createWarningDialog("Invalid value detected", validationResult);
 		}
 		else
 		{					
-			if (editedConnectionDetails.isModified())
+			if (connectionDetails.isModified())
 			{	
-				Action response = DialogUtils.showApplyChangesQuestion("connection " + editedConnectionDetails.getName()); 
-				if (response == Dialog.ACTION_YES)
+				Optional<ButtonType> response = DialogFactory.createQuestionDialog(
+						"Unsaved changes detected", 
+						"You've got unsaved changes for " + "connection " 
+						+ connectionDetails.getName() + ". Do you want to save/apply them now?", 
+						true);
+				
+				if (response.get() == ButtonType.YES)
 				{
 					save();
 				}
-				else if (response == Dialog.ACTION_NO)
+				else if (response.get() == ButtonType.NO)
 				{
 					// Do nothing
 				}
@@ -310,6 +322,7 @@ public class EditConnectionController extends AnchorPane implements Initializabl
 				}
 			}
 			
+			checkIfOpened(connectionDetails.getID());
 			if (!openNewMode)
 			{
 				connectionManager.disconnectAndCloseTab(existingConnection);
@@ -330,17 +343,23 @@ public class EditConnectionController extends AnchorPane implements Initializabl
 				{
 					try
 					{						
-						connectionManager.openConnection(editedConnectionDetails, getMainController());
+						connectionManager.openConnection(connectionDetails, getMainController());
 					}
 					catch (ConfigurationException e)
 					{
 						// TODO: show warning dialog for invalid
-						logger.error("Cannot open conection {}", editedConnectionDetails.getName(), e);
+						logger.error("Cannot open conection {}", connectionDetails.getName(), e);
 					}					
 				}				
-			});
-			
+			});			
 		}
+	}
+	
+	@FXML
+	public void createConnection() throws ConfigurationException
+	{
+		readAndDetectChanges();
+		openConnection(editedConnectionDetails);
 	}
 
 	// ===============================
@@ -402,14 +421,42 @@ public class EditConnectionController extends AnchorPane implements Initializabl
 	
 	private boolean readAndDetectChanges()
 	{
-		final UserInterfaceMqttConnectionDetails connection = readValues();
+		final ConfiguredConnectionDetails connection = new ConfiguredConnectionDetails(null, readValues());
+
+		// Copy...
+		final ConnectionGroupReference group = editedConnectionDetails.getGroup();
+		final String id = editedConnectionDetails.getID();
+		
+		// Set it.. so that comparison is correct...
+		connection.setGroup(group);
+		connection.setID(id);
+		
 		boolean changed = !connection.equals(editedConnectionDetails.getSavedValues());
 			
 		logger.debug("Values read. Changed = " + changed);
 		editedConnectionDetails.setModified(changed);
 		editedConnectionDetails.setConnectionDetails(connection);
 		
+		// ... and override the group because this is not read from this pane
+		editedConnectionDetails.setGroup(group);
+		editedConnectionDetails.setID(id);
+		
 		return changed;
+	}
+	
+	public void checkIfOpened(final String id)
+	{
+		openNewMode = true;
+		for (final MqttAsyncConnection mqttConnection : connectionManager.getConnections())
+		{
+			if (id.equals(mqttConnection.getProperties().getConfiguredProperties().getID()) && mqttConnection.isOpened())
+			{
+				openNewMode = false;
+				existingConnection = mqttConnection;
+				connectButton.setText("Close and re-open existing connection");
+				break;
+			}				
+		}
 	}
 
 	public void editConnection(final ConfiguredConnectionDetails connectionDetails)
@@ -423,18 +470,8 @@ public class EditConnectionController extends AnchorPane implements Initializabl
 			existingConnection = null;
 			connectButton.setText("Open connection");
 			
-			logger.debug("Editing connection id={} name={}", editedConnectionDetails.getId(),
-					editedConnectionDetails.getName());
-			for (final MqttAsyncConnection mqttConnection : connectionManager.getConnections())
-			{
-				if (connectionDetails.getId() == mqttConnection.getProperties().getConfiguredProperties().getId() && mqttConnection.isOpened())
-				{
-					openNewMode = false;
-					existingConnection = mqttConnection;
-					connectButton.setText("Close and re-open existing connection");
-					break;
-				}				
-			}
+			logger.debug("Editing connection id={} name={}", editedConnectionDetails.getID(), editedConnectionDetails.getName());
+			checkIfOpened(connectionDetails.getID());
 			
 			if (editedConnectionDetails.getName().equals(
 					ConnectionUtils.composeConnectionName(editedConnectionDetails.getClientID(), editedConnectionDetails.getServerURI())))

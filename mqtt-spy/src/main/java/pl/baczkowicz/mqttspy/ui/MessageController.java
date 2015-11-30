@@ -41,20 +41,20 @@ import org.fxmisc.richtext.StyleClassedTextArea;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import pl.baczkowicz.mqttspy.common.generated.FormatterDetails;
 import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
-import pl.baczkowicz.mqttspy.configuration.UiProperties;
-import pl.baczkowicz.mqttspy.scripts.FormattingManager;
-import pl.baczkowicz.mqttspy.storage.BasicMessageStoreWithSummary;
-import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
-import pl.baczkowicz.mqttspy.ui.controls.StyledTextAreaWrapper;
-import pl.baczkowicz.mqttspy.ui.controls.TextAreaInterface;
-import pl.baczkowicz.mqttspy.ui.controls.TextAreaWrapper;
-import pl.baczkowicz.mqttspy.ui.events.observers.MessageFormatChangeObserver;
-import pl.baczkowicz.mqttspy.ui.events.observers.MessageIndexChangeObserver;
-import pl.baczkowicz.mqttspy.ui.search.SearchOptions;
-import pl.baczkowicz.mqttspy.utils.FormattingUtils;
-import pl.baczkowicz.mqttspy.utils.TimeUtils;
+import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
+import pl.baczkowicz.spy.common.generated.FormatterDetails;
+import pl.baczkowicz.spy.formatting.FormattingManager;
+import pl.baczkowicz.spy.formatting.FormattingUtils;
+import pl.baczkowicz.spy.ui.configuration.UiProperties;
+import pl.baczkowicz.spy.ui.controls.StyledTextAreaWrapper;
+import pl.baczkowicz.spy.ui.controls.TextAreaInterface;
+import pl.baczkowicz.spy.ui.controls.TextAreaWrapper;
+import pl.baczkowicz.spy.ui.events.observers.MessageFormatChangeObserver;
+import pl.baczkowicz.spy.ui.events.observers.MessageIndexChangeObserver;
+import pl.baczkowicz.spy.ui.search.SearchOptions;
+import pl.baczkowicz.spy.ui.storage.BasicMessageStoreWithSummary;
+import pl.baczkowicz.spy.utils.TimeUtils;
 
 /**
  * Controller for displaying a message.
@@ -99,7 +99,7 @@ public class MessageController implements Initializable, MessageIndexChangeObser
 	@FXML
 	private Label qosFieldLabel;
 
-	private BasicMessageStoreWithSummary store;
+	private BasicMessageStoreWithSummary<FormattedMqttMessage> store;
 	
 	private FormattedMqttMessage message;
 
@@ -364,15 +364,15 @@ public class MessageController implements Initializable, MessageIndexChangeObser
 			String textToDisplay = "";
 
 			// If large message detected
-			if (message.getRawMessage().getPayload().length >= UiProperties.getLargeMessageSize(configurationManager))
+			if (message.getRawMessage().getPayload().length >= UiProperties.getLargeMessageSize(configurationManager.getUiPropertyFile()))
 			{
-				if (UiProperties.getLargeMessageHide(configurationManager))
+				if (UiProperties.getLargeMessageHide(configurationManager.getUiPropertyFile()))
 				{
 					textToDisplay = "[message is too large and has been hidden - double click on 'Data' to display]";
 				}
 				else
 				{
-					final int max = UiProperties.getLargeMessageSubstring(configurationManager); 
+					final int max = UiProperties.getLargeMessageSubstring(configurationManager.getUiPropertyFile()); 
 					formattingManager.formatMessage(message, store.getFormatter());
 					textToDisplay = message.getFormattedPayload().substring(0, max) 
 							+ "... [message truncated to " + max + " characters - double click on 'Data' to display]";
@@ -453,7 +453,7 @@ public class MessageController implements Initializable, MessageIndexChangeObser
 		this.formattingManager = formattingManager;
 	}
 	
-	public void setStore(final BasicMessageStoreWithSummary store)
+	public void setStore(final BasicMessageStoreWithSummary<FormattedMqttMessage> store)
 	{
 		this.store = store;
 	}

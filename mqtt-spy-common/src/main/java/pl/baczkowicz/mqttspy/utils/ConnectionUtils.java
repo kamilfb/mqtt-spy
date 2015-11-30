@@ -22,6 +22,7 @@ package pl.baczkowicz.mqttspy.utils;
 import java.util.List;
 
 import pl.baczkowicz.mqttspy.common.generated.MqttConnectionDetails;
+import pl.baczkowicz.mqttspy.common.generated.ProtocolVersionEnum;
 
 /**
  * Connection utils.
@@ -110,10 +111,19 @@ public class ConnectionUtils
 			return "Server URI cannot be empty";
 		}
 		
-		if (connectionDetails.getClientID() == null
-				|| connectionDetails.getClientID().trim().isEmpty())
+		final boolean emptyClientId = (connectionDetails.getClientID() == null)
+				|| connectionDetails.getClientID().trim().isEmpty();
+		
+		if (ProtocolVersionEnum.MQTT_3_1_1.equals(connectionDetails.getProtocol()) && emptyClientId)
 		{
-			return "Client ID cannot be empty";
+			if (!connectionDetails.isCleanSession())
+			{
+				return "Client ID can only be empty when the 'clean session' flag is set";
+			}
+		}
+		else if (emptyClientId)
+		{
+			return "Empty client ID is only allowed in MQTT 3.1.1";
 		}
 	
 		if (MqttUtils.limitClientId(connectionDetails.getProtocol()) 

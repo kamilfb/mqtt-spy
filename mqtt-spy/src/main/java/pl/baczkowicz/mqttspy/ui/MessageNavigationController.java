@@ -49,25 +49,27 @@ import javafx.stage.Window;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import pl.baczkowicz.mqttspy.storage.BasicMessageStoreWithSummary;
-import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
-import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
+import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.ui.events.EventManager;
-import pl.baczkowicz.mqttspy.ui.events.observers.MessageAddedObserver;
-import pl.baczkowicz.mqttspy.ui.events.observers.MessageIndexIncrementObserver;
-import pl.baczkowicz.mqttspy.ui.events.observers.MessageIndexToFirstObserver;
-import pl.baczkowicz.mqttspy.ui.events.observers.MessageRemovedObserver;
-import pl.baczkowicz.mqttspy.ui.events.queuable.ui.BrowseReceivedMessageEvent;
-import pl.baczkowicz.mqttspy.ui.events.queuable.ui.BrowseRemovedMessageEvent;
 import pl.baczkowicz.mqttspy.ui.messagelog.MessageLogUtils;
-import pl.baczkowicz.mqttspy.ui.utils.TextUtils;
-import pl.baczkowicz.mqttspy.ui.utils.UiUtils;
-import pl.baczkowicz.mqttspy.utils.FileUtils;
+import pl.baczkowicz.spy.ui.events.observers.MessageAddedObserver;
+import pl.baczkowicz.spy.ui.events.observers.MessageIndexIncrementObserver;
+import pl.baczkowicz.spy.ui.events.observers.MessageIndexToFirstObserver;
+import pl.baczkowicz.spy.ui.events.observers.MessageRemovedObserver;
+import pl.baczkowicz.spy.ui.events.queuable.ui.BrowseReceivedMessageEvent;
+import pl.baczkowicz.spy.ui.events.queuable.ui.BrowseRemovedMessageEvent;
+import pl.baczkowicz.spy.ui.storage.BasicMessageStoreWithSummary;
+import pl.baczkowicz.spy.ui.storage.ManagedMessageStoreWithFiltering;
+import pl.baczkowicz.spy.ui.utils.TextUtils;
+import pl.baczkowicz.spy.ui.utils.UiUtils;
+import pl.baczkowicz.spy.utils.FileUtils;
 
 /**
  * Controller for the message navigation buttons.
  */
-public class MessageNavigationController implements Initializable, MessageIndexToFirstObserver, MessageIndexIncrementObserver, MessageAddedObserver, MessageRemovedObserver
+public class MessageNavigationController implements Initializable, 
+	MessageIndexToFirstObserver, MessageIndexIncrementObserver, 
+	MessageAddedObserver<FormattedMqttMessage>, MessageRemovedObserver<FormattedMqttMessage>
 {
 	final static Logger logger = LoggerFactory.getLogger(MessageNavigationController.class);
 
@@ -118,13 +120,13 @@ public class MessageNavigationController implements Initializable, MessageIndexT
 
 	private int selectedMessage;
 
-	private BasicMessageStoreWithSummary store; 
+	private BasicMessageStoreWithSummary<FormattedMqttMessage> store; 
 	
 	private TextField messageIndexValueField;
 	
 	private Label totalMessagesValueLabel;
 	
-	private EventManager eventManager;
+	private EventManager<FormattedMqttMessage> eventManager;
 
 	public void initialize(URL location, ResourceBundle resources)
 	{				
@@ -264,7 +266,7 @@ public class MessageNavigationController implements Initializable, MessageIndexT
 	// ====================
 		
 	@Override
-	public void onMessageAdded(final List<BrowseReceivedMessageEvent> events)
+	public void onMessageAdded(final List<BrowseReceivedMessageEvent<FormattedMqttMessage>> events)
 	{
 		// This is registered for filtered messages only
 		if (showLatest())
@@ -309,9 +311,9 @@ public class MessageNavigationController implements Initializable, MessageIndexT
 	
 	// TODO: optimise message handling
 	@Override
-	public void onMessageRemoved(final List<BrowseRemovedMessageEvent> events)
+	public void onMessageRemoved(final List<BrowseRemovedMessageEvent<FormattedMqttMessage>> events)
 	{
-		for (final BrowseRemovedMessageEvent event : events)
+		for (final BrowseRemovedMessageEvent<FormattedMqttMessage> event : events)
 		{
 			if (event.getMessageIndex() < selectedMessage)
 			{
@@ -411,16 +413,16 @@ public class MessageNavigationController implements Initializable, MessageIndexT
 		{	
 			if (!store.messageFiltersEnabled())
 			{
-				filterStatusLabel.setText("(" + getBrowsingTopicsInfo((ManagedMessageStoreWithFiltering) store) + ")");
+				filterStatusLabel.setText("(" + getBrowsingTopicsInfo((ManagedMessageStoreWithFiltering<FormattedMqttMessage>) store) + ")");
 			}
 			else
 			{
-				filterStatusLabel.setText("(" + getBrowsingTopicsInfo((ManagedMessageStoreWithFiltering) store) + "; filter is active)");
+				filterStatusLabel.setText("(" + getBrowsingTopicsInfo((ManagedMessageStoreWithFiltering<FormattedMqttMessage>) store) + "; filter is active)");
 			}
 		}
 	}
 
-	public static String getBrowsingTopicsInfo(final ManagedMessageStoreWithFiltering store)
+	public static String getBrowsingTopicsInfo(final ManagedMessageStoreWithFiltering<FormattedMqttMessage> store)
 	{
 		final int selectedTopics = store.getFilteredMessageStore().getBrowsedTopics().size();
 		final int totalTopics = store.getAllTopics().size();
@@ -540,7 +542,7 @@ public class MessageNavigationController implements Initializable, MessageIndexT
 	// === Setters and getters =======
 	// ===============================
 	
-	public void setStore(final BasicMessageStoreWithSummary store)
+	public void setStore(final BasicMessageStoreWithSummary<FormattedMqttMessage> store)
 	{
 		this.store = store;
 	}
@@ -550,7 +552,7 @@ public class MessageNavigationController implements Initializable, MessageIndexT
 		return selectedMessage;
 	}
 	
-	public void setEventManager(final EventManager eventManager)
+	public void setEventManager(final EventManager<FormattedMqttMessage> eventManager)
 	{
 		this.eventManager = eventManager;
 	}

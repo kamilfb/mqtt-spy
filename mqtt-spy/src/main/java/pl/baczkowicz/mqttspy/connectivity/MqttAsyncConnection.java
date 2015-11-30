@@ -21,27 +21,27 @@ package pl.baczkowicz.mqttspy.connectivity;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import pl.baczkowicz.mqttspy.common.generated.ScriptDetails;
-import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
-import pl.baczkowicz.mqttspy.configuration.UiProperties;
 import pl.baczkowicz.mqttspy.connectivity.reconnection.ReconnectionManager;
 import pl.baczkowicz.mqttspy.logger.MqttMessageLogger;
-import pl.baczkowicz.mqttspy.scripts.FormattingManager;
-import pl.baczkowicz.mqttspy.scripts.InteractiveScriptManager;
-import pl.baczkowicz.mqttspy.scripts.Script;
+import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.stats.StatisticsManager;
-import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
-import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
 import pl.baczkowicz.mqttspy.ui.events.EventManager;
-import pl.baczkowicz.mqttspy.ui.events.queuable.EventQueueManager;
-import pl.baczkowicz.mqttspy.utils.ConversionUtils;
+import pl.baczkowicz.mqttspy.ui.scripts.InteractiveScriptManager;
+import pl.baczkowicz.spy.common.generated.ScriptDetails;
+import pl.baczkowicz.spy.formatting.FormattingManager;
+import pl.baczkowicz.spy.scripts.Script;
+import pl.baczkowicz.spy.ui.events.queuable.EventQueueManager;
+import pl.baczkowicz.spy.ui.storage.ManagedMessageStoreWithFiltering;
+import pl.baczkowicz.spy.utils.ConversionUtils;
 
 /**
  * Asynchronous MQTT connection with the extra UI elements required.
@@ -56,34 +56,35 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection
 	
 	private boolean isOpening;
 	
-	private final ManagedMessageStoreWithFiltering store;
+	private final ManagedMessageStoreWithFiltering<FormattedMqttMessage> store;
 
 	/** Maximum number of messages to store for this connection in each message store. */
 	private int preferredStoreSize;
 
 	private StatisticsManager statisticsManager;
 
-	private final EventManager eventManager;
+	private final EventManager<FormattedMqttMessage> eventManager;
 
 	private final InteractiveScriptManager scriptManager;
 
 	private MqttMessageLogger messageLogger;
 
 	public MqttAsyncConnection(final ReconnectionManager reconnectionManager, final RuntimeConnectionProperties properties, 
-			final MqttConnectionStatus status, final EventManager eventManager, 
+			final MqttConnectionStatus status, final EventManager<FormattedMqttMessage> eventManager, 
 			final InteractiveScriptManager scriptManager, final FormattingManager formattingManager,
-			final EventQueueManager uiEventQueue, final ConfigurationManager configurationManager)
+			final EventQueueManager<FormattedMqttMessage> uiEventQueue, final int summaryMaxPayloadLength)
 	{ 
 		super(reconnectionManager, properties);
+		setScriptManager(scriptManager);
 		
 		// Max size is double the preferred size
-		store = new ManagedMessageStoreWithFiltering(properties.getName(), 
+		store = new ManagedMessageStoreWithFiltering<FormattedMqttMessage>(properties.getName(), 
 				properties.getConfiguredProperties().getMinMessagesStoredPerTopic(), 
 				properties.getMaxMessagesStored(), 
 				properties.getMaxMessagesStored() * 2, 
-				uiEventQueue, eventManager,
+				uiEventQueue, //eventManager,
 				formattingManager,
-				UiProperties.getSummaryMaxPayloadLength(configurationManager));
+				summaryMaxPayloadLength);
 		
 		this.setPreferredStoreSize(properties.getMaxMessagesStored());
 		this.properties = properties;
@@ -96,7 +97,8 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection
 	{		
 		// TODO: we should only delete from the topic matcher when a subscription is closed for good, not when just unsubscribed
 		final List<String> matchingSubscriptionTopics = getTopicMatcher().getMatchingSubscriptions(receivedMessage.getTopic());
-					
+		logger.trace("Matching subscriptions = " + matchingSubscriptionTopics);
+		
 		final FormattedMqttMessage message = new FormattedMqttMessage(receivedMessage);		
 		
 		final List<String> matchingActiveSubscriptions = new ArrayList<String>();
@@ -151,8 +153,9 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection
 		// For all found subscriptions
 		for (final String matchingSubscriptionTopic : matchingSubscriptionTopics)
 		{					
+			logger.trace("Message on topic " + receivedMessage.getTopic() + " matched to " + matchingSubscriptionTopic);
 			// Get the mqtt-spy's subscription object
-			final BaseMqttSubscription mqttSubscription = subscriptions.get(matchingSubscriptionTopic);
+			final BaseMqttSubscription mqttSubscription = getMqttSubscriptionForTopic(matchingSubscriptionTopic);
 
 			// If a match has been found, and the subscription is active or we don't care
 			if (mqttSubscription != null && (anySubscription || mqttSubscription.isSubscribing() || mqttSubscription.isActive()))
@@ -166,11 +169,9 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection
 				message.setSubscription(mqttSubscription.getTopic());
 				foundMqttSubscription = mqttSubscription;
 				
-				if (mqttSubscription.getDetails() != null 
-						&& mqttSubscription.getDetails().getScriptFile() != null 
-						&& !mqttSubscription.getDetails().getScriptFile().isEmpty())
+				if (mqttSubscription.isScriptActive())
 				{
-					scriptManager.runScriptFileWithReceivedMessage(mqttSubscription.getDetails().getScriptFile(), message);
+					scriptManager.runScriptWithReceivedMessage(mqttSubscription.getScript(), message);
 				}
 				
 				// Pass the message for subscription handling
@@ -179,12 +180,18 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection
 				// Find only one matching subscription if checking non-active ones
 				if (anySubscription)
 				{
+					logger.trace("Found one match - exiting...");
 					break;
 				}
 			}
 		}			
 		
 		return foundMqttSubscription;
+	}
+	
+	public boolean publish(final String publicationTopic, final String data, final int qos)
+	{
+		return publish(publicationTopic, ConversionUtils.stringToArray(data), qos, false);
 	}
 	
 	public boolean publish(final String publicationTopic, final String data, final int qos, final boolean retained)
@@ -235,7 +242,7 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection
 			for (final ScriptDetails scriptDetails : properties.getConfiguredProperties().getBackgroundScript())
 			{
 				final File scriptFile = new File(scriptDetails.getFile());							
-				final Script script = scriptManager.getScripts().get(Script.getScriptIdFromFile(scriptFile));
+				final Script script = scriptManager.getScriptsMap().get(Script.getScriptIdFromFile(scriptFile));
 				
 				if (scriptDetails.isAutoStart() && scriptFile.exists() && script != null)
 				{					
@@ -284,7 +291,10 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection
 
 	public boolean unsubscribeAll(final boolean manualOverride)
 	{
-		for (final BaseMqttSubscription subscription : subscriptions.values())
+		// Copy the set of values so that we can start removing them from the 'subscriptions' map
+		final Set<BaseMqttSubscription> allSubscriptions = new HashSet<>(subscriptions.values()); 
+		
+		for (final BaseMqttSubscription subscription : allSubscriptions)
 		{
 			unsubscribe(subscription, manualOverride);
 		}
@@ -307,7 +317,15 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection
 		}
 
 		logger.debug("Unsubscribing from " + subscription.getTopic());
+		removeSubscriptionFromMatcher(subscription);
+		
 		final boolean unsubscribed = unsubscribe(subscription.getTopic());
+
+		// Run 'after' for script - TODO: move to BaseMqttConnection?
+		if (subscription.isScriptActive())
+		{
+			scriptManager.invokeAfter(subscription.getScript());
+		}
 		
 		subscription.setActive(false);
 		logger.trace("Subscription " + subscription.getTopic() + " is active = " + subscription.isActive());
@@ -362,7 +380,7 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection
 		this.preferredStoreSize = preferredStoreSize;
 	}
 	
-	public int getId()
+	public String getId()
 	{
 		return properties.getId();
 	}
@@ -395,7 +413,7 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection
 		eventManager.notifyConnectionStatusChanged(this);
 	}
 
-	public ManagedMessageStoreWithFiltering getStore()
+	public ManagedMessageStoreWithFiltering<FormattedMqttMessage> getStore()
 	{
 		return store;
 	}

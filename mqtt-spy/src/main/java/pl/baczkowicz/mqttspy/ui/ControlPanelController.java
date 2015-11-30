@@ -20,12 +20,16 @@
 package pl.baczkowicz.mqttspy.ui;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
 
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -37,41 +41,42 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.VBox;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
 import pl.baczkowicz.mqttspy.configuration.ConfiguredConnectionDetails;
-import pl.baczkowicz.mqttspy.configuration.PropertyFileLoader;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.connectivity.MqttConnectionStatus;
-import pl.baczkowicz.mqttspy.exceptions.ConfigurationException;
-import pl.baczkowicz.mqttspy.exceptions.XMLException;
+import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.ui.connections.ConnectionManager;
 import pl.baczkowicz.mqttspy.ui.controlpanel.ControlPanelStatsUpdater;
-import pl.baczkowicz.mqttspy.ui.controlpanel.ItemStatus;
 import pl.baczkowicz.mqttspy.ui.controlpanel.GettingInvolvedTooltip;
+import pl.baczkowicz.mqttspy.ui.controlpanel.ItemStatus;
 import pl.baczkowicz.mqttspy.ui.events.EventManager;
 import pl.baczkowicz.mqttspy.ui.events.observers.ConnectionStatusChangeObserver;
+import pl.baczkowicz.mqttspy.ui.events.observers.VersionInfoObserver;
+import pl.baczkowicz.mqttspy.ui.properties.VersionInfoProperties;
 import pl.baczkowicz.mqttspy.ui.utils.ActionUtils;
 import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
 import pl.baczkowicz.mqttspy.ui.utils.StylingUtils;
-import pl.baczkowicz.mqttspy.utils.ThreadingUtils;
 import pl.baczkowicz.mqttspy.versions.VersionManager;
 import pl.baczkowicz.mqttspy.versions.generated.MqttSpyVersions;
-import pl.baczkowicz.mqttspy.versions.generated.ReleaseStatus;
+import pl.baczkowicz.spy.configuration.PropertyFileLoader;
+import pl.baczkowicz.spy.exceptions.ConfigurationException;
+import pl.baczkowicz.spy.exceptions.XMLException;
+import pl.baczkowicz.spy.ui.configuration.ConfiguredConnectionGroupDetails;
+import pl.baczkowicz.spy.utils.ThreadingUtils;
 
 /**
  * The controller looking after the control panel.
  */
-public class ControlPanelController extends AnchorPane implements Initializable, ConnectionStatusChangeObserver
+public class ControlPanelController extends AnchorPane implements Initializable, ConnectionStatusChangeObserver, VersionInfoObserver
 {
 	private final static Logger logger = LoggerFactory.getLogger(ControlPanelController.class);
 
-	private static final double MAX_CONNECTIONS_HEIGHT = 250;
+	private static final double MAX_CONNECTIONS_HEIGHT = 350;
 	
 	/**
 	 * The name of this field needs to be set to the name of the pane +
@@ -109,7 +114,7 @@ public class ControlPanelController extends AnchorPane implements Initializable,
 
 	private MainController mainController;
 
-	private EventManager eventManager;
+	private EventManager<FormattedMqttMessage> eventManager;
 
 	private ConnectionManager connectionManager;
 	
@@ -133,16 +138,8 @@ public class ControlPanelController extends AnchorPane implements Initializable,
 	}
 		
 	public void init()
-	{			
-		try
-		{
-			this.versionManager = new VersionManager(configurationManager.getDefaultPropertyFile());
-		}
-		catch (XMLException e)
-		{
-			e.printStackTrace();
-		}
-		
+	{					
+		eventManager.registerVersionInfoObserver(this);
 		eventManager.registerConnectionStatusObserver(this, null);
 		controlPanelItem1Controller.setConfigurationMananger(configurationManager);
 		controlPanelItem2Controller.setConfigurationMananger(configurationManager);
@@ -255,7 +252,8 @@ public class ControlPanelController extends AnchorPane implements Initializable,
 	}	
 	
 	private void showPending(final String statusText, final MqttConnectionStatus status, 
-			final MqttAsyncConnection connection, final ConfiguredConnectionDetails connectionDetails, final Button connectionButton)
+			final MqttAsyncConnection connection, final ConfiguredConnectionDetails connectionDetails, 
+			final Button connectionButton, final String connectionName)
 	{			
 		connectionButton.getStyleClass().add(StylingUtils.getStyleForMqttConnectionStatus(status));	
 		connectionButton.setOnAction(ActionUtils.createNextAction(status, connection, connectionManager));
@@ -265,7 +263,7 @@ public class ControlPanelController extends AnchorPane implements Initializable,
 		buttonProgress.setMaxSize(15, 15);
 					
 		buttonBox.getChildren().add(buttonProgress);
-		buttonBox.getChildren().add(new Label(" " + statusText + " " + connectionDetails.getName()));
+		buttonBox.getChildren().add(new Label(" " + statusText + " " + connectionName));
 
 		connectionButton.setGraphic(buttonBox);
 		connectionButton.setText(null);
@@ -276,7 +274,7 @@ public class ControlPanelController extends AnchorPane implements Initializable,
 		MqttAsyncConnection connection = null; 
 		for (final MqttAsyncConnection openedConnection : connectionManager.getConnections())
 		{					
-			if (connectionDetails.getId() == openedConnection.getId())
+			if (connectionDetails.getID().equals(openedConnection.getId()))
 			{
 				connection = openedConnection;
 			}
@@ -285,15 +283,18 @@ public class ControlPanelController extends AnchorPane implements Initializable,
 		final Button connectionButton = new Button();
 		connectionButton.setFocusTraversable(false);
 		
+		// final String connectionName = connectionDetails.getFullName();
+		final String connectionName = connectionDetails.getName();
+		
 		if (connection != null)
 		{
-			logger.trace("Button for " + connectionDetails.getName() + " " 
+			logger.trace("Button for " + connectionName + " " 
 				+ connection.getConnectionStatus() + "/" + connection.isOpening() + "/" + connection.isOpened());
 		}
 		
 		if (connection == null || (!connection.isOpened() && !connection.isOpening()))
 		{
-			final String buttonText = "Open " + connectionDetails.getName(); 
+			final String buttonText = "Open " + connectionName; 
 			connectionButton.getStyleClass().add(StylingUtils.getStyleForMqttConnectionStatus(null));	
 			connectionButton.setOnAction(new EventHandler<ActionEvent>()
 			{						
@@ -316,15 +317,15 @@ public class ControlPanelController extends AnchorPane implements Initializable,
 		}		
 		else if (connection.isOpening())
 		{
-			showPending("Opening", null, connection, connectionDetails, connectionButton);
+			showPending("Opening", null, connection, connectionDetails, connectionButton, connectionName);
 		}
 		else if (connection.getConnectionStatus() == MqttConnectionStatus.CONNECTING)
 		{
-			showPending("Connecting to", connection.getConnectionStatus(), connection, connectionDetails, connectionButton);
+			showPending("Connecting to", connection.getConnectionStatus(), connection, connectionDetails, connectionButton, connectionName);
 		}
 		else if (connection.getConnectionStatus() != null)
 		{
-			final String buttonText = nextActionTitle.get(connection.getConnectionStatus()) + " " + connectionDetails.getName(); 
+			final String buttonText = nextActionTitle.get(connection.getConnectionStatus()) + " " + connectionName; 
 			connectionButton.getStyleClass().add(StylingUtils.getStyleForMqttConnectionStatus(connection.getConnectionStatus()));	
 			connectionButton.setOnAction(ActionUtils.createNextAction(connection.getConnectionStatus(), connection, connectionManager));
 			
@@ -342,34 +343,75 @@ public class ControlPanelController extends AnchorPane implements Initializable,
 		// Clear any previously displayed connections
 		while (controller.getCustomItems().getChildren().size() > 2) { controller.getCustomItems().getChildren().remove(2); }
 		
-		final int connections = configurationManager.getConnections().size();
-		if (connections > 0)
+		final int connectionCount = configurationManager.getConnections().size();
+		if (connectionCount > 0)
 		{
-			controller.setTitle("You have " + connections + " " + "connection" + (connections > 1 ? "s" : "") + " configured.");
+			controller.setTitle("You have " + connectionCount + " " + "connection" + (connectionCount > 1 ? "s" : "") + " configured.");
 			controller.setDetails("Click here to edit your connections or on the relevant button to open, connect, reconnect or disconnect.");
 			controller.setStatus(ItemStatus.OK);
 			
-			FlowPane buttons = new FlowPane();
-			buttons.setVgap(4);
-			buttons.setHgap(4);
-			buttons.setMaxHeight(Double.MAX_VALUE);
-			VBox.setVgrow(buttons, Priority.ALWAYS);
-			
-			for (final ConfiguredConnectionDetails connection : configurationManager.getConnections())
+			List<ConfiguredConnectionGroupDetails> groups = configurationManager.getOrderedGroups();		
+			List<Label> labels = new ArrayList<>();
+			for (final ConfiguredConnectionGroupDetails group : groups)
 			{
-				buttons.getChildren().add(createConnectionButton(connection));
-			}
-			
-			controller.getCustomItems().getChildren().add(buttons);
-			
-			button.setOnAction(new EventHandler<ActionEvent>()
-			{			
-				@Override
-				public void handle(ActionEvent event)
+				final List<ConfiguredConnectionDetails> connections = configurationManager.getConnections(group);
+				if (connections.isEmpty())
 				{
-					mainController.editConnections();			
+					continue;
 				}
-			});
+				
+				FlowPane buttons = new FlowPane();
+				buttons.setVgap(4);
+				buttons.setHgap(4);
+				buttons.setMaxHeight(Double.MAX_VALUE);
+				//VBox.setVgrow(buttons, Priority.SOMETIMES);
+				
+				if (groups.size() > 1)
+				{
+					final Label groupLabel = new Label(group.getFullName() + " : ");
+					
+					// Do some basic alignment
+					groupLabel.widthProperty().addListener(new ChangeListener<Number>()
+					{
+						@Override
+						public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue)
+						{
+							double maxWidth = 0;
+							for (final Label label : labels)
+							{
+								if (maxWidth < label.getWidth())
+								{
+									maxWidth = label.getWidth();
+								}
+							}
+							for (final Label label : labels)
+							{
+								logger.trace("Setting min width for " + label.getText() + " to " + maxWidth);
+								label.setMinWidth(maxWidth);
+							}							
+						}
+					});
+					labels.add(groupLabel);
+					buttons.getChildren().add(groupLabel);
+				}
+				
+				for (final ConfiguredConnectionDetails connection : connections)
+				// for (final ConfiguredConnectionDetails connection : configurationManager.getConnections())
+				{
+					buttons.getChildren().add(createConnectionButton(connection));
+				}
+				
+				controller.getCustomItems().getChildren().add(buttons);
+				
+				button.setOnAction(new EventHandler<ActionEvent>()
+				{			
+					@Override
+					public void handle(ActionEvent event)
+					{
+						mainController.editConnections();			
+					}
+				});
+			}
 		}
 		else
 		{
@@ -414,40 +456,20 @@ public class ControlPanelController extends AnchorPane implements Initializable,
 			{
 				try
 				{
+					versionManager.setLoading(true);
+					
 					// Wait some time for the app to start properly
 					ThreadingUtils.sleep(5000);					
 					
 					final MqttSpyVersions versions = versionManager.loadVersions();
-					logger.debug("Retrieved version info = " + versions.toString());
 					
-					// If all OK
-					Platform.runLater(new Runnable()
-					{						
-						@Override
-						public void run()
-						{
-							showUpdateInfo(controller, button);							
-						}
-					});
-
+					logger.debug("Retrieved version info = " + versions.toString());
+					eventManager.notifyVersionInfoRetrieved(versions);
 				}
 				catch (final XMLException e)
 				{
-					// If an error occurred
-					Platform.runLater(new Runnable()
-					{						
-						@Override
-						public void run()
-						{
-							controller.setStatus(ItemStatus.ERROR);
-							controller.setShowProgress(false);
-							controller.setTitle("Error occurred while getting version info. Please perform manual update.");
-							logger.error("Cannot retrieve version info", e);
-							
-							controller.refresh();
-						}
-					});
-
+					// If an error occurred					
+					eventManager.notifyVersionInfoError(e);				
 				}
 			}
 		}).start();		
@@ -458,37 +480,43 @@ public class ControlPanelController extends AnchorPane implements Initializable,
 	public void showUpdateInfo(final ControlPanelItemController controller, final Button button)
 	{
 		controller.setShowProgress(false);
-		if (versionManager.getVersions() != null)
-		{
-			boolean versionFound = false;
-			
-			for (final ReleaseStatus release : versionManager.getVersions().getReleaseStatuses().getReleaseStatus())
-			{
-				if (VersionManager.isInRange(configurationManager.getDefaultPropertyFile().getFullVersionNumber(), release))
-				{					
-					controller.setStatus(VersionManager.convertVersionStatus(release));
-					controller.setTitle(release.getUpdateTitle());
-					// TODO: might need to append version info
-					controller.setDetails(release.getUpdateDetails());
-					versionFound = true;
-					break;
-				}
-			}
-			
-			if (!versionFound)
-			{
-				controller.setStatus(ItemStatus.INFO);
-				controller.setTitle("Couldn't find any information about your version - please check manually.");
-				controller.setDetails("Your version is " + configurationManager.getDefaultPropertyFile().getFullVersionName() + ".");
-			}
-		}	
-		else
-		{
-			// Set the default state
-			controller.setStatus(ItemStatus.WARN);
-			controller.setTitle("Cannot check for updates - is your internet connection up?");
-			controller.setDetails("Click here to go to the download page for mqtt-spy.");
-		}
+		
+		final VersionInfoProperties properties = versionManager.getVersionInfoProperties(configurationManager);
+		controller.setStatus(properties.getStatus());
+		controller.setTitle(properties.getTitle());
+		controller.setDetails(properties.getDetails());
+		
+//		if (versionManager.getVersions() != null)
+//		{
+//			boolean versionFound = false;
+//			
+//			for (final ReleaseStatus release : versionManager.getVersions().getReleaseStatuses().getReleaseStatus())
+//			{
+//				if (VersionManager.isInRange(configurationManager.getDefaultPropertyFile().getFullVersionNumber(), release))
+//				{					
+//					controller.setStatus(VersionManager.convertVersionStatus(release));
+//					controller.setTitle(release.getUpdateTitle());
+//					// TODO: might need to append version info
+//					controller.setDetails(release.getUpdateDetails());
+//					versionFound = true;
+//					break;
+//				}
+//			}
+//			
+//			if (!versionFound)
+//			{
+//				controller.setStatus(ItemStatus.INFO);
+//				controller.setTitle("Couldn't find any information about your version - please check manually.");
+//				controller.setDetails("Your version is " + configurationManager.getDefaultPropertyFile().getFullVersionName() + ".");
+//			}
+//		}	
+//		else
+//		{
+//			// Set the default state
+//			controller.setStatus(ItemStatus.WARN);
+//			controller.setTitle("Cannot check for updates - is your internet connection up?");
+//			controller.setDetails("Click here to go to the download page for mqtt-spy.");
+//		}
 		
 		controller.refresh();
 	}
@@ -512,7 +540,7 @@ public class ControlPanelController extends AnchorPane implements Initializable,
 		this.mainController = mainController;
 	}
 
-	public void setEventManager(EventManager eventManager)
+	public void setEventManager(EventManager<FormattedMqttMessage> eventManager)
 	{
 		this.eventManager = eventManager;		
 	}
@@ -520,5 +548,42 @@ public class ControlPanelController extends AnchorPane implements Initializable,
 	public void setConnectionManager(final ConnectionManager connectionManager)
 	{
 		this.connectionManager = connectionManager;		
+	}
+
+	@Override
+	public void onVersionInfoReceived(final MqttSpyVersions versions)
+	{
+		// If all OK
+		Platform.runLater(new Runnable()
+		{						
+			@Override
+			public void run()
+			{
+				showUpdateInfo(controlPanelItem3Controller, button3);							
+			}
+		});
+	}
+
+	@Override
+	public void onVersionInfoError(final Exception e)
+	{
+		Platform.runLater(new Runnable()
+		{						
+			@Override
+			public void run()
+			{
+				controlPanelItem3Controller.setStatus(ItemStatus.ERROR);
+				controlPanelItem3Controller.setShowProgress(false);
+				controlPanelItem3Controller.setTitle("Error occurred while getting version info. Please perform manual update.");
+				logger.error("Cannot retrieve version info", e);
+				
+				controlPanelItem3Controller.refresh();
+			}
+		});		
+	}
+
+	public void setVersionManager(VersionManager versionManager)
+	{
+		this.versionManager = versionManager;		
 	}
 }

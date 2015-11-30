@@ -25,9 +25,9 @@ import org.slf4j.LoggerFactory;
 import javafx.application.Platform;
 import pl.baczkowicz.mqttspy.connectivity.handlers.MqttConnectionResultHandler;
 import pl.baczkowicz.mqttspy.connectivity.handlers.MqttEventHandler;
-import pl.baczkowicz.mqttspy.exceptions.MqttSpyException;
 import pl.baczkowicz.mqttspy.ui.events.queuable.connectivity.MqttConnectionAttemptFailureEvent;
-import pl.baczkowicz.mqttspy.utils.ThreadingUtils;
+import pl.baczkowicz.spy.exceptions.SpyException;
+import pl.baczkowicz.spy.utils.ThreadingUtils;
 
 public class MqttAsyncConnectionRunnable implements Runnable
 {
@@ -66,7 +66,7 @@ public class MqttAsyncConnectionRunnable implements Runnable
 			
 			// TODO: resubscribe when connection regained?
 		}
-		catch (MqttSpyException e)
+		catch (SpyException e)
 		{
 			Platform.runLater(new MqttEventHandler(new MqttConnectionAttemptFailureEvent(connection, e)));
 			logger.error("Cannot connect to " + connection.getProperties().getServerURI(), e);

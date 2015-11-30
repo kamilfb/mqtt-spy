@@ -19,12 +19,14 @@
  */
 package pl.baczkowicz.mqttspy.connectivity;
 
+import pl.baczkowicz.spy.connectivity.IConnection;
+
 /** 
  * Basic interface for interacting with an MQTT connection.
  * 
  * TODO: might need adding more methods from BaseMqttConnection
  */
-public interface IMqttConnection
+public interface IMqttConnection extends IConnection
 {
 	BaseMqttSubscription getMqttSubscriptionForTopic(final String topic);
 	

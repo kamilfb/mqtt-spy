@@ -25,9 +25,8 @@ import java.util.List;
 
 import org.eclipse.paho.client.mqttv3.MqttTopic;
 
-import pl.baczkowicz.mqttspy.common.generated.ProtocolEnum;
-import pl.baczkowicz.mqttspy.exceptions.MqttSpyException;
-import pl.baczkowicz.mqttspy.utils.ConversionUtils;
+import pl.baczkowicz.mqttspy.common.generated.ProtocolVersionEnum;
+import pl.baczkowicz.spy.exceptions.SpyException;
 
 /**
  * MQTT utilities.
@@ -85,7 +84,7 @@ public class MqttUtils
 	 * 
 	 * @return The generated client ID
 	 */
-	public static String generateClientIdWithTimestamp(final String clientId, final ProtocolEnum protocol)
+	public static String generateClientIdWithTimestamp(final String clientId, final ProtocolVersionEnum protocol)
 	{
 		final int addedLength = CLIENT_ID_TIMESTAMP_FORMAT.length() + CLIENT_ID_TIMESTAMP_DELIMITER.length();
 		final int index = clientId.lastIndexOf(CLIENT_ID_TIMESTAMP_DELIMITER);
@@ -107,9 +106,9 @@ public class MqttUtils
 		return newClientId;
 	}
 	
-	public static boolean limitClientId(final ProtocolEnum protocol)
+	public static boolean limitClientId(final ProtocolVersionEnum protocol)
 	{
-		if (ProtocolEnum.MQTT_3_1.equals(protocol) || ProtocolEnum.MQTT_DEFAULT.equals(protocol))
+		if (ProtocolVersionEnum.MQTT_3_1.equals(protocol) || ProtocolVersionEnum.MQTT_DEFAULT.equals(protocol))
 		{
 			return true;
 		}
@@ -140,30 +139,6 @@ public class MqttUtils
 		return serverURI;
 	}
 	
-	/**
-	 * Encodes the given password to Base 64.
-	 * 
-	 * @param value The password to encode
-	 * 
-	 * @return The encoded password
-	 */
-	public static String encodePassword(final String value)
-	{
-		return ConversionUtils.stringToBase64(value);
-	}
-	
-	/**
-	 * Decodes the given password from Base 64.
-	 * 
-	 * @param value The password to decode
-	 * 
-	 * @return The decoded password
-	 */
-	public static String decodePassword(final String value)
-	{
-		return ConversionUtils.base64ToString(value);
-	}
-	
 	public static boolean recordTopic(final String newTopic, final List<String> topics)
 	{
 		final boolean contains = topics.contains(newTopic);
@@ -177,7 +152,7 @@ public class MqttUtils
 		return false;		
 	}
 	
-	public static void validateTopic(final String topic) throws MqttSpyException
+	public static void validateTopic(final String topic) throws SpyException
 	{
 		try
 		{
@@ -185,7 +160,7 @@ public class MqttUtils
 		}
 		catch (Exception e)
 		{
-			throw new MqttSpyException(e.getMessage(), e);
+			throw new SpyException(e.getMessage(), e);
 		}
 	}
 }

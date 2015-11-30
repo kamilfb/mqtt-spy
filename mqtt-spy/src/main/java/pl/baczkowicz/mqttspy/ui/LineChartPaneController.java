@@ -3,15 +3,8 @@
  * Copyright (c) 2013-2015 Jason Winnebeck, Kamil Baczkowicz
  * 
  * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0, 
- * Eclipse Distribution License v1.0 and Apache License Version 2.0 which 
+ * are made available under the terms of the Apache License Version 2.0 which 
  * accompany this distribution.
- *
- * The Eclipse Public License is available at
- *    http://www.eclipse.org/legal/epl-v10.html
- *    
- * The Eclipse Distribution License is available at
- *   http://www.eclipse.org/org/documents/edl-v10.php
  *    
  * The Apache License Version 2.0 is available at
  *    http://www.apache.org/licenses/LICENSE-2.0
@@ -72,21 +65,21 @@ import org.gillius.jfxutils.chart.JFXChartUtil;
 import org.gillius.jfxutils.chart.StableTicksAxis;
 
 import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
-import pl.baczkowicz.mqttspy.storage.BasicMessageStoreWithSummary;
-import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.ui.charts.ChartMode;
 import pl.baczkowicz.mqttspy.ui.events.EventManager;
-import pl.baczkowicz.mqttspy.ui.events.observers.MessageAddedObserver;
-import pl.baczkowicz.mqttspy.ui.events.queuable.ui.BrowseReceivedMessageEvent;
-import pl.baczkowicz.mqttspy.ui.properties.MessageLimitProperties;
-import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
 import pl.baczkowicz.mqttspy.ui.utils.StylingUtils;
-import pl.baczkowicz.mqttspy.utils.TimeUtils;
+import pl.baczkowicz.spy.messages.FormattedMessage;
+import pl.baczkowicz.spy.ui.events.observers.MessageAddedObserver;
+import pl.baczkowicz.spy.ui.events.queuable.ui.BrowseReceivedMessageEvent;
+import pl.baczkowicz.spy.ui.properties.MessageLimitProperties;
+import pl.baczkowicz.spy.ui.storage.BasicMessageStoreWithSummary;
+import pl.baczkowicz.spy.ui.utils.DialogFactory;
+import pl.baczkowicz.spy.utils.TimeUtils;
 
 /**
  * Controller for line chart pane.
  */
-public class LineChartPaneController implements Initializable, MessageAddedObserver
+public class LineChartPaneController<T extends FormattedMessage> implements Initializable, MessageAddedObserver<T>
 {
 	private static boolean lastAutoRefresh = true;
 	
@@ -116,15 +109,15 @@ public class LineChartPaneController implements Initializable, MessageAddedObser
 	@FXML
 	private MenuButton optionsButton;
 	
-	private BasicMessageStoreWithSummary store;
+	private BasicMessageStoreWithSummary<T> store;
 
-	private EventManager eventManager;
+	private EventManager<T> eventManager;
 	
 	private MqttSubscription subscription;
 
 	private Collection<String> topics;
 	
-	private Map<String, List<FormattedMqttMessage>> chartData = new HashMap<>();
+	private Map<String, List<FormattedMessage>> chartData = new HashMap<>();
 	
 	private Map<String, Series<Number, Number>> topicToSeries = new LinkedHashMap<>();
 	
@@ -209,28 +202,28 @@ public class LineChartPaneController implements Initializable, MessageAddedObser
 	public void init()
 	{		
 		showRangeBox.setCellFactory(new Callback<ListView<MessageLimitProperties>, ListCell<MessageLimitProperties>>()
+		{
+			@Override
+			public ListCell<MessageLimitProperties> call(ListView<MessageLimitProperties> l)
+			{
+				return new ListCell<MessageLimitProperties>()
 				{
 					@Override
-					public ListCell<MessageLimitProperties> call(ListView<MessageLimitProperties> l)
+					protected void updateItem(MessageLimitProperties item, boolean empty)
 					{
-						return new ListCell<MessageLimitProperties>()
+						super.updateItem(item, empty);
+						if (item == null || empty)
 						{
-							@Override
-							protected void updateItem(MessageLimitProperties item, boolean empty)
-							{
-								super.updateItem(item, empty);
-								if (item == null || empty)
-								{
-									setText(null);
-								}
-								else
-								{									
-									setText(item.getName());
-								}
-							}
-						};
+							setText(null);
+						}
+						else
+						{									
+							setText(item.getName());
+						}
 					}
-				});
+				};
+			}
+		});
 		showRangeBox.setConverter(new StringConverter<MessageLimitProperties>()
 		{
 			@Override
@@ -365,7 +358,7 @@ public class LineChartPaneController implements Initializable, MessageAddedObser
 	private void divideMessagesByTopic(final Collection<String> topics)
 	{
 		chartData.clear();
-		for (final FormattedMqttMessage message : store.getMessages())
+		for (final FormattedMessage message : store.getMessages())
 		{
 			final String topic = message.getTopic();
 			// logger.info("Topics = " + topics);
@@ -381,7 +374,7 @@ public class LineChartPaneController implements Initializable, MessageAddedObser
 	{
 		if (chartData.get(topic) == null)
 		{
-			chartData.put(topic, new ArrayList<FormattedMqttMessage>());
+			chartData.put(topic, new ArrayList<FormattedMessage>());
 		}
 	}
 	
@@ -403,7 +396,7 @@ public class LineChartPaneController implements Initializable, MessageAddedObser
 		lineChart.setAnimated(true);
 	}
 	
-	private XYChart.Data<Number, Number> createDataObject(final FormattedMqttMessage message)
+	private XYChart.Data<Number, Number> createDataObject(final FormattedMessage message)
 	{
 		if (ChartMode.USER_DRIVEN_MSG_PAYLOAD.equals(chartMode))
 		{
@@ -423,7 +416,7 @@ public class LineChartPaneController implements Initializable, MessageAddedObser
 		return null;
 	}
 	
-	private void addMessageToSeries(final Series<Number, Number> series, final FormattedMqttMessage message)
+	private void addMessageToSeries(final Series<Number, Number> series, final FormattedMessage message)
 	{
 		try
     	{
@@ -433,9 +426,15 @@ public class LineChartPaneController implements Initializable, MessageAddedObser
     	{
     		if (!warningShown && ChartMode.USER_DRIVEN_MSG_PAYLOAD.equals(chartMode))
     		{
-    			DialogUtils.showWarning(
+    			String payload = message.getFormattedPayload();
+    			if (payload.length() > 25)
+    			{
+    				payload = payload.substring(0, 25) + "...";
+    			}
+    			
+    			DialogFactory.createWarningDialog(
     					"Invalid content",
-    					"Payload \"" + message.getFormattedPayload() 
+    					"Payload \"" + payload 
     					+ "\" on \"" + message.getTopic() 
     					+ "\" cannot be converted to a number - ignoring all invalid values.");
     					
@@ -456,7 +455,7 @@ public class LineChartPaneController implements Initializable, MessageAddedObser
 			
 			for (final String topic : topics)
 			{
-				final List<FormattedMqttMessage> extractedMessages = new ArrayList<>();
+				final List<FormattedMessage> extractedMessages = new ArrayList<>();
 				final Series<Number, Number> series = new XYChart.Series<>();
 				topicToSeries.put(topic, series);
 		        series.setName(topic);
@@ -476,7 +475,7 @@ public class LineChartPaneController implements Initializable, MessageAddedObser
 		        
 		        for (int i = startIndex; i < itemsAvailable; i++)
 		        {
-		        	final FormattedMqttMessage message = chartData.get(topic).get(chartData.get(topic).size() - i - 1);
+		        	final FormattedMessage message = chartData.get(topic).get(chartData.get(topic).size() - i - 1);
 		        	
 		        	if (limit.getTimeLimit() > 0 && (message.getDate().getTime() + limit.getTimeLimit() < now.getTime()))
 		        	{
@@ -531,15 +530,15 @@ public class LineChartPaneController implements Initializable, MessageAddedObser
 	
 	// TODO: optimise message handling
 	@Override
-	public void onMessageAdded(final List<BrowseReceivedMessageEvent> events)
+	public void onMessageAdded(final List<BrowseReceivedMessageEvent<T>> events)
 	{
-		for (final BrowseReceivedMessageEvent event : events)
+		for (final BrowseReceivedMessageEvent<T> event : events)
 		{
 			onMessageAdded(event.getMessage());
 		}
 	}
 	
-	public void onMessageAdded(final FormattedMqttMessage message)
+	public void onMessageAdded(final FormattedMessage message)
 	{
 		// TODO: is that ever deregistered?
 		synchronized (chartData)
@@ -565,7 +564,7 @@ public class LineChartPaneController implements Initializable, MessageAddedObser
 				final Date now = new Date();
 				if (limit.getTimeLimit() > 0)
 				{
-					FormattedMqttMessage oldestMessage = chartData.get(topic).get(0);
+					FormattedMessage oldestMessage = chartData.get(topic).get(0);
 					while (oldestMessage.getDate().getTime() + limit.getTimeLimit() < now.getTime())
 					{
 						chartData.get(topic).remove(0);
@@ -612,12 +611,12 @@ public class LineChartPaneController implements Initializable, MessageAddedObser
 		this.subscription = subscription;		
 	}
 	
-	public void setEventManager(final EventManager eventManager)
+	public void setEventManager(final EventManager<T> eventManager)
 	{
 		this.eventManager = eventManager;
 	}
 	
-	public void setStore(final BasicMessageStoreWithSummary store)
+	public void setStore(final BasicMessageStoreWithSummary<T> store)
 	{
 		this.store = store;		
 	}	

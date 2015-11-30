@@ -19,20 +19,27 @@
  */
 package pl.baczkowicz.mqttspy.daemon.connectivity;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import pl.baczkowicz.mqttspy.common.generated.ReconnectionSettings;
-import pl.baczkowicz.mqttspy.common.generated.ScriptDetails;
 import pl.baczkowicz.mqttspy.common.generated.SubscriptionDetails;
+import pl.baczkowicz.mqttspy.connectivity.BaseMqttSubscription;
 import pl.baczkowicz.mqttspy.connectivity.SimpleMqttConnection;
 import pl.baczkowicz.mqttspy.daemon.configuration.generated.DaemonMqttConnectionDetails;
-import pl.baczkowicz.mqttspy.scripts.ScriptManager;
 import pl.baczkowicz.mqttspy.utils.ConnectionUtils;
-import pl.baczkowicz.mqttspy.utils.ThreadingUtils;
+import pl.baczkowicz.spy.common.generated.ScriptDetails;
+import pl.baczkowicz.spy.scripts.BaseScriptManager;
+import pl.baczkowicz.spy.utils.ThreadingUtils;
 
 /**
  * This runnable is responsible for establishing a connection.
  */
 public class SimpleMqttConnectionRunnable implements Runnable
 {
+	/** Diagnostic logger. */
+	private final static Logger logger = LoggerFactory.getLogger(SimpleMqttConnectionRunnable.class);
+	
 	/** The connection to be used. */	
 	private final SimpleMqttConnection connection;
 	
@@ -40,7 +47,7 @@ public class SimpleMqttConnectionRunnable implements Runnable
 	private final DaemonMqttConnectionDetails connectionSettings;
 
 	/** The script manager - used for subscription scripts. */
-	private final ScriptManager scriptManager;
+	private final BaseScriptManager scriptManager;
 
 	/**
 	 * Creates a ConnectionRunnable.
@@ -49,7 +56,7 @@ public class SimpleMqttConnectionRunnable implements Runnable
 	 * @param connection The connection to be used
 	 * @param connectionSettings The connection settings to be used
 	 */
-	public SimpleMqttConnectionRunnable(final ScriptManager scriptManager, final SimpleMqttConnection connection, final DaemonMqttConnectionDetails connectionSettings)
+	public SimpleMqttConnectionRunnable(final BaseScriptManager scriptManager, final SimpleMqttConnection connection, final DaemonMqttConnectionDetails connectionSettings)
 	{
 		this.connection = connection;
 		this.connectionSettings = connectionSettings;
@@ -70,14 +77,19 @@ public class SimpleMqttConnectionRunnable implements Runnable
 				&& (neverStarted || (reconnectionSettings != null && reconnectionSettings.isResubscribe())))
 		{
 			// Subscribe to all configured subscriptions
-			for (final SubscriptionDetails subscription : connectionSettings.getSubscription())
+			for (final SubscriptionDetails subscriptionDetails : connectionSettings.getSubscription())
 			{	
-				if (neverStarted && subscription.getScriptFile() != null)
+				if (neverStarted && subscriptionDetails.getScriptFile() != null)
 				{
-					scriptManager.addScript(new ScriptDetails(true, false, subscription.getScriptFile()));
+					logger.debug("Adding script " + subscriptionDetails.getScriptFile());
+					scriptManager.addScript(new ScriptDetails(true, false, subscriptionDetails.getScriptFile()));
 				}
-					
-				connection.subscribe(subscription.getTopic(), subscription.getQos());							
+				
+				final BaseMqttSubscription subscription = new BaseMqttSubscription(
+						subscriptionDetails.getTopic(), subscriptionDetails.getQos()); 
+				subscription.setDetails(subscriptionDetails);
+				
+				connection.subscribe(subscription);					
 			}
 		}
 		

@@ -20,9 +20,9 @@
 package pl.baczkowicz.mqttspy.ui.events.queuable.connectivity;
 
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
-import pl.baczkowicz.mqttspy.events.MqttSpyEvent;
+import pl.baczkowicz.spy.events.SpyEvent;
 
-public class MqttConnectionSuccessEvent implements MqttSpyEvent
+public class MqttConnectionSuccessEvent implements SpyEvent
 {
 	private final MqttAsyncConnection connection;
 	

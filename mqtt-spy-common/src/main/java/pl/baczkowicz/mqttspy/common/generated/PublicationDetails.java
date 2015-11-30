@@ -11,6 +11,7 @@
 
 package pl.baczkowicz.mqttspy.common.generated;
 
+import java.io.Serializable;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -51,9 +52,10 @@ import org.jvnet.jaxb2_commons.locator.util.LocatorUtils;
 @SuppressWarnings("all")
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "PublicationDetails")
-public class PublicationDetails implements Cloneable, CopyTo, Equals, HashCode, ToString
+public class PublicationDetails implements Serializable, Cloneable, CopyTo, Equals, HashCode, ToString
 {
 
+    private final static long serialVersionUID = 1L;
     @XmlAttribute(name = "topic", required = true)
     protected String topic;
 

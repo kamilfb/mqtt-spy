@@ -40,17 +40,21 @@ import pl.baczkowicz.mqttspy.configuration.generated.TabbedSubscriptionDetails;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.connectivity.MqttConnectionStatus;
 import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
-import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
+import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
+import pl.baczkowicz.mqttspy.scripts.MqttScriptManager;
 import pl.baczkowicz.mqttspy.ui.ConnectionController;
 import pl.baczkowicz.mqttspy.ui.SubscriptionController;
 import pl.baczkowicz.mqttspy.ui.events.EventManager;
-import pl.baczkowicz.mqttspy.ui.events.queuable.EventQueueManager;
-import pl.baczkowicz.mqttspy.ui.panes.PaneVisibilityStatus;
-import pl.baczkowicz.mqttspy.ui.panes.TabStatus;
 import pl.baczkowicz.mqttspy.ui.utils.ContextMenuUtils;
-import pl.baczkowicz.mqttspy.ui.utils.FxmlUtils;
 import pl.baczkowicz.mqttspy.ui.utils.StylingUtils;
-import pl.baczkowicz.mqttspy.ui.utils.TabUtils;
+import pl.baczkowicz.spy.formatting.FormattingManager;
+import pl.baczkowicz.spy.ui.configuration.UiProperties;
+import pl.baczkowicz.spy.ui.events.queuable.EventQueueManager;
+import pl.baczkowicz.spy.ui.panes.PaneVisibilityStatus;
+import pl.baczkowicz.spy.ui.panes.TabStatus;
+import pl.baczkowicz.spy.ui.storage.ManagedMessageStoreWithFiltering;
+import pl.baczkowicz.spy.ui.utils.FxmlUtils;
+import pl.baczkowicz.spy.ui.utils.TabUtils;
 
 /**
  * Class for managing subscription tabs.
@@ -70,7 +74,7 @@ public class SubscriptionManager
 	private final Map<String, SubscriptionController> subscriptionControllers = new LinkedHashMap<>();
 	
 	/** UI event queue to be used. */
-	private final EventQueueManager uiEventQueue;
+	private final EventQueueManager<FormattedMqttMessage> uiEventQueue;
 
 	/** Configuration manager. */
 	private ConfigurationManager configurationManager;
@@ -82,7 +86,8 @@ public class SubscriptionManager
 	 * @param configurationManager The configuration manager
 	 * @param uiEventQueue The UI event queue to be used
 	 */
-	public SubscriptionManager(final EventManager eventManager, final ConfigurationManager configurationManager, final EventQueueManager uiEventQueue)
+	public SubscriptionManager(final EventManager eventManager, final ConfigurationManager configurationManager, 
+		final EventQueueManager<FormattedMqttMessage> uiEventQueue)
 	{
 		this.eventManager = eventManager;
 		this.configurationManager = configurationManager;
@@ -108,8 +113,9 @@ public class SubscriptionManager
 		final MqttSubscription subscription = new MqttSubscription(subscriptionDetails.getTopic(),
 				subscriptionDetails.getQos(), color,
 				connection.getProperties().getConfiguredProperties().getMinMessagesStoredPerTopic(),
-				connection.getPreferredStoreSize(), uiEventQueue, eventManager, configurationManager, 
-				connection.getStore().getFormattingManager());
+				connection.getPreferredStoreSize(), uiEventQueue, eventManager, 
+				connection.getStore().getFormattingManager(),
+				UiProperties.getSummaryMaxPayloadLength(configurationManager.getUiPropertyFile()));
 		subscription.setConnection(connection);
 		subscription.setDetails(subscriptionDetails);
 		
@@ -159,7 +165,7 @@ public class SubscriptionManager
 	 * @return Created subscription controller for the tab
 	 */
 	protected SubscriptionController createSubscriptionTab(final boolean allTab, 
-			final ManagedMessageStoreWithFiltering observableMessageStore, final MqttSubscription subscription,
+			final ManagedMessageStoreWithFiltering<FormattedMqttMessage> observableMessageStore, final MqttSubscription subscription,
 			final MqttAsyncConnection connection, final ConnectionController connectionController)
 	{
 		// Load a new tab and connection pane
@@ -177,11 +183,17 @@ public class SubscriptionManager
 		subscriptionController.setStore(observableMessageStore);
 		subscriptionController.setEventManager(eventManager);
 		subscriptionController.setConfingurationManager(configurationManager);
-		subscriptionController.setFormattingManager(connection.getStore().getFormattingManager());
+		if (connection != null)
+		{
+			subscriptionController.setFormattingManager(connection.getStore().getFormattingManager());
+			subscriptionController.setConnectionProperties(connection.getProperties());
+		}
+		else
+		{
+			subscriptionController.setFormattingManager(new FormattingManager(new MqttScriptManager(null, null, null)));
+		}
 		subscriptionController.setTab(tab);
 		subscriptionController.toggleMessagePayloadSize(connectionController.getResizeMessageContentMenu().isSelected());
-		
-		subscriptionController.setConnectionProperties(connection.getProperties());
 				
 		tab.setClosable(false);
 		tab.setContent(subscriptionPane);
@@ -264,6 +276,9 @@ public class SubscriptionManager
 	 */
 	public static void updateSubscriptionTabContextMenu(final Tab tab, final MqttSubscription subscription)
 	{
+		logger.debug("Updating subscription tab context menu [{}, {}, {}]", 
+				subscription.getTopic(), subscription.getConnection().getConnectionStatus(), subscription.isActive());
+		
 		// Update title style
 		tab.getGraphic().getStyleClass().remove(tab.getGraphic().getStyleClass().size() - 1);
 		if (subscription.isActive())

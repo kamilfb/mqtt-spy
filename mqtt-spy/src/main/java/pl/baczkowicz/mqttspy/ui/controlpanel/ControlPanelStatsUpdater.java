@@ -35,9 +35,9 @@ import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import pl.baczkowicz.mqttspy.stats.StatisticsManager;
 import pl.baczkowicz.mqttspy.ui.ControlPanelItemController;
-import pl.baczkowicz.mqttspy.utils.FormattingUtils;
-import pl.baczkowicz.mqttspy.utils.ThreadingUtils;
-import pl.baczkowicz.mqttspy.utils.TimeUtils;
+import pl.baczkowicz.spy.formatting.FormattingUtils;
+import pl.baczkowicz.spy.utils.ThreadingUtils;
+import pl.baczkowicz.spy.utils.TimeUtils;
 
 /**
  * Class responsible for updating control panel statistics.
@@ -137,19 +137,19 @@ public class ControlPanelStatsUpdater implements Runnable
 		controlPanelItemController.getDetails().getChildren().addAll(items);
 		
 		statsPlaying = true;
-		ControlPanelItemController.setButtonProperties(controlPanelItemController.getButton1(), "/images/pause.png", true, new EventHandler<ActionEvent>()
+		ControlPanelItemController.setButtonProperties(controlPanelItemController.getButton1(), "/images/small/pause.png", true, new EventHandler<ActionEvent>()
 		{			
 			@Override
 			public void handle(ActionEvent event)
 			{
 				if (statsPlaying)
 				{
-					ControlPanelItemController.setButtonProperties(controlPanelItemController.getButton1(), "/images/play.png", true);
+					ControlPanelItemController.setButtonProperties(controlPanelItemController.getButton1(), "/images/small/play.png", true);
 					statsPlaying = false;
 				}
 				else
 				{
-					ControlPanelItemController.setButtonProperties(controlPanelItemController.getButton1(), "/images/pause.png", true);
+					ControlPanelItemController.setButtonProperties(controlPanelItemController.getButton1(), "/images/small/pause.png", true);
 					statsPlaying = true;
 				}
 				event.consume();

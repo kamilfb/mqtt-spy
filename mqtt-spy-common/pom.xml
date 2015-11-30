@@ -3,7 +3,10 @@
 	
 	<groupId>pl.baczkowicz.mqttspy</groupId>
 	<artifactId>mqtt-spy-common</artifactId>
-	<version>0.0.10</version>
+	<version>0.0.14</version>
+	
+	<name>mqtt-spy-common</name>
+	<url>http://kamilfb.github.io/mqtt-spy/</url>
   
   	<properties>
   		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>  		
@@ -36,34 +39,16 @@
   	<dependencies>
 
 		<dependency>
-			<groupId>commons-codec</groupId>
-			<artifactId>commons-codec</artifactId>
-			<version>1.9</version>
-		</dependency>
-		
-		<dependency>
-			<groupId>org.bouncycastle</groupId>
-			<artifactId>bcprov-jdk15on</artifactId>
-			<version>1.52</version>
-		</dependency>
+			<groupId>pl.baczkowicz.spy</groupId>
+			<artifactId>spy-common</artifactId>
+			<version>0.0.1</version>
+		</dependency>		
 		
 		<dependency>
 			<groupId>org.eclipse.paho</groupId>
 			<artifactId>org.eclipse.paho.client.mqttv3</artifactId>
 			<version>1.0.2</version>
 		</dependency> 
-
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-api</artifactId>
-			<version>1.7.7</version>
-		</dependency>
-		
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-log4j12</artifactId>
-			<version>1.7.7</version>
-		</dependency>
 				
 		<dependency>
 			<groupId>org.dna.mqtt</groupId>
@@ -131,6 +116,7 @@
 		</dependency>
 		
 		<!--=== SCHEMAS/JAXB === -->
+		
 	    <dependency>
 	      <groupId>org.jvnet.jaxb2.maven2</groupId>
 	      <artifactId>maven-jaxb2-plugin</artifactId>
@@ -147,17 +133,19 @@
 			<groupId>org.jvnet.jaxb2_commons</groupId>
 			<artifactId>jaxb2-commons-lang</artifactId>
 			<version>2.4</version>
-		</dependency>		
+		</dependency>	
+			
 		<dependency>
 			<groupId>org.jvnet.jaxb2_commons</groupId>
 			<artifactId>jaxb2-basics-runtime</artifactId>
 			<version>0.9.4</version>
 		</dependency>	
+		
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-lang3</artifactId>
 			<version>3.4</version>
-		</dependency>	
+		</dependency>					
 
 		<!--=== TEST === -->
 	
@@ -200,29 +188,47 @@
 	            <groupId>org.jvnet.jaxb2_commons</groupId>
 	            <artifactId>jaxb2-basics</artifactId>
 	            <version>0.9.4</version>
-	        </plugin>        	
+	        </plugin>       
 			<plugin>
 			    <groupId>org.jvnet.jaxb2.maven2</groupId>
 			    <artifactId>maven-jaxb2-plugin</artifactId>
-			    <version>0.12.3</version>
-			    <executions>
-			    
+			    <version>0.12.0</version>
+			    <executions>						     
+			        
 			        <execution>
-			            <id>configuration</id>
+			            <id>mqtt-spy-configuration</id>
 			            <phase>generate-resources</phase>
 			            <goals>
 			                <goal>generate</goal>
 			            </goals>
 			            <configuration>
 			            	<extension>true</extension>
-			            	<episode>true</episode>
 			                <schemaDirectory>src/main/resources/</schemaDirectory>
 			                <schemaIncludes>
 			                    <include>mqtt-spy-common.xsd</include>
 			                </schemaIncludes>			                 
-			                <generateDirectory>src/main/java/</generateDirectory>			                
-			                <generatePackage>pl.baczkowicz.mqttspy.common.generated</generatePackage>
-			                <removeOldOutput>false</removeOldOutput>
+			                <generateDirectory>src/main/java/</generateDirectory>
+			                <removeOldOutput>false</removeOldOutput>			               
+
+			                <catalogs>
+			                	<catalog>
+			                		<dependencyResource>
+			                			<groupId>pl.baczkowicz.spy</groupId>
+			                			<artifactId>spy-common</artifactId>
+			                			<resource>spy-common.catalog</resource>
+			                		</dependencyResource>
+			                	</catalog>
+			                </catalogs>
+			                
+			                <episode>true</episode>
+			                
+			                <episodes>
+			                	<episode>
+			                		<groupId>pl.baczkowicz.spy</groupId>
+			                		<artifactId>spy-common</artifactId>
+			                	</episode>
+			                </episodes>
+
 			                <args>			                
 						        <arg>-XtoString</arg>
 						        <arg>-Xequals</arg>
@@ -238,7 +244,7 @@
 								</plugin>
 							</plugins>
 			            </configuration>			            			          
-			        </execution>			       
+			        </execution>	       
 			        			 
 			    </executions>		
 			    <dependencies>
@@ -249,8 +255,7 @@
 					</dependency>
 			    </dependencies>	    
 			</plugin> 
-			 
-			
+			 			
 	       <plugin>
 	           <groupId>com.google.code.maven-replacer-plugin</groupId>
 	           <artifactId>replacer</artifactId>

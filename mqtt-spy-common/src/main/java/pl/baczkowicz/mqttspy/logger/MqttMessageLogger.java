@@ -25,9 +25,9 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.RollingFileAppender;
 
 import pl.baczkowicz.mqttspy.common.generated.MessageLog;
-import pl.baczkowicz.mqttspy.messages.BaseMqttMessageWithSubscriptions;
-import pl.baczkowicz.mqttspy.utils.ThreadingUtils;
+import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.utils.Utils;
+import pl.baczkowicz.spy.utils.ThreadingUtils;
 
 /**
  * This class is responsible for handling logging messages.
@@ -44,7 +44,7 @@ public class MqttMessageLogger implements Runnable
 	private Logger localLogger;
 	
 	/** Received messages that are to be logged. */
-	private final Queue<BaseMqttMessageWithSubscriptions> queue;
+	private final Queue<FormattedMqttMessage> queue;
 
 	/** Message log settings. */
 	private final MessageLog messageLogSettings;
@@ -62,7 +62,7 @@ public class MqttMessageLogger implements Runnable
 	 * @param connectionSettings The connection details
 	 */
 	public MqttMessageLogger(
-			final int connectionId, final Queue<BaseMqttMessageWithSubscriptions> queue, 
+			final String connectionId, final Queue<FormattedMqttMessage> queue, 
 			final MessageLog messageLogSettings, 
 			final boolean useAsTemplate, final int sleepWhenNoMessages)
 	{
@@ -114,11 +114,11 @@ public class MqttMessageLogger implements Runnable
 					mesagesProcessed++;
 					if (localLogger != null)
 					{
-						localLogger.info(SimpleMessageLogComposer.createReceivedMessageLog(queue.remove(), messageLogSettings));
+						localLogger.info(SimpleMqttMessageLogComposer.createReceivedMessageLog(queue.remove(), messageLogSettings));
 					}
 					else
 					{
-						logger.info(SimpleMessageLogComposer.createReceivedMessageLog(queue.remove(), messageLogSettings));
+						logger.info(SimpleMqttMessageLogComposer.createReceivedMessageLog(queue.remove(), messageLogSettings));
 					}
 					
 					if (mesagesProcessed > LOG_INTERVAL)
@@ -168,7 +168,7 @@ public class MqttMessageLogger implements Runnable
 		running = false;
 	}
 	
-	public Queue<BaseMqttMessageWithSubscriptions> getQueue()
+	public Queue<FormattedMqttMessage> getQueue()
 	{
 		return queue;
 	}

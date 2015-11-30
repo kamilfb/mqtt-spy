@@ -26,8 +26,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
-import pl.baczkowicz.mqttspy.exceptions.XMLException;
-import pl.baczkowicz.mqttspy.xml.XMLParser;
+import pl.baczkowicz.spy.exceptions.XMLException;
+import pl.baczkowicz.spy.xml.XMLParser;
 
 public class XMLParserTest
 {
@@ -38,7 +38,7 @@ public class XMLParserTest
 	{
 		parser = new XMLParser(
 				ConfigurationManager.PACKAGE, 
-				new String[] {ConfigurationManager.COMMON_SCHEMA, ConfigurationManager.SCHEMA});
+				new String[] {ConfigurationManager.SPY_COMMON_SCHEMA, ConfigurationManager.MQTT_COMMON_SCHEMA, ConfigurationManager.SCHEMA});
 	}
 
 	@Test

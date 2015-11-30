@@ -24,22 +24,46 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.jmock.Expectations;
+import org.jmock.Mockery;
+import org.jmock.lib.legacy.ClassImposteriser;
 import org.junit.Before;
 import org.junit.Test;
 
-import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
-import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
-import pl.baczkowicz.mqttspy.ui.events.queuable.EventQueueManager;
+import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
+import pl.baczkowicz.spy.common.generated.FormatterDetails;
+import pl.baczkowicz.spy.formatting.FormattingManager;
+import pl.baczkowicz.spy.ui.events.queuable.EventQueueManager;
+import pl.baczkowicz.spy.ui.storage.ManagedMessageStoreWithFiltering;
 
 public class ObservableMessageStoreWithFilteringTest
 {
 	/** Class under test. */
-	private ManagedMessageStoreWithFiltering store;
+	private ManagedMessageStoreWithFiltering<FormattedMqttMessage> store;
+	
+	private FormattingManager mockedFormattingManager;
+	
+	private Mockery context = new Mockery()
+	{
+		{
+			setImposteriser(ClassImposteriser.INSTANCE);
+		}
+	};
 	
 	@Before
 	public void setUp() throws Exception
 	{
-		store = new ManagedMessageStoreWithFiltering("test", 5, 5, 5, new EventQueueManager(), null, null, 0);
+		mockedFormattingManager = context.mock(FormattingManager.class);
+		
+		store = new ManagedMessageStoreWithFiltering<FormattedMqttMessage>(
+				"test", 5, 5, 5, new EventQueueManager<FormattedMqttMessage>(), mockedFormattingManager, 0);
+		
+		context.checking(new Expectations()
+		{
+			{
+				allowing(mockedFormattingManager).formatMessage(with(any(FormattedMqttMessage.class)), with(any(FormatterDetails.class)));
+			}
+		});
 	}
 
 	@Test

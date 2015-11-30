@@ -45,13 +45,13 @@ import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.configuration.generated.TabbedSubscriptionDetails;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
-import pl.baczkowicz.mqttspy.exceptions.MqttSpyException;
 import pl.baczkowicz.mqttspy.ui.connections.ConnectionManager;
-import pl.baczkowicz.mqttspy.ui.keyboard.TimeBasedKeyEventFilter;
-import pl.baczkowicz.mqttspy.ui.panes.PaneVisibilityStatus;
-import pl.baczkowicz.mqttspy.ui.panes.TitledPaneController;
-import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
+import pl.baczkowicz.spy.ui.keyboard.TimeBasedKeyEventFilter;
+import pl.baczkowicz.spy.ui.panes.PaneVisibilityStatus;
+import pl.baczkowicz.spy.ui.panes.TitledPaneController;
+import pl.baczkowicz.spy.ui.utils.DialogFactory;
 import pl.baczkowicz.mqttspy.utils.MqttUtils;
+import pl.baczkowicz.spy.exceptions.SpyException;
 
 /**
  * Controller for creating new subscriptions.
@@ -149,6 +149,15 @@ public class NewSubscriptionController implements Initializable, TitledPaneContr
 	        	}
 	        }
 	    });	
+		
+		// Workaround for bug in JRE 8 Update 60-66 (https://bugs.openjdk.java.net/browse/JDK-8136838)
+		subscriptionTopicText.getEditor().focusedProperty().addListener((obs, old, isFocused) -> 
+		{ 
+            if (!isFocused) 
+            { 
+            	//subscriptionTopicText.setValue(subscriptionTopicText.getConverter().fromString(subscriptionTopicText.getEditor().getText())); 
+            } 
+        }); 
 	}
 	
 	public void init()
@@ -200,10 +209,14 @@ public class NewSubscriptionController implements Initializable, TitledPaneContr
 	@FXML
 	public void subscribe()
 	{
-		if (subscriptionTopicText.getValue() != null)
-		{
-			final String subscriptionTopic = subscriptionTopicText.getValue().toString();
-			
+		// Note: here using the editor, as the value stored directly in the ComboBox might
+		// not be committed yet, whereas the editor (TextField) has got the current text in it
+		
+		// Note: this is also a workaround for bug in JRE 8 Update 60-66 (https://bugs.openjdk.java.net/browse/JDK-8136838)
+		final String subscriptionTopic = subscriptionTopicText.getEditor().getText();
+		
+		if (subscriptionTopic != null)
+		{			
 			try
 			{
 				MqttUtils.validateTopic(subscriptionTopic);
@@ -214,14 +227,14 @@ public class NewSubscriptionController implements Initializable, TitledPaneContr
 							
 				subscribe(subscriptionDetails, true);
 			}
-			catch (MqttSpyException e)
+			catch (SpyException e)
 			{
-				DialogUtils.showError("Invalid topic", "Provided topic is not valid. " + e.getMessage());
+				DialogFactory.createErrorDialog("Invalid topic", "Provided topic is not valid. " + e.getMessage());
 			}
 		}
 		else
 		{
-			DialogUtils.showError("Invalid topic", "Cannot subscribe to an empty topic.");
+			DialogFactory.createErrorDialog("Invalid topic", "Cannot subscribe to an empty topic.");
 		}
 	}	
 
@@ -240,7 +253,7 @@ public class NewSubscriptionController implements Initializable, TitledPaneContr
 		}
 		else
 		{
-			DialogUtils.showError("Duplicate topic", "You already have a subscription tab with " + subscriptionDetails.getTopic() + " topic.");
+			DialogFactory.createErrorDialog("Duplicate topic", "You already have a subscription tab with " + subscriptionDetails.getTopic() + " topic.");
 		}
 	}
 	

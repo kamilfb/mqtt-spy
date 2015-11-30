@@ -25,6 +25,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.ResourceBundle;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -44,21 +47,18 @@ import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
 import javafx.util.Callback;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
-import pl.baczkowicz.mqttspy.scripts.InteractiveScriptManager;
-import pl.baczkowicz.mqttspy.scripts.ScriptRunningState;
-import pl.baczkowicz.mqttspy.scripts.ScriptTypeEnum;
+import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.ui.events.EventManager;
-import pl.baczkowicz.mqttspy.ui.events.observers.ScriptStateChangeObserver;
-import pl.baczkowicz.mqttspy.ui.panes.PaneVisibilityStatus;
-import pl.baczkowicz.mqttspy.ui.panes.TitledPaneController;
-import pl.baczkowicz.mqttspy.ui.properties.PublicationScriptProperties;
-import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
-import pl.baczkowicz.mqttspy.ui.utils.UiUtils;
+import pl.baczkowicz.mqttspy.ui.scripts.InteractiveScriptManager;
+import pl.baczkowicz.spy.scripts.ScriptRunningState;
+import pl.baczkowicz.spy.ui.events.observers.ScriptStateChangeObserver;
+import pl.baczkowicz.spy.ui.panes.PaneVisibilityStatus;
+import pl.baczkowicz.spy.ui.panes.TitledPaneController;
+import pl.baczkowicz.spy.ui.properties.PublicationScriptProperties;
+import pl.baczkowicz.spy.ui.scripts.ScriptTypeEnum;
+import pl.baczkowicz.spy.ui.utils.DialogFactory;
+import pl.baczkowicz.spy.ui.utils.UiUtils;
 
 /**
  * Controller for publications scripts pane.
@@ -93,7 +93,7 @@ public class PublicationScriptsController implements Initializable, ScriptStateC
 
 	private InteractiveScriptManager scriptManager;
 
-	private EventManager eventManager;
+	private EventManager<FormattedMqttMessage> eventManager;
 
 	private Map<ScriptTypeEnum, ContextMenu> contextMenus = new HashMap<>();
 
@@ -345,7 +345,7 @@ public class PublicationScriptsController implements Initializable, ScriptStateC
 		scriptManager.stopScriptFile(file);
 	}
 	
-	public void setEventManager(final EventManager eventManager)
+	public void setEventManager(final EventManager<FormattedMqttMessage> eventManager)
 	{
 		this.eventManager = eventManager;
 	}
@@ -368,7 +368,7 @@ public class PublicationScriptsController implements Initializable, ScriptStateC
 		if (type.equals(ScriptTypeEnum.PUBLICATION) || type.equals(ScriptTypeEnum.BACKGROUND))
 		{
 			// Start script
-			final MenuItem startScriptItem = new MenuItem("[Script] Start");
+			final MenuItem startScriptItem = new MenuItem("Start");
 			startScriptItem.setOnAction(new EventHandler<ActionEvent>()
 			{
 				public void handle(ActionEvent e)
@@ -379,7 +379,7 @@ public class PublicationScriptsController implements Initializable, ScriptStateC
 			contextMenu.getItems().add(startScriptItem);
 			
 			// Stop script
-			final MenuItem stopScriptItem = new MenuItem("[Script] Stop");
+			final MenuItem stopScriptItem = new MenuItem("Stop");
 			stopScriptItem.setOnAction(new EventHandler<ActionEvent>()
 			{
 				public void handle(ActionEvent e)
@@ -399,7 +399,7 @@ public class PublicationScriptsController implements Initializable, ScriptStateC
 		}
 		
 		// Copy script location
-		final MenuItem copyScriptLocationItem = new MenuItem("[Script] Copy script location to clipboard");
+		final MenuItem copyScriptLocationItem = new MenuItem("Copy script location to clipboard");
 		copyScriptLocationItem.setOnAction(new EventHandler<ActionEvent>()
 		{
 			public void handle(ActionEvent e)
@@ -420,7 +420,7 @@ public class PublicationScriptsController implements Initializable, ScriptStateC
 		if (type.equals(ScriptTypeEnum.PUBLICATION))
 		{
 			// Delete
-			final Menu deleteItem = new Menu("[Script] Delete");
+			final Menu deleteItem = new Menu("Delete");
 			contextMenu.getItems().add(deleteItem);
 			
 			final MenuItem deleteFromListItem = new MenuItem("Delete from list (until next refresh)");
@@ -448,7 +448,7 @@ public class PublicationScriptsController implements Initializable, ScriptStateC
 						scriptManager.removeScript(item);
 						if (!item.getScript().getScriptFile().delete())
 						{
-							DialogUtils.showWarning("File cannot be deleted", 
+							DialogFactory.createWarningDialog("File cannot be deleted", 
 									"File \"" + item.getScript().getScriptFile().getAbsolutePath() + "\" couln't be deleted. Try doing it manually.");
 						}
 					}
@@ -462,7 +462,7 @@ public class PublicationScriptsController implements Initializable, ScriptStateC
 		}
 
 		// Refresh list
-		final MenuItem refreshListItem = new MenuItem("[Scripts] Refresh list");
+		final MenuItem refreshListItem = new MenuItem("Refresh list");
 		refreshListItem.setOnAction(new EventHandler<ActionEvent>()
 		{
 			public void handle(ActionEvent e)

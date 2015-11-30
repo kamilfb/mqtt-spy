@@ -116,30 +116,38 @@ public class ControlPanelItemController extends AnchorPane implements Initializa
 		return smallButton2;
 	}
 	
-	public void refresh()
+	public static String getStatusIconLocation(ItemStatus status)
 	{
-		String imageLocation = "";
+		String imageLocation;
+		
 		switch (status)
 		{
 			case OK:
-				imageLocation = "/images/dialog-ok-apply.png";
+				imageLocation = "/images/large/dialog-ok-apply.png";
 				break;
 			case INFO:
-				imageLocation = "/images/dialog-information.png";
+				imageLocation = "/images/large/dialog-information.png";
 				break;
 			case WARN:
-				imageLocation = "/images/dialog-warning.png";
+				imageLocation = "/images/large/dialog-warning.png";
 				break;
 			case ERROR:
-				imageLocation = "/images/dialog-error.png";
+				imageLocation = "/images/large/dialog-error.png";
 				break;
 			case STATS:
-				imageLocation = "/images/stats.png";
+				imageLocation = "/images/large/rating.png";
 				break;
 			default:
-				imageLocation = "/images/dialog-error.png";
+				imageLocation = "/images/large/dialog-error.png";
 				break;
 		}
+		
+		return imageLocation;
+	}
+	
+	public void refresh()
+	{
+		String imageLocation = getStatusIconLocation(status);
 		
 		if (showProgress)
 		{
@@ -159,13 +167,13 @@ public class ControlPanelItemController extends AnchorPane implements Initializa
 				statusIcon.setFitHeight(64);
 				statusIcon.setFitWidth(64);
 			}
-			else if (status == ItemStatus.STATS)
-			{
-				statusIcon.setLayoutY(20);
-				statusIcon.setLayoutX(20);
-				statusIcon.setFitHeight(55);
-				statusIcon.setFitWidth(55);
-			}
+//			else if (status == ItemStatus.STATS)
+//			{
+//				statusIcon.setLayoutY(10);
+//				statusIcon.setLayoutX(10);
+//				statusIcon.setFitHeight(64);
+//				statusIcon.setFitWidth(64);
+//			}
 			else
 			{
 				statusIcon.setLayoutY(10);
@@ -210,19 +218,14 @@ public class ControlPanelItemController extends AnchorPane implements Initializa
 		this.status = status;
 	}
 	
-	public String replaceTokens(final String value)
-	{
-		return value.replace("[newline]", System.lineSeparator()).replace("[version]", configurationManager.getDefaultPropertyFile().getFullVersionName());
-	}
-	
 	public void setTitle(final String title)
 	{
-		this.titleText.setText(replaceTokens(title));
+		this.titleText.setText(title);
 	}
 	
 	public void setDetails(final String details)
 	{
-		this.detailsText.setText(replaceTokens(details));
+		this.detailsText.setText(details);
 	}
 	
 	public VBox getCustomItems()

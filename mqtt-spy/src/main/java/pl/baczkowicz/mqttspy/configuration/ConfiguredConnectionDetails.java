@@ -20,14 +20,18 @@
 package pl.baczkowicz.mqttspy.configuration;
 
 import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnectionDetails;
+import pl.baczkowicz.spy.common.generated.ConnectionGroup;
+import pl.baczkowicz.spy.common.generated.ConnectionGroupReference;
+import pl.baczkowicz.spy.ui.configuration.ConfiguredConnectionGroupDetails;
+import pl.baczkowicz.spy.ui.properties.ModifiableItem;
 
-public class ConfiguredConnectionDetails extends UserInterfaceMqttConnectionDetails
+public class ConfiguredConnectionDetails extends UserInterfaceMqttConnectionDetails implements ModifiableItem
 {
-	private int id;
-	
+	private static final long serialVersionUID = -111271741915161354L;
+
 	private boolean modified;
 
-	private boolean created;
+	private boolean begingCreated;
 	
 	private boolean deleted;
 
@@ -35,31 +39,56 @@ public class ConfiguredConnectionDetails extends UserInterfaceMqttConnectionDeta
 	
 	private boolean valid;
 
-	private UserInterfaceMqttConnectionDetails lastSavedValues;
+	private ConfiguredConnectionDetails lastSavedValues;	
+
+	private ConnectionGroupReference group;
+
+	private boolean groupingModified;
 
 	public ConfiguredConnectionDetails()
 	{
 		// Default constructor
 	}
 	
-	public ConfiguredConnectionDetails(final int id, final boolean created, final boolean newConnection,
-			final boolean modified, final UserInterfaceMqttConnectionDetails connectionDetails)
+	 /**
+     * Initialising value constructor
+     */
+	public ConfiguredConnectionDetails(
+			final ConnectionGroupReference group,
+			final UserInterfaceMqttConnectionDetails connection)
 	{
-		this.id = id;
-		this.modified = modified;
-		this.created = created;
-		this.newConnection = newConnection;
-		this.lastSavedValues = connectionDetails;
+		this.group = group;
+		connection.copyTo(this);
+    }
+	
+	public ConfiguredConnectionDetails(final boolean created, final boolean newConnection,
+			final UserInterfaceMqttConnectionDetails connection)
+	{
+		//this.id = id;
+		this.modified = newConnection;
+		this.begingCreated = created;
+		this.newConnection = newConnection;		
+		
+		final ConfiguredConnectionDetails connectionDetails = new ConfiguredConnectionDetails(null, connection);
 
 		setConnectionDetails(connectionDetails);
+		setLastSavedValues(connectionDetails);
 	}
 
-	public void setConnectionDetails(final UserInterfaceMqttConnectionDetails connectionDetails)
+	public void setConnectionDetails(final ConfiguredConnectionDetails connectionDetails)
 	{
+		// Take a copy and null it, so that copyTo can work...
+		final ConnectionGroup group = connectionDetails.getGroup() != null ? (ConnectionGroup) connectionDetails.getGroup().getReference() : null;
+		connectionDetails.setGroup(null);
+		
 		if (connectionDetails != null)
 		{
 			connectionDetails.copyTo(this);
 		}
+		
+		// Restore the group value
+		connectionDetails.setGroup(new ConnectionGroupReference(group));
+		setGroup(new ConnectionGroupReference(group));
 	}
 
 	public boolean isModified()
@@ -74,12 +103,12 @@ public class ConfiguredConnectionDetails extends UserInterfaceMqttConnectionDeta
 
 	public boolean isBeingCreated()
 	{
-		return created;
+		return begingCreated;
 	}
 
 	public void setBeingCreated(boolean created)
 	{
-		this.created = created;
+		this.begingCreated = created;
 	}
 
 	public UserInterfaceMqttConnectionDetails getSavedValues()
@@ -87,19 +116,9 @@ public class ConfiguredConnectionDetails extends UserInterfaceMqttConnectionDeta
 		return lastSavedValues;
 	}
 
-	public void setSavedValues(UserInterfaceMqttConnectionDetails savedValues)
+	private void setLastSavedValues(final ConfiguredConnectionDetails savedValues)
 	{
 		this.lastSavedValues = savedValues;
-	}
-
-	public boolean isNewConnection()
-	{
-		return newConnection;
-	}
-
-	public void setNewConnection(boolean newConnection)
-	{
-		this.newConnection = newConnection;
 	}
 
 	public boolean isValid()
@@ -114,16 +133,33 @@ public class ConfiguredConnectionDetails extends UserInterfaceMqttConnectionDeta
 	
 	public void undo()
 	{
+		// Make sure we won't revert any grouping changes here
+		final ConfiguredConnectionGroupDetails group = (ConfiguredConnectionGroupDetails) getGroup().getReference();
+		setConnectionDetails(lastSavedValues);
+		setGroup(new ConnectionGroupReference(group));
+		
+		modified = newConnection;
+	}
+	
+	/**
+	 * This method undoes all changes, including those about grouping.
+	 */
+	public void undoAll()
+	{
 		setConnectionDetails(lastSavedValues);
 		modified = newConnection;
+		groupingModified = false;
 	}
 
 	public void apply()
 	{
-		setSavedValues(new ConfiguredConnectionDetails(id, false, false, false, this));
-		created = false;
+		final ConfiguredConnectionDetails valuesToSave = new ConfiguredConnectionDetails(false, false, this);
+		
+		setLastSavedValues(valuesToSave);
+		begingCreated = false;
 		newConnection = false;
 		modified = false;
+		groupingModified = false;
 	}
 
 	public boolean isDeleted()
@@ -135,14 +171,40 @@ public class ConfiguredConnectionDetails extends UserInterfaceMqttConnectionDeta
 	{
 		this.deleted = deleted;
 	}
-
-	public int getId()
+	
+	public boolean isNew()
 	{
-		return id;
+		return newConnection;
+	}
+	
+	public void removeFromGroup()
+	{
+		ConfiguredConnectionGroupDetails.removeFromGroup(this, (ConnectionGroup) getGroup().getReference());
+	}
+	
+	public void setGroupingModified(boolean modified)
+	{
+		this.groupingModified = modified;		
+	}
+	
+	public boolean isGroupingModified()
+	{
+		return groupingModified;
 	}
 
-	public void setId(int id)
+	/**
+	 * @return the group
+	 */
+	public ConnectionGroupReference getGroup()
 	{
-		this.id = id;
+		return group;
+	}
+
+	/**
+	 * @param group the group to set
+	 */
+	public void setGroup(ConnectionGroupReference group)
+	{
+		this.group = group;
 	}
 }

@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -39,10 +40,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
-import pl.baczkowicz.mqttspy.exceptions.XMLException;
 import pl.baczkowicz.mqttspy.stats.generated.MqttSpyStats;
-import pl.baczkowicz.mqttspy.utils.ThreadingUtils;
-import pl.baczkowicz.mqttspy.xml.XMLParser;
+import pl.baczkowicz.spy.exceptions.XMLException;
+import pl.baczkowicz.spy.utils.ThreadingUtils;
+import pl.baczkowicz.spy.xml.XMLParser;
 
 /**
  * This class is responsible for loading, processing and saving processing statistics.
@@ -68,9 +69,9 @@ public class StatisticsManager implements Runnable
 
 	public static MqttSpyStats stats;
 	
-	public static Map<Integer, ConnectionStats> runtimeMessagesPublished = new HashMap<>();
+	public static Map<String, ConnectionStats> runtimeMessagesPublished = new HashMap<>();
 	
-	public static Map<Integer, ConnectionStats> runtimeMessagesReceived = new HashMap<>();	
+	public static Map<String, ConnectionStats> runtimeMessagesReceived = new HashMap<>();	
 	
 	public StatisticsManager() throws XMLException
 	{
@@ -157,7 +158,7 @@ public class StatisticsManager implements Runnable
 		stats.setSubscriptions(stats.getSubscriptions() + 1);		
 	}
 	
-	public void messageReceived(final int connectionId, final List<String> subscriptions)
+	public void messageReceived(final String connectionId, final List<String> subscriptions)
 	{
 		// Global stats (saved to XML)
 		stats.setMessagesReceived(stats.getMessagesReceived() + 1);
@@ -174,7 +175,7 @@ public class StatisticsManager implements Runnable
 		}
 	}
 	
-	public void messagePublished(final int connectionId, final String topic)
+	public void messagePublished(final String connectionId, final String topic)
 	{
 		// Global stats (saved to XML)
 		stats.setMessagesPublished(stats.getMessagesPublished() + 1);		
@@ -192,9 +193,9 @@ public class StatisticsManager implements Runnable
 		}
 	}
 	
-	public static void nextInterval(final Map<Integer, ConnectionStats> runtimeMessages)
+	public static void nextInterval(final Map<String, ConnectionStats> runtimeMessages)
 	{
-		for (final Integer connectionId : runtimeMessages.keySet())
+		for (final String connectionId : runtimeMessages.keySet())
 		{
 			final Map<Integer, ConnectionIntervalStats> avgs = runtimeMessages.get(connectionId).avgPeriods;
 			final List<ConnectionIntervalStats> runtime = runtimeMessages.get(connectionId).runtimeStats;	
@@ -233,7 +234,7 @@ public class StatisticsManager implements Runnable
 		}
 	}
 	
-	public static ConnectionIntervalStats getMessagesPublished(final int connectionId, final int period)
+	public static ConnectionIntervalStats getMessagesPublished(final String connectionId, final int period)
 	{
 		if (runtimeMessagesPublished.get(connectionId) == null)
 		{
@@ -273,7 +274,7 @@ public class StatisticsManager implements Runnable
 		return total;
 	}
 	
-	public static ConnectionIntervalStats getMessagesReceived(final int connectionId, final int period)
+	public static ConnectionIntervalStats getMessagesReceived(final String connectionId, final int period)
 	{
 		if (runtimeMessagesReceived.get(connectionId) == null)
 		{
@@ -283,7 +284,7 @@ public class StatisticsManager implements Runnable
 		return runtimeMessagesReceived.get(connectionId).avgPeriods.get(period).average(period);
 	}
 	
-	public static void resetMessagesReceived(final int connectionId, final String topic)
+	public static void resetMessagesReceived(final String connectionId, final String topic)
 	{
 		if (runtimeMessagesReceived.get(connectionId) == null)
 		{
@@ -293,12 +294,12 @@ public class StatisticsManager implements Runnable
 		runtimeMessagesReceived.get(connectionId).resetTopic(topic);
 	}
 	
-	public static void resetMessagesReceived(final int connectionId)
+	public static void resetMessagesReceived(final String connectionId)
 	{
 		resetConnection(runtimeMessagesReceived, connectionId);
 	}
 	
-	private static void resetConnection(final Map<Integer, ConnectionStats> runtimeMessages, final int connectionId)
+	private static void resetConnection(final Map<String, ConnectionStats> runtimeMessages, final String connectionId)
 	{
 		runtimeMessages.put(connectionId, new ConnectionStats(periods));
 		runtimeMessages.get(connectionId).runtimeStats.add(new ConnectionIntervalStats());
@@ -320,5 +321,63 @@ public class StatisticsManager implements Runnable
 		}					
 		
 		ThreadingUtils.logThreadEnding();
+	}
+	
+	/** Format of the stats label. */
+	public static final String STATS_FORMAT = "load: " + getPeriodValues();
+	
+	/**
+	 * Creates the list of all periods defined in the statistics manager.
+	 * 
+	 * @return List of all periods
+	 */
+	public static String getPeriodList()
+	{
+		final StringBuffer sb = new StringBuffer();
+		
+		final Iterator<Integer> iterator = StatisticsManager.periods.iterator();
+		while (iterator.hasNext()) 
+		{
+			final int period = (int) iterator.next();
+			if (period > 60)
+			{
+				sb.append((period / 60) + "m");
+			}
+			else
+			{
+				sb.append(period + "s");
+			}
+			
+			if (iterator.hasNext())
+			{
+				sb.append(", ");
+			}
+		}
+		
+		return sb.toString();
+	}
+	
+	/**
+	 * Creates the stats format for all periods defined in the statistics manager.
+	 * 
+	 * @return Format for all periods
+	 */
+	public static String getPeriodValues()
+	{
+		final StringBuffer sb = new StringBuffer();
+		
+		final Iterator<Integer> iterator = StatisticsManager.periods.iterator();
+		while (iterator.hasNext()) 
+		{
+			sb.append("%.1f");	
+			iterator.next();
+			
+			if (iterator.hasNext())
+			{
+				sb.append("/");
+			}
+		}
+		
+		return sb.toString();
 	}
 }

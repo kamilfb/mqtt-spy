@@ -40,6 +40,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ComboBox;
@@ -58,39 +59,37 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.TextAlignment;
 
-import org.controlsfx.control.action.Action;
-import org.controlsfx.dialog.Dialog;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.fxmisc.richtext.StyleClassedTextArea;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import pl.baczkowicz.mqttspy.common.generated.ConversionMethod;
 import pl.baczkowicz.mqttspy.common.generated.SimpleMqttMessage;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
-import pl.baczkowicz.mqttspy.exceptions.ConversionException;
 import pl.baczkowicz.mqttspy.messages.BaseMqttMessage;
-import pl.baczkowicz.mqttspy.scripts.InteractiveScriptManager;
-import pl.baczkowicz.mqttspy.scripts.Script;
-import pl.baczkowicz.mqttspy.scripts.ScriptManager;
-import pl.baczkowicz.mqttspy.scripts.ScriptTypeEnum;
+import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
+import pl.baczkowicz.mqttspy.scripts.MqttScriptManager;
 import pl.baczkowicz.mqttspy.ui.events.EventManager;
-import pl.baczkowicz.mqttspy.ui.events.observers.ScriptListChangeObserver;
-import pl.baczkowicz.mqttspy.ui.keyboard.TimeBasedKeyEventFilter;
-import pl.baczkowicz.mqttspy.ui.panes.PaneVisibilityStatus;
-import pl.baczkowicz.mqttspy.ui.panes.TitledPaneController;
-import pl.baczkowicz.mqttspy.ui.properties.PublicationScriptProperties;
-import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
-import pl.baczkowicz.mqttspy.ui.utils.UiUtils;
-import pl.baczkowicz.mqttspy.utils.ConversionUtils;
-import pl.baczkowicz.mqttspy.utils.FileUtils;
+import pl.baczkowicz.mqttspy.ui.scripts.InteractiveScriptManager;
 import pl.baczkowicz.mqttspy.utils.MqttUtils;
-import pl.baczkowicz.mqttspy.utils.TimeUtils;
+import pl.baczkowicz.spy.common.generated.ConversionMethod;
+import pl.baczkowicz.spy.exceptions.ConversionException;
+import pl.baczkowicz.spy.scripts.Script;
+import pl.baczkowicz.spy.ui.events.observers.ScriptListChangeObserver;
+import pl.baczkowicz.spy.ui.keyboard.TimeBasedKeyEventFilter;
+import pl.baczkowicz.spy.ui.panes.PaneVisibilityStatus;
+import pl.baczkowicz.spy.ui.panes.TitledPaneController;
+import pl.baczkowicz.spy.ui.properties.PublicationScriptProperties;
+import pl.baczkowicz.spy.ui.scripts.ScriptTypeEnum;
+import pl.baczkowicz.spy.ui.utils.DialogFactory;
+import pl.baczkowicz.spy.ui.utils.ImageUtils;
+import pl.baczkowicz.spy.utils.ConversionUtils;
+import pl.baczkowicz.spy.utils.FileUtils;
+import pl.baczkowicz.spy.utils.TimeUtils;
 
 /**
  * Controller for creating new publications.
  */
-@SuppressWarnings("deprecation")
 public class NewPublicationController implements Initializable, ScriptListChangeObserver, TitledPaneController
 {
 	/** Diagnostic logger. */
@@ -158,7 +157,7 @@ public class NewPublicationController implements Initializable, ScriptListChange
 	
 	private InteractiveScriptManager scriptManager;
 
-	private EventManager eventManager;
+	private EventManager<FormattedMqttMessage> eventManager;
 	
 	private List<BaseMqttMessage> recentMessages = new ArrayList<>();
 
@@ -172,7 +171,7 @@ public class NewPublicationController implements Initializable, ScriptListChange
 	
 	public void initialize(URL location, ResourceBundle resources)
 	{
-		timeBasedFilter = new TimeBasedKeyEventFilter(15);
+		timeBasedFilter = new TimeBasedKeyEventFilter(500);
 		
 		publicationTopicText.setItems(publicationTopics);
 		formatGroup.getToggles().get(0).setUserData(ConversionMethod.PLAIN);
@@ -310,6 +309,21 @@ public class NewPublicationController implements Initializable, ScriptListChange
 		});
 		
 		publishScript.getToggles().get(0).setUserData(null);		
+		publishScript.selectedToggleProperty().addListener(new ChangeListener<Toggle>()
+		{
+			@Override
+			public void changed(ObservableValue<? extends Toggle> observable, Toggle oldValue, Toggle newValue)
+			{
+				if (newValue.getUserData() == null)
+				{
+					publishButton.setText("Publish");					
+				}
+				else
+				{
+					publishButton.setText("Publish" + System.lineSeparator() + "with" + System.lineSeparator() + "script");
+				}
+			}			
+		});
 	}		
 	
 	public static ChangeListener<Number> createPaneTitleWidthListener(final TitledPane pane, final AnchorPane paneTitle)
@@ -345,10 +359,10 @@ public class NewPublicationController implements Initializable, ScriptListChange
 		button.setFocusTraversable(false);
 		// button.setMaxHeight(16);
 		
-		button.setGraphic(UiUtils.createImage(iconLocation, 14));
+		button.setGraphic(ImageUtils.createImage(iconLocation, 14));
 		
 		// TODO: actions
-		final MenuItem detach = new MenuItem("Detach to a separate window", UiUtils.createImage("images/tab-detach.png", 14, "pane-settings-menu-graphic"));
+		final MenuItem detach = new MenuItem("Detach to a separate window", ImageUtils.createImage("images/small/tab-detach.png", 14, "pane-settings-menu-graphic"));
 		detach.setOnAction(new EventHandler<ActionEvent>()
 		{
 			@Override
@@ -359,7 +373,7 @@ public class NewPublicationController implements Initializable, ScriptListChange
 						PaneVisibilityStatus.DETACHED);				
 			}
 		});
-		final MenuItem hide = new MenuItem("Hide this pane", UiUtils.createImage("images/tab-close.png", 14, "pane-settings-menu-graphic"));
+		final MenuItem hide = new MenuItem("Hide this pane", ImageUtils.createImage("images/small/tab-close.png", 14, "pane-settings-menu-graphic"));
 		hide.setOnAction(new EventHandler<ActionEvent>()
 		{
 			@Override
@@ -387,7 +401,7 @@ public class NewPublicationController implements Initializable, ScriptListChange
 	
 	public static MenuButton createTitleButtons(final TitledPane pane, final AnchorPane paneTitle, final ConnectionController connectionController)	
 	{
-		final MenuButton settingsButton = createTitleButton("Pane settings", "images/settings.png", -5, connectionController, pane);
+		final MenuButton settingsButton = createTitleButton("Pane settings", "images/small/settings.png", -5, connectionController, pane);
 			      
 		HBox titleBox = new HBox();
 		titleBox.setPadding(new Insets(0, 0, 0, 0));	
@@ -558,14 +572,17 @@ public class NewPublicationController implements Initializable, ScriptListChange
 		if (detailedView)
 		{
 			AnchorPane.setRightAnchor(publicationTopicText, 327.0);
+			AnchorPane.setRightAnchor(publicationData, 326.0);
 			AnchorPane.setTopAnchor(dataLabel, 31.0);
 		}
 		else
 		{
 			AnchorPane.setRightAnchor(publicationTopicText, 128.0);
+			AnchorPane.setRightAnchor(publicationData, 127.0);
 			AnchorPane.setTopAnchor(dataLabel, 37.0);
 		}
 		
+		formatMenu.setVisible(detailedView);
 		publicationQosChoice.setVisible(detailedView);
 		publicationQosLabel.setVisible(detailedView);
 		retainedBox.setVisible(detailedView);
@@ -624,13 +641,15 @@ public class NewPublicationController implements Initializable, ScriptListChange
 	{
 		// Note: here using the editor, as the value stored directly in the ComboBox might
 		// not be committed yet, whereas the editor (TextField) has got the current text in it
+		
+		// Note: this is also a workaround for bug in JRE 8 Update 60-66 (https://bugs.openjdk.java.net/browse/JDK-8136838)
 		final String topic = publicationTopicText.getEditor().getText();
 		
 		if (verify && (topic == null || topic.isEmpty()))
 		{
 			logger.error("Cannot publish to an empty topic");
 			
-			DialogUtils.showError("Invalid topic", "Cannot publish to an empty topic.");
+			DialogFactory.createErrorDialog("Invalid topic", "Cannot publish to an empty topic.");
 			return null;
 		}
 		
@@ -789,7 +808,9 @@ public class NewPublicationController implements Initializable, ScriptListChange
 		
 		while (!valid)
 		{
-			final Optional<String> response = DialogUtils.askForScriptName(pane);
+			final Optional<String> response = DialogFactory.createInputDialog(
+					pane.getScene().getWindow(), 
+					"Enter a name for your message-based script", "Script name (without .js)");
 			
 			logger.info("Script name response = " + response);
 			if (response.isPresent())
@@ -798,22 +819,22 @@ public class NewPublicationController implements Initializable, ScriptListChange
 				
 				final String configuredDirectory = connection.getProperties().getConfiguredProperties().getPublicationScripts();
 				final String directory = InteractiveScriptManager.getScriptDirectoryForConnection(configuredDirectory);
-				final File scriptFile = new File(directory + scriptName + ScriptManager.SCRIPT_EXTENSION);
+				final File scriptFile = new File(directory + scriptName + MqttScriptManager.SCRIPT_EXTENSION);
 				
 				final Script script = scriptManager.getScriptObjectFromName(
 						Script.getScriptIdFromFile(scriptFile));
 				
 				if (script != null)
 				{
-					Action duplicateNameResponse = DialogUtils.showQuestion("Script name already exists", 
+					Optional<ButtonType> duplicateNameResponse = DialogFactory.createQuestionDialog("Script name already exists", 
 							"Script with name \"" + scriptName 
 							+ "\" already exists in your script folder (" 
 							+ directory + "). Do you want to override it?");
-					if (duplicateNameResponse == Dialog.ACTION_NO)
+					if (duplicateNameResponse.get() == ButtonType.NO)
 					{
 						continue;
 					}
-					else if (duplicateNameResponse == Dialog.ACTION_CANCEL)
+					else if (duplicateNameResponse.get() == ButtonType.CANCEL)
 					{
 						break;
 					}
@@ -889,7 +910,7 @@ public class NewPublicationController implements Initializable, ScriptListChange
 	{
 		logger.error("Cannot convert " + publicationData.getText() + " to plain text");
 		
-		DialogUtils.showError("Invalid hex format", "Provided text is not a valid hex string.");
+		DialogFactory.createErrorDialog("Invalid hex format", "Provided text is not a valid hex string.");
 	}
 
 	public void setConnection(MqttAsyncConnection connection)
@@ -927,7 +948,7 @@ public class NewPublicationController implements Initializable, ScriptListChange
 		this.scriptManager = scriptManager;
 	}
 	
-	public void setEventManager(final EventManager eventManager)
+	public void setEventManager(final EventManager<FormattedMqttMessage> eventManager)
 	{
 		this.eventManager = eventManager;
 	}

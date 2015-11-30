@@ -52,17 +52,20 @@ import pl.baczkowicz.mqttspy.connectivity.BaseMqttSubscription;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.connectivity.MqttConnectionStatus;
 import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
+import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.stats.StatisticsManager;
 import pl.baczkowicz.mqttspy.ui.connections.ConnectionManager;
 import pl.baczkowicz.mqttspy.ui.events.EventManager;
 import pl.baczkowicz.mqttspy.ui.events.observers.ConnectionStatusChangeObserver;
-import pl.baczkowicz.mqttspy.ui.panes.PaneVisibilityStatus;
-import pl.baczkowicz.mqttspy.ui.panes.TabController;
-import pl.baczkowicz.mqttspy.ui.panes.TabStatus;
-import pl.baczkowicz.mqttspy.ui.panes.TitledPaneStatus;
 import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
-import pl.baczkowicz.mqttspy.ui.utils.FxmlUtils;
 import pl.baczkowicz.mqttspy.ui.utils.StylingUtils;
+import pl.baczkowicz.spy.ui.panes.PaneVisibilityStatus;
+import pl.baczkowicz.spy.ui.panes.TabController;
+import pl.baczkowicz.spy.ui.panes.TabStatus;
+import pl.baczkowicz.spy.ui.panes.TitledPaneStatus;
+import pl.baczkowicz.spy.ui.utils.DialogFactory;
+import pl.baczkowicz.spy.ui.utils.FxmlUtils;
+import pl.baczkowicz.spy.ui.utils.ImageUtils;
 
 /**
  * Controller looking after the connection tab.
@@ -162,7 +165,7 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 
 	private ConnectionManager connectionManager;
 
-	private EventManager eventManager;
+	private EventManager<FormattedMqttMessage> eventManager;
 	
 	private Map<TitledPane, TitledPaneStatus> paneToStatus = new HashMap<>();
 
@@ -384,16 +387,60 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 			connectionTab.setGraphic(title);
 			connectionTab.setText(null);
 		}
+		else if (connection.getConnectionStatus().equals(MqttConnectionStatus.CONNECTED))
+		{								
+			connectionTab.setGraphic(
+					createSecurityIcons(
+							connection.getProperties().getSSL() != null, 
+							connection.getProperties().getUserCredentials() != null, false));
+			connectionTab.setText(connection.getName());
+		}
 		else
-		{
+		{			
 			connectionTab.setGraphic(null);
 			connectionTab.setText(connection.getName());
+		}
+	}
+	
+	public static HBox createSecurityIcons(final boolean tlsEnabled, final boolean userAuthEnabled, final boolean showBothStates)
+	{
+		final HBox icons = new HBox();
+		
+		createTlsIcon(icons, tlsEnabled, showBothStates);
+		createAuthIcon(icons, userAuthEnabled, showBothStates);
+		
+		return icons;
+	}
+	
+	public static void createTlsIcon(final HBox icons, final boolean tlsEnabled, final boolean showBothStates)
+	{
+		if (tlsEnabled)
+		{
+			icons.getChildren().add(ImageUtils.createIcon("lock-yes", 16));
+		}
+		else if (!tlsEnabled && showBothStates)
+		{
+			icons.getChildren().add(ImageUtils.createIcon("lock-no", 16));
+		}		
+	}
+	
+	public static void createAuthIcon(final HBox icons, final boolean userAuthEnabled, final boolean showBothStates)
+	{
+		if (userAuthEnabled)
+		{
+			icons.getChildren().add(ImageUtils.createIcon("auth-yes", 19));
+		}
+		else if (!userAuthEnabled && showBothStates)
+		{
+			icons.getChildren().add(ImageUtils.createIcon("auth-none", 19));
 		}
 	}
 	
 	public void onConnectionStatusChanged(final MqttAsyncConnection changedConnection)
 	{
 		final MqttConnectionStatus connectionStatus = changedConnection.getConnectionStatus();
+		
+		logger.debug("Updating {} connection status to {}", changedConnection.getName(), connectionStatus);		
 		
 		newSubscriptionPaneController.setConnected(false);
 		getNewPublicationPaneController().setConnected(false);
@@ -483,7 +530,7 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 		return newSubscriptionPaneController;
 	}
 
-	public void setEventManager(final EventManager eventManager)
+	public void setEventManager(final EventManager<FormattedMqttMessage> eventManager)
 	{
 		this.eventManager = eventManager;
 	}
@@ -547,17 +594,10 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 		// Ignore any layout requests when in replay mode
 		if (!replayMode)
 		{
-//			subscriptionsController.getTitledPaneStatus().setRequestedVisibility(showReceivedMessagesSummary);
-//			newPublicationPaneController.getTitledPaneStatus().setRequestedVisibility(showManualPublications);
-//			publicationScriptsPaneController.getTitledPaneStatus().setRequestedVisibility(showScriptedPublications);
-//			newSubscriptionPaneController.getTitledPaneStatus().setRequestedVisibility(showNewSubscription);
-			// testCasesPaneController.getTitledPaneStatus().setRequestedVisibility(showNewSubscription);
-			
 			subscriptionsTitledStatus.setRequestedVisibility(showReceivedMessagesSummary);
 			publishMessageTitledStatus.setRequestedVisibility(showManualPublications);
 			scriptedPublicationsTitledStatus.setRequestedVisibility(showScriptedPublications);
 			newSubscriptionTitledStatus.setRequestedVisibility(showNewSubscription);						
-			// testCasesTitledStatus.setRequestedVisibility(testCasesPaneController);
 			
 			updateVisiblePanes();
 			updateMenus();
@@ -573,12 +613,6 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 	{	
 		connectionTab.getStyleClass().add("connection-replay");
 				
-//		subscriptionsController.getTitledPaneStatus().setRequestedVisibility(PaneVisibilityStatus.ATTACHED);
-//		newPublicationPaneController.getTitledPaneStatus().setRequestedVisibility(PaneVisibilityStatus.NOT_VISIBLE);
-//		publicationScriptsPaneController.getTitledPaneStatus().setRequestedVisibility(PaneVisibilityStatus.NOT_VISIBLE);
-//		newSubscriptionPaneController.getTitledPaneStatus().setRequestedVisibility(PaneVisibilityStatus.NOT_VISIBLE);
-//		testCasesPaneController.getTitledPaneStatus().setRequestedVisibility(PaneVisibilityStatus.NOT_VISIBLE);
-		
 		subscriptionsTitledStatus.setRequestedVisibility(PaneVisibilityStatus.ATTACHED);
 		publishMessageTitledStatus.setRequestedVisibility(PaneVisibilityStatus.NOT_VISIBLE);
 		scriptedPublicationsTitledStatus.setRequestedVisibility(PaneVisibilityStatus.NOT_VISIBLE);
@@ -586,8 +620,9 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 		testCasesTitledStatus.setRequestedVisibility(PaneVisibilityStatus.NOT_VISIBLE);
 		
 		updateVisiblePanes();
-		
+				
 		subscriptionsTitledPane.setText("Logged messages");
+		subscriptionsController.init();
 	}
 	
 	private void updateMenus()
@@ -655,7 +690,7 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 			if (status.getVisibility().equals(PaneVisibilityStatus.DETACHED))
 			{				
 				// Add to separate window
-				final Stage stage = DialogUtils.createWindowWithPane(status.getController().getTitledPane(), splitPane.getScene(), 
+				final Stage stage = DialogFactory.createWindowWithPane(status.getController().getTitledPane(), splitPane.getScene(), 
 						connection.getName(), 0);
 				status.setParentWhenDetached(stage);
 				status.setLastExpanded(status.getController().getTitledPane().isExpanded());

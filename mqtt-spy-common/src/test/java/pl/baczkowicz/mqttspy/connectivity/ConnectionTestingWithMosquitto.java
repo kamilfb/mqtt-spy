@@ -32,13 +32,13 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.junit.Test;
 
 import pl.baczkowicz.mqttspy.common.generated.MqttConnectionDetails;
-import pl.baczkowicz.mqttspy.common.generated.ProtocolEnum;
+import pl.baczkowicz.mqttspy.common.generated.ProtocolVersionEnum;
 import pl.baczkowicz.mqttspy.common.generated.SslModeEnum;
 import pl.baczkowicz.mqttspy.common.generated.SslSettings;
 import pl.baczkowicz.mqttspy.common.generated.UserCredentials;
 import pl.baczkowicz.mqttspy.connectivity.reconnection.ReconnectionManager;
-import pl.baczkowicz.mqttspy.exceptions.MqttSpyException;
-import pl.baczkowicz.mqttspy.utils.ConversionUtils;
+import pl.baczkowicz.spy.exceptions.SpyException;
+import pl.baczkowicz.spy.utils.ConversionUtils;
 
 /**
  * Unit and integration tests for connections. Some of the tests assume
@@ -98,8 +98,9 @@ public class ConnectionTestingWithMosquitto
 	private MqttConnectionDetails createMqttConnectionDetails(final String brokerAddress, final UserCredentials uc, final SslSettings ssl)
 	{
 		return new MqttConnectionDetails(
+				"id",
 				"test", 
-				ProtocolEnum.MQTT_DEFAULT, 
+				ProtocolVersionEnum.MQTT_DEFAULT, 
 				Arrays.asList(brokerAddress), 
 				"mqtt-spy-test", 
 				uc, 
@@ -112,13 +113,13 @@ public class ConnectionTestingWithMosquitto
 	}
 	
 	@Test
-	public void testAnonConnection() throws IOException, MqttSpyException, InterruptedException
+	public void testAnonConnection() throws IOException, SpyException, InterruptedException
 	{
 		final Process mosquitto = startMosquitto("src/test/resources/mosquitto/mosquitto_allow_anon.conf");
 		
 		final MqttConnectionDetails connectionDetails = createMqttConnectionDetails("tcp://localhost:10001", null, null);
 		
-		final SimpleMqttConnection connection = new SimpleMqttConnection(reconnectionManager, 0, connectionDetails);
+		final SimpleMqttConnection connection = new SimpleMqttConnection(reconnectionManager, "0", connectionDetails);
 		connection.createClient(createTestCallback("tcp://localhost:10001"));
 		assertTrue(connection.connect());
 		System.out.println("Connected...");
@@ -140,13 +141,13 @@ public class ConnectionTestingWithMosquitto
 	}
 	
 	@Test
-	public void testRejectingAnonConnection() throws IOException, MqttSpyException, InterruptedException
+	public void testRejectingAnonConnection() throws IOException, SpyException, InterruptedException
 	{
 		final Process mosquitto = startMosquitto("src/test/resources/mosquitto/mosquitto_specified_users.conf");
 		
 		final MqttConnectionDetails connectionDetails = createMqttConnectionDetails("tcp://localhost:10002", null, null);
 		
-		final SimpleMqttConnection connection = new SimpleMqttConnection(reconnectionManager, 0, connectionDetails);
+		final SimpleMqttConnection connection = new SimpleMqttConnection(reconnectionManager, "0", connectionDetails);
 		connection.createClient(createTestCallback("tcp://localhost:10002"));
 		assertFalse(connection.connect());
 		Thread.sleep(1000);
@@ -156,7 +157,7 @@ public class ConnectionTestingWithMosquitto
 	}
 	
 	@Test
-	public void testUserConnection() throws IOException, MqttSpyException, InterruptedException
+	public void testUserConnection() throws IOException, SpyException, InterruptedException
 	{
 		final Process mosquitto = startMosquitto("src/test/resources/mosquitto/mosquitto_specified_users.conf");
 		
@@ -165,7 +166,7 @@ public class ConnectionTestingWithMosquitto
 				new UserCredentials("nopassword", ""), 
 				null);
 		
-		final SimpleMqttConnection connection = new SimpleMqttConnection(reconnectionManager, 0, connectionDetails);
+		final SimpleMqttConnection connection = new SimpleMqttConnection(reconnectionManager, "0", connectionDetails);
 		connection.createClient(createTestCallback("tcp://localhost:10002"));
 		assertTrue(connection.connect());
 		System.out.println("Connected...");
@@ -187,7 +188,7 @@ public class ConnectionTestingWithMosquitto
 	}
 	
 	@Test
-	public void testUserConnectionWithPassword() throws IOException, MqttSpyException, InterruptedException
+	public void testUserConnectionWithPassword() throws IOException, SpyException, InterruptedException
 	{
 		final Process mosquitto = startMosquitto("src/test/resources/mosquitto/mosquitto_specified_users.conf");
 		
@@ -196,7 +197,7 @@ public class ConnectionTestingWithMosquitto
 				new UserCredentials("test1", ConversionUtils.stringToBase64("t1")), 
 				null);
 		
-		final SimpleMqttConnection connection = new SimpleMqttConnection(reconnectionManager, 0, connectionDetails);
+		final SimpleMqttConnection connection = new SimpleMqttConnection(reconnectionManager, "0", connectionDetails);
 		connection.createClient(createTestCallback("tcp://localhost:10002"));
 		assertTrue(connection.connect());
 		System.out.println("Connected...");
@@ -218,13 +219,13 @@ public class ConnectionTestingWithMosquitto
 	}
 	
 	@Test
-	public void testUserConnectionWithInvalidPassword() throws IOException, MqttSpyException, InterruptedException
+	public void testUserConnectionWithInvalidPassword() throws IOException, SpyException, InterruptedException
 	{
 		final Process mosquitto = startMosquitto("src/test/resources/mosquitto/mosquitto_specified_users.conf");
 		
 		final MqttConnectionDetails connectionDetails = createMqttConnectionDetails("tcp://localhost:10002", new UserCredentials("test1", "blabla"), null);
 		
-		final SimpleMqttConnection connection = new SimpleMqttConnection(reconnectionManager, 0, connectionDetails);
+		final SimpleMqttConnection connection = new SimpleMqttConnection(reconnectionManager, "0", connectionDetails);
 		connection.createClient(createTestCallback("tcp://localhost:10002"));
 		assertFalse(connection.connect());	
 		Thread.sleep(1000);
@@ -234,7 +235,7 @@ public class ConnectionTestingWithMosquitto
 	}
 	
 	@Test
-	public void testServerOnlyAuthenticationWithLocalMosquitto() throws MqttSpyException, InterruptedException, IOException
+	public void testServerOnlyAuthenticationWithLocalMosquitto() throws SpyException, InterruptedException, IOException
 	{			
 		final Process mosquitto = startMosquitto("src/test/resources/mosquitto/mosquitto_ssl_server_only.conf");
 				
@@ -242,10 +243,10 @@ public class ConnectionTestingWithMosquitto
 				"ssl://localhost:10010", 
 				new UserCredentials("nopassword", ""),
 				new SslSettings(SslModeEnum.SERVER_ONLY, "TLSv1", 
-						"/home/kamil/Programming/Git/mqtt-spy-common/src/test/resources/mosquitto/ssl/ca.crt", 
+						"src/test/resources/mosquitto/ssl/ca.crt", 
 						null, null, null, null));
 		
-		final SimpleMqttConnection connection = new SimpleMqttConnection(reconnectionManager, 0, connectionDetails);
+		final SimpleMqttConnection connection = new SimpleMqttConnection(reconnectionManager, "0", connectionDetails);
 		connection.createClient(createTestCallback("ssl://localhost:10010"));
 		assertTrue(connection.connect());
 		System.out.println("Connected...");
@@ -257,7 +258,7 @@ public class ConnectionTestingWithMosquitto
 		System.out.println("Published...");
 		
 		// Waiting for message to be received now...
-		Thread.sleep(1000);
+		Thread.sleep(11000);
 		
 		connection.disconnect();
 		System.out.println("Disconnected");
@@ -267,7 +268,7 @@ public class ConnectionTestingWithMosquitto
 	}
 	
 	@Test
-	public void testServerAndClientAuthenticationWithLocalMosquitto() throws MqttSpyException, InterruptedException, IOException
+	public void testServerAndClientAuthenticationWithLocalMosquitto() throws SpyException, InterruptedException, IOException
 	{			
 		final Process mosquitto = startMosquitto("src/test/resources/mosquitto/mosquitto_ssl_server_and_client.conf");
 				
@@ -275,12 +276,12 @@ public class ConnectionTestingWithMosquitto
 				"ssl://localhost:10011", 
 				new UserCredentials("nopassword", ""),
 				new SslSettings(SslModeEnum.SERVER_AND_CLIENT, "TLSv1.1", 
-						"/home/kamil/Programming/Git/mqtt-spy-common/src/test/resources/mosquitto/ssl/ca.crt", 
-						"/home/kamil/Programming/Git/mqtt-spy-common/src/test/resources/mosquitto/ssl/bouncy_castle/client.crt", 
-						"/home/kamil/Programming/Git/mqtt-spy-common/src/test/resources/mosquitto/ssl/bouncy_castle/client.key", 
+						"src/test/resources/mosquitto/ssl/ca.crt", 
+						"src/test/resources/mosquitto/ssl/bouncy_castle/client.crt", 
+						"src/test/resources/mosquitto/ssl/bouncy_castle/client.key", 
 						"", null));
 		
-		final SimpleMqttConnection connection = new SimpleMqttConnection(reconnectionManager, 0, connectionDetails);
+		final SimpleMqttConnection connection = new SimpleMqttConnection(reconnectionManager, "0", connectionDetails);
 		connection.createClient(createTestCallback("ssl://localhost:10011"));
 		assertTrue(connection.connect());
 		System.out.println("Connected...");
@@ -302,15 +303,27 @@ public class ConnectionTestingWithMosquitto
 	}
 	
 	@Test
-	public void testServerOnlyAuthenticationWithLiveMosquitto() throws MqttSpyException, InterruptedException
+	public void testServerOnlyAuthenticationWithLiveMosquitto() throws SpyException, InterruptedException
 	{				
-		final MqttConnectionDetails connectionDetails = createMqttConnectionDetails("ssl://test.mosquitto.org", null, 
+		testServerOnlyAuthentication("ssl://test.mosquitto.org", "/certificates/certificate_authority_files/mosquitto.org.crt");
+	}
+	
+	@Test
+	public void testServerOnlyAuthenticationWithLiveEclipseServer() throws SpyException, InterruptedException
+	{				
+		testServerOnlyAuthentication("ssl://iot.eclipse.org", "/certificates/certificate_authority_files/iot.eclipse.org.crt");
+	}
+	
+	private void testServerOnlyAuthentication(final String server, final String certificateAuthorityFile) 
+			throws InterruptedException, SpyException
+	{
+		final MqttConnectionDetails connectionDetails = createMqttConnectionDetails(server, null, 
 				new SslSettings(SslModeEnum.SERVER_ONLY, "TLSv1.2", 
-						"/home/kamil/Programming/Git/mqtt-spy-common/src/test/resources/test_mosquitto_org/mosquitto.org.crt", 
+						certificateAuthorityFile, 
 						null, null, null, null));
 		
-		final SimpleMqttConnection connection = new SimpleMqttConnection(reconnectionManager, 0, connectionDetails);
-		connection.createClient(createTestCallback("ssl://test.mosquitto.org"));
+		final SimpleMqttConnection connection = new SimpleMqttConnection(reconnectionManager, "0", connectionDetails);
+		connection.createClient(createTestCallback(server));
 		assertTrue(connection.connect());
 		System.out.println("Connected...");
 		
@@ -326,5 +339,4 @@ public class ConnectionTestingWithMosquitto
 		connection.disconnect();
 		System.out.println("Disconnected");
 	}
-
 }

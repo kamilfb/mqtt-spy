@@ -93,14 +93,6 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link SslProperty }
-     * 
-     */
-    public SslProperty createSslProperty() {
-        return new SslProperty();
-    }
-
-    /**
      * Create an instance of {@link UserCredentials }
      * 
      */
@@ -125,99 +117,11 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link Task }
-     * 
-     */
-    public Task createTask() {
-        return new Task();
-    }
-
-    /**
-     * Create an instance of {@link ScriptDetails }
-     * 
-     */
-    public ScriptDetails createScriptDetails() {
-        return new ScriptDetails();
-    }
-
-    /**
      * Create an instance of {@link MessageLog }
      * 
      */
     public MessageLog createMessageLog() {
         return new MessageLog();
-    }
-
-    /**
-     * Create an instance of {@link Formatting }
-     * 
-     */
-    public Formatting createFormatting() {
-        return new Formatting();
-    }
-
-    /**
-     * Create an instance of {@link FormatterDetails }
-     * 
-     */
-    public FormatterDetails createFormatterDetails() {
-        return new FormatterDetails();
-    }
-
-    /**
-     * Create an instance of {@link FormatterFunction }
-     * 
-     */
-    public FormatterFunction createFormatterFunction() {
-        return new FormatterFunction();
-    }
-
-    /**
-     * Create an instance of {@link ScriptExecutionDetails }
-     * 
-     */
-    public ScriptExecutionDetails createScriptExecutionDetails() {
-        return new ScriptExecutionDetails();
-    }
-
-    /**
-     * Create an instance of {@link ConversionFormatterDetails }
-     * 
-     */
-    public ConversionFormatterDetails createConversionFormatterDetails() {
-        return new ConversionFormatterDetails();
-    }
-
-    /**
-     * Create an instance of {@link CharacterReplaceFormatterDetails }
-     * 
-     */
-    public CharacterReplaceFormatterDetails createCharacterReplaceFormatterDetails() {
-        return new CharacterReplaceFormatterDetails();
-    }
-
-    /**
-     * Create an instance of {@link SubstringConversionFormatterDetails }
-     * 
-     */
-    public SubstringConversionFormatterDetails createSubstringConversionFormatterDetails() {
-        return new SubstringConversionFormatterDetails();
-    }
-
-    /**
-     * Create an instance of {@link SubstringReplaceFormatterDetails }
-     * 
-     */
-    public SubstringReplaceFormatterDetails createSubstringReplaceFormatterDetails() {
-        return new SubstringReplaceFormatterDetails();
-    }
-
-    /**
-     * Create an instance of {@link SubstringExtractFormatterDetails }
-     * 
-     */
-    public SubstringExtractFormatterDetails createSubstringExtractFormatterDetails() {
-        return new SubstringExtractFormatterDetails();
     }
 
     /**

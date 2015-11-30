@@ -11,6 +11,7 @@
 
 package pl.baczkowicz.mqttspy.common.generated;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -75,9 +76,10 @@ import org.jvnet.jaxb2_commons.locator.util.LocatorUtils;
 })
 public class MqttConnectionDetails
     extends ConnectionDetails
-    implements Cloneable, CopyTo, Equals, HashCode, ToString
+    implements Serializable, Cloneable, CopyTo, Equals, HashCode, ToString
 {
 
+    private final static long serialVersionUID = 1L;
     @XmlElement(name = "ServerURI", required = true)
     protected List<String> serverURI;
     @XmlElement(name = "ClientID", required = true)
@@ -109,8 +111,8 @@ public class MqttConnectionDetails
      * Fully-initialising value constructor
      * 
      */
-    public MqttConnectionDetails(final String name, final ProtocolEnum protocol, final List<String> serverURI, final String clientID, final UserCredentials userCredentials, final SimpleMqttMessage lastWillAndTestament, final Boolean cleanSession, final Integer connectionTimeout, final Integer keepAliveInterval, final SslSettings ssl, final ReconnectionSettings reconnectionSettings) {
-        super(name, protocol);
+    public MqttConnectionDetails(final String id, final String name, final ProtocolVersionEnum protocol, final List<String> serverURI, final String clientID, final UserCredentials userCredentials, final SimpleMqttMessage lastWillAndTestament, final Boolean cleanSession, final Integer connectionTimeout, final Integer keepAliveInterval, final SslSettings ssl, final ReconnectionSettings reconnectionSettings) {
+        super(id, name, protocol);
         this.serverURI = serverURI;
         this.clientID = clientID;
         this.userCredentials = userCredentials;

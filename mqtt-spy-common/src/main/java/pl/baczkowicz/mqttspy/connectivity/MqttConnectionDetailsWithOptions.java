@@ -25,21 +25,24 @@ import org.apache.commons.codec.binary.Base64;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 
 import pl.baczkowicz.mqttspy.common.generated.MqttConnectionDetails;
-import pl.baczkowicz.mqttspy.common.generated.ProtocolEnum;
+import pl.baczkowicz.mqttspy.common.generated.ProtocolVersionEnum;
 import pl.baczkowicz.mqttspy.common.generated.SslModeEnum;
-import pl.baczkowicz.mqttspy.common.generated.SslProperty;
-import pl.baczkowicz.mqttspy.exceptions.ConfigurationException;
-import pl.baczkowicz.mqttspy.exceptions.MqttSpyException;
-import pl.baczkowicz.mqttspy.utils.ConfigurationUtils;
-import pl.baczkowicz.mqttspy.utils.ConversionUtils;
+import pl.baczkowicz.spy.common.generated.Property;
+import pl.baczkowicz.mqttspy.utils.MqttConfigurationUtils;
+import pl.baczkowicz.spy.exceptions.ConfigurationException;
+import pl.baczkowicz.spy.exceptions.SpyException;
+import pl.baczkowicz.spy.utils.ConversionUtils;
+import pl.baczkowicz.spy.utils.SslUtils;
 
 /**
  * Extends JAXB-generated class for storing MQTT connection details, by adding the Paho's MqttConnectOptions.
  */
 public class MqttConnectionDetailsWithOptions extends MqttConnectionDetails
 {
+	private static final long serialVersionUID = 5693589380291267334L;
+
 	/** Unique ID for this connection - populated when loading configuration. */
-	private final int id;
+	private final String id;
 	
 	/** Paho's MQTT connection options. */
 	private MqttConnectOptions options;
@@ -51,7 +54,7 @@ public class MqttConnectionDetailsWithOptions extends MqttConnectionDetails
 	 * 
 	 * @throws ConfigurationException Thrown when errors detected
 	 */
-	public MqttConnectionDetailsWithOptions(final int id, final MqttConnectionDetails details) throws ConfigurationException
+	public MqttConnectionDetailsWithOptions(final String id, final MqttConnectionDetails details) throws ConfigurationException
 	{
 		this.id = id;
 		this.setProtocol(details.getProtocol());
@@ -72,14 +75,14 @@ public class MqttConnectionDetailsWithOptions extends MqttConnectionDetails
 		this.setSSL(details.getSSL());
 		final boolean sslEnabled = details.getSSL() != null && details.getSSL().getMode() != null && !details.getSSL().getMode().equals(SslModeEnum.DISABLED);
 		
-		ConfigurationUtils.completeServerURIs(this, sslEnabled);
-		ConfigurationUtils.populateConnectionDefaults(this);
+		MqttConfigurationUtils.completeServerURIs(this, sslEnabled);
+		MqttConfigurationUtils.populateConnectionDefaults(this);
 		
 		try
 		{
 			populateMqttConnectOptions();
 		}
-		catch (IllegalArgumentException | MqttSpyException e)
+		catch (IllegalArgumentException | SpyException e)
 		{
 			throw new ConfigurationException("Invalid parameters", e);
 		}
@@ -87,18 +90,18 @@ public class MqttConnectionDetailsWithOptions extends MqttConnectionDetails
 	
 	/**
 	 * Populates the Paho's MqttConnectOptions based on the supplied MqttConnectionDetails.
-	 * @throws MqttSpyException Thrown when SSL configuration is not valid
+	 * @throws SpyException Thrown when SSL configuration is not valid
 	 */
-	private void populateMqttConnectOptions() throws MqttSpyException
+	private void populateMqttConnectOptions() throws SpyException
 	{
 		// Populate MQTT options
 		options = new MqttConnectOptions();
 				
-		if (ProtocolEnum.MQTT_3_1_1.equals(getProtocol()))
+		if (ProtocolVersionEnum.MQTT_3_1_1.equals(getProtocol()))
 		{
 			options.setMqttVersion(MqttConnectOptions.MQTT_VERSION_3_1_1);
 		}
-		else if (ProtocolEnum.MQTT_3_1.equals(getProtocol()))
+		else if (ProtocolVersionEnum.MQTT_3_1.equals(getProtocol()))
 		{
 			options.setMqttVersion(MqttConnectOptions.MQTT_VERSION_3_1);
 		}
@@ -140,7 +143,7 @@ public class MqttConnectionDetailsWithOptions extends MqttConnectionDetails
 			if (SslModeEnum.PROPERTIES.equals(getSSL().getMode()))			
 			{
 				Properties props = new Properties();
-				for (final SslProperty prop : getSSL().getProperty())
+				for (final Property prop : getSSL().getProperty())
 				{
 					props.put(prop.getName(), prop.getValue());
 				}
@@ -176,7 +179,7 @@ public class MqttConnectionDetailsWithOptions extends MqttConnectionDetails
 		return options;
 	}
 
-	public int getId()
+	public String getId()
 	{
 		return id;
 	}

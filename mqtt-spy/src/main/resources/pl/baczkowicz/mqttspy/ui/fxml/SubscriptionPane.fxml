@@ -41,7 +41,7 @@
       	<graphic>
       		<ImageView fitHeight="18.0" fitWidth="18.0" pickOnBounds="true">
 		         <image>
-		            <Image url="/images/tools.png"/>
+		            <Image url="/images/small/tools.png"/>
 		         </image>
 		      </ImageView>
       	</graphic>
@@ -85,21 +85,37 @@
             	<items>
             		<Menu text="Messages">
             			<items>
-            				<MenuItem text="[Clipboard] This message" onAction="#copyMessageToClipboard"/>
-		            		<MenuItem text="[Clipboard] All browsed messages" onAction="#copyMessagesToClipboard"/>
-		            		<SeparatorMenuItem mnemonicParsing="false" />
-		            		<MenuItem text="[Message log file] This message" onAction="#copyMessageToFile"/>
-		            		<MenuItem text="[Message log file] All browsed messages" onAction="#copyMessagesToFile"/>
-		            		<SeparatorMenuItem mnemonicParsing="false" />
-		            		<MenuItem text="[Binary file] This message" onAction="#copyMessageToBinaryFile"/>
+            				<Menu text="Clipboard">
+            					<items>
+            						<MenuItem text="This message" onAction="#copyMessageToClipboard"/>
+		            				<MenuItem text="All browsed messages" onAction="#copyMessagesToClipboard"/>
+            					</items>
+            				</Menu>
+            				
+		            		<Menu text="Message log file">
+		            			<items>
+		            				<MenuItem text="This message" onAction="#copyMessageToFile"/>
+		            				<MenuItem text="All browsed messages" onAction="#copyMessagesToFile"/>		            				
+		            			</items>
+		            		</Menu>
+		            		
+		            		<Menu text="Binary file">
+		            			<items>
+		            				<MenuItem text="This message" onAction="#copyMessageToBinaryFile"/>
+		            			</items>
+		            		</Menu>		            		
             			</items>
             		</Menu>
             		<Menu text="Topics">
             			<items>
-            				<MenuItem text="[Clipboard] This topic" onAction="#copyBrowsedTopic" />
-            				<MenuItem text="[Clipboard] All browsed topics" onAction="#copyBrowsedTopics" />
-            				<MenuItem text="[Clipboard] All filtered topics" onAction="#copyFilteredTopics" />
-            				<MenuItem text="[Clipboard] All topics" onAction="#copyAllTopics" />
+            				<Menu text="Clipboard">
+            					<items>
+            						<MenuItem text="This topic" onAction="#copyBrowsedTopic" />
+            						<MenuItem text="All browsed topics" onAction="#copyBrowsedTopics" />
+            						<MenuItem text="All filtered topics" onAction="#copyFilteredTopics" />
+            						<MenuItem text="All topics" onAction="#copyAllTopics" />
+            					</items>
+            				</Menu>            				
             			</items>
             		</Menu>
             	</items>
@@ -115,7 +131,7 @@
         <graphic>
       		<ImageView fitHeight="20" fitWidth="20" pickOnBounds="true">
 		         <image>
-		            <Image url="/images/search.png" />
+		            <Image url="/images/small/search.png" />
 		         </image>
 		      </ImageView>
       	</graphic>

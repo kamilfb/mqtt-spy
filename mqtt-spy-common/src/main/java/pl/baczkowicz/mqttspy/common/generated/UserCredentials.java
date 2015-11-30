@@ -11,6 +11,7 @@
 
 package pl.baczkowicz.mqttspy.common.generated;
 
+import java.io.Serializable;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -57,9 +58,10 @@ import org.jvnet.jaxb2_commons.locator.util.LocatorUtils;
     "username",
     "password"
 })
-public class UserCredentials implements Cloneable, CopyTo, Equals, HashCode, ToString
+public class UserCredentials implements Serializable, Cloneable, CopyTo, Equals, HashCode, ToString
 {
 
+    private final static long serialVersionUID = 1L;
     @XmlElement(name = "Username", required = true)
     protected String username;
     @XmlElement(name = "Password", required = true)

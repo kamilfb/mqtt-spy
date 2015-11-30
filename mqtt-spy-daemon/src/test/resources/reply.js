@@ -1,6 +1,6 @@
-function publishReply()
+function onMessage()
 {	
-	mqttspy.publish(
+	mqtt.publish(
 			"/reply", "<simpleReply><topic>" + receivedMessage.getTopic() + "</topic>" 
 			+ "<payload><![CDATA[" + receivedMessage.getPayload() + "]]></payload>"
 			+ "</simpleReply>", 0, false);
@@ -9,5 +9,3 @@ function publishReply()
 
 	return true;
 }
-
-publishReply();

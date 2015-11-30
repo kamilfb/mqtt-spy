@@ -24,19 +24,19 @@ import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.connectivity.MqttConnectionStatus;
-import pl.baczkowicz.mqttspy.events.MqttSpyEvent;
 import pl.baczkowicz.mqttspy.ui.events.queuable.connectivity.MqttConnectionAttemptSuccessEvent;
 import pl.baczkowicz.mqttspy.ui.events.queuable.connectivity.MqttConnectionFailureEvent;
 import pl.baczkowicz.mqttspy.ui.events.queuable.connectivity.MqttConnectionLostEvent;
 import pl.baczkowicz.mqttspy.ui.events.queuable.connectivity.MqttDisconnectionAttemptSuccessEvent;
+import pl.baczkowicz.spy.events.SpyEvent;
 
 public class MqttEventHandler implements Runnable
 {
 	private final static Logger logger = LoggerFactory.getLogger(MqttEventHandler.class);
 	
-	private MqttSpyEvent event;
+	private SpyEvent event;
 
-	public MqttEventHandler(final MqttSpyEvent event)
+	public MqttEventHandler(final SpyEvent event)
 	{
 		this.event = event;
 	}

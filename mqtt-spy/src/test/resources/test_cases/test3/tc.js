@@ -1,9 +1,9 @@
-var TestCaseStepResult = Java.type("pl.baczkowicz.mqttspy.testcases.TestCaseStepResult");
-var TestCaseStatus = Java.type("pl.baczkowicz.mqttspy.testcases.TestCaseStatus");
+var TestCaseStepResult = Java.type("pl.baczkowicz.spy.testcases.TestCaseStepResult");
+var TestCaseStatus = Java.type("pl.baczkowicz.spy.testcases.TestCaseStatus");
 
 var getInfo = function () 
 {
-    var TestCaseInfo = Java.type("pl.baczkowicz.mqttspy.testcases.TestCaseInfo");
+    var TestCaseInfo = Java.type("pl.baczkowicz.spy.testcases.TestCaseInfo");
 	var info = new TestCaseInfo();
 	info.setName("Pub/sub test");
 	info.getSteps().add("Subscribe to test topic");

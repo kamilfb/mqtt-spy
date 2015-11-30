@@ -20,13 +20,12 @@
 package pl.baczkowicz.mqttspy.connectivity;
 
 import javafx.scene.paint.Color;
-import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
-import pl.baczkowicz.mqttspy.configuration.UiProperties;
-import pl.baczkowicz.mqttspy.scripts.FormattingManager;
-import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
+import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.ui.SubscriptionController;
 import pl.baczkowicz.mqttspy.ui.events.EventManager;
-import pl.baczkowicz.mqttspy.ui.events.queuable.EventQueueManager;
+import pl.baczkowicz.spy.formatting.FormattingManager;
+import pl.baczkowicz.spy.ui.events.queuable.EventQueueManager;
+import pl.baczkowicz.spy.ui.storage.ManagedMessageStoreWithFiltering;
 
 public class MqttSubscription extends BaseMqttSubscription
 {
@@ -36,21 +35,23 @@ public class MqttSubscription extends BaseMqttSubscription
 
 	private MqttAsyncConnection connection;
 	
-	private final ManagedMessageStoreWithFiltering store;
+	private final ManagedMessageStoreWithFiltering<FormattedMqttMessage> store;
 
-	private EventManager eventManager;
+	private EventManager<FormattedMqttMessage> eventManager;
 
 	public MqttSubscription(final String topic, final Integer qos, final Color color, 
-			final int minMessagesPerTopic, final int preferredStoreSize, final EventQueueManager uiEventQueue, final EventManager eventManager, 
-			final ConfigurationManager configurationManager, final FormattingManager formattingManager)
+			final int minMessagesPerTopic, final int preferredStoreSize, final EventQueueManager<FormattedMqttMessage> uiEventQueue,
+			final EventManager<FormattedMqttMessage> eventManager, 
+			final FormattingManager formattingManager, final int summaryMaxPayloadLength)
 	{
 		super(topic, qos, minMessagesPerTopic, preferredStoreSize);
 		
 		// Max size is double the preferred size
-		store = new ManagedMessageStoreWithFiltering(topic, minMessagesPerTopic, 
+		store = new ManagedMessageStoreWithFiltering<FormattedMqttMessage>(topic, minMessagesPerTopic, 
 				preferredStoreSize, preferredStoreSize * 2, 
-				uiEventQueue, eventManager, formattingManager,
-				UiProperties.getSummaryMaxPayloadLength(configurationManager));
+				uiEventQueue, //eventManager, 
+				formattingManager,
+				summaryMaxPayloadLength);
 		
 		this.color = color;
 		this.eventManager = eventManager;
@@ -99,7 +100,7 @@ public class MqttSubscription extends BaseMqttSubscription
 	}
 
 	@Override
-	public ManagedMessageStoreWithFiltering getStore()
+	public ManagedMessageStoreWithFiltering<FormattedMqttMessage> getStore()
 	{
 		return store;
 	}

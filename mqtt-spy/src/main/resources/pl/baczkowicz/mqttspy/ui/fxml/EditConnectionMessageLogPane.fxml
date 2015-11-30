@@ -33,18 +33,13 @@
 
 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.baczkowicz.mqttspy.ui.controllers.edit.EditConnectionMessageLogController" >
 	<children>
+	
 		<Label layoutX="23.0" layoutY="60.0" text="Message log location" />
-		<!-- 
-		<Label layoutX="40.0" layoutY="77.0" text="[leave empty to use default]" textFill="#5e5e5e">         
-         <font>
-            <Font size="10.0" />
-         </font>
-      </Label>                        
-       -->
-      <TextField fx:id="messageLogLocation" layoutX="279.0" layoutY="55.0" prefHeight="25.0" prefWidth="296.0" AnchorPane.rightAnchor="14.0" />
 
-      <Label layoutX="23.0" layoutY="20.0" text="Message logging mode" />
-      <ComboBox fx:id="loggingMode" layoutX="279.0" layoutY="15" prefHeight="25.0" prefWidth="296.0" AnchorPane.rightAnchor="14.0" />
+      	<TextField fx:id="messageLogLocation" layoutX="279.0" layoutY="55.0" prefHeight="25.0" prefWidth="296.0" AnchorPane.rightAnchor="14.0" />
+
+      	<Label layoutX="23.0" layoutY="20.0" text="Message logging mode" />
+      	<ComboBox fx:id="loggingMode" layoutX="279.0" layoutY="15" prefHeight="25.0" prefWidth="296.0" AnchorPane.rightAnchor="14.0" />
                               
 	</children>
 </AnchorPane>

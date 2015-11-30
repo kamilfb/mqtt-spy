@@ -45,40 +45,40 @@
       </Label>
       
       <!-- Create -->
- 	  <Button fx:id="connectButton" focusTraversable="false" graphicTextGap="15" layoutY="317.0" mnemonicParsing="false" onAction="#createConnection" prefHeight="25.0" prefWidth="302.0" text="Open connection" AnchorPane.bottomAnchor="14.0" AnchorPane.rightAnchor="18.0">
+ 	  <Button fx:id="connectButton" focusTraversable="false" graphicTextGap="15" layoutY="317.0" mnemonicParsing="false" onAction="#createConnection" prefHeight="28" prefWidth="302.0" text="Open connection" AnchorPane.bottomAnchor="14.0" AnchorPane.rightAnchor="18.0">
 	   <padding><Insets bottom="1.0" left="1.0" right="1.0" top="1.0" /></padding>
 		    <graphic>
 		  		<ImageView fitHeight="22" fitWidth="22" pickOnBounds="true">
 		       <image>
-		          <Image url="/images/button-connect.png" />
+		          <Image url="/images/small/button-connect.png" />
 		       </image>
 		    </ImageView>
 		  	</graphic>
       </Button>
             
-      <Button fx:id="saveButton" focusTraversable="false" layoutX="14.0" layoutY="317.0" mnemonicParsing="false" onAction="#save" prefHeight="25.0" prefWidth="100.0" text="Apply" AnchorPane.bottomAnchor="14.0" AnchorPane.leftAnchor="14.0">
+      <Button fx:id="saveButton" focusTraversable="false" layoutX="14.0" layoutY="317.0" mnemonicParsing="false" onAction="#save" prefHeight="28" prefWidth="100.0" text="Apply" AnchorPane.bottomAnchor="14.0" AnchorPane.leftAnchor="14.0">
       	        <padding><Insets bottom="1.0" left="1.0" right="1.0" top="1.0" /></padding>
 		        <graphic>
 		      		<ImageView fitHeight="16" fitWidth="16" pickOnBounds="true">
 				         <image>
-				            <Image url="/images/button-apply.png" />
+				            <Image url="/images/small/button-apply.png" />
 				         </image>
 				      </ImageView>
 		      	</graphic>
        </Button>
        
-      <Button fx:id="undoButton" focusTraversable="false" layoutX="120.0" layoutY="317.0" mnemonicParsing="false" onAction="#undo" prefHeight="25.0" prefWidth="100.0" text="Undo" AnchorPane.bottomAnchor="14.0" AnchorPane.leftAnchor="120.0">
+      <Button fx:id="undoButton" focusTraversable="false" layoutX="120.0" layoutY="317.0" mnemonicParsing="false" onAction="#undo" prefHeight="28" prefWidth="100.0" text="Undo" AnchorPane.bottomAnchor="14.0" AnchorPane.leftAnchor="120.0">
             	        <padding><Insets bottom="1.0" left="1.0" right="1.0" top="1.0" /></padding>
 		        <graphic>
 		      		<ImageView fitHeight="16" fitWidth="16" pickOnBounds="true">
 				         <image>
-				            <Image url="/images/button-undo.png" />
+				            <Image url="/images/small/button-undo.png" />
 				         </image>
 				      </ImageView>
 		      	</graphic>
        </Button>
        
-      <Button fx:id="cancelButton" cancelButton="true" focusTraversable="false" layoutX="192.0" layoutY="317.0" mnemonicParsing="false" onAction="#cancel" prefHeight="25.0" prefWidth="80.0" text="Close" visible="false" AnchorPane.bottomAnchor="14.0" AnchorPane.rightAnchor="322.0" />
+      <Button fx:id="cancelButton" cancelButton="true" focusTraversable="false" layoutX="192.0" layoutY="317.0" mnemonicParsing="false" onAction="#cancel" prefHeight="28" prefWidth="80.0" text="Close" visible="false" AnchorPane.bottomAnchor="14.0" AnchorPane.rightAnchor="322.0" />
             
       <TabPane layoutY="301.0" prefHeight="241.0" prefWidth="594.0" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="61.0" AnchorPane.leftAnchor="4.0" AnchorPane.rightAnchor="4.0">
         <tabs>
@@ -120,7 +120,7 @@
         </tabs>
       </TabPane>
       <Separator layoutX="14.0" layoutY="278.0" prefHeight="0.0" prefWidth="618.0" AnchorPane.bottomAnchor="50.0" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="14.0" />
-      <Label layoutX="14.0" layoutY="61.0" text="Connection protocol" />
+      <Label layoutX="14.0" layoutY="61.0" text="Protocol version" />
       <ComboBox fx:id="protocolCombo" layoutX="278.0" layoutY="56.0" prefHeight="25.0" prefWidth="302.0" AnchorPane.leftAnchor="278.0" AnchorPane.rightAnchor="14.0" AnchorPane.topAnchor="56.0" />          
       
    </children>

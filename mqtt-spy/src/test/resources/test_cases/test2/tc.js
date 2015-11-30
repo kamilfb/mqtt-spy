@@ -1,9 +1,9 @@
-var TestCaseStepResult = Java.type("pl.baczkowicz.mqttspy.testcases.TestCaseStepResult");
-var TestCaseStatus = Java.type("pl.baczkowicz.mqttspy.testcases.TestCaseStatus");
+var TestCaseStepResult = Java.type("pl.baczkowicz.spy.testcases.TestCaseStepResult");
+var TestCaseStatus = Java.type("pl.baczkowicz.spy.testcases.TestCaseStatus");
 
 var getInfo = function () 
 {
-    var TestCaseInfo = Java.type("pl.baczkowicz.mqttspy.testcases.TestCaseInfo");
+    var TestCaseInfo = Java.type("pl.baczkowicz.spy.testcases.TestCaseInfo");
 	var info = new TestCaseInfo();
 	info.setName("Sample test case 2");
 	info.getSteps().add("Step 1");

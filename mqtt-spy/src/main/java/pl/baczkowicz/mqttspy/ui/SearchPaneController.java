@@ -49,30 +49,30 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
-import pl.baczkowicz.mqttspy.configuration.UiProperties;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
-import pl.baczkowicz.mqttspy.scripts.FormattingManager;
-import pl.baczkowicz.mqttspy.scripts.Script;
-import pl.baczkowicz.mqttspy.scripts.ScriptManager;
-import pl.baczkowicz.mqttspy.storage.FilteredMessageStore;
-import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
-import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
+import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
+import pl.baczkowicz.mqttspy.scripts.MqttScriptManager;
 import pl.baczkowicz.mqttspy.ui.events.EventManager;
-import pl.baczkowicz.mqttspy.ui.events.observers.MessageAddedObserver;
-import pl.baczkowicz.mqttspy.ui.events.observers.MessageFormatChangeObserver;
-import pl.baczkowicz.mqttspy.ui.events.queuable.ui.BrowseReceivedMessageEvent;
-import pl.baczkowicz.mqttspy.ui.properties.MqttContentProperties;
-import pl.baczkowicz.mqttspy.ui.search.InlineScriptMatcher;
-import pl.baczkowicz.mqttspy.ui.search.ScriptMatcher;
-import pl.baczkowicz.mqttspy.ui.search.SearchMatcher;
-import pl.baczkowicz.mqttspy.ui.search.SearchOptions;
-import pl.baczkowicz.mqttspy.ui.search.SimplePayloadMatcher;
-import pl.baczkowicz.mqttspy.ui.search.UniqueContentOnlyFilter;
+import pl.baczkowicz.spy.formatting.FormattingManager;
+import pl.baczkowicz.spy.scripts.Script;
+import pl.baczkowicz.spy.ui.configuration.UiProperties;
+import pl.baczkowicz.spy.ui.events.observers.MessageAddedObserver;
+import pl.baczkowicz.spy.ui.events.observers.MessageFormatChangeObserver;
+import pl.baczkowicz.spy.ui.events.queuable.ui.BrowseReceivedMessageEvent;
+import pl.baczkowicz.spy.ui.properties.MessageContentProperties;
+import pl.baczkowicz.spy.ui.search.InlineScriptMatcher;
+import pl.baczkowicz.spy.ui.search.ScriptMatcher;
+import pl.baczkowicz.spy.ui.search.SearchMatcher;
+import pl.baczkowicz.spy.ui.search.SearchOptions;
+import pl.baczkowicz.spy.ui.search.SimplePayloadMatcher;
+import pl.baczkowicz.spy.ui.search.UniqueContentOnlyFilter;
+import pl.baczkowicz.spy.ui.storage.FilteredMessageStore;
+import pl.baczkowicz.spy.ui.storage.ManagedMessageStoreWithFiltering;
 
 /**
  * Controller for the search pane.
  */
-public class SearchPaneController implements Initializable, MessageFormatChangeObserver, MessageAddedObserver
+public class SearchPaneController implements Initializable, MessageFormatChangeObserver, MessageAddedObserver<FormattedMqttMessage>
 {
 	/** Diagnostic logger. */
 	private final static Logger logger = LoggerFactory.getLogger(SearchPaneController.class);
@@ -130,23 +130,23 @@ public class SearchPaneController implements Initializable, MessageFormatChangeO
 	@FXML 
 	private SplitPane splitPane;
 	
-	private EventManager eventManager;
+	private EventManager<FormattedMqttMessage> eventManager;
 	
-	private ManagedMessageStoreWithFiltering store; 
+	private ManagedMessageStoreWithFiltering<FormattedMqttMessage> store; 
 	
-	private FilteredMessageStore foundMessageStore;
+	private FilteredMessageStore<FormattedMqttMessage> foundMessageStore;
 
 	private Tab tab;
 
-	private final ObservableList<MqttContentProperties> foundMessages = FXCollections.observableArrayList();
+	private final ObservableList<MessageContentProperties<FormattedMqttMessage>> foundMessages = FXCollections.observableArrayList();
 
 	private int seachedCount;
 
 	private MqttAsyncConnection connection;
 
-	private ScriptManager scriptManager;
+	private MqttScriptManager scriptManager;
 
-	private UniqueContentOnlyFilter uniqueContentOnlyFilter;
+	private UniqueContentOnlyFilter<FormattedMqttMessage> uniqueContentOnlyFilter;
 
 	private ConfigurationManager configurationManager;
 
@@ -175,12 +175,12 @@ public class SearchPaneController implements Initializable, MessageFormatChangeO
 	
 	public void init()
 	{
-		foundMessageStore = new FilteredMessageStore(store.getMessageList(), store.getMessageList().getPreferredSize(), 
+		foundMessageStore = new FilteredMessageStore<FormattedMqttMessage>(store.getMessageList(), store.getMessageList().getPreferredSize(), 
 				store.getMessageList().getMaxSize(), 
 				"search-" + store.getName(), store.getFormatter(), 
-				formattingManager, UiProperties.getSummaryMaxPayloadLength(configurationManager));
+				formattingManager, UiProperties.getSummaryMaxPayloadLength(configurationManager.getUiPropertyFile()));
 		
-		uniqueContentOnlyFilter = new UniqueContentOnlyFilter(store, store.getUiEventQueue());
+		uniqueContentOnlyFilter = new UniqueContentOnlyFilter<FormattedMqttMessage>(store, store.getUiEventQueue());
 		uniqueContentOnlyFilter.setUniqueContentOnly(messageNavigationPaneController.getUniqueOnlyMenu().isSelected());
 		foundMessageStore.addMessageFilter(uniqueContentOnlyFilter);
 		messageNavigationPaneController.getUniqueOnlyMenu().setOnAction(new EventHandler<ActionEvent>()
@@ -219,7 +219,7 @@ public class SearchPaneController implements Initializable, MessageFormatChangeO
 		eventManager.registerChangeMessageIndexFirstObserver(messageNavigationPaneController, foundMessageStore);
 		eventManager.registerIncrementMessageIndexObserver(messageNavigationPaneController, foundMessageStore);
 		
-		scriptManager = new ScriptManager(null, null, connection);
+		scriptManager = new MqttScriptManager(null, null, connection);
 		refreshList();
 		
 		eventManager.registerMessageAddedObserver(this, store.getMessageList());
@@ -275,7 +275,7 @@ public class SearchPaneController implements Initializable, MessageFormatChangeO
 	
 	public void onScriptListChange()
 	{
-		final Collection<Script> scripts = scriptManager.getScripts().values();
+		final Collection<Script> scripts = scriptManager.getScripts();
 		
 		final List<Script> pubScripts = new ArrayList<>();
 		
@@ -384,8 +384,8 @@ public class SearchPaneController implements Initializable, MessageFormatChangeO
 	
 	private void messageFound(final FormattedMqttMessage message)
 	{	
-		foundMessages.add(0, new MqttContentProperties(message, /*store.getFormatter(), */
-				UiProperties.getSummaryMaxPayloadLength(configurationManager)));
+		foundMessages.add(0, new MessageContentProperties<FormattedMqttMessage>(message, /*store.getFormatter(), */
+				UiProperties.getSummaryMaxPayloadLength(configurationManager.getUiPropertyFile())));
 		
 		if (!uniqueContentOnlyFilter.filter(message, foundMessageStore.getMessageList(), true))
 		{
@@ -451,9 +451,9 @@ public class SearchPaneController implements Initializable, MessageFormatChangeO
 
 	// TODO: optimise message handling
 	@Override
-	public void onMessageAdded(final List<BrowseReceivedMessageEvent> events)
+	public void onMessageAdded(final List<BrowseReceivedMessageEvent<FormattedMqttMessage>> events)
 	{
-		for (final BrowseReceivedMessageEvent event : events)
+		for (final BrowseReceivedMessageEvent<FormattedMqttMessage> event : events)
 		{
 			onMessageAdded(event.getMessage());
 		}
@@ -524,7 +524,7 @@ public class SearchPaneController implements Initializable, MessageFormatChangeO
 	// === Setters and getters =======
 	// ===============================
 
-	public void setEventManager(final EventManager eventManager)
+	public void setEventManager(final EventManager<FormattedMqttMessage> eventManager)
 	{
 		this.eventManager = eventManager;
 	}
@@ -539,7 +539,7 @@ public class SearchPaneController implements Initializable, MessageFormatChangeO
 		return autoRefreshCheckBox.isSelected();
 	}
 
-	public void setStore(final ManagedMessageStoreWithFiltering store)
+	public void setStore(final ManagedMessageStoreWithFiltering<FormattedMqttMessage> store)
 	{
 		this.store = store;
 	}

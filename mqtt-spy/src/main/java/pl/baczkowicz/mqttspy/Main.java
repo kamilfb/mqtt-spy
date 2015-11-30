@@ -33,23 +33,17 @@ import javafx.stage.Stage;
 import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
-import pl.baczkowicz.mqttspy.configuration.UiProperties;
+import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.ui.MainController;
 import pl.baczkowicz.mqttspy.ui.events.EventManager;
-import pl.baczkowicz.mqttspy.ui.utils.FxmlUtils;
-import pl.baczkowicz.mqttspy.utils.IdGenerator;
+import pl.baczkowicz.spy.ui.configuration.UiProperties;
+import pl.baczkowicz.spy.ui.utils.FxmlUtils;
 
 /** 
  * The main class, loading the app.
  */
 public class Main extends Application
-{
-	/** Initial and minimal scene/stage width. */	
-	public final static int DEFAULT_WIDTH = 800;
-
-	/** Initial and minimal scene/stage height. */
-	public final static int DEFAULT_HEIGHT = 600;
-	
+{	
 	/** Name of the parameter supplied on the command line to indicate where to find the configuration file - optional. */
 	private final static String CONFIGURATION_PARAMETER_NAME = "configuration";
 	
@@ -62,12 +56,11 @@ public class Main extends Application
 	 */
 	public void start(final Stage primaryStage)
 	{
-		final EventManager eventManager = new EventManager();			
-		final IdGenerator connectionIdGenerator = new IdGenerator();
+		final EventManager<FormattedMqttMessage> eventManager = new EventManager<FormattedMqttMessage>();			
 				
 		try
 		{
-			final ConfigurationManager configurationManager = new ConfigurationManager(eventManager, connectionIdGenerator);			
+			final ConfigurationManager configurationManager = new ConfigurationManager(eventManager);			
 			
 			// Load the main window
 			FxmlUtils.setParentClass(getClass());
@@ -79,8 +72,8 @@ public class Main extends Application
 			final Rectangle2D primaryScreenBounds = Screen.getPrimary().getVisualBounds();
 			
 			// Set scene width, height and style
-			final double height = Math.min(UiProperties.getApplicationHeight(configurationManager), primaryScreenBounds.getHeight());			
-			final double width = Math.min(UiProperties.getApplicationWidth(configurationManager), primaryScreenBounds.getWidth());
+			final double height = Math.min(UiProperties.getApplicationHeight(configurationManager.getUiPropertyFile()), primaryScreenBounds.getHeight());			
+			final double width = Math.min(UiProperties.getApplicationWidth(configurationManager.getUiPropertyFile()), primaryScreenBounds.getWidth());
 			
 			final Scene scene = new Scene(pane, width, height);			
 			scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
@@ -89,12 +82,12 @@ public class Main extends Application
 			final MainController mainController = (MainController) loader.getController();
 			mainController.setEventManager(eventManager);
 			mainController.setConfigurationManager(configurationManager);
-			mainController.setSelectedPerspective(UiProperties.getApplicationPerspective(configurationManager));
-			mainController.getResizeMessagePaneMenu().setSelected(UiProperties.getResizeMessagePane(configurationManager));
+			mainController.setSelectedPerspective(UiProperties.getApplicationPerspective(configurationManager.getUiPropertyFile()));
+			mainController.getResizeMessagePaneMenu().setSelected(UiProperties.getResizeMessagePane(configurationManager.getUiPropertyFile()));
 
 			// Set the stage's properties
 			primaryStage.setScene(scene);	
-			primaryStage.setMaximized(UiProperties.getApplicationMaximized(configurationManager));
+			primaryStage.setMaximized(UiProperties.getApplicationMaximized(configurationManager.getUiPropertyFile()));
 			
 			// Initialise resources in the main controller			
 			mainController.setApplication(this);
@@ -102,7 +95,7 @@ public class Main extends Application
 			mainController.setLastHeight(height);
 			mainController.setLastWidth(width);
 			mainController.init();
-			final Image applicationIcon = new Image(getClass().getResourceAsStream("/images/mqtt-spy-logo.png"));
+			final Image applicationIcon = new Image(getClass().getResourceAsStream("/images/large/mqtt-spy-logo.png"));
 		    primaryStage.getIcons().add(applicationIcon);
 			
 			// Show the main window

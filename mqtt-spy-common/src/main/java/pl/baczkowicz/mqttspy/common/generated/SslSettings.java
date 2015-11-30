@@ -11,6 +11,7 @@
 
 package pl.baczkowicz.mqttspy.common.generated;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -32,6 +33,7 @@ import org.jvnet.jaxb2_commons.lang.ToString;
 import org.jvnet.jaxb2_commons.lang.ToStringStrategy;
 import org.jvnet.jaxb2_commons.locator.ObjectLocator;
 import org.jvnet.jaxb2_commons.locator.util.LocatorUtils;
+import pl.baczkowicz.spy.common.generated.Property;
 
 
 /**
@@ -50,7 +52,7 @@ import org.jvnet.jaxb2_commons.locator.util.LocatorUtils;
  *         &lt;element name="ClientCertificateFile" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
  *         &lt;element name="ClientKeyFile" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
  *         &lt;element name="ClientKeyPassword" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="Property" type="{http://baczkowicz.pl/mqtt-spy/common}SslProperty" maxOccurs="unbounded" minOccurs="0"/&gt;
+ *         &lt;element name="Property" type="{http://baczkowicz.pl/spy/common}Property" maxOccurs="unbounded" minOccurs="0"/&gt;
  *       &lt;/sequence&gt;
  *     &lt;/restriction&gt;
  *   &lt;/complexContent&gt;
@@ -70,9 +72,10 @@ import org.jvnet.jaxb2_commons.locator.util.LocatorUtils;
     "clientKeyPassword",
     "property"
 })
-public class SslSettings implements Cloneable, CopyTo, Equals, HashCode, ToString
+public class SslSettings implements Serializable, Cloneable, CopyTo, Equals, HashCode, ToString
 {
 
+    private final static long serialVersionUID = 1L;
     @XmlElement(name = "Mode", required = true)
     @XmlSchemaType(name = "string")
     protected SslModeEnum mode;
@@ -87,7 +90,7 @@ public class SslSettings implements Cloneable, CopyTo, Equals, HashCode, ToStrin
     @XmlElement(name = "ClientKeyPassword")
     protected String clientKeyPassword;
     @XmlElement(name = "Property")
-    protected List<SslProperty> property;
+    protected List<Property> property;
 
     /**
      * Default no-arg constructor
@@ -101,7 +104,7 @@ public class SslSettings implements Cloneable, CopyTo, Equals, HashCode, ToStrin
      * Fully-initialising value constructor
      * 
      */
-    public SslSettings(final SslModeEnum mode, final String protocol, final String certificateAuthorityFile, final String clientCertificateFile, final String clientKeyFile, final String clientKeyPassword, final List<SslProperty> property) {
+    public SslSettings(final SslModeEnum mode, final String protocol, final String certificateAuthorityFile, final String clientCertificateFile, final String clientKeyFile, final String clientKeyPassword, final List<Property> property) {
         this.mode = mode;
         this.protocol = protocol;
         this.certificateAuthorityFile = certificateAuthorityFile;
@@ -273,13 +276,13 @@ public class SslSettings implements Cloneable, CopyTo, Equals, HashCode, ToStrin
      * 
      * <p>
      * Objects of the following type(s) are allowed in the list
-     * {@link SslProperty }
+     * {@link Property }
      * 
      * 
      */
-    public List<SslProperty> getProperty() {
+    public List<Property> getProperty() {
         if (property == null) {
-            property = new ArrayList<SslProperty>();
+            property = new ArrayList<Property>();
         }
         return this.property;
     }
@@ -330,7 +333,7 @@ public class SslSettings implements Cloneable, CopyTo, Equals, HashCode, ToStrin
             strategy.appendField(locator, this, "clientKeyPassword", buffer, theClientKeyPassword);
         }
         {
-            List<SslProperty> theProperty;
+            List<Property> theProperty;
             theProperty = (((this.property!= null)&&(!this.property.isEmpty()))?this.getProperty():null);
             strategy.appendField(locator, this, "property", buffer, theProperty);
         }
@@ -400,9 +403,9 @@ public class SslSettings implements Cloneable, CopyTo, Equals, HashCode, ToStrin
             }
         }
         {
-            List<SslProperty> lhsProperty;
+            List<Property> lhsProperty;
             lhsProperty = (((this.property!= null)&&(!this.property.isEmpty()))?this.getProperty():null);
-            List<SslProperty> rhsProperty;
+            List<Property> rhsProperty;
             rhsProperty = (((that.property!= null)&&(!that.property.isEmpty()))?that.getProperty():null);
             if (!strategy.equals(LocatorUtils.property(thisLocator, "property", lhsProperty), LocatorUtils.property(thatLocator, "property", rhsProperty), lhsProperty, rhsProperty)) {
                 return false;
@@ -449,7 +452,7 @@ public class SslSettings implements Cloneable, CopyTo, Equals, HashCode, ToStrin
             currentHashCode = strategy.hashCode(LocatorUtils.property(locator, "clientKeyPassword", theClientKeyPassword), currentHashCode, theClientKeyPassword);
         }
         {
-            List<SslProperty> theProperty;
+            List<Property> theProperty;
             theProperty = (((this.property!= null)&&(!this.property.isEmpty()))?this.getProperty():null);
             currentHashCode = strategy.hashCode(LocatorUtils.property(locator, "property", theProperty), currentHashCode, theProperty);
         }
@@ -523,13 +526,13 @@ public class SslSettings implements Cloneable, CopyTo, Equals, HashCode, ToStrin
                 copy.clientKeyPassword = null;
             }
             if ((this.property!= null)&&(!this.property.isEmpty())) {
-                List<SslProperty> sourceProperty;
+                List<Property> sourceProperty;
                 sourceProperty = (((this.property!= null)&&(!this.property.isEmpty()))?this.getProperty():null);
                 @SuppressWarnings("unchecked")
-                List<SslProperty> copyProperty = ((List<SslProperty> ) strategy.copy(LocatorUtils.property(locator, "property", sourceProperty), sourceProperty));
+                List<Property> copyProperty = ((List<Property> ) strategy.copy(LocatorUtils.property(locator, "property", sourceProperty), sourceProperty));
                 copy.property = null;
                 if (copyProperty!= null) {
-                    List<SslProperty> uniquePropertyl = copy.getProperty();
+                    List<Property> uniquePropertyl = copy.getProperty();
                     uniquePropertyl.addAll(copyProperty);
                 }
             } else {

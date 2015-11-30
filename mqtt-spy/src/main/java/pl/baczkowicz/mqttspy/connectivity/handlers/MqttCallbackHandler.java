@@ -31,8 +31,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
-import pl.baczkowicz.mqttspy.storage.FormattedMqttMessage;
+import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.ui.events.queuable.connectivity.MqttConnectionLostEvent;
+import pl.baczkowicz.spy.messages.MessageIdGenerator;
 
 /**
  * MQTT callback handler - one per connection.
@@ -47,8 +48,6 @@ public class MqttCallbackHandler implements MqttCallback
 	
 	private MqttAsyncConnection connection;
 	
-	private long currentId = 1;
-
 	private MqttMessageHandler messageHandler;
 
 	public MqttCallbackHandler(final MqttAsyncConnection connection)
@@ -67,8 +66,7 @@ public class MqttCallbackHandler implements MqttCallback
 	public void messageArrived(final String topic, final MqttMessage message)
 	{
 		logger.debug("[{}] Received message on topic \"{}\". Payload = \"{}\"", messageQueue.size(), topic, new String(message.getPayload()));
-		messageQueue.add(new FormattedMqttMessage(currentId, topic, message, connection));
-		currentId++;
+		messageQueue.add(new FormattedMqttMessage(MessageIdGenerator.getNewId(), topic, message, connection));
 	}
 
 	public void deliveryComplete(IMqttDeliveryToken token)

@@ -22,6 +22,7 @@ package pl.baczkowicz.mqttspy.ui;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -36,6 +37,7 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
@@ -48,8 +50,6 @@ import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.util.Callback;
 
-import org.controlsfx.control.action.Action;
-import org.controlsfx.dialog.Dialog;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,25 +57,27 @@ import pl.baczkowicz.mqttspy.configuration.generated.TabbedSubscriptionDetails;
 import pl.baczkowicz.mqttspy.connectivity.BaseMqttSubscription;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
-import pl.baczkowicz.mqttspy.storage.ManagedMessageStoreWithFiltering;
+import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
+import pl.baczkowicz.mqttspy.ui.charts.ChartFactory;
 import pl.baczkowicz.mqttspy.ui.charts.ChartMode;
 import pl.baczkowicz.mqttspy.ui.events.EventManager;
-import pl.baczkowicz.mqttspy.ui.properties.SubscriptionTopicSummaryProperties;
-import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
+import pl.baczkowicz.spy.ui.properties.SubscriptionTopicSummaryProperties;
+import pl.baczkowicz.spy.ui.storage.ManagedMessageStoreWithFiltering;
+import pl.baczkowicz.spy.ui.utils.DialogFactory;
+import pl.baczkowicz.spy.ui.utils.UiUtils;
 import pl.baczkowicz.mqttspy.ui.utils.StylingUtils;
-import pl.baczkowicz.mqttspy.ui.utils.UiUtils;
 
 /**
  * Controller for the subscription summary table.
  */
-@SuppressWarnings("deprecation")
+@SuppressWarnings("rawtypes")
 public class SubscriptionSummaryTableController implements Initializable
 {
 	private static final int CHART_TOPIC_COUNT = 10;
 
 	private final static Logger logger = LoggerFactory.getLogger(SubscriptionSummaryTableController.class);
 
-	private ManagedMessageStoreWithFiltering store; 
+	private ManagedMessageStoreWithFiltering<FormattedMqttMessage> store; 
 	
 	@FXML
 	private TableView<SubscriptionTopicSummaryProperties> filterTable;
@@ -95,15 +97,15 @@ public class SubscriptionSummaryTableController implements Initializable
 	@FXML
 	private TableColumn<SubscriptionTopicSummaryProperties, String> lastReceivedColumn;
 
-	private FilteredList<SubscriptionTopicSummaryProperties> filteredData;
+	private FilteredList<SubscriptionTopicSummaryProperties<FormattedMqttMessage>> filteredData;
 	
 	private ConnectionController connectionController;
 	
-	private EventManager eventManager;
+	private EventManager<FormattedMqttMessage> eventManager;
 
 	private Menu filteredTopicsMenu;
 
-	private ObservableList<SubscriptionTopicSummaryProperties> nonFilteredData;
+	private ObservableList<SubscriptionTopicSummaryProperties<FormattedMqttMessage>> nonFilteredData;
 	
 	private Set<String> shownTopics = new HashSet<>();
 	
@@ -370,13 +372,13 @@ public class SubscriptionSummaryTableController implements Initializable
 		
 		if (ChartMode.USER_DRIVEN_MSG_SIZE.equals(mode))
 		{
-			DialogUtils.showMessageBasedLineCharts(topics, store, mode, 
+			new ChartFactory<FormattedMqttMessage>().createMessageBasedLineChart(topics, store, mode, 
 					"Topic", "Size", "bytes", "Message size chart" + connectionName, 
 					filterTable.getScene(), eventManager);
 		}
 		else
 		{
-			DialogUtils.showMessageBasedLineCharts(topics, store, mode, 
+			new ChartFactory<FormattedMqttMessage>().createMessageBasedLineChart(topics, store, mode, 
 					"Topic", "Value", "", "Message content chart" + connectionName,
 					filterTable.getScene(), eventManager);
 		}		
@@ -386,24 +388,8 @@ public class SubscriptionSummaryTableController implements Initializable
 	{
 		final ContextMenu contextMenu = new ContextMenu();
 		
-		// Copy topic
-		final MenuItem copyTopicItem = new MenuItem("[Topic] Copy to clipboard");
-		copyTopicItem.setOnAction(new EventHandler<ActionEvent>()
-		{
-			public void handle(ActionEvent e)
-			{
-				final SubscriptionTopicSummaryProperties item = filterTable.getSelectionModel()
-						.getSelectedItem();
-				if (item != null)
-				{
-					UiUtils.copyToClipboard(item.topicProperty().getValue());
-				}
-			}
-		});
-		contextMenu.getItems().add(copyTopicItem);
-		
 		// Subscribe to topic
-		final MenuItem subscribeToTopicItem = new MenuItem("[Topic] Subscribe (and create tab)");
+		final MenuItem subscribeToTopicItem = new MenuItem("Subscribe (and create tab)");
 		subscribeToTopicItem.setOnAction(new EventHandler<ActionEvent>()
 		{
 			public void handle(ActionEvent e)
@@ -421,12 +407,29 @@ public class SubscriptionSummaryTableController implements Initializable
 			}
 		});
 		contextMenu.getItems().add(subscribeToTopicItem);
+		
 
 		// Separator
 		contextMenu.getItems().add(new SeparatorMenuItem());
 		
+		// Copy topic
+		final MenuItem copyTopicItem = new MenuItem("Copy topic to clipboard");
+		copyTopicItem.setOnAction(new EventHandler<ActionEvent>()
+		{
+			public void handle(ActionEvent e)
+			{
+				final SubscriptionTopicSummaryProperties item = filterTable.getSelectionModel()
+						.getSelectedItem();
+				if (item != null)
+				{
+					UiUtils.copyToClipboard(item.topicProperty().getValue());
+				}
+			}
+		});
+		contextMenu.getItems().add(copyTopicItem);
+		
 		// Copy content
-		final MenuItem copyContentItem = new MenuItem("[Content] Copy to clipboard");
+		final MenuItem copyContentItem = new MenuItem("Copy message content to clipboard");
 		copyContentItem.setOnAction(new EventHandler<ActionEvent>()
 		{
 			public void handle(ActionEvent e)
@@ -441,12 +444,164 @@ public class SubscriptionSummaryTableController implements Initializable
 		});
 		contextMenu.getItems().add(copyContentItem);
 		
+		
+		// Separator
+		contextMenu.getItems().add(new SeparatorMenuItem());
+		
+		// All filters
+		final Menu allTopicsMenu = new Menu("Browse all topics");
+		
+		// Apply all filters
+		final MenuItem selectAllTopicsItem = new MenuItem("Select all topics");
+		selectAllTopicsItem.setOnAction(new EventHandler<ActionEvent>()
+		{
+			public void handle(ActionEvent e)
+			{
+				final SubscriptionTopicSummaryProperties item = filterTable.getSelectionModel()
+						.getSelectedItem();
+				if (item != null)
+				{
+					store.setAllShowValues(true);
+					eventManager.navigateToFirst(store);
+				}
+			}
+		});
+		
+		allTopicsMenu.getItems().add(selectAllTopicsItem);		
+		
+		// Toggle all filters
+		final MenuItem toggleAllTopicsItem = new MenuItem("Toggle all topics");
+		toggleAllTopicsItem.setOnAction(new EventHandler<ActionEvent>()
+		{
+			public void handle(ActionEvent e)
+			{
+				final SubscriptionTopicSummaryProperties item = filterTable.getSelectionModel()
+						.getSelectedItem();
+				if (item != null)
+				{
+					store.toggleAllShowValues();
+					eventManager.navigateToFirst(store);
+				}
+			}
+		});
+		allTopicsMenu.getItems().add(toggleAllTopicsItem);
+		
+		// Remove all filters
+		final MenuItem removeAllTopicsItem = new MenuItem("Deselect all topics");
+		removeAllTopicsItem.setOnAction(new EventHandler<ActionEvent>()
+		{
+			public void handle(ActionEvent e)
+			{
+				final SubscriptionTopicSummaryProperties item = filterTable.getSelectionModel()
+						.getSelectedItem();
+				if (item != null)
+				{
+					store.setAllShowValues(false);
+					eventManager.navigateToFirst(store);
+				}
+			}
+		});
+		allTopicsMenu.getItems().add(removeAllTopicsItem);
+		contextMenu.getItems().add(allTopicsMenu);	
+		
+		// Filtered topics
+		filteredTopicsMenu = new Menu("Browse filtered topics");
+		
+		// Apply filtered filters
+		final MenuItem selectFilteredTopicsItem = new MenuItem("Add filtered topics to selection");
+		selectFilteredTopicsItem.setOnAction(new EventHandler<ActionEvent>()
+		{
+			public void handle(ActionEvent e)
+			{
+				final SubscriptionTopicSummaryProperties item = filterTable.getSelectionModel()
+						.getSelectedItem();
+				if (item != null)
+				{
+					store.setShowValues(true, shownTopics);
+					eventManager.navigateToFirst(store);
+				}
+			}
+		});		
+		filteredTopicsMenu.getItems().add(selectFilteredTopicsItem);
+		
+		
+		// Clear and add filtered filters
+		final MenuItem removeAllAndAddFilteredTopicsItem = new MenuItem("Deselect all and selected filtered topics");
+		removeAllAndAddFilteredTopicsItem.setOnAction(new EventHandler<ActionEvent>()
+		{
+			public void handle(ActionEvent e)
+			{
+				final SubscriptionTopicSummaryProperties item = filterTable.getSelectionModel().getSelectedItem();
+				if (item != null)
+				{
+					store.setAllShowValues(false);
+					store.setShowValues(true, shownTopics);
+					eventManager.navigateToFirst(store);
+				}
+			}
+		});
+		filteredTopicsMenu.getItems().add(removeAllAndAddFilteredTopicsItem);
+		
+		// Toggle filtered filters
+		final MenuItem toggleFilteredTopicsItem = new MenuItem("Toggle selection for filtered topics");
+		toggleFilteredTopicsItem.setOnAction(new EventHandler<ActionEvent>()
+		{
+			public void handle(ActionEvent e)
+			{
+				final SubscriptionTopicSummaryProperties item = filterTable.getSelectionModel()
+						.getSelectedItem();
+				if (item != null)
+				{
+					store.toggleShowValues(shownTopics);
+					eventManager.navigateToFirst(store);
+				}
+			}
+		});
+		filteredTopicsMenu.getItems().add(toggleFilteredTopicsItem);
+		
+		// Remove filtered filters
+		final MenuItem removeFilteredTopicsItem = new MenuItem("Deselect filtered topics");
+		removeFilteredTopicsItem.setOnAction(new EventHandler<ActionEvent>()
+		{
+			public void handle(ActionEvent e)
+			{
+				final SubscriptionTopicSummaryProperties item = filterTable.getSelectionModel()
+						.getSelectedItem();
+				if (item != null)
+				{
+					store.setShowValues(false, shownTopics);
+					eventManager.navigateToFirst(store);
+				}
+			}
+		});
+		filteredTopicsMenu.getItems().add(removeFilteredTopicsItem);
+		contextMenu.getItems().add(filteredTopicsMenu);	
+		
+		// Only this topic
+		final MenuItem selectOnlyThisItem = new MenuItem("Browse & select only this topic");
+		selectOnlyThisItem.setOnAction(new EventHandler<ActionEvent>()
+		{
+			public void handle(ActionEvent e)
+			{
+				final SubscriptionTopicSummaryProperties item = filterTable.getSelectionModel()
+						.getSelectedItem();
+				if (item != null)
+				{
+					store.setAllShowValues(false);
+					store.setShowValue(item.topicProperty().getValue(), true);
+					eventManager.navigateToFirst(store);
+				}
+			}
+		});
+		contextMenu.getItems().add(selectOnlyThisItem);
+		
+
 		// Separator
 		contextMenu.getItems().add(new SeparatorMenuItem());
 
 				
 		// Charts
-		Menu chartsItem = new Menu("[Graphing] Show content-based charts");
+		Menu chartsItem = new Menu("Charts");
 		
 		MenuItem chartPayloadItem = new MenuItem("Show payload values for this topic");
 		chartPayloadItem.setOnAction(new EventHandler<ActionEvent>()
@@ -477,13 +632,13 @@ public class SubscriptionSummaryTableController implements Initializable
 					final Set<String> topics = store.getFilteredMessageStore().getBrowsedTopics();
 					if (topics.size() > CHART_TOPIC_COUNT)
 					{
-						final Action response = DialogUtils.showQuestion(
+						final Optional<ButtonType> response = DialogFactory.createQuestionDialog(
 								"Number of selected topics", 
 								"More than " + CHART_TOPIC_COUNT 
 								+ " topics have been selected to be displayed on a chart. Do you want to proceed?",
 								false);
 						
-						if (!response.equals(Dialog.ACTION_YES))
+						if (response.get() != ButtonType.YES)
 						{
 							return;
 						}
@@ -523,13 +678,13 @@ public class SubscriptionSummaryTableController implements Initializable
 					final Set<String> topics = store.getFilteredMessageStore().getBrowsedTopics();
 					if (topics.size() > CHART_TOPIC_COUNT)
 					{
-						final Action response = DialogUtils.showQuestion(
+						final Optional<ButtonType> response = DialogFactory.createQuestionDialog(
 								"Number of selected topics", 
 								"More than " + CHART_TOPIC_COUNT 
 								+ " topics have been selected to be displayed on a chart. Do you want to proceed?",
 								false);
 						
-						if (!response.equals(Dialog.ACTION_YES))
+						if (response.get() != ButtonType.YES)
 						{
 							return;
 						}
@@ -540,166 +695,16 @@ public class SubscriptionSummaryTableController implements Initializable
 		});
 		chartsItem.getItems().add(chartSizeForAllSelectedItem);
 		contextMenu.getItems().add(chartsItem);
-		
-		// Separator
-		contextMenu.getItems().add(new SeparatorMenuItem());
-		
-		// All filters
-		final Menu allTopicsMenu = new Menu("[Browse] All topics");
-		
-		// Apply all filters
-		final MenuItem selectAllTopicsItem = new MenuItem("[Browse] Select all topics");
-		selectAllTopicsItem.setOnAction(new EventHandler<ActionEvent>()
-		{
-			public void handle(ActionEvent e)
-			{
-				final SubscriptionTopicSummaryProperties item = filterTable.getSelectionModel()
-						.getSelectedItem();
-				if (item != null)
-				{
-					store.setAllShowValues(true);
-					eventManager.navigateToFirst(store);
-				}
-			}
-		});
-		
-		allTopicsMenu.getItems().add(selectAllTopicsItem);		
-		
-		// Toggle all filters
-		final MenuItem toggleAllTopicsItem = new MenuItem("[Browse] Toggle all topics");
-		toggleAllTopicsItem.setOnAction(new EventHandler<ActionEvent>()
-		{
-			public void handle(ActionEvent e)
-			{
-				final SubscriptionTopicSummaryProperties item = filterTable.getSelectionModel()
-						.getSelectedItem();
-				if (item != null)
-				{
-					store.toggleAllShowValues();
-					eventManager.navigateToFirst(store);
-				}
-			}
-		});
-		allTopicsMenu.getItems().add(toggleAllTopicsItem);
-		
-		// Remove all filters
-		final MenuItem removeAllTopicsItem = new MenuItem("[Browse] Deselect all topics");
-		removeAllTopicsItem.setOnAction(new EventHandler<ActionEvent>()
-		{
-			public void handle(ActionEvent e)
-			{
-				final SubscriptionTopicSummaryProperties item = filterTable.getSelectionModel()
-						.getSelectedItem();
-				if (item != null)
-				{
-					store.setAllShowValues(false);
-					eventManager.navigateToFirst(store);
-				}
-			}
-		});
-		allTopicsMenu.getItems().add(removeAllTopicsItem);
-		contextMenu.getItems().add(allTopicsMenu);	
-		
-		// Filtered topics
-		filteredTopicsMenu = new Menu("[Browse] Filtered topics");
-		
-		// Apply filtered filters
-		final MenuItem selectFilteredTopicsItem = new MenuItem("[Browse] Add filtered topics to selection");
-		selectFilteredTopicsItem.setOnAction(new EventHandler<ActionEvent>()
-		{
-			public void handle(ActionEvent e)
-			{
-				final SubscriptionTopicSummaryProperties item = filterTable.getSelectionModel()
-						.getSelectedItem();
-				if (item != null)
-				{
-					store.setShowValues(true, shownTopics);
-					eventManager.navigateToFirst(store);
-				}
-			}
-		});		
-		filteredTopicsMenu.getItems().add(selectFilteredTopicsItem);
-		
-		
-		// Clear and add filtered filters
-		final MenuItem removeAllAndAddFilteredTopicsItem = new MenuItem("[Browse] Deselect all and selected filtered topics");
-		removeAllAndAddFilteredTopicsItem.setOnAction(new EventHandler<ActionEvent>()
-		{
-			public void handle(ActionEvent e)
-			{
-				final SubscriptionTopicSummaryProperties item = filterTable.getSelectionModel().getSelectedItem();
-				if (item != null)
-				{
-					store.setAllShowValues(false);
-					store.setShowValues(true, shownTopics);
-					eventManager.navigateToFirst(store);
-				}
-			}
-		});
-		filteredTopicsMenu.getItems().add(removeAllAndAddFilteredTopicsItem);
-		
-		// Toggle filtered filters
-		final MenuItem toggleFilteredTopicsItem = new MenuItem("[Browse] Toggle selection for filtered topics");
-		toggleFilteredTopicsItem.setOnAction(new EventHandler<ActionEvent>()
-		{
-			public void handle(ActionEvent e)
-			{
-				final SubscriptionTopicSummaryProperties item = filterTable.getSelectionModel()
-						.getSelectedItem();
-				if (item != null)
-				{
-					store.toggleShowValues(shownTopics);
-					eventManager.navigateToFirst(store);
-				}
-			}
-		});
-		filteredTopicsMenu.getItems().add(toggleFilteredTopicsItem);
-		
-		// Remove filtered filters
-		final MenuItem removeFilteredTopicsItem = new MenuItem("[Browse] Deselect filtered topics");
-		removeFilteredTopicsItem.setOnAction(new EventHandler<ActionEvent>()
-		{
-			public void handle(ActionEvent e)
-			{
-				final SubscriptionTopicSummaryProperties item = filterTable.getSelectionModel()
-						.getSelectedItem();
-				if (item != null)
-				{
-					store.setShowValues(false, shownTopics);
-					eventManager.navigateToFirst(store);
-				}
-			}
-		});
-		filteredTopicsMenu.getItems().add(removeFilteredTopicsItem);
-		contextMenu.getItems().add(filteredTopicsMenu);	
-		
-		// Only this topic
-		final MenuItem selectOnlyThisItem = new MenuItem("[Browse] Select only this");
-		selectOnlyThisItem.setOnAction(new EventHandler<ActionEvent>()
-		{
-			public void handle(ActionEvent e)
-			{
-				final SubscriptionTopicSummaryProperties item = filterTable.getSelectionModel()
-						.getSelectedItem();
-				if (item != null)
-				{
-					store.setAllShowValues(false);
-					store.setShowValue(item.topicProperty().getValue(), true);
-					eventManager.navigateToFirst(store);
-				}
-			}
-		});
-		contextMenu.getItems().add(selectOnlyThisItem);
 
 		return contextMenu;
 	}
 		
-	public void setEventManager(final EventManager eventManager)
+	public void setEventManager(final EventManager<FormattedMqttMessage> eventManager)
 	{
 		this.eventManager = eventManager;
 	}
 	
-	public void setStore(final ManagedMessageStoreWithFiltering store)
+	public void setStore(final ManagedMessageStoreWithFiltering<FormattedMqttMessage> store)
 	{
 		this.store = store;
 	}

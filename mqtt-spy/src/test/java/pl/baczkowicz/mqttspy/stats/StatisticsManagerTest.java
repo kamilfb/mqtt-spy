@@ -38,29 +38,29 @@ public class StatisticsManagerTest
 	@Test
 	public final void testAverage()
 	{
-		statisticsManager.messagePublished(3, "/test");
-		statisticsManager.messagePublished(3, "/test");
+		statisticsManager.messagePublished("3", "/test");
+		statisticsManager.messagePublished("3", "/test");
 		StatisticsManager.nextInterval();
-		assertEquals(0.4, StatisticsManager.getMessagesPublished(3, 5).overallCount, 0);
+		assertEquals(0.4, StatisticsManager.getMessagesPublished("3", 5).overallCount, 0);
 		
-		statisticsManager.messagePublished(3, "/test");
-		statisticsManager.messagePublished(3, "/test");
-		statisticsManager.messagePublished(3, "/test");
-		statisticsManager.messagePublished(3, "/test");
-		statisticsManager.messagePublished(3, "/test");
+		statisticsManager.messagePublished("3", "/test");
+		statisticsManager.messagePublished("3", "/test");
+		statisticsManager.messagePublished("3", "/test");
+		statisticsManager.messagePublished("3", "/test");
+		statisticsManager.messagePublished("3", "/test");
 		StatisticsManager.nextInterval();
-		assertEquals(1.4, StatisticsManager.getMessagesPublished(3, 5).overallCount, 0);
-		
-		StatisticsManager.nextInterval();
-		StatisticsManager.nextInterval();
-		StatisticsManager.nextInterval();
-		assertEquals(1.4, StatisticsManager.getMessagesPublished(3, 5).overallCount, 0);
+		assertEquals(1.4, StatisticsManager.getMessagesPublished("3", 5).overallCount, 0);
 		
 		StatisticsManager.nextInterval();
-		assertEquals(1.0, StatisticsManager.getMessagesPublished(3, 5).overallCount, 0);
+		StatisticsManager.nextInterval();
+		StatisticsManager.nextInterval();
+		assertEquals(1.4, StatisticsManager.getMessagesPublished("3", 5).overallCount, 0);
 		
 		StatisticsManager.nextInterval();
-		assertEquals(0, StatisticsManager.getMessagesPublished(3, 5).overallCount, 0);
+		assertEquals(1.0, StatisticsManager.getMessagesPublished("3", 5).overallCount, 0);
+		
+		StatisticsManager.nextInterval();
+		assertEquals(0, StatisticsManager.getMessagesPublished("3", 5).overallCount, 0);
 	}
 
 }
