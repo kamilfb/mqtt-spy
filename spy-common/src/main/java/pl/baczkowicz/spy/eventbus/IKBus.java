@@ -45,7 +45,7 @@ public interface IKBus
 	 * @param consumer The consumer method that is subscribing (one subscription per consumer method allowed)
 	 * @param eventType Type of event the consumer is interested in
 	 */
-	void subscribe(final Object subscriber, final Consumer<?> consumer, final Class<?> eventType);
+	<S> void subscribe(final Object subscriber, final Consumer<? super S> consumer, final Class<S> eventType);
 	
 	/**
 	 * Subscribes a consumer method for events of certain type and given filter object.
@@ -54,7 +54,7 @@ public interface IKBus
 	 * @param eventType Type of event the consumer is interested in
 	 * @param filter The filter object to perform filtering on (null => no filter)
 	 */
-	void subscribe(final Object subscriber, final Consumer<?> consumer, final Class<?> eventType, final Object filter);
+	<S> void subscribe(final Object subscriber, final Consumer<? super S> consumer, final Class<S> eventType, final Object filter);
 	
 	/**
 	 * Unsubscribes the given subscriber.

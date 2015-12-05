@@ -131,13 +131,13 @@ public class KBus implements IKBus
 	}
 
 	@Override
-	public void subscribe (final Object subscriber, final Consumer<?> consumer, final Class<?> eventType)
+	public <S> void subscribe (final Object subscriber, final Consumer<? super S> consumer, final Class<S> eventType)
 	{
 		subscribe(subscriber, consumer, eventType, null);
 	}
 
 	@Override
-	public void subscribe(final Object subscriber, final Consumer<?> consumer, final Class<?> eventType, final Object filter)
+	public <S> void subscribe(final Object subscriber, final Consumer<?	super S> consumer, final Class<S> eventType, final Object filter)
 	{
 		synchronized (consumerTypes)
 		{	
