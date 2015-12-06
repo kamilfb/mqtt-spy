@@ -34,7 +34,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.AnchorPane;
-import pl.baczkowicz.mqttspy.common.generated.SslSettings;
+import pl.baczkowicz.mqttspy.common.generated.SecureSocketSettings;
 import pl.baczkowicz.mqttspy.configuration.ConfiguredConnectionDetails;
 import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnectionDetails;
 import pl.baczkowicz.mqttspy.ui.EditConnectionController;
@@ -125,7 +125,7 @@ public class EditConnectionSecurityTlsPropertiesController extends AnchorPane im
 		}		
 		else
 		{
-			final SslSettings sslSettings = connection.getSSL();
+			final SecureSocketSettings sslSettings = connection.getSSL();
 			
 			if (SecureSocketModeEnum.PROPERTIES.equals(mode))
 			{

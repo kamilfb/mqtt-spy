@@ -47,12 +47,12 @@ public class MqttConfigurationUtils
 	 * 
 	 * @param connection Connection details
 	 */
-	public static void completeServerURIs(final MqttConnectionDetails connection, final boolean sslEnabled)
+	public static void completeServerURIs(final MqttConnectionDetails connection, final boolean sslEnabled, final boolean websocket)
 	{
 		for (int i = 0; i < connection.getServerURI().size(); i++)
 		{
 			final String serverURI = connection.getServerURI().get(i);			
-			final String completeServerURI = MqttUtils.getCompleteServerURI(serverURI, sslEnabled);
+			final String completeServerURI = MqttUtils.getCompleteServerURI(serverURI, sslEnabled, websocket);
 			
 			// Replace the existing value if it is not complete
 			if (!completeServerURI.equals(serverURI))
@@ -73,6 +73,11 @@ public class MqttConfigurationUtils
 		if (connection.getProtocol() == null)
 		{
 			connection.setProtocol(ProtocolVersionEnum.MQTT_DEFAULT);
+		}
+		
+		if (connection.isWebSocket() == null)
+		{
+			connection.setWebSocket(false);
 		}
 		
 		if (connection.getName() == null || connection.getName().isEmpty())

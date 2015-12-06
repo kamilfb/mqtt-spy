@@ -48,7 +48,7 @@ import javafx.util.StringConverter;
 
 import javax.net.ssl.SSLContext;
 
-import pl.baczkowicz.mqttspy.common.generated.SslSettings;
+import pl.baczkowicz.mqttspy.common.generated.SecureSocketSettings;
 import pl.baczkowicz.mqttspy.common.generated.UserCredentials;
 import pl.baczkowicz.mqttspy.configuration.ConfiguredConnectionDetails;
 import pl.baczkowicz.mqttspy.configuration.generated.UserAuthenticationOptions;
@@ -323,7 +323,7 @@ public class EditConnectionSecurityController extends AnchorPane implements Init
 		}		
 		else
 		{
-			final SslSettings sslSettings = new SslSettings();
+			final SecureSocketSettings sslSettings = new SecureSocketSettings();
 			sslSettings.setMode(modeCombo.getSelectionModel().getSelectedItem());
 			connection.setSSL(sslSettings);
 			

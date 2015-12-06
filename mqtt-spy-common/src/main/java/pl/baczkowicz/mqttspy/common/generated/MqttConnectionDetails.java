@@ -45,13 +45,14 @@ import org.jvnet.jaxb2_commons.locator.util.LocatorUtils;
  *     &lt;extension base="{http://baczkowicz.pl/mqtt-spy/common}ConnectionDetails"&gt;
  *       &lt;sequence&gt;
  *         &lt;element name="ServerURI" type="{http://www.w3.org/2001/XMLSchema}string" maxOccurs="unbounded"/&gt;
+ *         &lt;element name="WebSocket" type="{http://www.w3.org/2001/XMLSchema}boolean" minOccurs="0"/&gt;
  *         &lt;element name="ClientID" type="{http://www.w3.org/2001/XMLSchema}string"/&gt;
  *         &lt;element name="UserCredentials" type="{http://baczkowicz.pl/mqtt-spy/common}UserCredentials" minOccurs="0"/&gt;
  *         &lt;element name="LastWillAndTestament" type="{http://baczkowicz.pl/mqtt-spy/common}SimpleMqttMessage" minOccurs="0"/&gt;
  *         &lt;element name="CleanSession" type="{http://www.w3.org/2001/XMLSchema}boolean" minOccurs="0"/&gt;
  *         &lt;element name="ConnectionTimeout" type="{http://www.w3.org/2001/XMLSchema}int" minOccurs="0"/&gt;
  *         &lt;element name="KeepAliveInterval" type="{http://www.w3.org/2001/XMLSchema}int" minOccurs="0"/&gt;
- *         &lt;element name="SSL" type="{http://baczkowicz.pl/mqtt-spy/common}SslSettings" minOccurs="0"/&gt;
+ *         &lt;element name="SSL" type="{http://baczkowicz.pl/mqtt-spy/common}SecureSocketSettings" minOccurs="0"/&gt;
  *         &lt;element name="ReconnectionSettings" type="{http://baczkowicz.pl/mqtt-spy/common}ReconnectionSettings" minOccurs="0"/&gt;
  *       &lt;/sequence&gt;
  *     &lt;/extension&gt;
@@ -65,6 +66,7 @@ import org.jvnet.jaxb2_commons.locator.util.LocatorUtils;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "MqttConnectionDetails", propOrder = {
     "serverURI",
+    "webSocket",
     "clientID",
     "userCredentials",
     "lastWillAndTestament",
@@ -82,6 +84,8 @@ public class MqttConnectionDetails
     private final static long serialVersionUID = 1L;
     @XmlElement(name = "ServerURI", required = true)
     protected List<String> serverURI;
+    @XmlElement(name = "WebSocket")
+    protected Boolean webSocket;
     @XmlElement(name = "ClientID", required = true)
     protected String clientID;
     @XmlElement(name = "UserCredentials")
@@ -95,7 +99,7 @@ public class MqttConnectionDetails
     @XmlElement(name = "KeepAliveInterval")
     protected Integer keepAliveInterval;
     @XmlElement(name = "SSL")
-    protected SslSettings ssl;
+    protected SecureSocketSettings ssl;
     @XmlElement(name = "ReconnectionSettings")
     protected ReconnectionSettings reconnectionSettings;
 
@@ -111,9 +115,10 @@ public class MqttConnectionDetails
      * Fully-initialising value constructor
      * 
      */
-    public MqttConnectionDetails(final String id, final String name, final ProtocolVersionEnum protocol, final List<String> serverURI, final String clientID, final UserCredentials userCredentials, final SimpleMqttMessage lastWillAndTestament, final Boolean cleanSession, final Integer connectionTimeout, final Integer keepAliveInterval, final SslSettings ssl, final ReconnectionSettings reconnectionSettings) {
+    public MqttConnectionDetails(final String id, final String name, final ProtocolVersionEnum protocol, final List<String> serverURI, final Boolean webSocket, final String clientID, final UserCredentials userCredentials, final SimpleMqttMessage lastWillAndTestament, final Boolean cleanSession, final Integer connectionTimeout, final Integer keepAliveInterval, final SecureSocketSettings ssl, final ReconnectionSettings reconnectionSettings) {
         super(id, name, protocol);
         this.serverURI = serverURI;
+        this.webSocket = webSocket;
         this.clientID = clientID;
         this.userCredentials = userCredentials;
         this.lastWillAndTestament = lastWillAndTestament;
@@ -151,6 +156,30 @@ public class MqttConnectionDetails
             serverURI = new ArrayList<String>();
         }
         return this.serverURI;
+    }
+
+    /**
+     * Gets the value of the webSocket property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link Boolean }
+     *     
+     */
+    public Boolean isWebSocket() {
+        return webSocket;
+    }
+
+    /**
+     * Sets the value of the webSocket property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link Boolean }
+     *     
+     */
+    public void setWebSocket(Boolean value) {
+        this.webSocket = value;
     }
 
     /**
@@ -302,10 +331,10 @@ public class MqttConnectionDetails
      * 
      * @return
      *     possible object is
-     *     {@link SslSettings }
+     *     {@link SecureSocketSettings }
      *     
      */
-    public SslSettings getSSL() {
+    public SecureSocketSettings getSSL() {
         return ssl;
     }
 
@@ -314,10 +343,10 @@ public class MqttConnectionDetails
      * 
      * @param value
      *     allowed object is
-     *     {@link SslSettings }
+     *     {@link SecureSocketSettings }
      *     
      */
-    public void setSSL(SslSettings value) {
+    public void setSSL(SecureSocketSettings value) {
         this.ssl = value;
     }
 
@@ -367,6 +396,11 @@ public class MqttConnectionDetails
             strategy.appendField(locator, this, "serverURI", buffer, theServerURI);
         }
         {
+            Boolean theWebSocket;
+            theWebSocket = this.isWebSocket();
+            strategy.appendField(locator, this, "webSocket", buffer, theWebSocket);
+        }
+        {
             String theClientID;
             theClientID = this.getClientID();
             strategy.appendField(locator, this, "clientID", buffer, theClientID);
@@ -397,7 +431,7 @@ public class MqttConnectionDetails
             strategy.appendField(locator, this, "keepAliveInterval", buffer, theKeepAliveInterval);
         }
         {
-            SslSettings theSSL;
+            SecureSocketSettings theSSL;
             theSSL = this.getSSL();
             strategy.appendField(locator, this, "ssl", buffer, theSSL);
         }
@@ -426,6 +460,15 @@ public class MqttConnectionDetails
             List<String> rhsServerURI;
             rhsServerURI = (((that.serverURI!= null)&&(!that.serverURI.isEmpty()))?that.getServerURI():null);
             if (!strategy.equals(LocatorUtils.property(thisLocator, "serverURI", lhsServerURI), LocatorUtils.property(thatLocator, "serverURI", rhsServerURI), lhsServerURI, rhsServerURI)) {
+                return false;
+            }
+        }
+        {
+            Boolean lhsWebSocket;
+            lhsWebSocket = this.isWebSocket();
+            Boolean rhsWebSocket;
+            rhsWebSocket = that.isWebSocket();
+            if (!strategy.equals(LocatorUtils.property(thisLocator, "webSocket", lhsWebSocket), LocatorUtils.property(thatLocator, "webSocket", rhsWebSocket), lhsWebSocket, rhsWebSocket)) {
                 return false;
             }
         }
@@ -484,9 +527,9 @@ public class MqttConnectionDetails
             }
         }
         {
-            SslSettings lhsSSL;
+            SecureSocketSettings lhsSSL;
             lhsSSL = this.getSSL();
-            SslSettings rhsSSL;
+            SecureSocketSettings rhsSSL;
             rhsSSL = that.getSSL();
             if (!strategy.equals(LocatorUtils.property(thisLocator, "ssl", lhsSSL), LocatorUtils.property(thatLocator, "ssl", rhsSSL), lhsSSL, rhsSSL)) {
                 return false;
@@ -515,6 +558,11 @@ public class MqttConnectionDetails
             List<String> theServerURI;
             theServerURI = (((this.serverURI!= null)&&(!this.serverURI.isEmpty()))?this.getServerURI():null);
             currentHashCode = strategy.hashCode(LocatorUtils.property(locator, "serverURI", theServerURI), currentHashCode, theServerURI);
+        }
+        {
+            Boolean theWebSocket;
+            theWebSocket = this.isWebSocket();
+            currentHashCode = strategy.hashCode(LocatorUtils.property(locator, "webSocket", theWebSocket), currentHashCode, theWebSocket);
         }
         {
             String theClientID;
@@ -547,7 +595,7 @@ public class MqttConnectionDetails
             currentHashCode = strategy.hashCode(LocatorUtils.property(locator, "keepAliveInterval", theKeepAliveInterval), currentHashCode, theKeepAliveInterval);
         }
         {
-            SslSettings theSSL;
+            SecureSocketSettings theSSL;
             theSSL = this.getSSL();
             currentHashCode = strategy.hashCode(LocatorUtils.property(locator, "ssl", theSSL), currentHashCode, theSSL);
         }
@@ -590,6 +638,14 @@ public class MqttConnectionDetails
                 }
             } else {
                 copy.serverURI = null;
+            }
+            if (this.webSocket!= null) {
+                Boolean sourceWebSocket;
+                sourceWebSocket = this.isWebSocket();
+                Boolean copyWebSocket = ((Boolean) strategy.copy(LocatorUtils.property(locator, "webSocket", sourceWebSocket), sourceWebSocket));
+                copy.setWebSocket(copyWebSocket);
+            } else {
+                copy.webSocket = null;
             }
             if (this.clientID!= null) {
                 String sourceClientID;
@@ -640,9 +696,9 @@ public class MqttConnectionDetails
                 copy.keepAliveInterval = null;
             }
             if (this.ssl!= null) {
-                SslSettings sourceSSL;
+                SecureSocketSettings sourceSSL;
                 sourceSSL = this.getSSL();
-                SslSettings copySSL = ((SslSettings) strategy.copy(LocatorUtils.property(locator, "ssl", sourceSSL), sourceSSL));
+                SecureSocketSettings copySSL = ((SecureSocketSettings) strategy.copy(LocatorUtils.property(locator, "ssl", sourceSSL), sourceSSL));
                 copy.setSSL(copySSL);
             } else {
                 copy.ssl = null;

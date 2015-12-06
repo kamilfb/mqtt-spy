@@ -30,7 +30,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
-import pl.baczkowicz.mqttspy.common.generated.SslSettings;
+import pl.baczkowicz.mqttspy.common.generated.SecureSocketSettings;
 import pl.baczkowicz.mqttspy.configuration.ConfiguredConnectionDetails;
 import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnectionDetails;
 import pl.baczkowicz.mqttspy.ui.EditConnectionController;
@@ -145,7 +145,7 @@ public class EditConnectionSecurityTlsKeyStoresController extends AnchorPane imp
 		}		
 		else
 		{
-			final SslSettings sslSettings = connection.getSSL();
+			final SecureSocketSettings sslSettings = connection.getSSL();
 			
 			final boolean keyStores = SecureSocketModeEnum.SERVER_KEYSTORE.equals(mode)
 					|| SecureSocketModeEnum.SERVER_AND_CLIENT_KEYSTORES.equals(mode);

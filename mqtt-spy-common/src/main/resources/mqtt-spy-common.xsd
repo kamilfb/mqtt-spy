@@ -58,6 +58,7 @@
 			<xs:extension base="mqttspycommon:ConnectionDetails">
 				<xs:sequence>
 					<xs:element name="ServerURI" 			type="xs:string" 					minOccurs="1" maxOccurs="unbounded" />
+					<xs:element name="WebSocket" 			type="xs:boolean" 					minOccurs="0" maxOccurs="1" />
 					<xs:element name="ClientID" 			type="xs:string" />
 					
 					<xs:element name="UserCredentials" 		type="mqttspycommon:UserCredentials" 		minOccurs="0" maxOccurs="1" />
@@ -67,7 +68,7 @@
 					<xs:element name="ConnectionTimeout" 	type="xs:int" 						minOccurs="0" maxOccurs="1" />
 					<xs:element name="KeepAliveInterval" 	type="xs:int" 						minOccurs="0" maxOccurs="1" />
 					
-					<xs:element name="SSL" 					type="mqttspycommon:SslSettings" 			minOccurs="0" maxOccurs="1" />
+					<xs:element name="SSL" 					type="mqttspycommon:SecureSocketSettings" 	minOccurs="0" maxOccurs="1" />
 					
 					<xs:element name="ReconnectionSettings" type="mqttspycommon:ReconnectionSettings" 	minOccurs="0" maxOccurs="1" />														
 				</xs:sequence>
@@ -82,7 +83,7 @@
    		</xs:sequence>
 	</xs:complexType>
 	
-	<xs:complexType name="SslSettings">
+	<xs:complexType name="SecureSocketSettings">
 		<xs:sequence>
        		<xs:element name="Mode" 					type="spycommon:SecureSocketModeEnum" 	/>
        		<xs:element name="Protocol" 				type="xs:string" 	minOccurs="0" />

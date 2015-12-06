@@ -85,11 +85,11 @@ public class ObjectFactory {
     }
 
     /**
-     * Create an instance of {@link SslSettings }
+     * Create an instance of {@link SecureSocketSettings }
      * 
      */
-    public SslSettings createSslSettings() {
-        return new SslSettings();
+    public SecureSocketSettings createSecureSocketSettings() {
+        return new SecureSocketSettings();
     }
 
     /**
