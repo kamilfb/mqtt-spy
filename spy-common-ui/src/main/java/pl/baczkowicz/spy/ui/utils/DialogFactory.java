@@ -125,7 +125,7 @@ public class DialogFactory
 		dialog.setHeaderText(header);
 
 		// Set the icon 
-		dialog.setGraphic(ImageUtils.createLargeIcon("dialog-password", 48));
+		dialog.setGraphic(ImageUtils.createLargeIcon("preferences-desktop-user-password", 48));
 
 		// Set the button types
 		final ButtonType loginButtonType = new ButtonType("Connect", ButtonData.OK_DONE);

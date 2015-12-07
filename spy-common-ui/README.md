@@ -6,12 +6,12 @@ The following documents the origin of all graphics (images/icons) used in mqtt-s
 
 Oxygen Icons (CQ 8949):
 
-    * button-add.png		(list-add.png)
-    * button-apply.png	(dialog-ok-apply.png)
-    * button-connect.png (network-disconnect.png)
-    * button-copy.png		(edit-copy.png)
-    * button-delete.png	(edit-delete.png)
-    * button-undo.png		(edit-undo.png)
+    * button-add.png			(list-add.png)
+    * button-apply.png		(dialog-ok-apply.png)
+    * button-connect.png 	(network-disconnect.png)
+    * button-copy.png			(edit-copy.png)
+    * button-delete.png		(edit-delete.png)
+    * button-undo.png			(edit-undo.png)
     
     * dialog-error.png
     * dialog-information.png  
@@ -20,19 +20,16 @@ Oxygen Icons (CQ 8949):
     * dialog-password.png
     * rating.png
 
-    * formatting.png 	(NOT USED, CAN BE DELETED!!!!!)
-    
     * go-next.png
     * go-next-green.png
     * go-previous.png
     
-    * refresh.png			(view-refresh.png)
-    * save.png				(document-save.png)
-    * settings.png			(applications-system.png)
+    * refresh.png				(view-refresh.png)
+    * save.png					(document-save.png)
+    * settings.png				(applications-system.png)
     * tab-new.png
     * tab-detach.png
     * tab-close.png
-    * tab-close-other.png (NOT USED, CAN BE DELETED!!!!!)
     
     * testcase_actioned.png	(dialog-ok.png)
     * testcase_error.png		(emblem-important.png)
@@ -47,8 +44,8 @@ Oxygen Icons (CQ 8949):
     * folder-yellow.png
     * folder-new.png
     
-    * search.png				(replace with edit-find-mail.png !!!!!!!!!!!!!!!!!!!!!!!!!!)
-    * login.png					(replace with preferences-desktop-user-password.png !!!!!!!!!!!!!!!!!!!!)
+    * edit-find-mail.png
+    * preferences-desktop-user-password.png
     * application-internet.png
     * help-hint.png
     * system-run.png
