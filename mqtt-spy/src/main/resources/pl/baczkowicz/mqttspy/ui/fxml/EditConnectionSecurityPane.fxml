@@ -68,7 +68,7 @@
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                      <children>
                         <Label layoutX="23.0" layoutY="20.0" text="TLS/SSL mode" />
-                        <ComboBox fx:id="modeCombo" layoutX="129.0" layoutY="15.0" prefHeight="25.0" prefWidth="449.0" AnchorPane.leftAnchor="129.0" AnchorPane.rightAnchor="14.0" />
+                        <ComboBox fx:id="modeCombo" layoutX="129.0" layoutY="15.0" prefHeight="25.0" prefWidth="449.0" AnchorPane.leftAnchor="199" AnchorPane.rightAnchor="14.0" />
                      
                         <AnchorPane fx:id="customSocketFactoryPane" layoutX="23.0" layoutY="43.0" prefHeight="159.0" prefWidth="570.0" AnchorPane.bottomAnchor="8.0" AnchorPane.leftAnchor="23.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="43.0">
                            <children>

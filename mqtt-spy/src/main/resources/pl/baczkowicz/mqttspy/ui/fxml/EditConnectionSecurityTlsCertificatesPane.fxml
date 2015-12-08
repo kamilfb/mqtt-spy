@@ -40,13 +40,13 @@
       <TextField fx:id="clientAuthorityFile" layoutX="176.0" layoutY="31" prefHeight="26.0" prefWidth="340.0" AnchorPane.leftAnchor="176.0" AnchorPane.rightAnchor="54.0" />
       
       <Label fx:id="clientKeyFileLabel" layoutY="67" text="Client key file" />
-      <TextField fx:id="clientKeyFile" layoutX="176.0" layoutY="62" prefHeight="26.0" prefWidth="170.0" AnchorPane.leftAnchor="176.0" AnchorPane.rightAnchor="224.0" />
+      <TextField fx:id="clientKeyFile" layoutX="176.0" layoutY="62" prefHeight="26.0" prefWidth="170.0" AnchorPane.leftAnchor="176.0" AnchorPane.rightAnchor="54.0" />
       
       <Label fx:id="clientKeyPasswordLabel" layoutY="98" text="Client key password" />
       <TextField fx:id="clientPassword" layoutX="176.0" layoutY="93" prefHeight="25.0" prefWidth="379.0" AnchorPane.leftAnchor="176.0" AnchorPane.rightAnchor="14.0" />
       <Button fx:id="editCaCrtFileButton" focusTraversable="false" layoutX="512.0" mnemonicParsing="false" onAction="#editCaCrtFile" prefHeight="26.0" prefWidth="31.0" text="..." AnchorPane.rightAnchor="14.0" />
       <Button fx:id="editClientCrtFileButton" focusTraversable="false" layoutX="512.0" layoutY="31.0" mnemonicParsing="false" onAction="#editClientCrtFile" prefHeight="26.0" prefWidth="31.0" text="..." AnchorPane.rightAnchor="14.0" />
-      <Button fx:id="editClientKeyFileButton" focusTraversable="false" layoutX="351.0" layoutY="62.0" mnemonicParsing="false" onAction="#editClientKeyFile" prefHeight="26.0" prefWidth="31.0" text="..." AnchorPane.rightAnchor="188.0" />
+      <Button fx:id="editClientKeyFileButton" focusTraversable="false" layoutX="351.0" layoutY="62.0" mnemonicParsing="false" onAction="#editClientKeyFile" prefHeight="26.0" prefWidth="31.0" text="..." AnchorPane.rightAnchor="14.0" />
       <Label fx:id="clientKeyPemLabel" layoutY="129.0" text="Client key in PEM format" />
       <CheckBox fx:id="clientKeyPemFormatted" layoutX="176.0" layoutY="128.0" mnemonicParsing="false" selected="true" AnchorPane.leftAnchor="176.0" />                              
    </children>
