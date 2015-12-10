@@ -13,6 +13,11 @@ Oxygen Icons (CQ 8949):
     * button-delete.png		(edit-delete.png)
     * button-undo.png			(edit-undo.png)
     
+    * document-save-all.png
+    * feed-subscribe.png
+    * mail-unread.png
+    * tools-wizard.png
+    
     * dialog-error.png
     * dialog-information.png  
     * dialog-ok-apply.png
