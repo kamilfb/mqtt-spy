@@ -80,39 +80,39 @@
        
       <Button fx:id="cancelButton" cancelButton="true" focusTraversable="false" layoutX="192.0" layoutY="317.0" mnemonicParsing="false" onAction="#cancel" prefHeight="28" prefWidth="80.0" text="Close" visible="false" AnchorPane.bottomAnchor="14.0" AnchorPane.rightAnchor="322.0" />
             
-      <TabPane tabClosingPolicy="UNAVAILABLE" AnchorPane.topAnchor="93" AnchorPane.bottomAnchor="61.0" AnchorPane.leftAnchor="4.0" AnchorPane.rightAnchor="4.0">
+      <TabPane fx:id="tabPane" tabClosingPolicy="UNAVAILABLE" AnchorPane.topAnchor="93" AnchorPane.bottomAnchor="61.0" AnchorPane.leftAnchor="4.0" AnchorPane.rightAnchor="4.0">
         <tabs>
-          	<Tab text="Connectivity">
+          	<Tab fx:id="connectivityTab" text="Connectivity">
               <content>
               	<fx:include fx:id="editConnectionConnectivity" source="EditConnectionConnectivityPane.fxml" />
               </content>
           	</Tab>
-            <Tab text="Security">
+            <Tab fx:id="securityTab" text="Security">
               <content>
                 <fx:include fx:id="editConnectionSecurity" source="EditConnectionSecurityPane.fxml" />
               </content>
             </Tab>
-            <Tab text="Last Will">
+            <Tab  fx:id="ltwTab" text="Last Will">
                <content>
                   <fx:include fx:id="editConnectionLastWill" source="EditConnectionLastWillPane.fxml" />
                </content>
             </Tab>
-            <Tab text="Publications">
+            <Tab fx:id="publicationsTab" text="Publications">
               <content>
                 <fx:include fx:id="editConnectionPublications" source="EditConnectionPublicationsPane.fxml" />
               </content>
             </Tab>
-            <Tab text="Subscriptions">
+            <Tab fx:id="subscriptionsTab" text="Subscriptions">
                <content>
                   <fx:include fx:id="editConnectionSubscriptions" source="EditConnectionSubscriptionsPane.fxml" />
                </content>
             </Tab>            
-            <Tab text="Log">
+            <Tab fx:id="logTab" text="Log">
                <content>
                   <fx:include fx:id="editConnectionMessageLog" source="EditConnectionMessageLogPane.fxml" />
                </content>
             </Tab>            
-            <Tab text="Other">
+            <Tab fx:id="otherTab" text="Other">
                <content>
                   <fx:include fx:id="editConnectionOther" source="EditConnectionOtherPane.fxml" />
                </content>
@@ -120,8 +120,8 @@
         </tabs>
       </TabPane>
       <Separator layoutX="14.0" layoutY="278.0" prefHeight="0.0" prefWidth="618.0" AnchorPane.bottomAnchor="50.0" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="14.0" />
-      <Label layoutX="14.0" layoutY="61.0" text="Protocol version" />
-      <ComboBox fx:id="protocolCombo" layoutX="278.0" layoutY="56.0" prefHeight="25.0" prefWidth="302.0" AnchorPane.leftAnchor="278.0" AnchorPane.rightAnchor="14.0" AnchorPane.topAnchor="56.0" />          
+      <Label layoutX="14.0" layoutY="61.0" text="Configuration mode (perspective)" />
+      <ComboBox fx:id="perspectiveCombo" layoutX="278.0" layoutY="56.0" prefHeight="25.0" prefWidth="302.0" AnchorPane.leftAnchor="278.0" AnchorPane.rightAnchor="14.0" AnchorPane.topAnchor="56.0" />          
       
    </children>
 </AnchorPane>

@@ -63,6 +63,7 @@ import pl.baczkowicz.spy.exceptions.ConfigurationException;
 import pl.baczkowicz.spy.ui.configuration.ConfiguredConnectionGroupDetails;
 import pl.baczkowicz.spy.ui.controls.DragAndDropTreeViewCell;
 import pl.baczkowicz.spy.ui.events.observers.ItemsReorderedObserver;
+import pl.baczkowicz.spy.ui.panes.SpyPerspective;
 import pl.baczkowicz.spy.ui.properties.ConnectionTreeItemProperties;
 import pl.baczkowicz.spy.ui.utils.DialogFactory;
 import pl.baczkowicz.spy.ui.utils.TooltipFactory;
@@ -837,5 +838,10 @@ public class EditConnectionsController extends AnchorPane implements Initializab
 	public void onItemsReordered()
 	{
 		listConnections();		
+	}
+	
+	public void setPerspective(final SpyPerspective perspective)
+	{
+		editConnectionPaneController.setPerspective(perspective);
 	}
 }

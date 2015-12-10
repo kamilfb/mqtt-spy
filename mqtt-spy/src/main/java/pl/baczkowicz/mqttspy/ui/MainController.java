@@ -380,6 +380,7 @@ public class MainController
 		}
 
 		editConnectionsController.updateUIForSelectedItem();
+		editConnectionsController.setPerspective(selectedPerspective);
 		editConnectionsStage.showAndWait();		
 		controlPanelPaneController.refreshConnectionsStatus();
 	}
@@ -452,7 +453,7 @@ public class MainController
 
 		if (selectedFile != null)
 		{
-			loadConfigurationFileAndShowErrorWhenApplicable(selectedFile);			
+			loadConfigurationFileAndShowErrorWhenApplicable(selectedFile);
 		}
 	}
 	

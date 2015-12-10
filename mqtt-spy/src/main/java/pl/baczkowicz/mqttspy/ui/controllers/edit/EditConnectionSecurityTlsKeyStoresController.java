@@ -29,12 +29,14 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.control.PasswordField;
 import javafx.scene.layout.AnchorPane;
 import pl.baczkowicz.mqttspy.common.generated.SecureSocketSettings;
 import pl.baczkowicz.mqttspy.configuration.ConfiguredConnectionDetails;
 import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnectionDetails;
 import pl.baczkowicz.mqttspy.ui.EditConnectionController;
 import pl.baczkowicz.spy.common.generated.SecureSocketModeEnum;
+import pl.baczkowicz.spy.ui.utils.DialogFactory;
 
 /**
  * Controller for editing a single connection - security tab.
@@ -54,16 +56,16 @@ public class EditConnectionSecurityTlsKeyStoresController extends AnchorPane imp
 	private TextField serverKeyStoreFile;
 	
 	@FXML
-	private TextField serverKeyStorePassword;
+	private PasswordField serverKeyStorePassword;
 	
 	@FXML
 	private TextField clientKeyStoreFile;
 	
 	@FXML
-	private TextField clientKeyStorePassword;
+	private PasswordField clientKeyStorePassword;
 	
 	@FXML
-	private TextField clientKeyPassword;	
+	private PasswordField clientKeyPassword;	
 	
 	@FXML
 	private Label clientKeyPasswordLabel;
@@ -95,6 +97,10 @@ public class EditConnectionSecurityTlsKeyStoresController extends AnchorPane imp
 
 	public void initialize(URL location, ResourceBundle resources)
 	{		
+		// Set up edit buttons
+		DialogFactory.setUpTextFieldFileOpenButton(serverKeyStoreFile, editServerKeyStoreFileButton);
+		DialogFactory.setUpTextFieldFileOpenButton(clientKeyStoreFile, editClientKeyStoreFileButton);
+				
 		// Key stores
 		serverKeyStoreFile.textProperty().addListener(basicOnChangeListener);
 		serverKeyStorePassword.textProperty().addListener(basicOnChangeListener);

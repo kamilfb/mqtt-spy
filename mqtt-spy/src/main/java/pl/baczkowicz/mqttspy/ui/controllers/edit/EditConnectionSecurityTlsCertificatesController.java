@@ -30,12 +30,14 @@ import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.control.PasswordField;
 import javafx.scene.layout.AnchorPane;
 import pl.baczkowicz.mqttspy.common.generated.SecureSocketSettings;
 import pl.baczkowicz.mqttspy.configuration.ConfiguredConnectionDetails;
 import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnectionDetails;
 import pl.baczkowicz.mqttspy.ui.EditConnectionController;
 import pl.baczkowicz.spy.common.generated.SecureSocketModeEnum;
+import pl.baczkowicz.spy.ui.utils.DialogFactory;
 
 /**
  * Controller for editing a single connection - security tab - certificates pane.
@@ -52,16 +54,25 @@ public class EditConnectionSecurityTlsCertificatesController extends AnchorPane 
 	// Certificates
 	
 	@FXML
-	private TextField certificateAuthorityFile;
+	private TextField serverCertificateFile;
 	
 	@FXML
-	private TextField clientPassword;
+	private Button serverCertificateFileButton;
+	
+	@FXML
+	private PasswordField clientPassword;
 	
 	@FXML
 	private TextField clientKeyFile;
 	
 	@FXML
-	private TextField clientAuthorityFile;
+	private Button clientKeyFileButton;
+	
+	@FXML
+	private TextField clientCertificateFile;
+	
+	@FXML
+	private Button clientCertificateFileButton;
 	
 	@FXML
 	private Label clientKeyPasswordLabel;
@@ -70,22 +81,13 @@ public class EditConnectionSecurityTlsCertificatesController extends AnchorPane 
 	private Label clientKeyFileLabel;
 	
 	@FXML
-	private Label clientAuthorityFileLabel;
+	private Label clientCertificateFileLabel;
 	
 	@FXML
 	private Label clientKeyPemLabel;
 	
 	@FXML
 	private CheckBox clientKeyPemFormatted;
-	
-	@FXML
-	private Button editCaCrtFileButton;
-	
-	@FXML
-	private Button editClientCrtFileButton;
-	
-	@FXML
-	private Button editClientKeyFileButton;
 	
 	// Other fields
 
@@ -104,9 +106,14 @@ public class EditConnectionSecurityTlsCertificatesController extends AnchorPane 
 
 	public void initialize(URL location, ResourceBundle resources)
 	{		
+		// Set up edit buttons
+		DialogFactory.setUpTextFieldFileOpenButton(serverCertificateFile, serverCertificateFileButton);
+		DialogFactory.setUpTextFieldFileOpenButton(clientCertificateFile, clientCertificateFileButton);
+		DialogFactory.setUpTextFieldFileOpenButton(clientKeyFile, clientKeyFileButton);
+		
 		// Certificates
-		certificateAuthorityFile.textProperty().addListener(basicOnChangeListener);
-		clientAuthorityFile.textProperty().addListener(basicOnChangeListener);
+		serverCertificateFile.textProperty().addListener(basicOnChangeListener);
+		clientCertificateFile.textProperty().addListener(basicOnChangeListener);
 		clientKeyFile.textProperty().addListener(basicOnChangeListener);
 		clientPassword.textProperty().addListener(basicOnChangeListener);
 		clientKeyPemFormatted.selectedProperty().addListener(basicOnChangeListener);
@@ -136,16 +143,16 @@ public class EditConnectionSecurityTlsCertificatesController extends AnchorPane 
 		
 			clientPassword.setVisible(serverAndClient);
 			clientKeyFile.setVisible(serverAndClient);
-			clientAuthorityFile.setVisible(serverAndClient);
+			clientCertificateFile.setVisible(serverAndClient);
 			
 			clientKeyPasswordLabel.setVisible(serverAndClient);
 			clientKeyFileLabel.setVisible(serverAndClient);
-			clientAuthorityFileLabel.setVisible(serverAndClient);
+			clientCertificateFileLabel.setVisible(serverAndClient);
 			clientKeyPemLabel.setVisible(serverAndClient);
 			clientKeyPemFormatted.setVisible(serverAndClient);
 			
-			editClientCrtFileButton.setVisible(serverAndClient);
-			editClientKeyFileButton.setVisible(serverAndClient);
+			clientCertificateFileButton.setVisible(serverAndClient);
+			clientKeyFileButton.setVisible(serverAndClient);
 		}
 	}
 
@@ -164,8 +171,8 @@ public class EditConnectionSecurityTlsCertificatesController extends AnchorPane 
 			
 			if (certificates)
 			{			
-				sslSettings.setCertificateAuthorityFile(certificateAuthorityFile.getText());
-				sslSettings.setClientCertificateFile(clientAuthorityFile.getText());
+				sslSettings.setCertificateAuthorityFile(serverCertificateFile.getText());
+				sslSettings.setClientCertificateFile(clientCertificateFile.getText());
 				sslSettings.setClientKeyFile(clientKeyFile.getText());
 				sslSettings.setClientKeyPassword(clientPassword.getText());				
 				sslSettings.setClientKeyPEM(clientKeyPemFormatted.isSelected());
@@ -180,8 +187,8 @@ public class EditConnectionSecurityTlsCertificatesController extends AnchorPane 
 		if (connection.getSSL() != null)
 		{	
 			// Certificates
-			certificateAuthorityFile.setText(connection.getSSL().getCertificateAuthorityFile());
-			clientAuthorityFile.setText(connection.getSSL().getClientCertificateFile());
+			serverCertificateFile.setText(connection.getSSL().getCertificateAuthorityFile());
+			clientCertificateFile.setText(connection.getSSL().getClientCertificateFile());
 			clientKeyFile.setText(connection.getSSL().getClientKeyFile());
 			clientPassword.setText(connection.getSSL().getClientKeyPassword());	
 			clientKeyPemFormatted.setSelected(Boolean.TRUE.equals(connection.getSSL().isClientKeyPEM()));

@@ -58,6 +58,7 @@ import pl.baczkowicz.spy.ui.events.observers.MessageIndexToFirstObserver;
 import pl.baczkowicz.spy.ui.events.observers.MessageRemovedObserver;
 import pl.baczkowicz.spy.ui.events.queuable.ui.BrowseReceivedMessageEvent;
 import pl.baczkowicz.spy.ui.events.queuable.ui.BrowseRemovedMessageEvent;
+import pl.baczkowicz.spy.ui.panes.SpyPerspective;
 import pl.baczkowicz.spy.ui.storage.BasicMessageStoreWithSummary;
 import pl.baczkowicz.spy.ui.storage.ManagedMessageStoreWithFiltering;
 import pl.baczkowicz.spy.ui.utils.TextUtils;
@@ -567,8 +568,18 @@ public class MessageNavigationController implements Initializable,
 		return uniqueOnlyMenu;
 	}
 
-	public MenuButton getFilterButton()
+	public void setDetailedViewVisibility(final boolean detailed)
 	{
-		return filterButton;		
+		filterButton.setVisible(detailed);
 	}
+
+	public void toggleDetaileledViewVisibility()
+	{
+		filterButton.setVisible(!filterButton.isVisible());
+	}
+
+//	public MenuButton getFilterButton()
+//	{
+//		return filterButton;		
+//	}
 }

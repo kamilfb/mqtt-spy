@@ -75,6 +75,7 @@ import pl.baczkowicz.spy.formatting.FormattingManager;
 import pl.baczkowicz.spy.formatting.FormattingUtils;
 import pl.baczkowicz.spy.ui.events.observers.ClearTabObserver;
 import pl.baczkowicz.spy.ui.events.queuable.ui.BrowseReceivedMessageEvent;
+import pl.baczkowicz.spy.ui.panes.SpyPerspective;
 import pl.baczkowicz.spy.ui.panes.TabController;
 import pl.baczkowicz.spy.ui.panes.TabStatus;
 import pl.baczkowicz.spy.ui.search.UniqueContentOnlyFilter;
@@ -424,11 +425,13 @@ public class SubscriptionController implements Initializable, ClearTabObserver<F
 	public void setDetailedViewVisibility(final boolean visible)
 	{
 		messagePaneController.setDetailedViewVisibility(visible);
+		messageNavigationPaneController.setDetailedViewVisibility(visible);
 	}
 	
 	public void toggleDetailedViewVisibility()
 	{
 		messagePaneController.toggleDetailedViewVisibility();
+		messageNavigationPaneController.toggleDetaileledViewVisibility();
 	}
 	
 	@Override

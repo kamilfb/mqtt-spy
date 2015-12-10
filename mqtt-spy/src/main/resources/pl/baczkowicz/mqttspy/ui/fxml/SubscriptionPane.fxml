@@ -47,6 +47,13 @@
       	</graphic>
         <items>
         	<Menu mnemonicParsing="false" text="Formatting">
+        		<graphic>
+		      		<ImageView fitHeight="18.0" fitWidth="18.0" pickOnBounds="true">
+				         <image>
+				            <Image url="/images/small/tools-wizard.png"/>
+				         </image>
+				      </ImageView>
+		      	</graphic>
         		<items>
         			<Menu fx:id="formatterMenu" mnemonicParsing="false" text="Convert whole message">
 		               <items>
@@ -82,8 +89,22 @@
         	</Menu>        
         	
         	<Menu fx:id="exportMenu" mnemonicParsing="false" text="Export">
+        		<graphic>
+		      		<ImageView fitHeight="18.0" fitWidth="18.0" pickOnBounds="true">
+				         <image>
+				            <Image url="/images/small/document-save-all.png"/>
+				         </image>
+				      </ImageView>
+		      	</graphic>
             	<items>
             		<Menu text="Messages">
+	            		<graphic>
+				      		<ImageView fitHeight="18.0" fitWidth="18.0" pickOnBounds="true">
+						         <image>
+						            <Image url="/images/small/mail-unread.png"/>
+						         </image>
+						      </ImageView>
+				      	</graphic>
             			<items>
             				<Menu text="Clipboard">
             					<items>
@@ -107,7 +128,14 @@
             			</items>
             		</Menu>
             		<Menu text="Topics">
-            			<items>
+	            		<graphic>
+				      		<ImageView fitHeight="18.0" fitWidth="18.0" pickOnBounds="true">
+						         <image>
+						            <Image url="/images/small/feed-subscribe.png"/>
+						         </image>
+						      </ImageView>
+				      	</graphic>
+	            			<items>
             				<Menu text="Clipboard">
             					<items>
             						<MenuItem text="This topic" onAction="#copyBrowsedTopic" />
