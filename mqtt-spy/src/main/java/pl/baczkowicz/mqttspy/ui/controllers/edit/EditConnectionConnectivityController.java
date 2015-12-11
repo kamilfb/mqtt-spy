@@ -199,6 +199,7 @@ public class EditConnectionConnectivityController extends AnchorPane implements 
 		
 		connectionTypeCombo.getItems().add("Plain connection");
 		connectionTypeCombo.getItems().add("WebSockets");
+		connectionTypeCombo.getSelectionModel().selectedIndexProperty().addListener(basicOnChangeListener);
 		
 		brokerAddressText.textProperty().addListener(new ChangeListener()
 		{

@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>pl.baczkowicz.spy</groupId>
 	<artifactId>spy-common-ui</artifactId>
-	<version>0.0.2</version>
+	<version>0.0.3</version>
 
 	<name>spy-common-ui</name>
 	<url>http://kamilfb.github.io/mq-spy/</url>
@@ -27,7 +27,7 @@
 		<dependency>
 			<groupId>pl.baczkowicz.spy</groupId>
 			<artifactId>spy-common</artifactId>
-			<version>0.0.2</version>
+			<version>0.0.3</version>
 		</dependency>	
 		
 		<dependency>

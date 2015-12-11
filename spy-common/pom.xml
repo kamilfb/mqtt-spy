@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>pl.baczkowicz.spy</groupId>
 	<artifactId>spy-common</artifactId>
-	<version>0.0.2</version>
+	<version>0.0.3</version>
 
 	<name>spy-common</name>
 	<url>http://kamilfb.github.io/mq-spy/</url>
@@ -113,7 +113,7 @@
 			    <executions>						     
 			        
 			        <execution>
-			            <id>mqtt-spy-configuration</id>
+			            <id>spy-common</id>
 			            <phase>generate-resources</phase>
 			            <goals>
 			                <goal>generate</goal>
