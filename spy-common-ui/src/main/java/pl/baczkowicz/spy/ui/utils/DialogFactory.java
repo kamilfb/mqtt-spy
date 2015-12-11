@@ -19,15 +19,19 @@
  */
 package pl.baczkowicz.spy.ui.utils;
 
+import java.io.File;
 import java.util.Optional;
 
 import javafx.application.Platform;
 import javafx.concurrent.Task;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ColorPicker;
@@ -40,6 +44,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import javafx.util.Pair;
@@ -276,5 +281,25 @@ public class DialogFactory
         
         dialog.getDialogPane().setContent(vbox);
         content.setWorker(readAndProcess);
+	}
+
+	public static void setUpTextFieldFileOpenButton(final TextField field, final Button button)
+	{
+		button.setOnAction(new EventHandler<ActionEvent>()
+		{			
+			@Override
+			public void handle(final ActionEvent event)
+			{
+				final FileChooser fileChooser = new FileChooser();
+				fileChooser.setTitle("Select file to open");
+				
+				final File selectedFile = fileChooser.showOpenDialog(field.getScene().getWindow());
+
+				if (selectedFile != null)
+				{			
+					field.setText(selectedFile.getAbsolutePath());
+				}				
+			}
+		});
 	}		
 }
