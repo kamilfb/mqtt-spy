@@ -102,6 +102,10 @@ public abstract class BaseMqttConnection implements IMqttConnection
 	{
 		try
 		{
+			logger.debug("Creating MQTT client with server URI {} and client ID {}",
+					connectionDetails.getServerURI().get(0), 
+					connectionDetails.getClientID());
+			
 			// Creating MQTT client instance
 			client = new MqttAsyncClient(
 					connectionDetails.getServerURI().get(0), 

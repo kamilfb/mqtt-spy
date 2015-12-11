@@ -77,6 +77,8 @@ public class MqttConnectionDetailsWithOptions extends MqttConnectionDetails
 				&& details.getSSL().getMode() != null 
 				&& !details.getSSL().getMode().equals(SecureSocketModeEnum.DISABLED);
 		
+		this.setWebSocket(details.isWebSocket());
+		
 		MqttConfigurationUtils.completeServerURIs(this, sslEnabled, Boolean.TRUE.equals(this.isWebSocket()));
 		MqttConfigurationUtils.populateConnectionDefaults(this);
 		
