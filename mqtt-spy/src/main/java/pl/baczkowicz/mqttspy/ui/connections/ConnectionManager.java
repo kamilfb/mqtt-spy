@@ -151,15 +151,23 @@ public class ConnectionManager
 			}
 			else
 			{
-				final RuntimeConnectionProperties connectionProperties = new RuntimeConnectionProperties(connectionDetails);
-				new Thread(new Runnable()
-				{					
-					@Override
-					public void run()
-					{
-						loadConnectionTab(mainController, mainController, connectionProperties);					
-					}
-				}).start();											
+				try
+				{
+					final RuntimeConnectionProperties connectionProperties = new RuntimeConnectionProperties(connectionDetails);
+					new Thread(new Runnable()
+					{					
+						@Override
+						public void run()
+						{
+							loadConnectionTab(mainController, mainController, connectionProperties);					
+						}
+					}).start();											
+				}
+				catch (ConfigurationException e)
+				{
+					logger.error("Cannot create connection properties", e);
+					DialogFactory.createExceptionDialog("Invalid configuration detected", e);
+				}
 			}
 		}
 	}	
