@@ -28,6 +28,7 @@ import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
+import java.security.Provider;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
@@ -120,14 +121,14 @@ public class SecureSocketUtils
     /**
      * Creates a trust manager factory.
      */
-	public static TrustManagerFactory getTrustManagerFactory(final String caCertificateFile) 
+	public static TrustManagerFactory getTrustManagerFactory(final String serverCertificateFile) 
 			throws IOException, KeyStoreException, NoSuchAlgorithmException, CertificateException
 	{
 		// Load CA certificate
-		final X509Certificate caCertificate = (X509Certificate) loadX509Certificate(caCertificateFile);
+		final X509Certificate caCertificate = (X509Certificate) loadX509Certificate(serverCertificateFile);
 		
 		// CA certificate is used to authenticate server
-		final KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+		final KeyStore keyStore = getKeyStoreInstance();
 		keyStore.load(null, null);
 		keyStore.setCertificateEntry("ca-certificate", caCertificate);
 		
@@ -181,7 +182,7 @@ public class SecureSocketUtils
 		final PrivateKey privateKey = pemFormat ? loadPrivateKeyFromPemFile(clientKeyFile) : loadPrivateKeyFromBinaryFile(clientKeyFile);
 
 		// Client key and certificate are sent to server
-		final KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+		final KeyStore keyStore = getKeyStoreInstance();
 		keyStore.load(null, null);
 		keyStore.setCertificateEntry("certificate", clientCertificate);
 		keyStore.setKeyEntry("private-key", privateKey, clientKeyPassword.toCharArray(), new Certificate[] { clientCertificate });
@@ -204,7 +205,8 @@ public class SecureSocketUtils
 		
 		try
 		{
-			keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+			// TODO: add support for other key store types
+			keyStore = getKeyStoreInstance();
 			keyStore.load(inputStream, keyStorePassword.toCharArray());
 		}
 		finally
@@ -216,5 +218,20 @@ public class SecureSocketUtils
 		}
 		
 		return keyStore;
+	}
+		
+	public static KeyStore getKeyStoreInstance() throws KeyStoreException
+	{
+		return KeyStore.getInstance(KeyStore.getDefaultType());
+	}
+	
+	public static KeyStore getKeyStoreInstance(final String type) throws KeyStoreException
+	{			
+		return KeyStore.getInstance(type);
+	}
+	
+	public static KeyStore getKeyStoreInstance(final String type, final Provider provider) throws KeyStoreException
+	{			
+		return KeyStore.getInstance(type, provider);
 	}
 }

@@ -47,11 +47,11 @@ public class SecureSocketFactoryBuilder
 	/**
 	 * Creates an SSL/TLS socket factory with the given CA certificate file and protocol version.
 	 */
-	public static SSLSocketFactory getSocketFactory(final String protocolVersion, final String caCrtFile) throws SpyException
+	public static SSLSocketFactory getSocketFactory(final String protocolVersion, final String serverCrtFile) throws SpyException
 	{
 		try
 		{
-			final TrustManager[] tm = SecureSocketUtils.getTrustManagerFactory(caCrtFile).getTrustManagers();
+			final TrustManager[] tm = SecureSocketUtils.getTrustManagerFactory(serverCrtFile).getTrustManagers();
 			
 			return getSocketFactory(protocolVersion, null, tm, null);
 		}
@@ -65,11 +65,11 @@ public class SecureSocketFactoryBuilder
 	 * Creates an SSL/TLS socket factory with the given key store details and protocol version.
 	 */
 	public static SSLSocketFactory getSocketFactory(final String protocolVersion, 
-			final String caKeyStoreFile, final String caKeyStorePassword) throws SpyException
+			final String serverKeyStoreFile, final String serverKeyStorePassword) throws SpyException
 	{
 		try
 		{
-			final TrustManager[] tm = SecureSocketUtils.getTrustManagerFactory(caKeyStoreFile, caKeyStorePassword).getTrustManagers();
+			final TrustManager[] tm = SecureSocketUtils.getTrustManagerFactory(serverKeyStoreFile, serverKeyStorePassword).getTrustManagers();
 			
 			return getSocketFactory(protocolVersion, null, tm, null);
 		}
@@ -83,13 +83,13 @@ public class SecureSocketFactoryBuilder
 	 * Creates an SSL/TLS socket factory with the given CA certificate file, client certificate, client key&password and protocol version.
 	 */
 	public static SSLSocketFactory getSocketFactory(final String protocolVersion, 
-			final String caCrtFile, final String clientCrtFile, final String clientKeyFile, final String clientKeyPassword, 
+			final String serverCrtFile, final String clientCrtFile, final String clientKeyFile, final String clientKeyPassword, 
 			final boolean pemFormat) throws SpyException
 	{
 		try
 		{
 			final KeyManager[] km = SecureSocketUtils.getKeyManagerFactory(clientCrtFile, clientKeyFile, clientKeyPassword, pemFormat).getKeyManagers();
-			final TrustManager[] tm = SecureSocketUtils.getTrustManagerFactory(caCrtFile).getTrustManagers();
+			final TrustManager[] tm = SecureSocketUtils.getTrustManagerFactory(serverCrtFile).getTrustManagers();
 			
 			return getSocketFactory(protocolVersion, km, tm, null);
 		}
@@ -103,14 +103,14 @@ public class SecureSocketFactoryBuilder
 	 * Creates an SSL/TLS socket factory with the given key store details and protocol version.
 	 */
 	public static SSLSocketFactory getSocketFactory(final String protocolVersion, 
-			final String caKeyStoreFile, final String caKeyStorePassword,
+			final String serverKeyStoreFile, final String serverKeyStorePassword,
 			final String clientKeyStoreFile, final String clientKeyStorePassword, final String clientKeyPassword) 
 					throws SpyException
 	{
 		try
 		{
 			final KeyManager[] km = SecureSocketUtils.getKeyManagerFactory(clientKeyStoreFile, clientKeyStorePassword, clientKeyPassword).getKeyManagers();
-			final TrustManager[] tm = SecureSocketUtils.getTrustManagerFactory(caKeyStoreFile, caKeyStorePassword).getTrustManagers();
+			final TrustManager[] tm = SecureSocketUtils.getTrustManagerFactory(serverKeyStoreFile, serverKeyStorePassword).getTrustManagers();
 			
 			return getSocketFactory(protocolVersion, km, tm, null);
 		}
