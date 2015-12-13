@@ -197,7 +197,7 @@ public class EditConnectionConnectivityController extends AnchorPane implements 
 			protocolCombo.getItems().add(protocolEnum);
 		}
 		
-		connectionTypeCombo.getItems().add("Plain connection");
+		connectionTypeCombo.getItems().add("Default");
 		connectionTypeCombo.getItems().add("WebSockets");
 		connectionTypeCombo.getSelectionModel().selectedIndexProperty().addListener(basicOnChangeListener);
 		
