@@ -70,9 +70,9 @@ public class ControlPanelStatsUpdater implements Runnable
 	
 	/** List of getting involved messages. */
 	private List<String> gettingInvolvedDetails = new ArrayList<String>(Arrays.asList(
-			"Finding mqtt-spy useful? Get involved and make mqtt-spy even better", 
-			"Like your mqtt-spy? Get involved and see how you can help at", 
-			"Using mqtt-spy on a regular basis? See how you can help the project at"));
+			"Finding mqtt-spy useful? See how you can make mqtt-spy even better", 
+			"Like your mqtt-spy? See how you can help at", 
+			"Using mqtt-spy on a regular basis? See how you can help at"));
 
 	/** The controller of the stats control panel item. */
 	private final ControlPanelItemController controlPanelItemController;
