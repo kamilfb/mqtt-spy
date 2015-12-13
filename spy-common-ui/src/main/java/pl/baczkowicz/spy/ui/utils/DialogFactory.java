@@ -20,6 +20,8 @@
 package pl.baczkowicz.spy.ui.utils;
 
 import java.io.File;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.Optional;
 
 import javafx.application.Platform;
@@ -38,10 +40,12 @@ import javafx.scene.control.ColorPicker;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
@@ -67,6 +71,43 @@ public class DialogFactory
 
 		alert.showAndWait();
 	}
+	
+	public static void createExceptionDialog(final String title, final Exception e)
+	{		
+		Throwable cause = e.getCause();
+		while (cause.getCause() != null)
+		{
+			cause = cause.getCause();
+		}
+		
+		final Alert alert = new Alert(AlertType.ERROR);
+		alert.setTitle(title);
+		alert.setHeaderText(null);
+		alert.setContentText(e.getMessage() + " - " + cause.getMessage());
+		
+		final StringWriter sw = new StringWriter();
+		final PrintWriter pw = new PrintWriter(sw);
+		e.printStackTrace(pw);
+
+		final TextArea textArea = new TextArea(sw.toString());
+		
+		textArea.setEditable(false);
+		textArea.setWrapText(true);
+
+		textArea.setMaxWidth(Double.MAX_VALUE);
+		textArea.setMaxHeight(Double.MAX_VALUE);
+		
+		GridPane.setVgrow(textArea, Priority.ALWAYS);
+		GridPane.setHgrow(textArea, Priority.ALWAYS);
+
+		GridPane content = new GridPane();
+		content.setMaxWidth(Double.MAX_VALUE);
+		content.add(textArea, 0, 0);
+
+		alert.getDialogPane().setExpandableContent(content);
+
+		alert.showAndWait();
+	}	
 
 	public static void createWarningDialog(final String title, final String message)
 	{
@@ -301,5 +342,5 @@ public class DialogFactory
 				}				
 			}
 		});
-	}		
+	}	
 }
