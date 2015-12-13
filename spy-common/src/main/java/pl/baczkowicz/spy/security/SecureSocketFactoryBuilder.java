@@ -29,6 +29,7 @@ import javax.net.ssl.TrustManager;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
+import pl.baczkowicz.spy.common.generated.KeyStoreTypeEnum;
 import pl.baczkowicz.spy.exceptions.SpyException;
 
 /**
@@ -57,7 +58,7 @@ public class SecureSocketFactoryBuilder
 		}
 		catch (Exception e)
 		{
-			throw new SpyException("Cannot create SSL/TLS connection", e);
+			throw new SpyException("Cannot create TLS/SSL connection", e);
 		}
 	}
 	
@@ -69,13 +70,15 @@ public class SecureSocketFactoryBuilder
 	{
 		try
 		{
-			final TrustManager[] tm = SecureSocketUtils.getTrustManagerFactory(serverKeyStoreFile, serverKeyStorePassword).getTrustManagers();
+			// TODO: add support for other key stores
+			final TrustManager[] tm = SecureSocketUtils.getTrustManagerFactory(
+					serverKeyStoreFile, serverKeyStorePassword, KeyStoreTypeEnum.DEFAULT).getTrustManagers();
 			
 			return getSocketFactory(protocolVersion, null, tm, null);
 		}
 		catch (Exception e)
 		{
-			throw new SpyException("Cannot create SSL/TLS connection", e);
+			throw new SpyException("Cannot create TLS/SSL connection", e);
 		}
 	}
 	
@@ -95,7 +98,7 @@ public class SecureSocketFactoryBuilder
 		}
 		catch (Exception e)
 		{
-			throw new SpyException("Cannot create SSL/TLS connection", e);
+			throw new SpyException("Cannot create TLS/SSL connection", e);
 		}		
 	}
 	
@@ -109,14 +112,17 @@ public class SecureSocketFactoryBuilder
 	{
 		try
 		{
-			final KeyManager[] km = SecureSocketUtils.getKeyManagerFactory(clientKeyStoreFile, clientKeyStorePassword, clientKeyPassword).getKeyManagers();
-			final TrustManager[] tm = SecureSocketUtils.getTrustManagerFactory(serverKeyStoreFile, serverKeyStorePassword).getTrustManagers();
+			// TODO: add support for other key stores
+			final KeyManager[] km = SecureSocketUtils.getKeyManagerFactory(
+					clientKeyStoreFile, clientKeyStorePassword, clientKeyPassword, KeyStoreTypeEnum.DEFAULT).getKeyManagers();
+			final TrustManager[] tm = SecureSocketUtils.getTrustManagerFactory(
+					serverKeyStoreFile, serverKeyStorePassword, KeyStoreTypeEnum.DEFAULT).getTrustManagers();
 			
 			return getSocketFactory(protocolVersion, km, tm, null);
 		}
 		catch (Exception e)
 		{
-			throw new SpyException("Cannot create SSL/TLS connection", e);
+			throw new SpyException("Cannot create TLS/SSL connection", e);
 		}		
 	}
 
@@ -136,7 +142,7 @@ public class SecureSocketFactoryBuilder
 		}
 		catch (Exception e)
 		{
-			throw new SpyException("Cannot create SSL/TLS connection", e);
+			throw new SpyException("Cannot create TLS/SSL connection", e);
 		}		
 	}
 }

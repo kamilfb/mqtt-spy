@@ -42,6 +42,7 @@ import javax.net.ssl.TrustManagerFactory;
 
 import org.bouncycastle.util.io.pem.PemReader;
 
+import pl.baczkowicz.spy.common.generated.KeyStoreTypeEnum;
 import pl.baczkowicz.spy.utils.FileUtils;
 
 /**
@@ -128,7 +129,7 @@ public class SecureSocketUtils
 		final X509Certificate caCertificate = (X509Certificate) loadX509Certificate(serverCertificateFile);
 		
 		// CA certificate is used to authenticate server
-		final KeyStore keyStore = getKeyStoreInstance();
+		final KeyStore keyStore = getKeyStoreInstance(KeyStoreTypeEnum.DEFAULT);
 		keyStore.load(null, null);
 		keyStore.setCertificateEntry("ca-certificate", caCertificate);
 		
@@ -141,11 +142,12 @@ public class SecureSocketUtils
     /**
      * Creates a trust manager factory.
      */
-	public static TrustManagerFactory getTrustManagerFactory(final String keyStoreFile, final String keyStorePassword) 
+	public static TrustManagerFactory getTrustManagerFactory(final String keyStoreFile, final String keyStorePassword,
+			final KeyStoreTypeEnum keyStoreType) 
 			throws IOException, KeyStoreException, NoSuchAlgorithmException, CertificateException
 	{
 		// Load key store
-		final KeyStore keyStore = loadKeystore(keyStoreFile, keyStorePassword);
+		final KeyStore keyStore = loadKeystore(keyStoreFile, keyStorePassword, keyStoreType);
 		
 		final TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
 		tmf.init(keyStore);
@@ -156,11 +158,12 @@ public class SecureSocketUtils
 	/**
 	 * Creates a key manager factory using a key store.
 	 */
-	public static KeyManagerFactory getKeyManagerFactory(final String keyStoreFile, final String keyStorePassword, final String clientKeyPassword) 
+	public static KeyManagerFactory getKeyManagerFactory(final String keyStoreFile, final String keyStorePassword, final String clientKeyPassword,
+			final KeyStoreTypeEnum keyStoreType) 
 			throws IOException, NoSuchAlgorithmException, KeyStoreException, CertificateException, UnrecoverableKeyException, InvalidKeySpecException
 	{
 		// Load key store
-		final KeyStore keyStore = loadKeystore(keyStoreFile, keyStorePassword);			
+		final KeyStore keyStore = loadKeystore(keyStoreFile, keyStorePassword, keyStoreType);			
 		
 		final KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
 		kmf.init(keyStore, clientKeyPassword.toCharArray());
@@ -182,7 +185,7 @@ public class SecureSocketUtils
 		final PrivateKey privateKey = pemFormat ? loadPrivateKeyFromPemFile(clientKeyFile) : loadPrivateKeyFromBinaryFile(clientKeyFile);
 
 		// Client key and certificate are sent to server
-		final KeyStore keyStore = getKeyStoreInstance();
+		final KeyStore keyStore = getKeyStoreInstance(KeyStoreTypeEnum.DEFAULT);
 		keyStore.load(null, null);
 		keyStore.setCertificateEntry("certificate", clientCertificate);
 		keyStore.setKeyEntry("private-key", privateKey, clientKeyPassword.toCharArray(), new Certificate[] { clientCertificate });
@@ -196,7 +199,7 @@ public class SecureSocketUtils
 	/**
 	 * Loads a key store from the specified location and using the given password.
 	 */
-	public static KeyStore loadKeystore(final String keyStoreFile, final String keyStorePassword)
+	public static KeyStore loadKeystore(final String keyStoreFile, final String keyStorePassword, final KeyStoreTypeEnum keyStoreType)
 			throws IOException, KeyStoreException, NoSuchAlgorithmException, CertificateException
 	{
 		final FileInputStream inputStream = new FileInputStream(keyStoreFile);
@@ -205,8 +208,7 @@ public class SecureSocketUtils
 		
 		try
 		{
-			// TODO: add support for other key store types
-			keyStore = getKeyStoreInstance();
+			keyStore = getKeyStoreInstance(keyStoreType);
 			keyStore.load(inputStream, keyStorePassword.toCharArray());
 		}
 		finally
@@ -219,19 +221,24 @@ public class SecureSocketUtils
 		
 		return keyStore;
 	}
+	
+	public static KeyStore getKeyStoreInstance(final KeyStoreTypeEnum type) throws KeyStoreException
+	{			
+		if (type == null || KeyStoreTypeEnum.DEFAULT.equals(type))
+		{
+			return KeyStore.getInstance(KeyStore.getDefaultType());
+		}
 		
-	public static KeyStore getKeyStoreInstance() throws KeyStoreException
-	{
-		return KeyStore.getInstance(KeyStore.getDefaultType());
+		return KeyStore.getInstance(type.value());
 	}
 	
-	public static KeyStore getKeyStoreInstance(final String type) throws KeyStoreException
+	public static KeyStore getKeyStoreInstance(final KeyStoreTypeEnum type, final Provider provider) throws KeyStoreException
 	{			
-		return KeyStore.getInstance(type);
-	}
-	
-	public static KeyStore getKeyStoreInstance(final String type, final Provider provider) throws KeyStoreException
-	{			
-		return KeyStore.getInstance(type, provider);
+		if (type == null || KeyStoreTypeEnum.DEFAULT.equals(type))
+		{
+			return KeyStore.getInstance(KeyStore.getDefaultType());
+		}
+		
+		return KeyStore.getInstance(type.value(), provider);
 	}
 }

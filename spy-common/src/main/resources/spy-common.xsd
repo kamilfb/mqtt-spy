@@ -74,6 +74,16 @@
 			<xs:enumeration value="PROPERTIES" />
 		</xs:restriction>
 	</xs:simpleType>
+	
+	<xs:simpleType name="KeyStoreTypeEnum">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="DEFAULT" />
+			<xs:enumeration value="JKS" />
+			<xs:enumeration value="JCEKS" />
+			<xs:enumeration value="PKCS12" />		
+			<xs:enumeration value="BKS" />
+		</xs:restriction>
+	</xs:simpleType>
 				
 	<xs:simpleType name="RunningMode">
 		<xs:restriction base="xs:string">

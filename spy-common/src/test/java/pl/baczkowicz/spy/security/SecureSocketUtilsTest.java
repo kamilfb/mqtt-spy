@@ -25,33 +25,35 @@ import java.security.Security;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.junit.Test;
 
+import pl.baczkowicz.spy.common.generated.KeyStoreTypeEnum;
+
 public class SecureSocketUtilsTest
 {
 
 	@Test
 	public void testGetKeyStoreInstance() throws KeyStoreException
 	{
-		SecureSocketUtils.getKeyStoreInstance();
+		SecureSocketUtils.getKeyStoreInstance(KeyStoreTypeEnum.DEFAULT);
 	}
 
 	@Test
 	public void testGetKeyStoreInstanceBaseTypes() throws KeyStoreException
 	{
-		SecureSocketUtils.getKeyStoreInstance("JKS");
+		SecureSocketUtils.getKeyStoreInstance(KeyStoreTypeEnum.JKS);
 		
-		SecureSocketUtils.getKeyStoreInstance("JCEKS");
+		SecureSocketUtils.getKeyStoreInstance(KeyStoreTypeEnum.JCEKS);
 		
-		SecureSocketUtils.getKeyStoreInstance("PKCS12");		
+		SecureSocketUtils.getKeyStoreInstance(KeyStoreTypeEnum.PKCS_12);		
 	}
 
 	@Test
 	public void testGetKeyStoreInstanceBKSType() throws KeyStoreException
 	{
 		// Try by supplying a provider
-		SecureSocketUtils.getKeyStoreInstance("BKS", new BouncyCastleProvider());
+		SecureSocketUtils.getKeyStoreInstance(KeyStoreTypeEnum.BKS, new BouncyCastleProvider());
 		
 		// Try be registering a provider
 		Security.addProvider(new BouncyCastleProvider());
-		SecureSocketUtils.getKeyStoreInstance("BKS");			
+		SecureSocketUtils.getKeyStoreInstance(KeyStoreTypeEnum.BKS);			
 	}
 }
