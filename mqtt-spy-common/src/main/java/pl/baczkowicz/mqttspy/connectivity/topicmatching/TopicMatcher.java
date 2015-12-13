@@ -24,9 +24,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.dna.mqtt.moquette.messaging.spi.impl.subscriptions.Subscription;
-import org.dna.mqtt.moquette.messaging.spi.impl.subscriptions.SubscriptionsStore;
-import org.dna.mqtt.moquette.proto.messages.AbstractMessage.QOSType;
+import org.eclipse.moquette.spi.impl.subscriptions.Subscription;
+import org.eclipse.moquette.spi.impl.subscriptions.SubscriptionsStore;
+import org.eclipse.moquette.proto.messages.AbstractMessage.QOSType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,7 +53,7 @@ public class TopicMatcher
 	{
 		// Manage subscriptions, uses moquette's SubscriptionsStore
 		subscriptionsStore = new SubscriptionsStore();
-		subscriptionsStore.init(new MapBasedSubscriptionStore().listAllSubscriptions());
+		subscriptionsStore.init(new MapBasedSubscriptionStore());
 	}
 	
 	/**
