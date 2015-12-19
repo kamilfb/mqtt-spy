@@ -36,6 +36,7 @@ import pl.baczkowicz.mqttspy.connectivity.topicmatching.TopicMatcher;
 import pl.baczkowicz.mqttspy.utils.ConnectionUtils;
 import pl.baczkowicz.spy.common.generated.ProtocolEnum;
 import pl.baczkowicz.spy.common.generated.ScriptDetails;
+import pl.baczkowicz.spy.exceptions.ExceptionUtils;
 import pl.baczkowicz.spy.exceptions.SpyException;
 import pl.baczkowicz.spy.scripts.BaseScriptManager;
 import pl.baczkowicz.spy.scripts.Script;
@@ -425,9 +426,9 @@ public abstract class BaseMqttConnection implements IMqttConnection
 	 * 
 	 * @param cause The cause of the connection loss
 	 */
-	public void connectionLost(Throwable cause)
-	{
-		setDisconnectionReason(cause.getMessage());
+	public void connectionLost(Throwable connectionLostCause)
+	{	
+		setDisconnectionReason(ExceptionUtils.getInfo(connectionLostCause));
 		setConnectionStatus(MqttConnectionStatus.DISCONNECTED);
 	}
 	

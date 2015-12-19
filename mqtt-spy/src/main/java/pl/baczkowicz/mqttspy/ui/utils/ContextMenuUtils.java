@@ -214,16 +214,10 @@ public class ContextMenuUtils
 			}
 		});
 		configuration.getItems().add(removeItem);
-		
-		// Separator
-		configuration.getItems().add(new SeparatorMenuItem());
-		
 
 		final Menu view = new Menu("View");
 		contextMenu.getItems().add(view);
-		
-		// Separator
-		//contextMenu.getItems().add(new SeparatorMenuItem());
+	
 		
 		// Change color
 		final MenuItem changeColorMenu = new MenuItem("Change tab color");

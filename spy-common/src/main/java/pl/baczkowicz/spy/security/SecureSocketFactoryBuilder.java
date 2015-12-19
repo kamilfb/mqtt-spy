@@ -29,7 +29,6 @@ import javax.net.ssl.TrustManager;
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
-import pl.baczkowicz.spy.common.generated.KeyStoreTypeEnum;
 import pl.baczkowicz.spy.exceptions.SpyException;
 
 /**
@@ -48,11 +47,11 @@ public class SecureSocketFactoryBuilder
 	/**
 	 * Creates an SSL/TLS socket factory with the given CA certificate file and protocol version.
 	 */
-	public static SSLSocketFactory getSocketFactory(final String protocolVersion, final String serverCrtFile) throws SpyException
+	public static SSLSocketFactory getSocketFactory(final String protocolVersion, final String caCertificateFile) throws SpyException
 	{
 		try
 		{
-			final TrustManager[] tm = SecureSocketUtils.getTrustManagerFactory(serverCrtFile).getTrustManagers();
+			final TrustManager[] tm = SecureSocketUtils.getTrustManagerFactory(caCertificateFile).getTrustManagers();
 			
 			return getSocketFactory(protocolVersion, null, tm, null);
 		}
@@ -66,13 +65,13 @@ public class SecureSocketFactoryBuilder
 	 * Creates an SSL/TLS socket factory with the given key store details and protocol version.
 	 */
 	public static SSLSocketFactory getSocketFactory(final String protocolVersion, 
-			final String serverKeyStoreFile, final String serverKeyStorePassword) throws SpyException
+			final String caKeyStoreFile, final String caKeyStorePassword) throws SpyException
 	{
 		try
 		{
-			// TODO: add support for other key stores
 			final TrustManager[] tm = SecureSocketUtils.getTrustManagerFactory(
-					serverKeyStoreFile, serverKeyStorePassword, KeyStoreTypeEnum.DEFAULT).getTrustManagers();
+					caKeyStoreFile, caKeyStorePassword, SecureSocketUtils.getTypeFromFilename(caKeyStoreFile))
+					.getTrustManagers();
 			
 			return getSocketFactory(protocolVersion, null, tm, null);
 		}
@@ -106,17 +105,19 @@ public class SecureSocketFactoryBuilder
 	 * Creates an SSL/TLS socket factory with the given key store details and protocol version.
 	 */
 	public static SSLSocketFactory getSocketFactory(final String protocolVersion, 
-			final String serverKeyStoreFile, final String serverKeyStorePassword,
+			final String caKeyStoreFile, final String caKeyStorePassword,
 			final String clientKeyStoreFile, final String clientKeyStorePassword, final String clientKeyPassword) 
 					throws SpyException
 	{
 		try
 		{
-			// TODO: add support for other key stores
 			final KeyManager[] km = SecureSocketUtils.getKeyManagerFactory(
-					clientKeyStoreFile, clientKeyStorePassword, clientKeyPassword, KeyStoreTypeEnum.DEFAULT).getKeyManagers();
+					clientKeyStoreFile, clientKeyStorePassword, clientKeyPassword, SecureSocketUtils.getTypeFromFilename(clientKeyStoreFile))
+					.getKeyManagers();
+			
 			final TrustManager[] tm = SecureSocketUtils.getTrustManagerFactory(
-					serverKeyStoreFile, serverKeyStorePassword, KeyStoreTypeEnum.DEFAULT).getTrustManagers();
+					caKeyStoreFile, caKeyStorePassword, SecureSocketUtils.getTypeFromFilename(caKeyStoreFile))
+					.getTrustManagers();
 			
 			return getSocketFactory(protocolVersion, km, tm, null);
 		}

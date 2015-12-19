@@ -136,9 +136,9 @@ public class ConfigurationManager
 		{
 			clear();
 			configuration = (MqttSpyConfiguration) parser.loadFromFile(file);
-			createConnections();
-			createConnectionGroups();
-			createConfigurationDefaults();
+			
+			initialiseConfiguration();
+			
 			loadedConfigurationFile = file;
 			return true;
 		}
@@ -158,6 +158,13 @@ public class ConfigurationManager
 		}
 		
 		return false;
+	}
+	
+	public void initialiseConfiguration()
+	{
+		createConnections();
+		createConnectionGroups();
+		createConfigurationDefaults();
 	}
 	
 	private void createConfigurationDefaults()
@@ -563,6 +570,10 @@ public class ConfigurationManager
 	{						
 		final List<ConnectionGroup> groupsWithoutParent = new ArrayList<>(configuration.getConnectionGroups());
 		
+		// Clear up resources - in case something was loaded before
+		connectionGroups.clear();
+		rootGroup = null;
+		
 		// This is expected from v0.3.0
 		for (final ConnectionGroup group : configuration.getConnectionGroups())
 		{			
@@ -579,6 +590,7 @@ public class ConfigurationManager
 		// Create the root if no groups present (pre v0.3.0)
 		if (connectionGroups.isEmpty() || groupsWithoutParent.isEmpty())
 		{
+			logger.debug("Creating root group called 'All connections'");
 			rootGroup = new ConfiguredConnectionGroupDetails(new ConnectionGroup(
 					BaseConfigurationUtils.DEFAULT_GROUP, "All connections", new ArrayList(), new ArrayList()), false);
 			

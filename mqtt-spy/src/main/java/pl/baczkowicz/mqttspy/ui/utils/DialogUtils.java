@@ -112,7 +112,7 @@ public class DialogUtils
 		
 		Optional<DialogAction> response = CommandLinksDialog.showCommandLinks(title,
 				"Please select one of the following options with regards to the mqtt-spy configuration file:",
-				links.get(0), links, 650, 30, 110, 
+				links.get(0), links, 550, 650, 30, 110, 
 				Arrays.asList(DialogUtils.class.getResource("/pl/baczkowicz/mqttspy/application.css").toExternalForm()));
 		
 		boolean configurationFileCreated = false;

@@ -543,6 +543,10 @@ public class MainController
 		{
 			loadConfigurationFileAndShowErrorWhenApplicable(defaultConfigurationFile);
 		}
+		else
+		{
+			configurationManager.initialiseConfiguration();
+		}
 	}
 	
 	@FXML

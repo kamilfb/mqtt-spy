@@ -214,7 +214,7 @@ public class ControlPanelController extends AnchorPane implements Initializable,
 	{
 		if (configurationManager.getLoadedConfigurationFile() == null)
 		{
-			controller.setTitle("No default configuration file found.");
+			controller.setTitle("No configuration file found.");
 			controller.setDetails("Click here display all available options for resolving missing configuration file.");
 			controller.setStatus(ItemStatus.WARN);
 			
@@ -223,7 +223,7 @@ public class ControlPanelController extends AnchorPane implements Initializable,
 				@Override
 				public void handle(ActionEvent event)
 				{
-					if (DialogUtils.showDefaultConfigurationFileMissingChoice("Default configuration file not found", button.getScene().getWindow()))
+					if (DialogUtils.showDefaultConfigurationFileMissingChoice("Configuration file not found", button.getScene().getWindow()))
 					{
 						mainController.loadConfigurationFileAndShowErrorWhenApplicable(ConfigurationManager.getDefaultConfigurationFile());
 					}					

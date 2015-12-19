@@ -52,6 +52,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import javafx.util.Pair;
+import pl.baczkowicz.spy.exceptions.ExceptionUtils;
 import pl.baczkowicz.spy.ui.controls.WorkerProgressPane;
 
 public class DialogFactory
@@ -73,17 +74,11 @@ public class DialogFactory
 	}
 	
 	public static void createExceptionDialog(final String title, final Exception e)
-	{		
-		Throwable cause = e.getCause();
-		while (cause.getCause() != null)
-		{
-			cause = cause.getCause();
-		}
-		
+	{	
 		final Alert alert = new Alert(AlertType.ERROR);
 		alert.setTitle(title);
 		alert.setHeaderText(null);
-		alert.setContentText(e.getMessage() + " - " + cause.getMessage());
+		alert.setContentText(e.getMessage() + " - " + ExceptionUtils.getRootCauseMessage(e));
 		
 		final StringWriter sw = new StringWriter();
 		final PrintWriter pw = new PrintWriter(sw);

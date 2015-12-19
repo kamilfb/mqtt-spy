@@ -122,11 +122,11 @@ public class SecureSocketUtils
     /**
      * Creates a trust manager factory.
      */
-	public static TrustManagerFactory getTrustManagerFactory(final String serverCertificateFile) 
+	public static TrustManagerFactory getTrustManagerFactory(final String caCertificateFile) 
 			throws IOException, KeyStoreException, NoSuchAlgorithmException, CertificateException
 	{
 		// Load CA certificate
-		final X509Certificate caCertificate = (X509Certificate) loadX509Certificate(serverCertificateFile);
+		final X509Certificate caCertificate = (X509Certificate) loadX509Certificate(caCertificateFile);
 		
 		// CA certificate is used to authenticate server
 		final KeyStore keyStore = getKeyStoreInstance(KeyStoreTypeEnum.DEFAULT);
@@ -158,15 +158,15 @@ public class SecureSocketUtils
 	/**
 	 * Creates a key manager factory using a key store.
 	 */
-	public static KeyManagerFactory getKeyManagerFactory(final String keyStoreFile, final String keyStorePassword, final String clientKeyPassword,
-			final KeyStoreTypeEnum keyStoreType) 
+	public static KeyManagerFactory getKeyManagerFactory(final String keyStoreFile, final String keyStorePassword, 
+			final String keyPassword, final KeyStoreTypeEnum keyStoreType) 
 			throws IOException, NoSuchAlgorithmException, KeyStoreException, CertificateException, UnrecoverableKeyException, InvalidKeySpecException
 	{
 		// Load key store
 		final KeyStore keyStore = loadKeystore(keyStoreFile, keyStorePassword, keyStoreType);			
 		
 		final KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-		kmf.init(keyStore, clientKeyPassword.toCharArray());
+		kmf.init(keyStore, keyPassword.toCharArray());
 		
 		return kmf;
 	}
@@ -240,5 +240,37 @@ public class SecureSocketUtils
 		}
 		
 		return KeyStore.getInstance(type.value(), provider);
+	}
+	
+	public static KeyStoreTypeEnum getTypeFromFilename(final String filename)
+	{
+		if (filename == null || filename.isEmpty())
+		{
+			return KeyStoreTypeEnum.DEFAULT;
+		}
+		else if (filename.toLowerCase().endsWith("jks"))
+		{
+			return KeyStoreTypeEnum.JKS;
+		}
+		else if (filename.toLowerCase().endsWith("jceks"))
+		{
+			return KeyStoreTypeEnum.JCEKS;
+		}
+		else if (filename.toLowerCase().endsWith("p12"))
+		{
+			return KeyStoreTypeEnum.PKCS_12;
+		}
+		else if (filename.toLowerCase().endsWith("pfx"))
+		{
+			return KeyStoreTypeEnum.PKCS_12;
+		}
+		else if (filename.toLowerCase().endsWith("bks"))
+		{
+			return KeyStoreTypeEnum.BKS;
+		}
+		else
+		{
+			return KeyStoreTypeEnum.DEFAULT;
+		}
 	}
 }

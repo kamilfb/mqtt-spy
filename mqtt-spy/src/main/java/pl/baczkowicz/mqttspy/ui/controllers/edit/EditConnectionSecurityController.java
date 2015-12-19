@@ -166,11 +166,21 @@ public class EditConnectionSecurityController extends AnchorPane implements Init
 		
 		final Map<SecureSocketModeEnum, String> modeEnumText = new HashMap<>();
 		modeEnumText.put(SecureSocketModeEnum.DISABLED, 			"Disabled");
-		modeEnumText.put(SecureSocketModeEnum.BASIC, 				"Basic (no certificates or key stores required)");
-		modeEnumText.put(SecureSocketModeEnum.SERVER_ONLY, 			"Server certificate only");
-		modeEnumText.put(SecureSocketModeEnum.SERVER_KEYSTORE, 		"Server key store and password");
-		modeEnumText.put(SecureSocketModeEnum.SERVER_AND_CLIENT, 	"Server and client certificates");
-		modeEnumText.put(SecureSocketModeEnum.SERVER_AND_CLIENT_KEYSTORES, "Server and client key stores");
+		
+		// Certificates and keys provided externally, e.g.
+		// -Djavax.net.ssl.trustStore=/home/kamil/certificates/public_brokers.jks
+		// -Djavax.net.ssl.trustStorePassword=password
+		modeEnumText.put(SecureSocketModeEnum.BASIC, 				"Certificates & keys provided externally");
+		
+		// Server only - cert / trust store
+		modeEnumText.put(SecureSocketModeEnum.SERVER_ONLY, 			"CA certificate");
+		modeEnumText.put(SecureSocketModeEnum.SERVER_KEYSTORE, 		"CA trust store");
+		
+		// Server and client
+		modeEnumText.put(SecureSocketModeEnum.SERVER_AND_CLIENT, 	"CA certificate & client certificate/key");
+		modeEnumText.put(SecureSocketModeEnum.SERVER_AND_CLIENT_KEYSTORES, "CA trust store & client key store");
+		
+		// SSL&TLS properties
 		modeEnumText.put(SecureSocketModeEnum.PROPERTIES, 			"TLS/SSL properties");
 		
 		try

@@ -353,22 +353,31 @@ public class EditConnectionController extends AnchorPane implements Initializabl
 	@FXML
 	private void save()
 	{		
-		logger.debug("Saving connection " + getConnectionName().getText());
-		if (configurationManager.saveConfiguration())
+		if (configurationManager.isConfigurationWritable())
 		{
-			editedConnectionDetails.apply();
-			editConnectionsController.listConnections();
-					
-			updateButtons();
-			
-			TooltipFactory.createTooltip(saveButton, "Changes for connection " + editedConnectionDetails.getName() + " have been saved.");
+			logger.debug("Saving connection " + getConnectionName().getText());
+			if (configurationManager.saveConfiguration())
+			{
+				editedConnectionDetails.apply();
+				editConnectionsController.listConnections();
+						
+				updateButtons();
+				
+				TooltipFactory.createTooltip(saveButton, "Changes for connection " + editedConnectionDetails.getName() + " have been saved.");
+			}
+			else
+			{
+				DialogFactory.createErrorDialog(
+						"Cannot save the configuration file", 
+						"Oops... an error has occurred while trying to save your configuration. "
+						+ "Please check the log file for more information. Your changes were not saved.");
+			}
 		}
 		else
 		{
 			DialogFactory.createErrorDialog(
 					"Cannot save the configuration file", 
-					"Oops... an error has occurred while trying to save your configuration. "
-					+ "Please check the log file for more information. Your changes were not saved.");
+					"Oops... your configuration file isn't right. Please restore default configuration. ");
 		}
 	}	
 	

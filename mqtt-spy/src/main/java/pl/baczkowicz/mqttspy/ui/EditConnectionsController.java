@@ -615,21 +615,37 @@ public class EditConnectionsController extends AnchorPane implements Initializab
 	@FXML
 	private void applyAll()
 	{
-		for (final ConfiguredConnectionDetails connection : connections)
+		if (configurationManager.isConfigurationWritable())
 		{
-			connection.apply();
+			for (final ConfiguredConnectionDetails connection : connections)
+			{
+				connection.apply();
+			}
+			for (final ConfiguredConnectionGroupDetails group : groups)
+			{
+				group.apply();
+			}
+			
+			listConnections();
+				
+			logger.debug("Saving all connections & groups");
+			if (configurationManager.saveConfiguration())
+			{
+				TooltipFactory.createTooltip(applyAllButton, "Changes for all connections and groups have been saved.");
+			}
+			else
+			{
+				DialogFactory.createErrorDialog(
+						"Cannot save the configuration file", 
+						"Oops... an error has occurred while trying to save your configuration. "
+						+ "Please check the log file for more information. Your changes were not saved.");
+			}
 		}
-		for (final ConfiguredConnectionGroupDetails group : groups)
+		else
 		{
-			group.apply();
-		}
-		
-		listConnections();
-		
-		logger.debug("Saving all connections & groups");
-		if (configurationManager.saveConfiguration())
-		{
-			TooltipFactory.createTooltip(applyAllButton, "Changes for all connections and groups have been saved.");
+			DialogFactory.createErrorDialog(
+					"Cannot save the configuration file", 
+					"Oops... your configuration file isn't right. Please restore default configuration. ");
 		}
 	}
 	
