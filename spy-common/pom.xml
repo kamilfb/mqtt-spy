@@ -119,6 +119,7 @@
 			                <goal>generate</goal>
 			            </goals>
 			            <configuration>
+			            	<locale>en</locale>
 			            	<extension>true</extension>
 			                <schemaDirectory>src/main/resources/</schemaDirectory>
 			                <schemaIncludes>

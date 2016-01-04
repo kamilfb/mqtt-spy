@@ -226,6 +226,7 @@
 			                <goal>generate</goal>
 			            </goals>
 			            <configuration>
+			            	<locale>en</locale>
 			                <schemaDirectory>src/main/resources/</schemaDirectory>
 			                <schemaIncludes>
 			                    <include>mqtt-spy-configuration.xsd</include>
@@ -288,6 +289,7 @@
 			                <goal>generate</goal>
 			            </goals>
 			            <configuration>
+			            	<locale>en</locale>
 			                <schemaDirectory>src/main/resources/</schemaDirectory>
 			                <schemaIncludes>
 			                    <include>mqtt-spy-versions.xsd</include>
@@ -318,6 +320,7 @@
 			                <goal>generate</goal>
 			            </goals>
 			            <configuration>
+			            	<locale>en</locale>
 			                <schemaDirectory>src/main/resources/</schemaDirectory>
 			                <schemaIncludes>
 			                    <include>mqtt-spy-stats.xsd</include>
