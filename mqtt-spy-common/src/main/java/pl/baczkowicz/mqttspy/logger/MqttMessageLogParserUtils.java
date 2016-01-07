@@ -117,15 +117,15 @@ public class MqttMessageLogParserUtils
 	        long item = 0;
 	        
 	        for (final String message : messages)
-	        {
-	        	if (progress.isCancelled())
-				{
-					logger.info("Task cancelled!");
-					return null;
-				}
-	        	
+	        {	        		      
 	        	if (progress != null)
 	        	{
+	        		if (progress.isCancelled())
+					{
+						logger.info("Task cancelled!");
+						return null;
+					}
+	        		
 		        	item++;
 		        	// Update every 1000
 		        	if (item % 1000 == 0)
@@ -173,15 +173,15 @@ public class MqttMessageLogParserUtils
 		
 		// Process the messages
         for (final LoggedMqttMessage loggedMessage : list)
-        {
-        	if (progress.isCancelled())
-			{
-				logger.info("Task cancelled!");
-				return null;
-			}
-        	
+        {        	        
         	if (progress != null)
         	{
+        		if (progress.isCancelled())
+    			{
+    				logger.info("Task cancelled!");
+    				return null;
+    			}
+        		
 	        	item++;
 	        	if (item % 1000 == 0)
 	        	{
