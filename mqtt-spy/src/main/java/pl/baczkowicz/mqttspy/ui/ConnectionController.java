@@ -52,13 +52,12 @@ import pl.baczkowicz.mqttspy.connectivity.BaseMqttSubscription;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.connectivity.MqttConnectionStatus;
 import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
-import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.stats.StatisticsManager;
 import pl.baczkowicz.mqttspy.ui.connections.ConnectionManager;
-import pl.baczkowicz.mqttspy.ui.events.EventManager;
-import pl.baczkowicz.mqttspy.ui.events.observers.ConnectionStatusChangeObserver;
+import pl.baczkowicz.mqttspy.ui.events.ConnectionStatusChangeEvent;
 import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
 import pl.baczkowicz.mqttspy.ui.utils.StylingUtils;
+import pl.baczkowicz.spy.eventbus.IKBus;
 import pl.baczkowicz.spy.ui.panes.PaneVisibilityStatus;
 import pl.baczkowicz.spy.ui.panes.TabController;
 import pl.baczkowicz.spy.ui.panes.TabStatus;
@@ -70,7 +69,7 @@ import pl.baczkowicz.spy.ui.utils.ImageUtils;
 /**
  * Controller looking after the connection tab.
  */
-public class ConnectionController implements Initializable, ConnectionStatusChangeObserver, TabController
+public class ConnectionController implements Initializable, TabController
 {
 	private static final int MIN_COLLAPSED_PANE_HEIGHT = 26;
 	
@@ -165,7 +164,9 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 
 	private ConnectionManager connectionManager;
 
-	private EventManager<FormattedMqttMessage> eventManager;
+	// private EventManager<FormattedMqttMessage> eventManager;
+	
+	private IKBus eventBus;
 	
 	private Map<TitledPane, TitledPaneStatus> paneToStatus = new HashMap<>();
 
@@ -231,7 +232,8 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 			
 			newPublicationPaneController.setConnection(connection);
 			newPublicationPaneController.setScriptManager(connection.getScriptManager());
-			newPublicationPaneController.setEventManager(eventManager);
+			// newPublicationPaneController.setEventManager(eventManager);
+			newPublicationPaneController.setEventBus(eventBus);
 			newPublicationPaneController.setConnectionController(this);
 			newPublicationPaneController.setTitledPane(publishMessageTitledPane);
 			newPublicationPaneController.init();
@@ -243,7 +245,8 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 			newSubscriptionPaneController.init();
 			
 			publicationScriptsPaneController.setConnection(connection);
-			publicationScriptsPaneController.setEventManager(eventManager);
+			// publicationScriptsPaneController.setEventManager(eventManager);
+			publicationScriptsPaneController.setEventBus(eventBus);
 			publicationScriptsPaneController.setConnectionController(this);
 			publicationScriptsPaneController.setTitledPane(scriptedPublicationsTitledPane);
 			publicationScriptsPaneController.init();	
@@ -436,11 +439,11 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 		}
 	}
 	
-	public void onConnectionStatusChanged(final MqttAsyncConnection changedConnection)
+	public void onConnectionStatusChanged(final ConnectionStatusChangeEvent event)
 	{
-		final MqttConnectionStatus connectionStatus = changedConnection.getConnectionStatus();
+		final MqttConnectionStatus connectionStatus = event.getChangedConnection().getConnectionStatus();
 		
-		logger.debug("Updating {} connection status to {}", changedConnection.getName(), connectionStatus);		
+		logger.debug("Updating {} connection status to {}", event.getChangedConnection().getName(), connectionStatus);		
 		
 		newSubscriptionPaneController.setConnected(false);
 		getNewPublicationPaneController().setConnected(false);
@@ -530,11 +533,6 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 		return newSubscriptionPaneController;
 	}
 
-	public void setEventManager(final EventManager<FormattedMqttMessage> eventManager)
-	{
-		this.eventManager = eventManager;
-	}
-	
 	public void setPaneVisiblity(final TitledPaneStatus paneStatus, final PaneVisibilityStatus visibility)
 	{
 		if (paneStatus == testCasesTitledStatus && testCasesPaneController == null 
@@ -744,7 +742,7 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 	{
 		if (connection != null)
 		{
-			onConnectionStatusChanged(connection);
+			onConnectionStatusChanged(new ConnectionStatusChangeEvent(connection));
 		}
 	}
 
@@ -811,5 +809,15 @@ public class ConnectionController implements Initializable, ConnectionStatusChan
 	public TitledPaneStatus getTestCasesPaneStatus()
 	{
 		return testCasesTitledStatus;
+	}
+	
+//	public void setEventManager(final EventManager<FormattedMqttMessage> eventManager)
+//	{
+//		this.eventManager = eventManager;
+//	}
+	
+	public void setEventBus(final IKBus eventBus)
+	{
+		this.eventBus = eventBus;
 	}
 }

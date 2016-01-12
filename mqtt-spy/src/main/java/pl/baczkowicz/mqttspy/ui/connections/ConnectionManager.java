@@ -60,6 +60,7 @@ import pl.baczkowicz.mqttspy.stats.StatisticsManager;
 import pl.baczkowicz.mqttspy.ui.ConnectionController;
 import pl.baczkowicz.mqttspy.ui.MainController;
 import pl.baczkowicz.mqttspy.ui.SubscriptionController;
+import pl.baczkowicz.mqttspy.ui.events.ConnectionStatusChangeEvent;
 import pl.baczkowicz.mqttspy.ui.events.EventManager;
 import pl.baczkowicz.mqttspy.ui.events.queuable.UIEventHandler;
 import pl.baczkowicz.mqttspy.ui.events.queuable.connectivity.MqttConnectionAttemptFailureEvent;
@@ -68,6 +69,7 @@ import pl.baczkowicz.mqttspy.ui.scripts.InteractiveScriptManager;
 import pl.baczkowicz.mqttspy.ui.utils.ConnectivityUtils;
 import pl.baczkowicz.mqttspy.ui.utils.ContextMenuUtils;
 import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
+import pl.baczkowicz.spy.eventbus.IKBus;
 import pl.baczkowicz.spy.exceptions.ConfigurationException;
 import pl.baczkowicz.spy.exceptions.SpyException;
 import pl.baczkowicz.spy.formatting.FormattingManager;
@@ -90,6 +92,9 @@ public class ConnectionManager
 	
 	/** Global event manager.*/
 	private final EventManager eventManager;
+	
+	/** Global event bus. */
+	private final IKBus eventBus;
 	
 	/** Global statistics manager .*/
 	private final StatisticsManager statisticsManager;
@@ -118,10 +123,12 @@ public class ConnectionManager
 
 	private Set<ConnectionController> offlineConnectionControllers = new HashSet<>();
 
-	public ConnectionManager(final EventManager eventManager, final StatisticsManager statisticsManager, final ConfigurationManager configurationManager)
+	public ConnectionManager(final EventManager eventManager, final IKBus eventBus, final StatisticsManager statisticsManager, 
+			final ConfigurationManager configurationManager)
 	{
 		this.uiEventQueue = new EventQueueManager<FormattedMqttMessage>();
 		
+		this.eventBus = eventBus;
 		this.eventManager = eventManager;
 		this.statisticsManager = statisticsManager;
 		this.configurationManager = configurationManager;
@@ -219,7 +226,8 @@ public class ConnectionManager
 		final ConnectionController connectionController = (ConnectionController) loader.getController();
 		connectionController.setConnection(connection);
 		connectionController.setConnectionManager(this);
-		connectionController.setEventManager(eventManager);
+		// connectionController.setEventManager(eventManager);
+		connectionController.setEventBus(eventBus);
 		connectionController.setStatisticsManager(statisticsManager);
 		connectionController.setTabStatus(new TabStatus());
 		connectionController.getTabStatus().setVisibility(PaneVisibilityStatus.NOT_VISIBLE);
@@ -227,7 +235,7 @@ public class ConnectionManager
 		
 		final Tab connectionTab = createConnectionTab(connection.getProperties().getName(), connectionPane, connectionController);
 		
-		final SubscriptionManager subscriptionManager = new SubscriptionManager(eventManager, configurationManager, uiEventQueue);			
+		final SubscriptionManager subscriptionManager = new SubscriptionManager(eventManager, eventBus, configurationManager, uiEventQueue);			
 		
 		final SubscriptionController subscriptionController = subscriptionManager.createSubscriptionTab(
 				true, connection.getStore(), null, connection, connectionController);
@@ -251,9 +259,10 @@ public class ConnectionManager
 				connectionTab.setContextMenu(ContextMenuUtils.createConnectionMenu(connection, connectionController, connectionManager));
 				
 				subscriptionController.getTab().setContextMenu(ContextMenuUtils.createAllSubscriptionsTabContextMenu(
-						connection, eventManager, subscriptionManager, configurationManager, subscriptionController));
+						connection, eventManager, eventBus, subscriptionManager, configurationManager, subscriptionController));
 				
-				eventManager.registerConnectionStatusObserver(connectionController, connection);
+				eventBus.subscribe(connectionController, connectionController::onConnectionStatusChanged, ConnectionStatusChangeEvent.class, connection);
+				// eventManager.registerConnectionStatusObserver(connectionController, connection);
 				// connection.addObserver(connectionController);											
 				connection.setOpening(false);
 				connection.setOpened(true);
@@ -303,7 +312,8 @@ public class ConnectionManager
 		
 		//connectionController.setConnection(connection);
 		connectionController.setConnectionManager(this);
-		connectionController.setEventManager(eventManager);
+		// connectionController.setEventManager(eventManager);
+		connectionController.setEventBus(eventBus);
 		connectionController.setStatisticsManager(statisticsManager);
 		connectionController.setReplayMode(true);
 		connectionController.setTabStatus(new TabStatus());
@@ -311,7 +321,7 @@ public class ConnectionManager
 		connectionController.getResizeMessageContentMenu().setSelected(mainController.getResizeMessagePaneMenu().isSelected());
 		
 		final Tab replayTab = createConnectionTab(name, connectionPane, connectionController);
-		final SubscriptionManager subscriptionManager = new SubscriptionManager(eventManager, configurationManager, uiEventQueue);			
+		final SubscriptionManager subscriptionManager = new SubscriptionManager(eventManager, eventBus, configurationManager, uiEventQueue);			
 		
         final ManagedMessageStoreWithFiltering<FormattedMqttMessage> store = new ManagedMessageStoreWithFiltering<FormattedMqttMessage>(
         		name, 0, list.size(), list.size(), uiEventQueue, //eventManager, 
@@ -453,11 +463,11 @@ public class ConnectionManager
 
 	public MqttAsyncConnection createConnection(final RuntimeConnectionProperties connectionProperties, final EventQueueManager<FormattedMqttMessage> uiEventQueue)
 	{
-		final InteractiveScriptManager scriptManager = new InteractiveScriptManager(eventManager, null);
+		final InteractiveScriptManager scriptManager = new InteractiveScriptManager(eventBus, null);
 		final FormattingManager formattingManager = new FormattingManager(scriptManager);
 		final MqttAsyncConnection connection = new MqttAsyncConnection(reconnectionManager,
 				connectionProperties, MqttConnectionStatus.DISCONNECTED, 
-				eventManager, scriptManager, formattingManager, uiEventQueue, 
+				eventBus, scriptManager, formattingManager, uiEventQueue, 
 				UiProperties.getSummaryMaxPayloadLength(configurationManager.getUiPropertyFile()));
 
 		formattingManager.initialiseFormatter(connection.getProperties().getFormatter());

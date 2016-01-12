@@ -17,11 +17,27 @@
  *    Kamil Baczkowicz - initial API and implementation and/or initial documentation
  *    
  */
-package pl.baczkowicz.mqttspy.ui.events.observers;
 
-import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
+package pl.baczkowicz.mqttspy.ui.events;
 
-public interface SubscriptionStatusChangeObserver
+import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
+import pl.baczkowicz.spy.eventbus.FilterableEvent;
+
+public class ConnectionStatusChangeEvent extends FilterableEvent
 {
-	void onSubscriptionStatusChanged(final MqttSubscription changedSubscription);
+	private final MqttAsyncConnection changedConnection;
+
+	public ConnectionStatusChangeEvent(final MqttAsyncConnection changedConnection)
+	{
+		this.setFilter(changedConnection);
+		this.changedConnection = changedConnection;
+	}
+
+	/**
+	 * @return the changedConnection
+	 */
+	public MqttAsyncConnection getChangedConnection()
+	{
+		return changedConnection;
+	}
 }

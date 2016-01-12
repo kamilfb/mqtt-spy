@@ -34,9 +34,10 @@ import pl.baczkowicz.mqttspy.connectivity.reconnection.ReconnectionManager;
 import pl.baczkowicz.mqttspy.logger.MqttMessageLogger;
 import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.stats.StatisticsManager;
-import pl.baczkowicz.mqttspy.ui.events.EventManager;
+import pl.baczkowicz.mqttspy.ui.events.ConnectionStatusChangeEvent;
 import pl.baczkowicz.mqttspy.ui.scripts.InteractiveScriptManager;
 import pl.baczkowicz.spy.common.generated.ScriptDetails;
+import pl.baczkowicz.spy.eventbus.IKBus;
 import pl.baczkowicz.spy.formatting.FormattingManager;
 import pl.baczkowicz.spy.scripts.Script;
 import pl.baczkowicz.spy.ui.events.queuable.EventQueueManager;
@@ -63,14 +64,16 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection
 
 	private StatisticsManager statisticsManager;
 
-	private final EventManager<FormattedMqttMessage> eventManager;
+	// private final EventManager<FormattedMqttMessage> eventManager;
+	
+	private IKBus eventBus;
 
 	private final InteractiveScriptManager scriptManager;
 
 	private MqttMessageLogger messageLogger;
 
 	public MqttAsyncConnection(final ReconnectionManager reconnectionManager, final RuntimeConnectionProperties properties, 
-			final MqttConnectionStatus status, final EventManager<FormattedMqttMessage> eventManager, 
+			final MqttConnectionStatus status, final IKBus eventBus,
 			final InteractiveScriptManager scriptManager, final FormattingManager formattingManager,
 			final EventQueueManager<FormattedMqttMessage> uiEventQueue, final int summaryMaxPayloadLength)
 	{ 
@@ -88,7 +91,8 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection
 		
 		this.setPreferredStoreSize(properties.getMaxMessagesStored());
 		this.properties = properties;
-		this.eventManager = eventManager;
+		// this.eventManager = eventManager;
+		this.eventBus = eventBus;
 		this.scriptManager = scriptManager;
 		setConnectionStatus(status);
 	}
@@ -357,7 +361,9 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection
 	public void setConnectionStatus(MqttConnectionStatus connectionStatus)
 	{
 		super.setConnectionStatus(connectionStatus);
-		eventManager.notifyConnectionStatusChanged(this);
+		
+		eventBus.publish(new ConnectionStatusChangeEvent(this));
+		//eventManager.notifyConnectionStatusChanged(this);
 	}
 
 	public RuntimeConnectionProperties getProperties()
@@ -399,7 +405,8 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection
 	{
 		this.isOpened = isOpened;
 		
-		eventManager.notifyConnectionStatusChanged(this);
+		eventBus.publish(new ConnectionStatusChangeEvent(this));
+		//eventManager.notifyConnectionStatusChanged(this);
 	}
 
 	public boolean isOpening()
@@ -410,7 +417,9 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection
 	public void setOpening(boolean isOpening)
 	{
 		this.isOpening = isOpening;
-		eventManager.notifyConnectionStatusChanged(this);
+		
+		eventBus.publish(new ConnectionStatusChangeEvent(this));
+		// eventManager.notifyConnectionStatusChanged(this);
 	}
 
 	public ManagedMessageStoreWithFiltering<FormattedMqttMessage> getStore()

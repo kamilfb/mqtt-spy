@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Executor;
 import java.util.function.Consumer;
 
 import org.slf4j.Logger;
@@ -32,15 +33,23 @@ import org.slf4j.LoggerFactory;
 
 public class KBus implements IKBus
 {
-	final static Logger logger = LoggerFactory.getLogger(KBus.class);
-	
-	private final Map<Object, Set<Consumer<?>>> subscribers = new HashMap<>();
-	
-	private final Map<Consumer<?>, Object> consumerFilters = new HashMap<>();
+    /** Logger. */
+    private static final Logger logger = LoggerFactory.getLogger(KBus.class);
 
-	private final Map<Consumer<?>, Class<?>> consumerTypes = new HashMap<>();
-	
-	private final Map<Class<?>, Collection<Consumer<?>>> typeConsumers = new HashMap<>();
+    /** Map of subscribers to the consumer methods for that subscriber. */
+    private final Map<Object, Set<Consumer<?>>> subscribers = new HashMap<>();
+
+    /** Map of Consumers to filters. */
+    private final Map<Consumer<?>, Object> consumerFilters = new HashMap<>();
+
+    /** Map of Consumers to the class types. */
+    private final Map<Consumer<?>, Class<?>> consumerTypes = new HashMap<>();
+
+    /** Map of Class types to consumers.  This is used for performance reasons and is recalculated after a change. */
+    private final Map<Class<?>, Collection<Consumer<?>>> typeConsumers = new HashMap<>();
+    
+    /** Map of Class types to executors. This is used for asynchronous execution. */
+    private final Map<Consumer<?>, Executor> consumerExecutors = new HashMap<>();
 	
 	private Collection<Consumer<?>> getConsumersForType(final Object event)
 	{
@@ -130,33 +139,58 @@ public class KBus implements IKBus
 		}
 	}
 
-	@Override
-	public <S> void subscribe (final Object subscriber, final Consumer<? super S> consumer, final Class<S> eventType)
-	{
-		subscribe(subscriber, consumer, eventType, null);
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public <S> void subscribe(final Object subscriber, final Consumer<? super S> consumer, final Class<S> eventType)
+    {
+        subscribe(subscriber, consumer, eventType, null, null);
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public <S> void subscribe(final Object subscriber, final Consumer<? super S> consumer, final Class<S> eventType, final Executor executor)
+    {
+        subscribe(subscriber, consumer, eventType, executor, null);        
+    }
 
-	@Override
-	public <S> void subscribe(final Object subscriber, final Consumer<?	super S> consumer, final Class<S> eventType, final Object filter)
-	{
-		synchronized (consumerTypes)
-		{	
-			Set<Consumer<?>> consumers = subscribers.get(subscriber);
-			
-			if (consumers == null)
-			{
-				consumers = new HashSet<>();				
-				subscribers.put(subscriber, consumers);
-			}
-			consumers.add(consumer);	
-			
-			consumerFilters.put(consumer, filter);		
-			consumerTypes.put(consumer, eventType);		
-			
-			recalculateExistingMappings();
-		}
-	}
-	
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public <S> void subscribe(final Object subscriber, final Consumer<? super S> consumer, final Class<S> eventType, final Object filter)
+    {
+        subscribe(subscriber, consumer, eventType, null, filter);      
+    }    
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public <S> void subscribe(final Object subscriber, final Consumer<? super S> consumer, final Class<S> eventType, final Executor executor,
+            final Object filter)
+    {
+        synchronized (consumerTypes)
+        {
+            Set<Consumer<?>> consumers = subscribers.get(subscriber);
+
+            if (consumers == null)
+            {
+                consumers = new HashSet<>();
+                subscribers.put(subscriber, consumers);
+            }
+            consumers.add(consumer);
+
+            consumerFilters.put(consumer, filter);
+            consumerTypes.put(consumer, eventType);
+            consumerExecutors.put(consumer, executor);
+
+            recalculateExistingMappings();
+        }        
+    }
 
 	@Override
 	public void unsubscribe(final Object subscriber)

@@ -56,16 +56,18 @@ import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.stats.ConnectionStatsUpdater;
 import pl.baczkowicz.mqttspy.stats.StatisticsManager;
 import pl.baczkowicz.mqttspy.ui.connections.ConnectionManager;
+import pl.baczkowicz.mqttspy.ui.events.ConnectionStatusChangeEvent;
 import pl.baczkowicz.mqttspy.ui.events.EventManager;
 import pl.baczkowicz.mqttspy.ui.messagelog.LogReaderTask;
 import pl.baczkowicz.mqttspy.ui.messagelog.TaskWithProgressUpdater;
 import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
 import pl.baczkowicz.mqttspy.versions.VersionManager;
+import pl.baczkowicz.spy.eventbus.IKBus;
 import pl.baczkowicz.spy.exceptions.ConfigurationException;
 import pl.baczkowicz.spy.exceptions.SpyUncaughtExceptionHandler;
 import pl.baczkowicz.spy.exceptions.XMLException;
-import pl.baczkowicz.spy.ui.panes.SpyPerspective;
 import pl.baczkowicz.spy.ui.panes.PaneVisibilityStatus;
+import pl.baczkowicz.spy.ui.panes.SpyPerspective;
 import pl.baczkowicz.spy.ui.utils.FxmlUtils;
 
 /**
@@ -120,6 +122,8 @@ public class MainController
 
 	private EventManager<FormattedMqttMessage> eventManager;
 	
+	private IKBus eventBus;
+	
 	private StatisticsManager statisticsManager;
 
 	private ConnectionManager connectionManager;
@@ -149,7 +153,7 @@ public class MainController
 	
 	public void init()
 	{		
-		this.connectionManager = new ConnectionManager(eventManager, statisticsManager, configurationManager);	
+		this.connectionManager = new ConnectionManager(eventManager, eventBus, statisticsManager, configurationManager);	
 				
 		statisticsManager.loadStats();
 		
@@ -200,7 +204,8 @@ public class MainController
 		controlPanelPaneController.setMainController(this);
 		controlPanelPaneController.setConfigurationMananger(configurationManager);
 		controlPanelPaneController.setApplication(application);
-		controlPanelPaneController.setEventManager(eventManager);
+		// controlPanelPaneController.setEventManager(eventManager);
+		controlPanelPaneController.setEventBus(eventBus);
 		controlPanelPaneController.setConnectionManager(connectionManager);
 		controlPanelPaneController.setVersionManager(versionManager);
 		controlPanelPaneController.init();	
@@ -286,14 +291,16 @@ public class MainController
 		// This is a dirty way to reload connection settings :) possibly could be removed if all connections are closed before loading a new config file
 		if (editConnectionsController != null)
 		{
-			eventManager.deregisterConnectionStatusObserver(editConnectionsController);
+			eventBus.unsubscribeConsumer(editConnectionsController, ConnectionStatusChangeEvent.class);
+			// eventManager.deregisterConnectionStatusObserver(editConnectionsController);
 		}
 		
 		final FXMLLoader loader = FxmlUtils.createFxmlLoaderForProjectFile("EditConnectionsWindow.fxml");
 		final AnchorPane connectionWindow = FxmlUtils.loadAnchorPane(loader);
 		editConnectionsController = ((EditConnectionsController) loader.getController());		
 		editConnectionsController.setMainController(this);
-		editConnectionsController.setEventManager(eventManager);
+		// editConnectionsController.setEventManager(eventManager);
+		editConnectionsController.setEventBus(eventBus);
 		editConnectionsController.setConnectionManager(connectionManager);
 		editConnectionsController.setConfigurationManager(configurationManager);
 		editConnectionsController.init();
@@ -336,9 +343,8 @@ public class MainController
 		aboutController.setApplication(application);
 		aboutController.setConfigurationManager(configurationManager);
 		aboutController.setVersionManager(versionManager);
-		aboutController.setEventManager(eventManager);
-		
-		eventManager.registerVersionInfoObserver(aboutController);
+		// aboutController.setEventManager(eventManager);
+		aboutController.setEventBus(eventBus);
 		
 		aboutController.init();
 		
@@ -702,9 +708,19 @@ public class MainController
 	 *  
 	 * @param eventManager the eventManager to set
 	 */
-	public void setEventManager(EventManager<FormattedMqttMessage> eventManager)
+	public void setEventManager(final EventManager<FormattedMqttMessage> eventManager)
 	{
 		this.eventManager = eventManager;
+	}
+	
+	/**
+	 * Sets the event bus.
+	 *  
+	 * @param eventBus the eventBus to set
+	 */
+	public void setEventBus(final IKBus eventBus)
+	{
+		this.eventBus = eventBus;
 	}
 
 	/**

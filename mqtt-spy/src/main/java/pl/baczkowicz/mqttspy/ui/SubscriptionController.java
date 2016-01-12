@@ -67,15 +67,15 @@ import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.stats.StatisticsManager;
 import pl.baczkowicz.mqttspy.ui.connections.SubscriptionManager;
 import pl.baczkowicz.mqttspy.ui.events.EventManager;
-import pl.baczkowicz.mqttspy.ui.events.observers.SubscriptionStatusChangeObserver;
+import pl.baczkowicz.mqttspy.ui.events.SubscriptionStatusChangeEvent;
 import pl.baczkowicz.mqttspy.ui.messagelog.MessageLogUtils;
 import pl.baczkowicz.spy.common.generated.FormatterDetails;
 import pl.baczkowicz.spy.common.generated.Formatting;
+import pl.baczkowicz.spy.eventbus.IKBus;
 import pl.baczkowicz.spy.formatting.FormattingManager;
 import pl.baczkowicz.spy.formatting.FormattingUtils;
-import pl.baczkowicz.spy.ui.events.observers.ClearTabObserver;
+import pl.baczkowicz.spy.ui.events.ClearTabEvent;
 import pl.baczkowicz.spy.ui.events.queuable.ui.BrowseReceivedMessageEvent;
-import pl.baczkowicz.spy.ui.panes.SpyPerspective;
 import pl.baczkowicz.spy.ui.panes.TabController;
 import pl.baczkowicz.spy.ui.panes.TabStatus;
 import pl.baczkowicz.spy.ui.search.UniqueContentOnlyFilter;
@@ -88,8 +88,7 @@ import pl.baczkowicz.spy.utils.ConversionUtils;
 /**
  * Controller for the subscription tab.
  */
-public class SubscriptionController implements Initializable, ClearTabObserver<FormattedMqttMessage>, 
-	SubscriptionStatusChangeObserver, TabController
+public class SubscriptionController implements Initializable, TabController
 {
 	/** Diagnostic logger. */
 	private final static Logger logger = LoggerFactory.getLogger(SubscriptionController.class);
@@ -172,6 +171,8 @@ public class SubscriptionController implements Initializable, ClearTabObserver<F
 	private SearchWindowController searchWindowController;
 
 	private EventManager<FormattedMqttMessage> eventManager;
+
+	private IKBus eventBus;
 
 	private ConnectionController connectionController;
 
@@ -292,7 +293,8 @@ public class SubscriptionController implements Initializable, ClearTabObserver<F
 				store.getMessageList().getPreferredSize(), store.getMessageList().getMaxSize(), 
 				0, formattingManager);
 		
-		eventManager.registerClearTabObserver(this, store);
+		eventBus.subscribe(this, this::onClearTab, ClearTabEvent.class, store);
+		// eventManager.registerClearTabObserver(this, store);
 		
 		getSummaryTablePaneController().setStore(store);
 		getSummaryTablePaneController().setConnectionController(connectionController);
@@ -434,8 +436,7 @@ public class SubscriptionController implements Initializable, ClearTabObserver<F
 		messageNavigationPaneController.toggleDetaileledViewVisibility();
 	}
 	
-	@Override
-	public void onClearTab(final ManagedMessageStoreWithFiltering<FormattedMqttMessage> subscription)
+	public void onClearTab(final ClearTabEvent event)
 	{	
 		messagePaneController.clear();
 		messageNavigationPaneController.clear();
@@ -444,9 +445,9 @@ public class SubscriptionController implements Initializable, ClearTabObserver<F
 		store.setAllShowValues(false);		
 	}
 	
-	public void onSubscriptionStatusChanged(final MqttSubscription changedSubscription)
+	public void onSubscriptionStatusChanged(final SubscriptionStatusChangeEvent event)
 	{
-		subscription = changedSubscription;
+		subscription = event.getChangedSubscription();
 		updateContextMenu();
 	}
 
@@ -812,5 +813,10 @@ public class SubscriptionController implements Initializable, ClearTabObserver<F
 	public void setFormattingManager(FormattingManager formattingManager)
 	{
 		this.formattingManager = formattingManager;
+	}
+	
+	public void setEventBus(final IKBus eventBus)
+	{
+		this.eventBus = eventBus;
 	}
 }

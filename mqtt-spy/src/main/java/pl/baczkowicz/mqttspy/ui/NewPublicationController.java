@@ -67,20 +67,20 @@ import org.slf4j.LoggerFactory;
 import pl.baczkowicz.mqttspy.common.generated.SimpleMqttMessage;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.messages.BaseMqttMessage;
-import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.scripts.MqttScriptManager;
-import pl.baczkowicz.mqttspy.ui.events.EventManager;
 import pl.baczkowicz.mqttspy.ui.scripts.InteractiveScriptManager;
 import pl.baczkowicz.mqttspy.utils.MqttUtils;
 import pl.baczkowicz.spy.common.generated.ConversionMethod;
+import pl.baczkowicz.spy.eventbus.IKBus;
 import pl.baczkowicz.spy.exceptions.ConversionException;
 import pl.baczkowicz.spy.scripts.Script;
-import pl.baczkowicz.spy.ui.events.observers.ScriptListChangeObserver;
 import pl.baczkowicz.spy.ui.keyboard.TimeBasedKeyEventFilter;
 import pl.baczkowicz.spy.ui.panes.PaneVisibilityStatus;
 import pl.baczkowicz.spy.ui.panes.TitledPaneController;
 import pl.baczkowicz.spy.ui.properties.PublicationScriptProperties;
 import pl.baczkowicz.spy.ui.scripts.ScriptTypeEnum;
+import pl.baczkowicz.spy.ui.scripts.events.ScriptListChangeEvent;
+import pl.baczkowicz.spy.ui.threading.SimpleRunLaterIfRequiredExecutor;
 import pl.baczkowicz.spy.ui.utils.DialogFactory;
 import pl.baczkowicz.spy.ui.utils.ImageUtils;
 import pl.baczkowicz.spy.utils.ConversionUtils;
@@ -90,7 +90,7 @@ import pl.baczkowicz.spy.utils.TimeUtils;
 /**
  * Controller for creating new publications.
  */
-public class NewPublicationController implements Initializable, ScriptListChangeObserver, TitledPaneController
+public class NewPublicationController implements Initializable, TitledPaneController
 {
 	/** Diagnostic logger. */
 	private final static Logger logger = LoggerFactory.getLogger(NewPublicationController.class);
@@ -157,7 +157,9 @@ public class NewPublicationController implements Initializable, ScriptListChange
 	
 	private InteractiveScriptManager scriptManager;
 
-	private EventManager<FormattedMqttMessage> eventManager;
+	// private EventManager<FormattedMqttMessage> eventManager;
+	
+	private IKBus eventBus;
 	
 	private List<BaseMqttMessage> recentMessages = new ArrayList<>();
 
@@ -422,14 +424,15 @@ public class NewPublicationController implements Initializable, ScriptListChange
 
 	public void init()
 	{
-		eventManager.registerScriptListChangeObserver(this, connection);		
+		eventBus.subscribe(this, this::onScriptListChange, ScriptListChangeEvent.class, new SimpleRunLaterIfRequiredExecutor(), connection);
+		// TODO: replaced with event bus; remove
+		// eventManager.registerScriptListChangeObserver(this, connection);		
 		
 		paneTitle = new AnchorPane();
 		settingsButton = createTitleButtons(pane, paneTitle, connectionController);
 	}
 
-	@Override
-	public void onScriptListChange()
+	public void onScriptListChange(final ScriptListChangeEvent event)
 	{
 		final List<PublicationScriptProperties> scripts = scriptManager.getObservableScriptList();
 		
@@ -876,8 +879,11 @@ public class NewPublicationController implements Initializable, ScriptListChange
 			logger.info("Writing file to " + scriptFile.getAbsolutePath());
 			FileUtils.writeToFile(scriptFile, script);
 			scriptManager.addScripts(configuredDirectory, ScriptTypeEnum.PUBLICATION);
+
 			// TODO: move this to script manager?
-			eventManager.notifyScriptListChange(connection);
+			eventBus.publish(new ScriptListChangeEvent(connection));
+			// TODO: replaced with event bus; remove
+			// eventManager.notifyScriptListChange(connection);
 		}
 		catch (URISyntaxException | IOException e)
 		{
@@ -948,10 +954,10 @@ public class NewPublicationController implements Initializable, ScriptListChange
 		this.scriptManager = scriptManager;
 	}
 	
-	public void setEventManager(final EventManager<FormattedMqttMessage> eventManager)
-	{
-		this.eventManager = eventManager;
-	}
+//	public void setEventManager(final EventManager<FormattedMqttMessage> eventManager)
+//	{
+//		this.eventManager = eventManager;
+//	}
 
 	public void hidePublishButton()
 	{
@@ -981,5 +987,10 @@ public class NewPublicationController implements Initializable, ScriptListChange
 		{
 			settingsButton.setVisible(false);
 		}
+	}
+	
+	public void setEventBus(final IKBus eventBus)
+	{
+		this.eventBus = eventBus;
 	}
 }

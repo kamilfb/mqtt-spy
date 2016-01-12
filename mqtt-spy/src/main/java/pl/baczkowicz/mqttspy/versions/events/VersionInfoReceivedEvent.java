@@ -1,6 +1,6 @@
 /***********************************************************************************
  * 
- * Copyright (c) 2014 Kamil Baczkowicz
+ * Copyright (c) 2015 Kamil Baczkowicz
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -17,9 +17,25 @@
  *    Kamil Baczkowicz - initial API and implementation and/or initial documentation
  *    
  */
-package pl.baczkowicz.spy.ui.events.observers;
 
-public interface ScriptListChangeObserver
+package pl.baczkowicz.mqttspy.versions.events;
+
+import pl.baczkowicz.mqttspy.versions.generated.MqttSpyVersions;
+
+public class VersionInfoReceivedEvent
 {
-	void onScriptListChange();
+	private final MqttSpyVersions versions;
+
+	public VersionInfoReceivedEvent(final MqttSpyVersions versions)
+	{
+		this.versions = versions;
+	}
+
+	/**
+	 * @return the versions
+	 */
+	public MqttSpyVersions getVersions()
+	{
+		return versions;
+	}
 }

@@ -36,6 +36,8 @@ import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
 import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.ui.MainController;
 import pl.baczkowicz.mqttspy.ui.events.EventManager;
+import pl.baczkowicz.spy.eventbus.IKBus;
+import pl.baczkowicz.spy.eventbus.KBus;
 import pl.baczkowicz.spy.ui.configuration.UiProperties;
 import pl.baczkowicz.spy.ui.utils.FxmlUtils;
 
@@ -57,6 +59,7 @@ public class Main extends Application
 	public void start(final Stage primaryStage)
 	{
 		final EventManager<FormattedMqttMessage> eventManager = new EventManager<FormattedMqttMessage>();			
+		final IKBus eventBus = new KBus();
 				
 		try
 		{
@@ -81,6 +84,7 @@ public class Main extends Application
 			// Get the associated controller
 			final MainController mainController = (MainController) loader.getController();
 			mainController.setEventManager(eventManager);
+			mainController.setEventBus(eventBus);
 			mainController.setConfigurationManager(configurationManager);
 			mainController.setSelectedPerspective(UiProperties.getApplicationPerspective(configurationManager.getUiPropertyFile()));
 			mainController.getResizeMessagePaneMenu().setSelected(UiProperties.getResizeMessagePane(configurationManager.getUiPropertyFile()));

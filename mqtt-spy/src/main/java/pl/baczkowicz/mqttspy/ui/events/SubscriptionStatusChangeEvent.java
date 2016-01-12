@@ -17,12 +17,27 @@
  *    Kamil Baczkowicz - initial API and implementation and/or initial documentation
  *    
  */
-package pl.baczkowicz.spy.ui.events.observers;
 
-import pl.baczkowicz.spy.messages.FormattedMessage;
-import pl.baczkowicz.spy.ui.storage.ManagedMessageStoreWithFiltering;
+package pl.baczkowicz.mqttspy.ui.events;
 
-public interface ClearTabObserver<T extends FormattedMessage>
+import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
+import pl.baczkowicz.spy.eventbus.FilterableEvent;
+
+public class SubscriptionStatusChangeEvent extends FilterableEvent
 {
-	void onClearTab(final ManagedMessageStoreWithFiltering<T> subscription);
+	private final MqttSubscription changedSubscription;
+
+	public SubscriptionStatusChangeEvent(final MqttSubscription changedSubscription)
+	{
+		this.setFilter(changedSubscription);
+		this.changedSubscription = changedSubscription;
+	}
+
+	/**
+	 * @return the changedSubscription
+	 */
+	public MqttSubscription getChangedSubscription()
+	{
+		return changedSubscription;
+	}
 }

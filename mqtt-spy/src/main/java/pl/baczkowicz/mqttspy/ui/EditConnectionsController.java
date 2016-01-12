@@ -49,16 +49,15 @@ import pl.baczkowicz.mqttspy.common.generated.ProtocolVersionEnum;
 import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
 import pl.baczkowicz.mqttspy.configuration.ConfiguredConnectionDetails;
 import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnectionDetails;
-import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.ui.connections.ConnectionManager;
-import pl.baczkowicz.mqttspy.ui.events.EventManager;
-import pl.baczkowicz.mqttspy.ui.events.observers.ConnectionStatusChangeObserver;
+import pl.baczkowicz.mqttspy.ui.events.ConnectionStatusChangeEvent;
 import pl.baczkowicz.mqttspy.utils.ConnectionUtils;
 import pl.baczkowicz.mqttspy.utils.MqttUtils;
 import pl.baczkowicz.spy.common.generated.ConnectionGroup;
 import pl.baczkowicz.spy.common.generated.ConnectionGroupReference;
 import pl.baczkowicz.spy.common.generated.ConnectionReference;
 import pl.baczkowicz.spy.configuration.BaseConfigurationUtils;
+import pl.baczkowicz.spy.eventbus.IKBus;
 import pl.baczkowicz.spy.exceptions.ConfigurationException;
 import pl.baczkowicz.spy.ui.configuration.ConfiguredConnectionGroupDetails;
 import pl.baczkowicz.spy.ui.controls.DragAndDropTreeViewCell;
@@ -72,7 +71,7 @@ import pl.baczkowicz.spy.ui.utils.TooltipFactory;
  * Controller for editing all connections.
  */
 @SuppressWarnings({"unchecked", "rawtypes"})
-public class EditConnectionsController extends AnchorPane implements Initializable, ConnectionStatusChangeObserver, ItemsReorderedObserver
+public class EditConnectionsController extends AnchorPane implements Initializable, ItemsReorderedObserver
 {
 	/** Diagnostic logger. */
 	private final static Logger logger = LoggerFactory.getLogger(EditConnectionsController.class);
@@ -121,7 +120,9 @@ public class EditConnectionsController extends AnchorPane implements Initializab
 
 	private List<ConfiguredConnectionDetails> connections = new ArrayList<ConfiguredConnectionDetails>();
 
-	private EventManager eventManager;
+	// private EventManager eventManager;
+	
+	private IKBus eventBus;
 
 	private ConnectionManager connectionManager;
 	
@@ -226,7 +227,8 @@ public class EditConnectionsController extends AnchorPane implements Initializab
 		groups = configurationManager.getConnectionGrops();
 		rootItemProperties.setGroup(configurationManager.getRootGroup());
 		
-		eventManager.registerConnectionStatusObserver(this, null);
+		eventBus.subscribe(this, this::onConnectionStatusChanged, ConnectionStatusChangeEvent.class);
+		// eventManager.registerConnectionStatusObserver(this, null);
 
 		editConnectionGroupPaneController.setMainController(mainController);
 		editConnectionGroupPaneController.setEditConnectionsController(this);
@@ -830,13 +832,12 @@ public class EditConnectionsController extends AnchorPane implements Initializab
 		this.configurationManager = configurationManager;
 	}	
 
-	public void setEventManager(final EventManager eventManager)
-	{
-		this.eventManager = eventManager;		
-	}
+//	public void setEventManager(final EventManager eventManager)
+//	{
+//		this.eventManager = eventManager;		
+//	}
 
-	@Override
-	public void onConnectionStatusChanged(final MqttAsyncConnection changedConnection)
+	public void onConnectionStatusChanged(final ConnectionStatusChangeEvent event)
 	{
 		if (getSelectedItem() != null)
 		{
@@ -859,5 +860,10 @@ public class EditConnectionsController extends AnchorPane implements Initializab
 	public void setPerspective(final SpyPerspective perspective)
 	{
 		editConnectionPaneController.setPerspective(perspective);
+	}
+	
+	public void setEventBus(final IKBus eventBus)
+	{
+		this.eventBus = eventBus;
 	}
 }

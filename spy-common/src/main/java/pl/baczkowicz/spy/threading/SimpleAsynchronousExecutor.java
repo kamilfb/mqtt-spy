@@ -1,6 +1,6 @@
 /***********************************************************************************
  * 
- * Copyright (c) 2014 Kamil Baczkowicz
+ * Copyright (c) 2015 Kamil Baczkowicz
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -17,20 +17,22 @@
  *    Kamil Baczkowicz - initial API and implementation and/or initial documentation
  *    
  */
-package pl.baczkowicz.spy.scripts;
 
+package pl.baczkowicz.spy.threading;
+
+import java.util.concurrent.Executor;
 
 /**
- * Interface for notifying script's state changes.
+ * Simple asynchronous executor.
  */
-public interface IScriptEventManager
+public class SimpleAsynchronousExecutor implements Executor
 {
-	/**
-	 * Notifies any consumers that the state of the given script has changed.
-	 * 
-	 * @param scriptName The name of the script
-	 * @param state The new state
-	 */
-	// TODO: could possibly change the scriptName to the script object
-	void notifyScriptStateChange(final String scriptName, final ScriptRunningState state);
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void execute(final Runnable command)
+    {
+        new Thread(command).start();
+    }
 }

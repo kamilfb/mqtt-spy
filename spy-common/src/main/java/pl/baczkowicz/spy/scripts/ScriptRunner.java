@@ -28,6 +28,8 @@ import javax.script.ScriptException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import pl.baczkowicz.spy.eventbus.IKBus;
+import pl.baczkowicz.spy.scripts.events.ScriptStateChangeEvent;
 import pl.baczkowicz.spy.utils.ThreadingUtils;
 
 /**
@@ -41,8 +43,8 @@ public class ScriptRunner implements Runnable
 	/** The associated script. */
 	private final Script script;
 
-	/** The Event Manager. */
-	private IScriptEventManager eventManager;
+	/** The Event Bus. */
+	private IKBus eventBus;
 
 	/** The executor. */
 	private Executor executor;
@@ -57,14 +59,14 @@ public class ScriptRunner implements Runnable
 	/**
 	 * Creates a ScriptRunner.
 	 * 
-	 * @param eventManager The Event Manager to be used
+	 * @param eventBus The event bus to be used
 	 * @param script The associated script
 	 * @param executor The executor to be used
 	 */
-	public ScriptRunner(final IScriptEventManager eventManager, final Script script, final Executor executor)
+	public ScriptRunner(final IKBus eventBus, final Script script, final Executor executor)
 	{
 		this.script = script;
-		this.eventManager = eventManager;
+		this.eventBus = eventBus;
 		this.executor = executor;
 	}
 	
@@ -91,7 +93,7 @@ public class ScriptRunner implements Runnable
 			
 			if (script.isAsynchronous())
 			{
-				new Thread(new ScriptHealthDetector(eventManager, script, executor)).start();
+				new Thread(new ScriptHealthDetector(eventBus, script, executor)).start();
 			}
 			
 			try
@@ -190,31 +192,31 @@ public class ScriptRunner implements Runnable
 	 */
 	private void changeState(final ScriptRunningState newState)
 	{
-		changeState(eventManager, script.getName(), newState, script, executor);
+		changeState(eventBus, script.getName(), newState, script, executor);
 	}
 	
 	/**
 	 * Changes the state of the script.
 	 * 
-	 * @param eventManager The Event Manager to be used
+	 * @param eventBus The event bus to be used
 	 * @param scriptName The script name
 	 * @param newState The new state requested
 	 * @param script The script itself
 	 * @param executor The executor to be used
 	 */
-	public static void changeState(final IScriptEventManager eventManager, final String scriptName, 
+	public static void changeState(final IKBus eventBus, final String scriptName, 
 			final ScriptRunningState newState, final Script script, final Executor executor)
 	{		
 		logger.trace("Changing [{}] script's state to [{}]", scriptName, newState);
 				
-		if (eventManager != null && executor != null)
+		if (eventBus != null && executor != null)
 		{
 			executor.execute(new Runnable()
 			{			
 				public void run()
 				{
 					script.setStatus(newState);
-					eventManager.notifyScriptStateChange(scriptName, newState);
+					eventBus.publish(new ScriptStateChangeEvent(scriptName, newState));
 				}
 			});
 		}

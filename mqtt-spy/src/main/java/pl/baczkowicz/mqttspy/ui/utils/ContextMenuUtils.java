@@ -45,6 +45,8 @@ import pl.baczkowicz.mqttspy.ui.charts.ChartMode;
 import pl.baczkowicz.mqttspy.ui.connections.ConnectionManager;
 import pl.baczkowicz.mqttspy.ui.connections.SubscriptionManager;
 import pl.baczkowicz.mqttspy.ui.events.EventManager;
+import pl.baczkowicz.spy.eventbus.IKBus;
+import pl.baczkowicz.spy.ui.events.ClearTabEvent;
 import pl.baczkowicz.spy.ui.panes.PaneVisibilityStatus;
 import pl.baczkowicz.spy.ui.panes.TitledPaneStatus;
 import pl.baczkowicz.spy.ui.utils.DialogFactory;
@@ -74,6 +76,7 @@ public class ContextMenuUtils
 			final MqttAsyncConnection connection, 
 			final MqttSubscription subscription, 
 			final EventManager<FormattedMqttMessage> eventManager, 
+			final IKBus eventBus,
 			final SubscriptionManager subscriptionManager,
 			final ConfigurationManager configurationManager,
 			final SubscriptionController subscriptionController)
@@ -143,7 +146,8 @@ public class ContextMenuUtils
 		{
 			public void handle(ActionEvent e)
 			{				
-				eventManager.notifyClearHistory(subscription.getStore());
+				eventBus.publish(new ClearTabEvent(subscription.getStore()));
+				// eventManager.notifyClearHistory(subscription.getStore());
 				StatisticsManager.resetMessagesReceived(connection.getId(), subscription.getTopic());
 				subscription.getStore().clear();
 			}
@@ -269,6 +273,7 @@ public class ContextMenuUtils
 	public static ContextMenu createAllSubscriptionsTabContextMenu(
 			final MqttAsyncConnection connection, 
 			final EventManager<FormattedMqttMessage> eventManager,
+			final IKBus eventBus,
 			final SubscriptionManager subscriptionManager,
 			final ConfigurationManager configurationManager,
 			final SubscriptionController subscriptionController)
@@ -306,7 +311,8 @@ public class ContextMenuUtils
 		{
 			public void handle(ActionEvent e)
 			{
-				eventManager.notifyClearHistory(connection.getStore());
+				eventBus.publish(new ClearTabEvent(connection.getStore()));
+				// eventManager.notifyClearHistory(connection.getStore());
 				StatisticsManager.resetMessagesReceived(connection.getId());
 				connection.getStore().clear();
 			}

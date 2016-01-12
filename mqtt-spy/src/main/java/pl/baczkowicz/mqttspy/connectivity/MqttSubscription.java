@@ -22,7 +22,8 @@ package pl.baczkowicz.mqttspy.connectivity;
 import javafx.scene.paint.Color;
 import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.ui.SubscriptionController;
-import pl.baczkowicz.mqttspy.ui.events.EventManager;
+import pl.baczkowicz.mqttspy.ui.events.SubscriptionStatusChangeEvent;
+import pl.baczkowicz.spy.eventbus.IKBus;
 import pl.baczkowicz.spy.formatting.FormattingManager;
 import pl.baczkowicz.spy.ui.events.queuable.EventQueueManager;
 import pl.baczkowicz.spy.ui.storage.ManagedMessageStoreWithFiltering;
@@ -37,11 +38,14 @@ public class MqttSubscription extends BaseMqttSubscription
 	
 	private final ManagedMessageStoreWithFiltering<FormattedMqttMessage> store;
 
-	private EventManager<FormattedMqttMessage> eventManager;
+	// private EventManager<FormattedMqttMessage> eventManager;
+	
+	private IKBus eventBus;
 
 	public MqttSubscription(final String topic, final Integer qos, final Color color, 
 			final int minMessagesPerTopic, final int preferredStoreSize, final EventQueueManager<FormattedMqttMessage> uiEventQueue,
-			final EventManager<FormattedMqttMessage> eventManager, 
+			// final EventManager<FormattedMqttMessage> eventManager, 
+			final IKBus eventBus,
 			final FormattingManager formattingManager, final int summaryMaxPayloadLength)
 	{
 		super(topic, qos, minMessagesPerTopic, preferredStoreSize);
@@ -54,7 +58,8 @@ public class MqttSubscription extends BaseMqttSubscription
 				summaryMaxPayloadLength);
 		
 		this.color = color;
-		this.eventManager = eventManager;
+		// this.eventManager = eventManager;
+		this.eventBus = eventBus;
 	}
 
 	public Color getColor()
@@ -76,7 +81,8 @@ public class MqttSubscription extends BaseMqttSubscription
 
 	public void subscriptionStatusChanged()
 	{
-		eventManager.notifySubscriptionStatusChanged(this);
+		eventBus.publish(new SubscriptionStatusChangeEvent(this));
+		// eventManager.notifySubscriptionStatusChanged(this);
 	}
 
 	public void setSubscriptionController(final SubscriptionController subscriptionController)

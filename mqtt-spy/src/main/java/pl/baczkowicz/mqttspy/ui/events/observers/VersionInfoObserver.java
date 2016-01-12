@@ -21,6 +21,7 @@ package pl.baczkowicz.mqttspy.ui.events.observers;
 
 import pl.baczkowicz.mqttspy.versions.generated.MqttSpyVersions;
 
+@Deprecated
 public interface VersionInfoObserver
 {
 	void onVersionInfoReceived(MqttSpyVersions versions);

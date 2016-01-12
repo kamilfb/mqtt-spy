@@ -39,6 +39,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.spy.common.generated.ScriptDetails;
+import pl.baczkowicz.spy.eventbus.IKBus;
 import pl.baczkowicz.spy.exceptions.CriticalException;
 import pl.baczkowicz.spy.messages.IBaseMessage;
 import pl.baczkowicz.spy.utils.FileUtils;
@@ -69,7 +70,7 @@ public abstract class BaseScriptManager
 	private Map<String, Script> scripts = new HashMap<String, Script>();
 	
 	/** Used for notifying events related to script execution. */
-	protected IScriptEventManager eventManager;
+	protected IKBus eventBus;
 
 	/** Executor for tasks. */
 	protected Executor executor;
@@ -77,13 +78,13 @@ public abstract class BaseScriptManager
 	/**
 	 * Creates the script manager.
 	 * 
-	 * @param eventManager The event manager to be used
+	 * @param eventBus The event bus to be used
 	 * @param executor The executor to be used
 	 * @param connection The connection for which to run the scripts
 	 */
-	public BaseScriptManager(final IScriptEventManager eventManager, final Executor executor)
+	public BaseScriptManager(final IKBus eventBus, final Executor executor)
 	{
-		this.eventManager = eventManager;
+		this.eventBus = eventBus;
 		this.executor = executor;
 	}
 	
@@ -370,7 +371,7 @@ public abstract class BaseScriptManager
 		// Only start if not running already
 		if (!ScriptRunningState.RUNNING.equals(script.getStatus()))
 		{
-			script.createScriptRunner(eventManager, executor);
+			script.createScriptRunner(eventBus, executor);
 			script.setAsynchronous(asynchronous);
 			// Set test case args
 			if (args != null)
