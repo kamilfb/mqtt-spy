@@ -80,7 +80,7 @@ import pl.baczkowicz.spy.ui.panes.TitledPaneController;
 import pl.baczkowicz.spy.ui.properties.PublicationScriptProperties;
 import pl.baczkowicz.spy.ui.scripts.ScriptTypeEnum;
 import pl.baczkowicz.spy.ui.scripts.events.ScriptListChangeEvent;
-import pl.baczkowicz.spy.ui.threading.SimpleRunLaterIfRequiredExecutor;
+import pl.baczkowicz.spy.ui.threading.SimpleRunLaterExecutor;
 import pl.baczkowicz.spy.ui.utils.DialogFactory;
 import pl.baczkowicz.spy.ui.utils.ImageUtils;
 import pl.baczkowicz.spy.utils.ConversionUtils;
@@ -424,7 +424,7 @@ public class NewPublicationController implements Initializable, TitledPaneContro
 
 	public void init()
 	{
-		eventBus.subscribe(this, this::onScriptListChange, ScriptListChangeEvent.class, new SimpleRunLaterIfRequiredExecutor(), connection);
+		eventBus.subscribe(this, this::onScriptListChange, ScriptListChangeEvent.class, new SimpleRunLaterExecutor(), connection);
 		// TODO: replaced with event bus; remove
 		// eventManager.registerScriptListChangeObserver(this, connection);		
 		

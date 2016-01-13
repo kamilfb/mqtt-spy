@@ -58,7 +58,7 @@ import pl.baczkowicz.spy.ui.panes.TitledPaneController;
 import pl.baczkowicz.spy.ui.properties.PublicationScriptProperties;
 import pl.baczkowicz.spy.ui.scripts.ScriptTypeEnum;
 import pl.baczkowicz.spy.ui.scripts.events.ScriptListChangeEvent;
-import pl.baczkowicz.spy.ui.threading.SimpleRunLaterIfRequiredExecutor;
+import pl.baczkowicz.spy.ui.threading.SimpleRunLaterExecutor;
 import pl.baczkowicz.spy.ui.utils.DialogFactory;
 import pl.baczkowicz.spy.ui.utils.UiUtils;
 
@@ -311,7 +311,7 @@ public class PublicationScriptsController implements Initializable, TitledPaneCo
 	public void init()
 	{
 		scriptManager = connection.getScriptManager();
-		eventBus.subscribe(this, this::onScriptStateChange, ScriptStateChangeEvent.class, new SimpleRunLaterIfRequiredExecutor());
+		eventBus.subscribeWithExecutor(this, this::onScriptStateChange, ScriptStateChangeEvent.class, new SimpleRunLaterExecutor());
 		// TODO: replaced with event bus; to be deleted
 		// eventManager.registerScriptStateChangeObserver(this, null);
 		refreshList();

@@ -66,7 +66,7 @@ import pl.baczkowicz.spy.eventbus.IKBus;
 import pl.baczkowicz.spy.exceptions.ConfigurationException;
 import pl.baczkowicz.spy.exceptions.XMLException;
 import pl.baczkowicz.spy.ui.configuration.ConfiguredConnectionGroupDetails;
-import pl.baczkowicz.spy.ui.threading.SimpleRunLaterIfRequiredExecutor;
+import pl.baczkowicz.spy.ui.threading.SimpleRunLaterExecutor;
 import pl.baczkowicz.spy.utils.ThreadingUtils;
 
 /**
@@ -141,9 +141,9 @@ public class ControlPanelController extends AnchorPane implements Initializable
 		
 	public void init()
 	{		
-		eventBus.subscribe(this, this::onVersionInfoReceived, VersionInfoReceivedEvent.class, new SimpleRunLaterIfRequiredExecutor());
-		eventBus.subscribe(this, this::onVersionInfoError, VersionInfoErrorEvent.class, new SimpleRunLaterIfRequiredExecutor());
-		eventBus.subscribe(this, this::onConnectionStatusChanged, ConnectionStatusChangeEvent.class, new SimpleRunLaterIfRequiredExecutor());
+		eventBus.subscribeWithExecutor(this, this::onVersionInfoReceived, VersionInfoReceivedEvent.class, new SimpleRunLaterExecutor());
+		eventBus.subscribeWithExecutor(this, this::onVersionInfoError, VersionInfoErrorEvent.class, new SimpleRunLaterExecutor());
+		eventBus.subscribeWithExecutor(this, this::onConnectionStatusChanged, ConnectionStatusChangeEvent.class, new SimpleRunLaterExecutor());
 		//eventManager.registerVersionInfoObserver(this);
 		//eventManager.registerConnectionStatusObserver(this, null);
 		
@@ -199,7 +199,7 @@ public class ControlPanelController extends AnchorPane implements Initializable
 	
 	public void onConnectionStatusChanged(final ConnectionStatusChangeEvent event)
 	{
-		refreshConnectionsStatus();		
+		refreshConnectionsStatus();
 	}
 	
 	public void refreshConnectionsStatus()

@@ -1,6 +1,6 @@
 /***********************************************************************************
  * 
- * Copyright (c) 2014 Kamil Baczkowicz
+ * Copyright (c) 2015 Kamil Baczkowicz
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -17,10 +17,15 @@
  *    Kamil Baczkowicz - initial API and implementation and/or initial documentation
  *    
  */
-package pl.baczkowicz.mqttspy.ui.events.observers;
 
-@Deprecated
-public interface NewMessageObserver
+package pl.baczkowicz.spy.ui.events;
+
+import pl.baczkowicz.spy.eventbus.FilterableEvent;
+
+public class MessageListChangedEvent extends FilterableEvent
 {
-	void onNewMessageReceived();
+	public MessageListChangedEvent(final Object filter)
+	{
+		super.setFilter(filter);
+	}
 }

@@ -21,7 +21,6 @@ package pl.baczkowicz.mqttspy.ui;
 
 import java.net.URL;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
 
@@ -44,22 +43,20 @@ import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
 import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
-import pl.baczkowicz.mqttspy.ui.events.EventManager;
 import pl.baczkowicz.mqttspy.ui.utils.StylingUtils;
+import pl.baczkowicz.spy.eventbus.IKBus;
 import pl.baczkowicz.spy.formatting.FormattingManager;
-import pl.baczkowicz.spy.ui.events.observers.MessageAddedObserver;
-import pl.baczkowicz.spy.ui.events.observers.MessageListChangedObserver;
-import pl.baczkowicz.spy.ui.events.observers.MessageRemovedObserver;
-import pl.baczkowicz.spy.ui.events.queuable.ui.BrowseReceivedMessageEvent;
-import pl.baczkowicz.spy.ui.events.queuable.ui.BrowseRemovedMessageEvent;
+import pl.baczkowicz.spy.messages.FormattedMessage;
+import pl.baczkowicz.spy.ui.events.MessageAddedEvent;
+import pl.baczkowicz.spy.ui.events.MessageListChangedEvent;
+import pl.baczkowicz.spy.ui.events.MessageRemovedEvent;
 import pl.baczkowicz.spy.ui.storage.ManagedMessageStoreWithFiltering;
 import pl.baczkowicz.spy.ui.utils.FxmlUtils;
 
 /**
  * Controller for the search window.
  */
-public class SearchWindowController extends AnchorPane implements Initializable, 
-	MessageAddedObserver<FormattedMqttMessage>, MessageRemovedObserver<FormattedMqttMessage>, MessageListChangedObserver
+public class SearchWindowController extends AnchorPane implements Initializable
 {
 	/** Initial and minimal scene/stage width. */	
 	public final static int WIDTH = 780;
@@ -86,8 +83,8 @@ public class SearchWindowController extends AnchorPane implements Initializable,
 	private String subscriptionName;
 
 	private Stage stage;
-
-	private EventManager<FormattedMqttMessage> eventManager;
+	
+	private IKBus eventBus;
 
 	private MqttAsyncConnection connection;
 
@@ -152,7 +149,7 @@ public class SearchWindowController extends AnchorPane implements Initializable,
 		});
 		
 		searchPaneController.setTab(tab);
-		searchPaneController.setEventManager(eventManager);
+		searchPaneController.setEventBus(eventBus);
 		searchPaneController.setStore(store);
 		searchPaneController.setConfingurationManager(configurationManager);
 		searchPaneController.setFormattingManager(formattingManager);
@@ -209,21 +206,18 @@ public class SearchWindowController extends AnchorPane implements Initializable,
 	}
 	
 	// TODO: optimise message handling
-	@Override
-	public void onMessageAdded(final List<BrowseReceivedMessageEvent<FormattedMqttMessage>> events)
+	public void onMessageAdded(final MessageAddedEvent<FormattedMessage> event)
 	{
 		updateTitle();		
 	}
 	
 	// TODO: optimise message handling
-	@Override
-	public void onMessageRemoved(final List<BrowseRemovedMessageEvent<FormattedMqttMessage>> events)
+	public void onMessageRemoved(final MessageRemovedEvent<FormattedMessage> event)
 	{
 		updateTitle();
 	}
 	
-	@Override
-	public void onMessageListChanged()
+	public void onMessageListChanged(final MessageListChangedEvent event)
 	{
 		updateTitle();
 	}
@@ -247,11 +241,6 @@ public class SearchWindowController extends AnchorPane implements Initializable,
 		this.subscriptionName = name;		
 	}
 	
-	public void setEventManager(final EventManager<FormattedMqttMessage> eventManager)
-	{
-		this.eventManager = eventManager;
-	}
-
 	public void setConnection(MqttAsyncConnection connection)
 	{
 		this.connection = connection;		
@@ -265,5 +254,10 @@ public class SearchWindowController extends AnchorPane implements Initializable,
 	public void setConfingurationManager(final ConfigurationManager configurationManager)
 	{
 		this.configurationManager = configurationManager;
+	}
+	
+	public void setEventBus(final IKBus eventBus)
+	{
+		this.eventBus = eventBus;
 	}
 }

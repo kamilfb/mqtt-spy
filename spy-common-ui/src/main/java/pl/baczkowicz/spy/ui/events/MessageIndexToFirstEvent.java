@@ -1,6 +1,6 @@
 /***********************************************************************************
  * 
- * Copyright (c) 2014 Kamil Baczkowicz
+ * Copyright (c) 2015 Kamil Baczkowicz
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -17,14 +17,15 @@
  *    Kamil Baczkowicz - initial API and implementation and/or initial documentation
  *    
  */
-package pl.baczkowicz.spy.ui.events.observers;
 
-import java.util.List;
+package pl.baczkowicz.spy.ui.events;
 
-import pl.baczkowicz.spy.messages.FormattedMessage;
-import pl.baczkowicz.spy.ui.events.queuable.ui.BrowseReceivedMessageEvent;
+import pl.baczkowicz.spy.eventbus.FilterableEvent;
 
-public interface MessageAddedObserver<T extends FormattedMessage>
+public class MessageIndexToFirstEvent extends FilterableEvent
 {
-	void onMessageAdded(final List<BrowseReceivedMessageEvent<T>> message);
+	public MessageIndexToFirstEvent(final Object filter)
+	{
+		super.setFilter(filter);
+	}
 }

@@ -44,7 +44,6 @@ import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.scripts.MqttScriptManager;
 import pl.baczkowicz.mqttspy.ui.ConnectionController;
 import pl.baczkowicz.mqttspy.ui.SubscriptionController;
-import pl.baczkowicz.mqttspy.ui.events.EventManager;
 import pl.baczkowicz.mqttspy.ui.events.SubscriptionStatusChangeEvent;
 import pl.baczkowicz.mqttspy.ui.utils.ContextMenuUtils;
 import pl.baczkowicz.mqttspy.ui.utils.StylingUtils;
@@ -69,9 +68,6 @@ public class SubscriptionManager
 	/** Diagnostic logger. */
 	private final static Logger logger = LoggerFactory.getLogger(SubscriptionManager.class);
 		
-	/** Global event manager. */
-	private final EventManager eventManager;
-	
 	/** Subscription controllers (subscription topic to controller mapping). */
 	private final Map<String, SubscriptionController> subscriptionControllers = new LinkedHashMap<>();
 	
@@ -91,10 +87,8 @@ public class SubscriptionManager
 	 * @param configurationManager The configuration manager
 	 * @param uiEventQueue The UI event queue to be used
 	 */
-	public SubscriptionManager(final EventManager eventManager, final IKBus eventBus, 
-			final ConfigurationManager configurationManager, final EventQueueManager<FormattedMqttMessage> uiEventQueue)
+	public SubscriptionManager(final IKBus eventBus, final ConfigurationManager configurationManager, final EventQueueManager<FormattedMqttMessage> uiEventQueue)
 	{
-		this.eventManager = eventManager;
 		this.eventBus = eventBus;
 		this.configurationManager = configurationManager;
 		this.uiEventQueue = uiEventQueue;
@@ -129,7 +123,7 @@ public class SubscriptionManager
 		final SubscriptionController subscriptionController = createSubscriptionTab(
 				false, subscription.getStore(), subscription, connection, connectionController);
 		subscriptionController.getTab().setContextMenu(ContextMenuUtils.createSubscriptionTabContextMenu(
-				connection, subscription, eventManager, eventBus, this, configurationManager, subscriptionController));		
+				connection, subscription, eventBus, this, configurationManager, subscriptionController));		
 
 		subscriptionController.setConnectionController(connectionController);
 		subscriptionController.setFormatting(configurationManager.getConfiguration().getFormatting());
@@ -183,12 +177,11 @@ public class SubscriptionManager
 		final Tab tab = new Tab();
 		if (subscription != null)
 		{
-			eventBus.subscribe(subscriptionController, subscriptionController::onSubscriptionStatusChanged, SubscriptionStatusChangeEvent.class, subscription);
+			eventBus.subscribeWithFilter(subscriptionController, subscriptionController::onSubscriptionStatusChanged, SubscriptionStatusChangeEvent.class, subscription);
 			// eventManager.registerSubscriptionStatusObserver(subscriptionController, subscription);
 		}
 		
 		subscriptionController.setStore(observableMessageStore);
-		subscriptionController.setEventManager(eventManager);
 		subscriptionController.setEventBus(eventBus);
 		subscriptionController.setConfingurationManager(configurationManager);
 		if (connection != null)

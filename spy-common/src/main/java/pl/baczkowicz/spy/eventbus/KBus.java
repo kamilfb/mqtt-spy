@@ -31,6 +31,7 @@ import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
 public class KBus implements IKBus
 {
     /** Logger. */
@@ -98,37 +99,57 @@ public class KBus implements IKBus
 		return matchedConsumers;
 	}
 
-	@SuppressWarnings("unchecked")
-	@Override
 	/**
-	 * Publishes an event in a synchronous way.
-	 */
-	public void publish(final Object event)
-	{
-		final Collection<Consumer<?>> matchedConsumers = getConsumersForType(event);
-		
-		for (final Consumer<?> observer : matchedConsumers)
-		{
-			// No need to synchronise here, read-only
-			final Object filter = consumerFilters.get(observer);
-				
-			try
-			{
-				if (filter == null)
-				{	
-					((Consumer<Object>) observer).accept(event);
-				}
-				else if (event instanceof IFilterableEvent && filter.equals(((IFilterableEvent) event).getFilter()))
-				{
-					((Consumer<Object>) observer).accept(event);
-				}				
-			}
-			catch (ClassCastException e)
-			{
-				logger.warn("Consumer {} can't accept events of type = {}", observer, event.getClass());
-			}
-		}
-	}
+     * Publishes an event in a synchronous way.
+     */
+    @SuppressWarnings("unchecked")
+	@Override
+    public void publish(final Object event)
+    {
+        final Collection<Consumer<?>> matchedConsumers = getConsumersForType(event);
+
+        for (final Consumer<?> consumer : matchedConsumers)
+        {
+            // No need to synchronise here, read-only
+            final Object filter = consumerFilters.get(consumer);
+
+            try
+            {
+                if (filter == null)
+                {
+                    notifyConsumer((Consumer<Object>) consumer, event);
+                }
+                else if (event instanceof IFilterableEvent && filter.equals(((IFilterableEvent) event).getFilter()))
+                {
+                    notifyConsumer((Consumer<Object>) consumer, event);
+                }
+            }
+            catch (final ClassCastException e)
+            {
+                logger.warn("Consumer {} can't accept events of type = {}", consumer, event.getClass());
+            }
+        }
+    }
+    
+    /**
+     * Notifies the consumer with the event. If an executor has been specified, it is used.
+     *
+     * @param consumer Consumer of the event
+     * @param event The event to notify
+     */
+    private void notifyConsumer(final Consumer<Object> consumer, final Object event)
+    {
+        final Executor executor = consumerExecutors.get(consumer);
+        
+        if (executor == null)
+        {
+            consumer.accept(event);
+        }
+        else
+        {
+            executor.execute(() -> { consumer.accept(event); });
+        }
+    }
 	
 	private void recalculateExistingMappings()
 	{
@@ -152,7 +173,7 @@ public class KBus implements IKBus
      * {@inheritDoc}
      */
     @Override
-    public <S> void subscribe(final Object subscriber, final Consumer<? super S> consumer, final Class<S> eventType, final Executor executor)
+    public <S> void subscribeWithExecutor(final Object subscriber, final Consumer<? super S> consumer, final Class<S> eventType, final Executor executor)
     {
         subscribe(subscriber, consumer, eventType, executor, null);        
     }
@@ -161,7 +182,7 @@ public class KBus implements IKBus
      * {@inheritDoc}
      */
     @Override
-    public <S> void subscribe(final Object subscriber, final Consumer<? super S> consumer, final Class<S> eventType, final Object filter)
+    public <S> void subscribeWithFilter(final Object subscriber, final Consumer<? super S> consumer, final Class<S> eventType, final Object filter)
     {
         subscribe(subscriber, consumer, eventType, null, filter);      
     }    

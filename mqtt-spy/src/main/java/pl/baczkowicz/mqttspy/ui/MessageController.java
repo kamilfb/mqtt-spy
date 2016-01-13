@@ -50,8 +50,8 @@ import pl.baczkowicz.spy.ui.configuration.UiProperties;
 import pl.baczkowicz.spy.ui.controls.StyledTextAreaWrapper;
 import pl.baczkowicz.spy.ui.controls.TextAreaInterface;
 import pl.baczkowicz.spy.ui.controls.TextAreaWrapper;
-import pl.baczkowicz.spy.ui.events.observers.MessageFormatChangeObserver;
-import pl.baczkowicz.spy.ui.events.observers.MessageIndexChangeObserver;
+import pl.baczkowicz.spy.ui.events.MessageFormatChangeEvent;
+import pl.baczkowicz.spy.ui.events.MessageIndexChangeEvent;
 import pl.baczkowicz.spy.ui.search.SearchOptions;
 import pl.baczkowicz.spy.ui.storage.BasicMessageStoreWithSummary;
 import pl.baczkowicz.spy.utils.TimeUtils;
@@ -59,7 +59,7 @@ import pl.baczkowicz.spy.utils.TimeUtils;
 /**
  * Controller for displaying a message.
  */
-public class MessageController implements Initializable, MessageIndexChangeObserver, MessageFormatChangeObserver
+public class MessageController implements Initializable
 {
 	final static Logger logger = LoggerFactory.getLogger(MessageController.class);
 
@@ -225,15 +225,12 @@ public class MessageController implements Initializable, MessageIndexChangeObser
 		updateVisibility();
 	}
 	
-	@Override
-	public void onMessageIndexChange(final int index)
+	public void onMessageIndexChange(final MessageIndexChangeEvent event)
 	{
-		updateMessage(index);
+		updateMessage(event.getIndex());
 	}
 	
-
-	@Override
-	public void onFormatChange()
+	public void onFormatChange(final MessageFormatChangeEvent event)
 	{
 		showMessageData();		
 	}

@@ -45,7 +45,7 @@ import pl.baczkowicz.mqttspy.versions.events.VersionInfoReceivedEvent;
 import pl.baczkowicz.mqttspy.versions.generated.MqttSpyVersions;
 import pl.baczkowicz.spy.eventbus.IKBus;
 import pl.baczkowicz.spy.exceptions.XMLException;
-import pl.baczkowicz.spy.ui.threading.SimpleRunLaterIfRequiredExecutor;
+import pl.baczkowicz.spy.ui.threading.SimpleRunLaterExecutor;
 import pl.baczkowicz.spy.utils.ThreadingUtils;
 
 /**
@@ -178,8 +178,8 @@ public class AboutController implements Initializable
 	
 	public void init()
 	{
-		eventBus.subscribe(this, this::onVersionInfoReceived, VersionInfoReceivedEvent.class, new SimpleRunLaterIfRequiredExecutor());
-		eventBus.subscribe(this, this::onVersionInfoError, VersionInfoErrorEvent.class, new SimpleRunLaterIfRequiredExecutor());
+		eventBus.subscribeWithExecutor(this, this::onVersionInfoReceived, VersionInfoReceivedEvent.class, new SimpleRunLaterExecutor());
+		eventBus.subscribeWithExecutor(this, this::onVersionInfoError, VersionInfoErrorEvent.class, new SimpleRunLaterExecutor());
 		// eventManager.registerVersionInfoObserver(this);
 		
 		versionLabel.setText(configurationManager.getDefaultPropertyFile().getFullVersionName());

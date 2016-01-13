@@ -30,7 +30,7 @@ import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import pl.baczkowicz.mqttspy.ui.LineChartPaneController;
 import pl.baczkowicz.mqttspy.ui.PieChartPaneController;
-import pl.baczkowicz.mqttspy.ui.events.EventManager;
+import pl.baczkowicz.spy.eventbus.IKBus;
 import pl.baczkowicz.spy.messages.FormattedMessage;
 import pl.baczkowicz.spy.ui.properties.SubscriptionTopicSummaryProperties;
 import pl.baczkowicz.spy.ui.storage.BasicMessageStoreWithSummary;
@@ -44,12 +44,12 @@ public class ChartFactory<T extends FormattedMessage>
 			final ChartMode mode, 
 			final String seriesType, final String seriesValueName, 
 			final String seriesUnit, final String title, 
-			final Scene parentScene, final EventManager<T> eventManager)
+			final Scene parentScene, final IKBus eventBus)
 	{
 		final FXMLLoader loader = FxmlUtils.createFxmlLoaderForProjectFile("LineChartPane.fxml");
 		final AnchorPane statsWindow = FxmlUtils.loadAnchorPane(loader);
 		final LineChartPaneController<T> statsPaneController = ((LineChartPaneController<T>) loader.getController());		
-		statsPaneController.setEventManager(eventManager);
+		statsPaneController.setEventBus(eventBus);
 		statsPaneController.setStore(store);
 		statsPaneController.setSeriesTypeName(seriesType);
 		statsPaneController.setTopics(topics);

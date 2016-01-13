@@ -52,12 +52,10 @@ import pl.baczkowicz.mqttspy.configuration.ConfiguredConnectionDetails;
 import pl.baczkowicz.mqttspy.configuration.generated.TabbedSubscriptionDetails;
 import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnectionDetails;
 import pl.baczkowicz.mqttspy.messages.BaseMqttMessage;
-import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.stats.ConnectionStatsUpdater;
 import pl.baczkowicz.mqttspy.stats.StatisticsManager;
 import pl.baczkowicz.mqttspy.ui.connections.ConnectionManager;
 import pl.baczkowicz.mqttspy.ui.events.ConnectionStatusChangeEvent;
-import pl.baczkowicz.mqttspy.ui.events.EventManager;
 import pl.baczkowicz.mqttspy.ui.messagelog.LogReaderTask;
 import pl.baczkowicz.mqttspy.ui.messagelog.TaskWithProgressUpdater;
 import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
@@ -119,8 +117,6 @@ public class MainController
 	private Stage stage;
 	
 	private Scene scene;
-
-	private EventManager<FormattedMqttMessage> eventManager;
 	
 	private IKBus eventBus;
 	
@@ -153,7 +149,7 @@ public class MainController
 	
 	public void init()
 	{		
-		this.connectionManager = new ConnectionManager(eventManager, eventBus, statisticsManager, configurationManager);	
+		this.connectionManager = new ConnectionManager(eventBus, statisticsManager, configurationManager);	
 				
 		statisticsManager.loadStats();
 		
@@ -701,16 +697,6 @@ public class MainController
 	public void setConfigurationManager(ConfigurationManager configurationManager)
 	{
 		this.configurationManager = configurationManager;
-	}
-
-	/**
-	 * Sets the event manager.
-	 *  
-	 * @param eventManager the eventManager to set
-	 */
-	public void setEventManager(final EventManager<FormattedMqttMessage> eventManager)
-	{
-		this.eventManager = eventManager;
 	}
 	
 	/**

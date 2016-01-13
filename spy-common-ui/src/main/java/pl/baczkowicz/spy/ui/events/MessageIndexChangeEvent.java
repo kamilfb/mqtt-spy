@@ -1,6 +1,6 @@
 /***********************************************************************************
  * 
- * Copyright (c) 2014 Kamil Baczkowicz
+ * Copyright (c) 2015 Kamil Baczkowicz
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -17,9 +17,37 @@
  *    Kamil Baczkowicz - initial API and implementation and/or initial documentation
  *    
  */
-package pl.baczkowicz.spy.ui.events.observers;
 
-public interface MessageIndexIncrementObserver
+package pl.baczkowicz.spy.ui.events;
+
+import pl.baczkowicz.spy.eventbus.FilterableEvent;
+
+public class MessageIndexChangeEvent extends FilterableEvent
 {
-	void onMessageIndexIncrement(int increment);
+	private final int index;
+	
+	private final Object dispatcher;
+
+	public MessageIndexChangeEvent(final int index, final Object filter, final Object dispatcher)
+	{
+		this.index = index;
+		this.dispatcher = dispatcher;
+		super.setFilter(filter);
+	}
+
+	/**
+	 * @return the index
+	 */
+	public int getIndex()
+	{
+		return index;
+	}
+
+	/**
+	 * @return the dispatcher
+	 */
+	public Object getDispatcher()
+	{
+		return dispatcher;
+	}
 }

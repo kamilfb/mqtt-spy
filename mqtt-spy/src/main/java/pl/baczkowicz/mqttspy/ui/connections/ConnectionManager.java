@@ -28,15 +28,16 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.control.Tab;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import pl.baczkowicz.mqttspy.common.generated.MessageLog;
 import pl.baczkowicz.mqttspy.common.generated.MessageLogEnum;
 import pl.baczkowicz.mqttspy.common.generated.UserCredentials;
@@ -61,7 +62,6 @@ import pl.baczkowicz.mqttspy.ui.ConnectionController;
 import pl.baczkowicz.mqttspy.ui.MainController;
 import pl.baczkowicz.mqttspy.ui.SubscriptionController;
 import pl.baczkowicz.mqttspy.ui.events.ConnectionStatusChangeEvent;
-import pl.baczkowicz.mqttspy.ui.events.EventManager;
 import pl.baczkowicz.mqttspy.ui.events.queuable.UIEventHandler;
 import pl.baczkowicz.mqttspy.ui.events.queuable.connectivity.MqttConnectionAttemptFailureEvent;
 import pl.baczkowicz.mqttspy.ui.events.queuable.connectivity.MqttDisconnectionAttemptFailureEvent;
@@ -89,9 +89,6 @@ public class ConnectionManager
 {
 	/** Diagnostic logger. */
 	private final static Logger logger = LoggerFactory.getLogger(ConnectionManager.class);
-	
-	/** Global event manager.*/
-	private final EventManager eventManager;
 	
 	/** Global event bus. */
 	private final IKBus eventBus;
@@ -123,20 +120,19 @@ public class ConnectionManager
 
 	private Set<ConnectionController> offlineConnectionControllers = new HashSet<>();
 
-	public ConnectionManager(final EventManager eventManager, final IKBus eventBus, final StatisticsManager statisticsManager, 
+	public ConnectionManager(final IKBus eventBus, final StatisticsManager statisticsManager, 
 			final ConfigurationManager configurationManager)
 	{
 		this.uiEventQueue = new EventQueueManager<FormattedMqttMessage>();
 		
 		this.eventBus = eventBus;
-		this.eventManager = eventManager;
 		this.statisticsManager = statisticsManager;
 		this.configurationManager = configurationManager;
 		
 		this.reconnectionManager = new ReconnectionManager();
 		new Thread(reconnectionManager).start();
 		
-		new Thread(new UIEventHandler(uiEventQueue, eventManager)).start();
+		new Thread(new UIEventHandler(uiEventQueue, eventBus)).start();
 	}
 	
 	public void openConnection(final ConfiguredConnectionDetails configuredConnectionDetails, final MainController mainController) throws ConfigurationException
@@ -235,7 +231,7 @@ public class ConnectionManager
 		
 		final Tab connectionTab = createConnectionTab(connection.getProperties().getName(), connectionPane, connectionController);
 		
-		final SubscriptionManager subscriptionManager = new SubscriptionManager(eventManager, eventBus, configurationManager, uiEventQueue);			
+		final SubscriptionManager subscriptionManager = new SubscriptionManager(eventBus, configurationManager, uiEventQueue);			
 		
 		final SubscriptionController subscriptionController = subscriptionManager.createSubscriptionTab(
 				true, connection.getStore(), null, connection, connectionController);
@@ -259,9 +255,9 @@ public class ConnectionManager
 				connectionTab.setContextMenu(ContextMenuUtils.createConnectionMenu(connection, connectionController, connectionManager));
 				
 				subscriptionController.getTab().setContextMenu(ContextMenuUtils.createAllSubscriptionsTabContextMenu(
-						connection, eventManager, eventBus, subscriptionManager, configurationManager, subscriptionController));
+						connection, eventBus, subscriptionManager, configurationManager, subscriptionController));
 				
-				eventBus.subscribe(connectionController, connectionController::onConnectionStatusChanged, ConnectionStatusChangeEvent.class, connection);
+				eventBus.subscribeWithFilter(connectionController, connectionController::onConnectionStatusChanged, ConnectionStatusChangeEvent.class, connection);
 				// eventManager.registerConnectionStatusObserver(connectionController, connection);
 				// connection.addObserver(connectionController);											
 				connection.setOpening(false);
@@ -321,7 +317,7 @@ public class ConnectionManager
 		connectionController.getResizeMessageContentMenu().setSelected(mainController.getResizeMessagePaneMenu().isSelected());
 		
 		final Tab replayTab = createConnectionTab(name, connectionPane, connectionController);
-		final SubscriptionManager subscriptionManager = new SubscriptionManager(eventManager, eventBus, configurationManager, uiEventQueue);			
+		final SubscriptionManager subscriptionManager = new SubscriptionManager(eventBus, configurationManager, uiEventQueue);			
 		
         final ManagedMessageStoreWithFiltering<FormattedMqttMessage> store = new ManagedMessageStoreWithFiltering<FormattedMqttMessage>(
         		name, 0, list.size(), list.size(), uiEventQueue, //eventManager, 

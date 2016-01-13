@@ -44,7 +44,6 @@ import pl.baczkowicz.mqttspy.ui.charts.ChartFactory;
 import pl.baczkowicz.mqttspy.ui.charts.ChartMode;
 import pl.baczkowicz.mqttspy.ui.connections.ConnectionManager;
 import pl.baczkowicz.mqttspy.ui.connections.SubscriptionManager;
-import pl.baczkowicz.mqttspy.ui.events.EventManager;
 import pl.baczkowicz.spy.eventbus.IKBus;
 import pl.baczkowicz.spy.ui.events.ClearTabEvent;
 import pl.baczkowicz.spy.ui.panes.PaneVisibilityStatus;
@@ -74,8 +73,7 @@ public class ContextMenuUtils
 	 */
 	public static ContextMenu createSubscriptionTabContextMenu(
 			final MqttAsyncConnection connection, 
-			final MqttSubscription subscription, 
-			final EventManager<FormattedMqttMessage> eventManager, 
+			final MqttSubscription subscription,  
 			final IKBus eventBus,
 			final SubscriptionManager subscriptionManager,
 			final ConfigurationManager configurationManager,
@@ -173,7 +171,7 @@ public class ContextMenuUtils
 						ChartMode.USER_DRIVEN_MSG_PAYLOAD,
 						"Series", "Load", "msgs/s", 
 						"Message load statistics for " + subscription.getTopic() + " - " + connection.getName(), 
-						subscriptionController.getScene(), eventManager);
+						subscriptionController.getScene(), eventBus);
 			}
 		});			
 		chartsMenu.getItems().add(messageLoadChartItem);
@@ -272,7 +270,6 @@ public class ContextMenuUtils
 	 */
 	public static ContextMenu createAllSubscriptionsTabContextMenu(
 			final MqttAsyncConnection connection, 
-			final EventManager<FormattedMqttMessage> eventManager,
 			final IKBus eventBus,
 			final SubscriptionManager subscriptionManager,
 			final ConfigurationManager configurationManager,
@@ -334,7 +331,7 @@ public class ContextMenuUtils
 						ChartMode.USER_DRIVEN_MSG_PAYLOAD,
 						"Series", "Load", "msgs/s", 
 						"Message load statistics for all subscriptions - " + connection.getName(), 
-						subscriptionController.getScene(), eventManager);
+						subscriptionController.getScene(), eventBus);
 			}
 		});
 		contextMenu.getItems().add(charts);
