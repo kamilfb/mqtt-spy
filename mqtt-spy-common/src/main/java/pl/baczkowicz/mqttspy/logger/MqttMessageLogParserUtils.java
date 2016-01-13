@@ -37,6 +37,7 @@ import pl.baczkowicz.mqttspy.messages.BaseMqttMessage;
 import pl.baczkowicz.spy.exceptions.SpyException;
 import pl.baczkowicz.spy.exceptions.XMLException;
 import pl.baczkowicz.spy.utils.ConversionUtils;
+import pl.baczkowicz.spy.utils.TimeUtils;
 import pl.baczkowicz.spy.utils.tasks.ProgressUpdater;
 
 /**
@@ -111,13 +112,22 @@ public class MqttMessageLogParserUtils
 	{
 		try
 		{
-			final MqttMessageLogParser parser = new MqttMessageLogParser();
-			        
-	        final List<LoggedMqttMessage> list = new ArrayList<LoggedMqttMessage>();
-	        long item = 0;
+			final long startTime = TimeUtils.getMonotonicTime();
+			final int items = messages.size();
+	        final long chunkSize = items / 10;
 	        
-	        for (final String message : messages)
+			final MqttMessageLogParser parser = new MqttMessageLogParser();			       
+	        final List<LoggedMqttMessage> list = new ArrayList<LoggedMqttMessage>();
+	        
+	        long item = 0;
+	        long reportAt = 1;
+	               	        	
+	        
+	        for (int i = 0; i < items; i++)
+	        //for (final String message : messages)
 	        {	        		      
+	        	final String message  = messages.get(i);
+	        	
 	        	if (progress != null)
 	        	{
 	        		if (progress.isCancelled())
@@ -132,6 +142,22 @@ public class MqttMessageLogParserUtils
 		        	{
 		        		progress.update(current + item, max);
 		        	}
+	        	}
+	        	
+	        	// If we have 10%, 20%, 30%...
+	        	if ((i > 0 ) && (i == (chunkSize * reportAt)))
+	        	{	        		
+	        		final long currentTime = TimeUtils.getMonotonicTime();
+	        		
+	        		final long timeTaken = currentTime - startTime;
+	        		final long totalTimeExpected =  timeTaken * items / i;
+	        		
+	        		// If the 10% took more than 1 second
+	        		if (timeTaken > 1000)
+	        		{
+	        			logger.info("Processed {}%, estimated time left = {}s", reportAt * 10, (totalTimeExpected - timeTaken) / 1000);
+	        		}
+	        		reportAt++;
 	        	}
 	        	
 	        	try
