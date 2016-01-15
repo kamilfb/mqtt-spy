@@ -19,8 +19,8 @@
  */
 package pl.baczkowicz.spy.scripts;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.concurrent.Executor;
 
 import javax.script.ScriptException;
@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.spy.eventbus.IKBus;
 import pl.baczkowicz.spy.scripts.events.ScriptStateChangeEvent;
+import pl.baczkowicz.spy.utils.FileUtils;
 import pl.baczkowicz.spy.utils.ThreadingUtils;
 
 /**
@@ -125,10 +126,10 @@ public class ScriptRunner implements Runnable
 	/**
 	 * Runs the script and checks the returned value.
 	 * 
-	 * @throws FileNotFoundException Thrown when the script file couldn't be found
 	 * @throws ScriptException Thrown when a script executor error occurs
+	 * @throws IOException Thrown when cannot load the script
 	 */
-	private void runScript() throws FileNotFoundException, ScriptException
+	private void runScript() throws ScriptException, IOException
 	{
 		// Clear the last returned value
 		lastReturnValue = null;
@@ -137,7 +138,8 @@ public class ScriptRunner implements Runnable
 		// Script in a file
 		if (script.getScriptFile() != null)
 		{
-			lastReturnValue = script.getScriptEngine().eval(new FileReader(script.getScriptFile()));
+			lastReturnValue = script.getScriptEngine().eval(new InputStreamReader(FileUtils.loadFileByName(script.getScriptFile().getAbsolutePath())));
+			// lastReturnValue = script.getScriptEngine().eval(new FileReader(script.getScriptFile()));
 			logger.debug("Script {} returned with value {}", script.getName(), lastReturnValue);
 		}
 		// In-line script
