@@ -14,7 +14,7 @@
 	<!-- Receive messages publish by the sample_publish script -->
 	<Subscription topic="mqtt-spy-daemon/#" />
 			
-	<!-- Publishing sample messages; use the built-in sample -->
+	<!-- Publishing sample messages -->
 	<BackgroundScript>
 		<File>/sample-publish.js</File>
 	</BackgroundScript>
