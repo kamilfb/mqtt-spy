@@ -469,6 +469,7 @@ public class ControlPanelController extends AnchorPane implements Initializable
 					final MqttSpyVersions versions = versionManager.loadVersions();
 					
 					logger.debug("Retrieved version info = " + versions.toString());
+					eventBus.publish(new VersionInfoReceivedEvent(versions));
 					// eventManager.notifyVersionInfoRetrieved(versions);
 				}
 				catch (final XMLException e)
