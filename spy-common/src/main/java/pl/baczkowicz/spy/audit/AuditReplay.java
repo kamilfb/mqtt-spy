@@ -56,7 +56,7 @@ public abstract class AuditReplay implements IAuditReplayIO, Runnable
 		try
 		{
 			auditReader.openAuditFile(new File(logLocation));
-			logger.info("Found {} messages", auditReader.getCount());
+			logger.info("Found {} messages in {}", auditReader.getCount(), logLocation);
 			
 			return auditReader.getCount();
 		}
