@@ -19,10 +19,7 @@
  */
 package pl.baczkowicz.mqttspy.logger;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -36,6 +33,7 @@ import pl.baczkowicz.mqttspy.common.generated.LoggedMqttMessage;
 import pl.baczkowicz.mqttspy.messages.BaseMqttMessage;
 import pl.baczkowicz.spy.exceptions.SpyException;
 import pl.baczkowicz.spy.exceptions.XMLException;
+import pl.baczkowicz.spy.files.FileUtils;
 import pl.baczkowicz.spy.utils.ConversionUtils;
 import pl.baczkowicz.spy.utils.TimeUtils;
 import pl.baczkowicz.spy.utils.tasks.ProgressUpdater;
@@ -59,41 +57,44 @@ public class MqttMessageLogParserUtils
 	 */
 	public static List<BaseMqttMessage> readAndConvertMessageLog(final File selectedFile) throws SpyException
 	{
-		return processMessageLog(parseMessageLog(readMessageLog(selectedFile), null, 0, 0), null, 0, 0);
+		final List<String> lines = FileUtils.readFileAsLines(selectedFile);
+		logger.info("Message log - read {} messages from {}", lines.size(), selectedFile.getAbsoluteFile());		
+		
+		return processMessageLog(parseMessageLog(lines, null, 0, 0), null, 0, 0);
 	}
 	
-	/**
-	 * Reads a message log from the given file and turns that into a list of lines.
-	 * 
-	 * @param selectedFile The file to read from
-	 * 
-	 * @return List of lines
-	 * 
-	 * @throws SpyException Thrown when cannot process the given file
-	 */
-	public static List<String> readMessageLog(final File selectedFile) throws SpyException
-	{
-		try
-		{
-			BufferedReader in = new BufferedReader(new FileReader(selectedFile));
-	        String str;
-			        
-	        final List<String> list = new ArrayList<String>();
-	        while((str = in.readLine()) != null)
-	        {
-	        	list.add(str);	        	
-	        }
-	        
-	        in.close();
-	        logger.info("Message log - read {} messages from {}", list.size(), selectedFile.getAbsoluteFile());		        		       
-	        
-	        return list;
-		}
-		catch (IOException e)
-		{
-			throw new SpyException("Can't open the message log file at " + selectedFile.getAbsolutePath(), e);
-		}
-	}
+//	/**
+//	 * Reads a message log from the given file and turns that into a list of lines.
+//	 * 
+//	 * @param selectedFile The file to read from
+//	 * 
+//	 * @return List of lines
+//	 * 
+//	 * @throws SpyException Thrown when cannot process the given file
+//	 */
+//	public static List<String> readMessageLog(final File selectedFile) throws SpyException
+//	{
+//		try
+//		{
+//			BufferedReader in = new BufferedReader(new FileReader(selectedFile));
+//	        String str;
+//			        
+//	        final List<String> list = new ArrayList<String>();
+//	        while((str = in.readLine()) != null)
+//	        {
+//	        	list.add(str);	        	
+//	        }
+//	        
+//	        in.close();
+//	        logger.info("Message log - read {} messages from {}", list.size(), selectedFile.getAbsoluteFile());		        		       
+//	        
+//	        return list;
+//		}
+//		catch (IOException e)
+//		{
+//			throw new SpyException("Can't open the message log file at " + selectedFile.getAbsolutePath(), e);
+//		}
+//	}
 	
 	/**
 	 * Parses the given list of XML messages into a list of MQTT message objects.
@@ -215,29 +216,34 @@ public class MqttMessageLogParserUtils
 	        	}
         	}
         	
-        	final MqttMessage mqttMessage = new MqttMessage();
-        	
-        	if (logger.isTraceEnabled())
-        	{
-        		logger.trace("Processing message with payload {}", loggedMessage.getValue());
-        	}
-        	
-        	if (Boolean.TRUE.equals(loggedMessage.isEncoded()))
-        	{
-        		mqttMessage.setPayload(Base64.decodeBase64(loggedMessage.getValue()));
-        	}
-        	else
-        	{
-        		mqttMessage.setPayload(ConversionUtils.stringToArray(loggedMessage.getValue()));
-        	}
-        	
-        	mqttMessage.setQos(loggedMessage.getQos() == null ? 0 : loggedMessage.getQos());
-        	mqttMessage.setRetained(loggedMessage.isRetained() == null ? false : loggedMessage.isRetained());
-        	
-        	mqttMessageList.add(new BaseMqttMessage(loggedMessage.getId(), loggedMessage.getTopic(), mqttMessage, new Date(loggedMessage.getTimestamp())));
+        	mqttMessageList.add(convertToBaseMqttMessage(loggedMessage));
         }
         logger.info("Message log - processed {} MQTT messages", list.size());		        	
         
         return mqttMessageList;
+	}
+	
+	public static BaseMqttMessage convertToBaseMqttMessage(final LoggedMqttMessage loggedMessage)
+	{
+		final MqttMessage mqttMessage = new MqttMessage();
+    	
+    	if (logger.isTraceEnabled())
+    	{
+    		logger.trace("Processing message with payload {}", loggedMessage.getValue());
+    	}
+    	
+    	if (Boolean.TRUE.equals(loggedMessage.isEncoded()))
+    	{
+    		mqttMessage.setPayload(Base64.decodeBase64(loggedMessage.getValue()));
+    	}
+    	else
+    	{
+    		mqttMessage.setPayload(ConversionUtils.stringToArray(loggedMessage.getValue()));
+    	}
+    	
+    	mqttMessage.setQos(loggedMessage.getQos() == null ? 0 : loggedMessage.getQos());
+    	mqttMessage.setRetained(loggedMessage.isRetained() == null ? false : loggedMessage.isRetained());
+    	
+    	return new BaseMqttMessage(loggedMessage.getId(), loggedMessage.getTopic(), mqttMessage, new Date(loggedMessage.getTimestamp()));
 	}
 }

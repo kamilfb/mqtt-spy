@@ -25,10 +25,13 @@ import java.util.concurrent.Executor;
 
 import org.slf4j.LoggerFactory;
 
+import pl.baczkowicz.mqttspy.audit.MqttAuditReplay;
 import pl.baczkowicz.mqttspy.connectivity.IMqttConnection;
 import pl.baczkowicz.mqttspy.logger.IMqttMessageLogIO;
 import pl.baczkowicz.mqttspy.logger.MqttMessageLogIO;
+import pl.baczkowicz.spy.audit.IAuditReplayIO;
 import pl.baczkowicz.spy.eventbus.IKBus;
+import pl.baczkowicz.spy.exceptions.SpyException;
 import pl.baczkowicz.spy.scripts.BaseScriptManager;
 import pl.baczkowicz.spy.scripts.Script;
 import pl.baczkowicz.spy.scripts.ScriptRunner;
@@ -54,7 +57,7 @@ public class MqttScriptManager extends BaseScriptManager
 		this.setConnection(connection);
 	}
 	
-	public void populateEngineVariables(final Script script)
+	public void populateEngineVariables(final Script script) throws SpyException
 	{
 		final MqttScriptIO scriptIO = new MqttScriptIO(connection, eventBus, script, executor); 
 		//script.setScriptIO(scriptIO);
@@ -71,9 +74,14 @@ public class MqttScriptManager extends BaseScriptManager
 		scriptVariables.put("logger", LoggerFactory.getLogger(ScriptRunner.class));
 		
 		final IMqttMessageLogIO mqttMessageLog = new MqttMessageLogIO();
+		scriptVariables.put("messageLog", mqttMessageLog);
+		
+		final IAuditReplayIO mqttAuditReplay = new MqttAuditReplay();
+		scriptVariables.put("auditReplay", mqttAuditReplay);
+		
 		// Add it to the script IO so that it gets stopped when requested
 		script.addTask(mqttMessageLog);			
-		scriptVariables.put("messageLog", mqttMessageLog);
+		script.addTask(mqttAuditReplay);		
 		
 		putJavaVariablesIntoEngine(script.getScriptEngine(), scriptVariables);
 	}
