@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>pl.baczkowicz.spy</groupId>
 	<artifactId>spy-common</artifactId>
-	<version>0.0.3</version>
+	<version>0.0.4</version>
 
 	<name>spy-common</name>
 	<url>http://kamilfb.github.io/mq-spy/</url>

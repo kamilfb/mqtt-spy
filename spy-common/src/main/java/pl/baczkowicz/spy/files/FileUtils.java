@@ -17,11 +17,13 @@
  *    Kamil Baczkowicz - initial API and implementation and/or initial documentation
  *    
  */
-package pl.baczkowicz.spy.utils;
+package pl.baczkowicz.spy.files;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
@@ -33,6 +35,8 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import pl.baczkowicz.spy.exceptions.SpyException;
 
 /** 
  * File-related utilities.
@@ -140,6 +144,69 @@ public class FileUtils
 			}
 			logger.debug("File {} not found on classpath", filename);
 			return null;
+		}
+	}
+	
+	/**
+	 * Reads lines from the given file and turns that into a list of lines.
+	 * 
+	 * @param selectedFile The file to read from
+	 * 
+	 * @return List of lines
+	 * 
+	 * @throws SpyException Thrown when cannot process the given file
+	 */
+	public static List<String> readFileAsLines(final File selectedFile) throws SpyException
+	{
+		try
+		{
+			BufferedReader in = new BufferedReader(new FileReader(selectedFile));
+	        String str;
+			        
+	        final List<String> list = new ArrayList<String>();
+	        while((str = in.readLine()) != null)
+	        {
+	        	list.add(str);	        	
+	        }
+	        
+	        in.close();		        		       
+	        
+	        return list;
+		}
+		catch (IOException e)
+		{
+			throw new SpyException("Can't open the file at " + selectedFile.getAbsolutePath(), e);
+		}
+	}
+	
+	/**
+	 * Reads line count from the given file.
+	 * 
+	 * @param selectedFile The file to read from
+	 * 
+	 * @return Number of lines
+	 * 
+	 * @throws SpyException Thrown when cannot process the given file
+	 */
+	public static long countLines(final File selectedFile) throws SpyException
+	{
+		try
+		{
+			long count = 0;
+			BufferedReader in = new BufferedReader(new FileReader(selectedFile));
+			        
+	        while((in.readLine()) != null)
+	        {       
+	        	count++;
+	        }
+	        
+	        in.close();		        		       
+	        
+	        return count;
+		}
+		catch (IOException e)
+		{
+			throw new SpyException("Can't open the file at " + selectedFile.getAbsolutePath(), e);
 		}
 	}
 }

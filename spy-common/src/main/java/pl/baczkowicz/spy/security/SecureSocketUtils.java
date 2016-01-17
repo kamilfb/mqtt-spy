@@ -43,7 +43,7 @@ import javax.net.ssl.TrustManagerFactory;
 import org.bouncycastle.util.io.pem.PemReader;
 
 import pl.baczkowicz.spy.common.generated.KeyStoreTypeEnum;
-import pl.baczkowicz.spy.utils.FileUtils;
+import pl.baczkowicz.spy.files.FileUtils;
 
 /**
  * Utility class for handling SSL/TLS connections.

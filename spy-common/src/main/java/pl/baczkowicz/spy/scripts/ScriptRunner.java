@@ -29,8 +29,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.spy.eventbus.IKBus;
+import pl.baczkowicz.spy.files.FileUtils;
 import pl.baczkowicz.spy.scripts.events.ScriptStateChangeEvent;
-import pl.baczkowicz.spy.utils.FileUtils;
 import pl.baczkowicz.spy.utils.ThreadingUtils;
 
 /**
