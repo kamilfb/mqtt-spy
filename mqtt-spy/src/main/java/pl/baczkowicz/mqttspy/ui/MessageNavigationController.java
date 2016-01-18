@@ -51,6 +51,7 @@ import org.slf4j.LoggerFactory;
 import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.ui.messagelog.MessageLogUtils;
 import pl.baczkowicz.spy.eventbus.IKBus;
+import pl.baczkowicz.spy.files.FileUtils;
 import pl.baczkowicz.spy.messages.FormattedMessage;
 import pl.baczkowicz.spy.ui.events.MessageAddedEvent;
 import pl.baczkowicz.spy.ui.events.MessageIndexChangeEvent;
@@ -62,7 +63,6 @@ import pl.baczkowicz.spy.ui.storage.BasicMessageStoreWithSummary;
 import pl.baczkowicz.spy.ui.storage.ManagedMessageStoreWithFiltering;
 import pl.baczkowicz.spy.ui.utils.TextUtils;
 import pl.baczkowicz.spy.ui.utils.UiUtils;
-import pl.baczkowicz.spy.utils.FileUtils;
 
 /**
  * Controller for the message navigation buttons.

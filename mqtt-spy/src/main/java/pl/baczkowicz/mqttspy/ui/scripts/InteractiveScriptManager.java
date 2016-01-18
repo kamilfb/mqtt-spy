@@ -31,11 +31,11 @@ import pl.baczkowicz.mqttspy.connectivity.IMqttConnection;
 import pl.baczkowicz.mqttspy.scripts.MqttScriptManager;
 import pl.baczkowicz.spy.common.generated.ScriptDetails;
 import pl.baczkowicz.spy.eventbus.IKBus;
+import pl.baczkowicz.spy.files.FileUtils;
 import pl.baczkowicz.spy.scripts.Script;
 import pl.baczkowicz.spy.ui.properties.PublicationScriptProperties;
 import pl.baczkowicz.spy.ui.scripts.ScriptTypeEnum;
 import pl.baczkowicz.spy.ui.utils.RunLaterExecutor;
-import pl.baczkowicz.spy.utils.FileUtils;
 
 /**
  * Script manager that interacts with the UI.

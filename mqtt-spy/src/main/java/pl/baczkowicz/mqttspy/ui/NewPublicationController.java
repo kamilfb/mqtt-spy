@@ -73,6 +73,7 @@ import pl.baczkowicz.mqttspy.utils.MqttUtils;
 import pl.baczkowicz.spy.common.generated.ConversionMethod;
 import pl.baczkowicz.spy.eventbus.IKBus;
 import pl.baczkowicz.spy.exceptions.ConversionException;
+import pl.baczkowicz.spy.files.FileUtils;
 import pl.baczkowicz.spy.scripts.Script;
 import pl.baczkowicz.spy.ui.keyboard.TimeBasedKeyEventFilter;
 import pl.baczkowicz.spy.ui.panes.PaneVisibilityStatus;
@@ -84,7 +85,6 @@ import pl.baczkowicz.spy.ui.threading.SimpleRunLaterExecutor;
 import pl.baczkowicz.spy.ui.utils.DialogFactory;
 import pl.baczkowicz.spy.ui.utils.ImageUtils;
 import pl.baczkowicz.spy.utils.ConversionUtils;
-import pl.baczkowicz.spy.utils.FileUtils;
 import pl.baczkowicz.spy.utils.TimeUtils;
 
 /**

@@ -32,6 +32,7 @@ import pl.baczkowicz.mqttspy.logger.MqttMessageLogParserUtils;
 import pl.baczkowicz.mqttspy.messages.BaseMqttMessage;
 import pl.baczkowicz.mqttspy.ui.MainController;
 import pl.baczkowicz.mqttspy.ui.connections.ConnectionManager;
+import pl.baczkowicz.spy.files.FileUtils;
 import pl.baczkowicz.spy.utils.ThreadingUtils;
 
 /**
@@ -74,7 +75,7 @@ public class LogReaderTask extends TaskWithProgressUpdater<List<BaseMqttMessage>
 			// Read the message log
 			updateMessage("Please wait - reading message log [1/4]");
 			updateProgress(0, 4);
-			final List<String> fileContent = MqttMessageLogParserUtils.readMessageLog(selectedFile);					
+			final List<String> fileContent = FileUtils.readFileAsLines(selectedFile);					
 			final long totalItems = fileContent.size();
 			updateProgress(totalItems, totalItems * 4);
 			
