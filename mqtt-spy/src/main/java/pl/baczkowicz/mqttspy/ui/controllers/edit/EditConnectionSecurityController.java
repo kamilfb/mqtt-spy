@@ -49,7 +49,7 @@ import javafx.util.StringConverter;
 import javax.net.ssl.SSLContext;
 
 import pl.baczkowicz.mqttspy.common.generated.SecureSocketSettings;
-import pl.baczkowicz.mqttspy.common.generated.UserCredentials;
+import pl.baczkowicz.spy.common.generated.UserCredentials;
 import pl.baczkowicz.mqttspy.configuration.ConfiguredConnectionDetails;
 import pl.baczkowicz.mqttspy.configuration.generated.UserAuthenticationOptions;
 import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnectionDetails;

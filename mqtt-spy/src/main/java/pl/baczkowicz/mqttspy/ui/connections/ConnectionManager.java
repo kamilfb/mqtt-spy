@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.common.generated.MessageLog;
 import pl.baczkowicz.mqttspy.common.generated.MessageLogEnum;
-import pl.baczkowicz.mqttspy.common.generated.UserCredentials;
+import pl.baczkowicz.spy.common.generated.UserCredentials;
 import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
 import pl.baczkowicz.mqttspy.configuration.ConfiguredConnectionDetails;
 import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnectionDetails;
