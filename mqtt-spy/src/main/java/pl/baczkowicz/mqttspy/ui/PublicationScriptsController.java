@@ -322,6 +322,8 @@ public class PublicationScriptsController implements Initializable, TitledPaneCo
 		contextMenus.put(ScriptTypeEnum.BACKGROUND, createDirectoryTypeScriptTableContextMenu(ScriptTypeEnum.BACKGROUND));
 		contextMenus.put(ScriptTypeEnum.SUBSCRIPTION, createDirectoryTypeScriptTableContextMenu(ScriptTypeEnum.SUBSCRIPTION));
 		
+		scriptTable.setContextMenu(new ContextMenu(createRefreshListMenuItem()));
+		
 		paneTitle = new AnchorPane();
 		settingsButton = NewPublicationController.createTitleButtons(pane, paneTitle, connectionController);
 	}
@@ -368,7 +370,7 @@ public class PublicationScriptsController implements Initializable, TitledPaneCo
 	{
 		final ContextMenu contextMenu = new ContextMenu();
 	
-		if (type.equals(ScriptTypeEnum.PUBLICATION) || type.equals(ScriptTypeEnum.BACKGROUND))
+		if (ScriptTypeEnum.PUBLICATION.equals(type) || ScriptTypeEnum.BACKGROUND.equals(type))
 		{
 			// Start script
 			final MenuItem startScriptItem = new MenuItem("Start");
@@ -400,6 +402,7 @@ public class PublicationScriptsController implements Initializable, TitledPaneCo
 			// Separator
 			contextMenu.getItems().add(new SeparatorMenuItem());
 		}
+		
 		
 		// Copy script location
 		final MenuItem copyScriptLocationItem = new MenuItem("Copy script location to clipboard");
@@ -464,6 +467,13 @@ public class PublicationScriptsController implements Initializable, TitledPaneCo
 			contextMenu.getItems().add(new SeparatorMenuItem());
 		}
 
+		contextMenu.getItems().add(createRefreshListMenuItem());
+		
+		return contextMenu;
+	}
+	
+	private MenuItem createRefreshListMenuItem()
+	{
 		// Refresh list
 		final MenuItem refreshListItem = new MenuItem("Refresh list");
 		refreshListItem.setOnAction(new EventHandler<ActionEvent>()
@@ -473,9 +483,8 @@ public class PublicationScriptsController implements Initializable, TitledPaneCo
 				refreshList();
 			}
 		});
-		contextMenu.getItems().add(refreshListItem);
 		
-		return contextMenu;
+		return refreshListItem;
 	}
 
 	public void onScriptStateChange(final ScriptStateChangeEvent event)
@@ -512,11 +521,6 @@ public class PublicationScriptsController implements Initializable, TitledPaneCo
 	{
 		this.connectionController = connectionController;
 	}
-
-//	public void setEventManager(final EventManager<FormattedMqttMessage> eventManager)
-//	{
-//		this.eventManager = eventManager;
-//	}
 	
 	public void setEventBus(final IKBus eventBus)
 	{
