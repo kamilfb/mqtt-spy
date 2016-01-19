@@ -64,6 +64,7 @@ import pl.baczkowicz.spy.ui.controls.DragAndDropTreeViewCell;
 import pl.baczkowicz.spy.ui.events.observers.ItemsReorderedObserver;
 import pl.baczkowicz.spy.ui.panes.SpyPerspective;
 import pl.baczkowicz.spy.ui.properties.ConnectionTreeItemProperties;
+import pl.baczkowicz.spy.ui.threading.SimpleRunLaterExecutor;
 import pl.baczkowicz.spy.ui.utils.DialogFactory;
 import pl.baczkowicz.spy.ui.utils.TooltipFactory;
 
@@ -227,7 +228,7 @@ public class EditConnectionsController extends AnchorPane implements Initializab
 		groups = configurationManager.getConnectionGrops();
 		rootItemProperties.setGroup(configurationManager.getRootGroup());
 		
-		eventBus.subscribe(this, this::onConnectionStatusChanged, ConnectionStatusChangeEvent.class);
+		eventBus.subscribeWithExecutor(this, this::onConnectionStatusChanged, ConnectionStatusChangeEvent.class, new SimpleRunLaterExecutor());
 		// eventManager.registerConnectionStatusObserver(this, null);
 
 		editConnectionGroupPaneController.setMainController(mainController);

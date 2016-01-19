@@ -742,6 +742,7 @@ public class ConnectionController implements Initializable, TabController
 	{
 		if (connection != null)
 		{
+			
 			onConnectionStatusChanged(new ConnectionStatusChangeEvent(connection));
 		}
 	}
