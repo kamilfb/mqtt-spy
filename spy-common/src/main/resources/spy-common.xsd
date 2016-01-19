@@ -35,6 +35,13 @@
 	<!-- === CONNECTIVITY === -->
 	<!-- ==================== -->
 
+	<xs:complexType name="UserCredentials">
+		<xs:sequence>
+			<xs:element name="Username" 			type="xs:string" />
+			<xs:element name="Password" 			type="xs:string" />
+		</xs:sequence>
+	</xs:complexType>
+	
 	<xs:complexType name="ConnectionGroup">
 		<xs:sequence>			
 			<xs:element name="ID" 			type="xs:ID" />
@@ -60,6 +67,7 @@
 		<xs:restriction base="xs:string">
 			<xs:enumeration value="MQTT" />
 			<xs:enumeration value="JMS" />
+			<xs:enumeration value="STOMP" />
 		</xs:restriction>
 	</xs:simpleType>	
 	
@@ -91,6 +99,11 @@
 			<xs:enumeration value="SCRIPTS_ONLY" />
 		</xs:restriction>
 	</xs:simpleType>
+	
+	<xs:complexType name="ScriptedSubscriptionDetails">
+		<xs:attribute 	name="topic" 				type="xs:string" use="required" />
+		<xs:attribute 	name="scriptFile"			type="xs:string" />
+	</xs:complexType>
 	
 	<!-- ==================== -->
 	<!-- === TASKS ========== -->
