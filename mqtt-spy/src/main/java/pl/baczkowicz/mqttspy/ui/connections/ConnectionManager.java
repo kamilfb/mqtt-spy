@@ -78,6 +78,7 @@ import pl.baczkowicz.spy.ui.events.queuable.EventQueueManager;
 import pl.baczkowicz.spy.ui.panes.PaneVisibilityStatus;
 import pl.baczkowicz.spy.ui.panes.TabStatus;
 import pl.baczkowicz.spy.ui.storage.ManagedMessageStoreWithFiltering;
+import pl.baczkowicz.spy.ui.threading.SimpleRunLaterExecutor;
 import pl.baczkowicz.spy.ui.utils.DialogFactory;
 import pl.baczkowicz.spy.ui.utils.FxmlUtils;
 import pl.baczkowicz.spy.ui.utils.TabUtils;
@@ -257,7 +258,7 @@ public class ConnectionManager
 				subscriptionController.getTab().setContextMenu(ContextMenuUtils.createAllSubscriptionsTabContextMenu(
 						connection, eventBus, subscriptionManager, configurationManager, subscriptionController));
 				
-				eventBus.subscribeWithFilter(connectionController, connectionController::onConnectionStatusChanged, ConnectionStatusChangeEvent.class, connection);
+				eventBus.subscribe(connectionController, connectionController::onConnectionStatusChanged, ConnectionStatusChangeEvent.class, new SimpleRunLaterExecutor(), connection);
 				// eventManager.registerConnectionStatusObserver(connectionController, connection);
 				// connection.addObserver(connectionController);											
 				connection.setOpening(false);
