@@ -21,15 +21,16 @@ package pl.baczkowicz.mqttspy.connectivity;
 
 import pl.baczkowicz.mqttspy.common.generated.SubscriptionDetails;
 import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
+import pl.baczkowicz.spy.connectivity.BaseSubscription;
 import pl.baczkowicz.spy.scripts.Script;
 import pl.baczkowicz.spy.storage.BasicMessageStore;
 import pl.baczkowicz.spy.storage.MessageList;
 
-public class BaseMqttSubscription
+public class BaseMqttSubscription extends BaseSubscription
 {
-	private int id;
+	//private int id;
 	
-	private String topic;
+	//private String topic;
 
 	private Integer qos;
 
@@ -41,19 +42,20 @@ public class BaseMqttSubscription
 	
 	private BaseMqttConnection connection;
 	
-	private SubscriptionDetails details;
+	//private SubscriptionDetails details;
 	
 	private BasicMessageStore<FormattedMqttMessage> store;
 
-	private Script script;
+	//private Script script;
 
-	private boolean scriptActive;
+	//private boolean scriptActive;
 
 	public BaseMqttSubscription(final String topic, final Integer qos)
 	{
-		this.topic = topic;
+		super(topic);
+		//this.topic = topic;
 		this.qos = qos;
-		this.active = false;
+		//this.active = false;
 		this.subscriptionRequested = false;
 		
 		this.store = null;
@@ -68,15 +70,15 @@ public class BaseMqttSubscription
 				new MessageList<FormattedMqttMessage>(minMessagesPerTopic, preferredStoreSize, topic));
 	}
 
-	public String getTopic()
-	{
-		return topic;
-	}
-
-	public void setTopic(String topic)
-	{
-		this.topic = topic;
-	}
+//	public String getTopic()
+//	{
+//		return topic;
+//	}
+//
+//	public void setTopic(String topic)
+//	{
+//		this.topic = topic;
+//	}
 
 	public Integer getQos()
 	{
@@ -108,15 +110,15 @@ public class BaseMqttSubscription
 		return connection;
 	}
 
-	public int getId()
-	{
-		return id;
-	}
-
-	public void setId(final int id)
-	{
-		this.id = id;		
-	}
+//	public int getId()
+//	{
+//		return id;
+//	}
+//
+//	public void setId(final int id)
+//	{
+//		this.id = id;		
+//	}
 
 	public boolean isSubscribing()
 	{
@@ -138,38 +140,38 @@ public class BaseMqttSubscription
 		this.subscriptionRequested = subscriptionRequested;
 	}
 
-	public SubscriptionDetails getDetails()
-	{
-		return details;
-	}
-
-	public void setDetails(final SubscriptionDetails details)
-	{
-		this.details = details;
-	}
+//	public SubscriptionDetails getDetails()
+//	{
+//		return details;
+//	}
+//
+//	public void setDetails(final SubscriptionDetails details)
+//	{
+//		this.details = details;
+//	}
 
 	public BasicMessageStore<FormattedMqttMessage> getStore()
 	{
 		return store;
 	}
 
-	public void setScript(final Script script)
-	{
-		this.script = script;		
-	}
-
-	public void setScriptActive(final boolean scriptActive)
-	{
-		this.scriptActive = scriptActive;		
-	}
-	
-	public boolean isScriptActive()
-	{
-		return scriptActive;
-	}
-
-	public Script getScript()
-	{
-		return script;
-	}
+//	public void setScript(final Script script)
+//	{
+//		this.script = script;		
+//	}
+//
+//	public void setScriptActive(final boolean scriptActive)
+//	{
+//		this.scriptActive = scriptActive;		
+//	}
+//	
+//	public boolean isScriptActive()
+//	{
+//		return scriptActive;
+//	}
+//
+//	public Script getScript()
+//	{
+//		return script;
+//	}
 }

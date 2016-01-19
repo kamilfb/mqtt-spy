@@ -61,8 +61,8 @@
 					<xs:element name="WebSocket" 			type="xs:boolean" 					minOccurs="0" maxOccurs="1" />
 					<xs:element name="ClientID" 			type="xs:string" />
 					
-					<xs:element name="UserCredentials" 		type="mqttspycommon:UserCredentials" 		minOccurs="0" maxOccurs="1" />
-					<xs:element name="LastWillAndTestament" type="mqttspycommon:SimpleMqttMessage"		minOccurs="0" maxOccurs="1" />
+					<xs:element name="UserCredentials" 		type="spycommon:UserCredentials" 		minOccurs="0" maxOccurs="1" />
+					<xs:element name="LastWillAndTestament" type="mqttspycommon:SimpleMqttMessage"	minOccurs="0" maxOccurs="1" />
 					
 					<xs:element name="CleanSession" 		type="xs:boolean" 					minOccurs="0" maxOccurs="1" />
 					<xs:element name="ConnectionTimeout" 	type="xs:int" 						minOccurs="0" maxOccurs="1" />
@@ -112,18 +112,14 @@
 	</xs:complexType>		
 	 -->
 	
-	<xs:complexType name="UserCredentials">
-		<xs:sequence>
-			<xs:element name="Username" 			type="xs:string" />
-			<xs:element name="Password" 			type="xs:string" />
-		</xs:sequence>
+	<xs:complexType name="SubscriptionDetails">
+		<xs:complexContent>
+			<xs:extension base="spycommon:ScriptedSubscriptionDetails">
+				<xs:attribute 	name="qos" 					type="mqttspycommon:qos" default="0" />		
+			</xs:extension>
+		</xs:complexContent>
 	</xs:complexType>
 	
-	<xs:complexType name="SubscriptionDetails">
-		<xs:attribute 	name="topic" 				type="xs:string" use="required" />
-		<xs:attribute 	name="qos" 					type="mqttspycommon:qos" default="0" />
-		<xs:attribute 	name="scriptFile"			type="xs:string" />
-	</xs:complexType>
 	
 	<xs:complexType name="PublicationDetails">
 		<xs:attribute name="topic" 					type="xs:string" use="required" />
