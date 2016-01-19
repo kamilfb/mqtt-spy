@@ -36,7 +36,7 @@ import pl.baczkowicz.mqttspy.utils.MqttUtils;
 import pl.baczkowicz.spy.common.generated.ScriptDetails;
 import pl.baczkowicz.spy.configuration.PropertyFileLoader;
 import pl.baczkowicz.spy.exceptions.XMLException;
-import pl.baczkowicz.spy.utils.FileUtils;
+import pl.baczkowicz.spy.files.FileUtils;
 import pl.baczkowicz.spy.xml.XMLParser;
 
 /**
