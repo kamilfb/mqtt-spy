@@ -51,7 +51,7 @@
 		        <graphic>
 		      		<ImageView fitHeight="16" fitWidth="16" pickOnBounds="true">
 				         <image>
-				            <Image url="/images/small/button-apply.png" />
+				            <Image url="/images/button-apply.png" />
 				         </image>
 				      </ImageView>
 		      	</graphic>
@@ -62,7 +62,7 @@
 		        <graphic>
 		      		<ImageView fitHeight="16" fitWidth="16" pickOnBounds="true">
 				         <image>
-				            <Image url="/images/small/button-undo.png" />
+				            <Image url="/images/button-undo.png" />
 				         </image>
 				      </ImageView>
 		      	</graphic>
@@ -73,7 +73,7 @@
 		        <graphic>
 		      		<ImageView fitHeight="16" fitWidth="16" pickOnBounds="true">
 				         <image>
-				            <Image url="/images/small/button-delete.png" />
+				            <Image url="/images/button-delete.png" />
 				         </image>
 				      </ImageView>
 		      	</graphic>
@@ -84,7 +84,7 @@
 		        <graphic>
 		      		<ImageView fitHeight="16" fitWidth="16" pickOnBounds="true">
 				         <image>
-				            <Image url="/images/small/button-copy.png" />
+				            <Image url="/images/button-copy.png" />
 				         </image>
 				      </ImageView>
 		      	</graphic>
@@ -95,7 +95,7 @@
 		        <graphic>
 		      		<ImageView fitHeight="16" fitWidth="16" pickOnBounds="true">
 				         <image>
-				            <Image url="/images/small/button-add.png" />
+				            <Image url="/images/button-add.png" />
 				         </image>
 				      </ImageView>
 		      	</graphic>
@@ -104,7 +104,7 @@
         				<graphic>
 				      		<ImageView fitHeight="18" fitWidth="18" pickOnBounds="true">
 						         <image>
-						            <Image url="/images/small/mqtt-icon.png" />
+						            <Image url="/images/mqtt-icon.png" />
 						         </image>
 						      </ImageView>
 				      	</graphic>
@@ -114,7 +114,7 @@
         				<graphic>
 				      		<ImageView fitHeight="18" fitWidth="18" pickOnBounds="true">
 						         <image>
-						            <Image url="/images/small/folder-new.png" />
+						            <Image url="/images/folder-new.png" />
 						         </image>
 						      </ImageView>
 				      	</graphic>

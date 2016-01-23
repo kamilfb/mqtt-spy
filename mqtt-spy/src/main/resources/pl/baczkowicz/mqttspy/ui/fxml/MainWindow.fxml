@@ -67,7 +67,7 @@
 						
 						<Menu text="Open View">
 								<items>
-									<MenuItem mnemonicParsing="false" onAction="#openMessageLog" text="Message log browser" />
+									<MenuItem mnemonicParsing="false" onAction="#openMessageLog" text="Message audit log browser" />
 									<!-- Converter has been replaced by Formatters -->
 									<!-- <MenuItem mnemonicParsing="false" text="Converter" onAction="#showConverter" /> -->
 									<MenuItem mnemonicParsing="false" text="Formatters" onAction="#showFormatters" />

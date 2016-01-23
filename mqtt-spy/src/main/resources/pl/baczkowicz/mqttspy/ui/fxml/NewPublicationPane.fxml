@@ -84,7 +84,7 @@
 			<graphic>
 	      		<ImageView fitHeight="24" fitWidth="24" pickOnBounds="true">
 			         <image>
-			            <Image url="/images/small/mail-forward-6.png" />
+			            <Image url="/images/mail-forward-6.png" />
 			         </image>
 			      </ImageView>
 	      	</graphic>
