@@ -37,6 +37,8 @@ import pl.baczkowicz.spy.utils.TimeUtils;
 
 public class ScriptBasedFormatter
 {
+	public static final String FORMAT_FUNCTION_NAME = "format";
+
 	final static Logger logger = LoggerFactory.getLogger(ScriptBasedFormatter.class);	
 	
 	private BaseScriptManager scriptManager;
@@ -69,7 +71,7 @@ public class ScriptBasedFormatter
 		// Run before / setup
 		try
 		{
-			scriptManager.invokeFunction(script, "before");
+			scriptManager.invokeFunction(script, BaseScriptManager.BEFORE_METHOD);
 		}
 		catch (NoSuchMethodException | ScriptException e)
 		{
@@ -110,7 +112,7 @@ public class ScriptBasedFormatter
 			
 			scriptManager.setVariable(script, BaseScriptManager.RECEIVED_MESSAGE_PARAMETER, message);		
 		
-			return (String) scriptManager.invokeFunction(script, "format");
+			return (String) scriptManager.invokeFunction(script, FORMAT_FUNCTION_NAME);
 		}
 		catch (NoSuchMethodException | ScriptException e)
 		{
