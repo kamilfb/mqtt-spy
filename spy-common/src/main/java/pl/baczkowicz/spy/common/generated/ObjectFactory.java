@@ -49,6 +49,14 @@ public class ObjectFactory {
     }
 
     /**
+     * Create an instance of {@link UserCredentials }
+     * 
+     */
+    public UserCredentials createUserCredentials() {
+        return new UserCredentials();
+    }
+
+    /**
      * Create an instance of {@link ConnectionGroup }
      * 
      */
@@ -70,6 +78,14 @@ public class ObjectFactory {
      */
     public ConnectionReference createConnectionReference() {
         return new ConnectionReference();
+    }
+
+    /**
+     * Create an instance of {@link ScriptedSubscriptionDetails }
+     * 
+     */
+    public ScriptedSubscriptionDetails createScriptedSubscriptionDetails() {
+        return new ScriptedSubscriptionDetails();
     }
 
     /**
