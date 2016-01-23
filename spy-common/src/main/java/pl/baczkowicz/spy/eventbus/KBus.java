@@ -78,7 +78,7 @@ public class KBus implements IKBus
 	{
 		final Collection<Consumer<?>> matchedConsumers = new ArrayList<>();
 	
-		logger.debug("Matching consumers for type {}", eventType);
+		logger.trace("Matching consumers for type {}", eventType);
 		
 		synchronized (consumerTypes)
 		{
@@ -94,7 +94,7 @@ public class KBus implements IKBus
 			}
 		}
 		
-		logger.debug("Matched {} consumers for type {}: {}", matchedConsumers.size(), eventType, matchedConsumers);
+		logger.trace("Matched {} consumers for type {}: {}", matchedConsumers.size(), eventType, matchedConsumers);
 		
 		return matchedConsumers;
 	}
@@ -173,7 +173,7 @@ public class KBus implements IKBus
      * {@inheritDoc}
      */
     @Override
-    public <S> void subscribeWithExecutor(final Object subscriber, final Consumer<? super S> consumer, final Class<S> eventType, final Executor executor)
+    public <S> void subscribe(final Object subscriber, final Consumer<? super S> consumer, final Class<S> eventType, final Executor executor)
     {
         subscribe(subscriber, consumer, eventType, executor, null);        
     }
@@ -182,7 +182,7 @@ public class KBus implements IKBus
      * {@inheritDoc}
      */
     @Override
-    public <S> void subscribeWithFilter(final Object subscriber, final Consumer<? super S> consumer, final Class<S> eventType, final Object filter)
+    public <S> void subscribeWithFilterOnly(final Object subscriber, final Consumer<? super S> consumer, final Class<S> eventType, final Object filter)
     {
         subscribe(subscriber, consumer, eventType, null, filter);      
     }    
@@ -218,7 +218,7 @@ public class KBus implements IKBus
 	{
 		synchronized (consumerTypes)
 		{
-			logger.debug("Trying to remove {} from subscribers", subscriber);
+			logger.trace("Trying to remove {} from subscribers", subscriber);
 			
 			final Set<Consumer<?>> removed = subscribers.remove(subscriber);
 						
@@ -229,11 +229,11 @@ public class KBus implements IKBus
 					consumerFilters.remove(consumer);		
 					consumerTypes.remove(consumer);				
 				}
-				logger.debug("Removed consumers: {}", removed.size());
+				logger.trace("Removed consumers: {}", removed.size());
 			}
 			else
 			{
-				logger.debug("Removed consumers: 0");	
+				logger.warn("Removed consumers: 0");	
 			}
 					
 			recalculateExistingMappings();
@@ -245,7 +245,7 @@ public class KBus implements IKBus
 	{
 		synchronized (consumerTypes)
 		{
-			logger.debug("Trying to remove {} owned by {}", consumer, subscriber);
+			logger.trace("Trying to remove {} owned by {}", consumer, subscriber);
 			
 			// Remove from subscriber's list of consumers
 			final Set<Consumer<?>> consumers = subscribers.get(subscriber);
@@ -254,10 +254,10 @@ public class KBus implements IKBus
 				consumers.remove(consumer);
 			}
 			
-			logger.debug("Removing {} from filters; contains: {}", consumer, consumerFilters.containsKey(consumer));
+			logger.trace("Removing {} from filters; contains: {}", consumer, consumerFilters.containsKey(consumer));
 			consumerFilters.remove(consumer);
 						
-			logger.debug("Removing {} from types; contains: {}", consumer, consumerTypes.containsKey(consumer));
+			logger.trace("Removing {} from types; contains: {}", consumer, consumerTypes.containsKey(consumer));
 			consumerTypes.remove(consumer);
 			
 			recalculateExistingMappings();
@@ -269,7 +269,7 @@ public class KBus implements IKBus
 	{
 		synchronized (consumerTypes)
 		{
-			logger.debug("Trying to remove consumer of type {} from {}", eventType, subscriber);
+			logger.trace("Trying to remove consumer of type {} from {}", eventType, subscriber);
 						
 			final Collection<Consumer<?>> consumers = subscribers.get(subscriber);
 			

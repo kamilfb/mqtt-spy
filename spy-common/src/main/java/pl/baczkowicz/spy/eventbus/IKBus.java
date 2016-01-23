@@ -57,7 +57,7 @@ public interface IKBus
      * @param executor The executor to use for asynchronous execution
      * @param <S> The type of the event.
      */
-    <S> void subscribeWithExecutor(final Object subscriber, final Consumer<? super S> consumer, final Class<S> eventType, final Executor executor);
+    <S> void subscribe(final Object subscriber, final Consumer<? super S> consumer, final Class<S> eventType, final Executor executor);
 
     /**
      * Subscribes a consumer method for events of certain type and given filter object.
@@ -68,7 +68,7 @@ public interface IKBus
      * @param filter The filter object to perform filtering on (null = no filter)
      * @param <S> The type of the event.
      */
-    <S> void subscribeWithFilter(final Object subscriber, final Consumer<? super S> consumer, final Class<S> eventType, final Object filter);
+    <S> void subscribeWithFilterOnly(final Object subscriber, final Consumer<? super S> consumer, final Class<S> eventType, final Object filter);
     
     /**
      * Subscribes a consumer method for events of certain type and given filter object, allowing an executor to be specified for asynchronous
