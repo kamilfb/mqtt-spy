@@ -62,7 +62,7 @@ public abstract class AuditReplay implements IAuditReplayIO, Runnable
 		}
 		catch (Exception e)
 		{
-			logger.error("Cannot read message log at " + logLocation, e);
+			logger.error("Cannot read message audit log at " + logLocation, e);
 			return 0;
 		}		
 	}
