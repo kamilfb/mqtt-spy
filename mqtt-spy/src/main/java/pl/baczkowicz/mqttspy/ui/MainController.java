@@ -266,9 +266,9 @@ public class MainController
 	public void openMessageLog()
 	{
 		final FileChooser fileChooser = new FileChooser();
-		fileChooser.setTitle("Select message log file to open");
+		fileChooser.setTitle("Select message audit log file to open");
 		String extensions = "messages";
-		fileChooser.setSelectedExtensionFilter(new ExtensionFilter("Message log file", extensions));
+		fileChooser.setSelectedExtensionFilter(new ExtensionFilter("Message audit log file", extensions));
 
 		final File selectedFile = fileChooser.showOpenDialog(getParentWindow());
 

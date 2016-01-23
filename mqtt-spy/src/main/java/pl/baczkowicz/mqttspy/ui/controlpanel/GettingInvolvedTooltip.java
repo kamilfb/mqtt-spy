@@ -23,8 +23,6 @@ import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tooltip;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
@@ -34,7 +32,7 @@ import javafx.scene.text.Font;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import pl.baczkowicz.mqttspy.ui.ControlPanelController;
+import pl.baczkowicz.spy.ui.utils.ImageUtils;
 
 /**
  * This is the getting involved tooltip, which extends the Tooltip class to add some
@@ -60,9 +58,6 @@ public class GettingInvolvedTooltip extends Tooltip
 	public GettingInvolvedTooltip()
 	{
 		final HBox tooltipContent = new HBox();		
-		final ImageView logo = new ImageView(new Image(ControlPanelController.class.getResource("/images/large/mqtt-spy-logo.png").toString()));
-		logo.setFitHeight(70);
-		logo.setFitWidth(70);
 		final Label text = new Label(
 				"mqtt-spy needs you! Please support the project" + System.lineSeparator()
 				+ "by raising bugs, " + "helping out with testing" + System.lineSeparator()
@@ -71,7 +66,7 @@ public class GettingInvolvedTooltip extends Tooltip
 				+ "for more information on how to get involved." + System.lineSeparator()
 				);		
 		text.setFont(new Font("System", 11));
-		tooltipContent.getChildren().addAll(logo, text);
+		tooltipContent.getChildren().addAll(ImageUtils.createIcon("mqtt-spy-logo", 70), text);
 		tooltipContent.setSpacing(20);
 		tooltipContent.setPadding(new Insets(0, 10, 0, 0));
 		

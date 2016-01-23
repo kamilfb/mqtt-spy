@@ -487,9 +487,9 @@ public class MessageNavigationController implements Initializable
 		if (getSelectedMessageIndex() > 0)
 		{
 			final FileChooser fileChooser = new FileChooser();
-			fileChooser.setTitle("Select message log file to save to");
+			fileChooser.setTitle("Select message audit log file to save to");
 			String extensions = "messages";
-			fileChooser.setSelectedExtensionFilter(new ExtensionFilter("Message log file", extensions));
+			fileChooser.setSelectedExtensionFilter(new ExtensionFilter("Message audit log file", extensions));
 	
 			final File selectedFile = fileChooser.showSaveDialog(getParentWindow());
 	
@@ -521,9 +521,9 @@ public class MessageNavigationController implements Initializable
 	public void copyMessagesToFile()
 	{
 		final FileChooser fileChooser = new FileChooser();
-		fileChooser.setTitle("Select message log file to save to");
+		fileChooser.setTitle("Select message audit log file to save to");
 		String extensions = "messages";
-		fileChooser.setSelectedExtensionFilter(new ExtensionFilter("Message log file", extensions));
+		fileChooser.setSelectedExtensionFilter(new ExtensionFilter("Message audit log file", extensions));
 
 		final File selectedFile = fileChooser.showSaveDialog(getParentWindow());
 

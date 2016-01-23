@@ -241,7 +241,7 @@ public class SearchPaneController implements Initializable
 		scriptManager = new MqttScriptManager(null, null, connection);
 		refreshList();
 		
-		eventBus.subscribeWithFilter(this, this::onMessageAdded, MessageAddedEvent.class, store.getMessageList());
+		eventBus.subscribeWithFilterOnly(this, this::onMessageAdded, MessageAddedEvent.class, store.getMessageList());
 		// eventManager.registerMessageAddedObserver(this, store.getMessageList());
 		eventBus.subscribe(this, this::onFormatChange, MessageFormatChangeEvent.class, new SimpleRunLaterExecutor(), store);
 		//eventManager.registerFormatChangeObserver(this, store);

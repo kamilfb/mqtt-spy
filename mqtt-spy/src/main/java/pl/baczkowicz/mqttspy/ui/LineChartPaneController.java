@@ -292,7 +292,7 @@ public class LineChartPaneController<T extends FormattedMessage> implements Init
 //			showRangeLabel.setVisible(false);
 //		}
 		
-		eventBus.subscribeWithFilter(this, this::onMessageAdded, MessageAddedEvent.class, store.getMessageList());
+		eventBus.subscribeWithFilterOnly(this, this::onMessageAdded, MessageAddedEvent.class, store.getMessageList());
 		// eventManager.registerMessageAddedObserver(this, store.getMessageList());
 		
 		setupPanAndZoom();

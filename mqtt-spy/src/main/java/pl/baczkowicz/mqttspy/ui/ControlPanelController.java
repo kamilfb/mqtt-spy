@@ -141,9 +141,9 @@ public class ControlPanelController extends AnchorPane implements Initializable
 		
 	public void init()
 	{		
-		eventBus.subscribeWithExecutor(this, this::onVersionInfoReceived, VersionInfoReceivedEvent.class, new SimpleRunLaterExecutor());
-		eventBus.subscribeWithExecutor(this, this::onVersionInfoError, VersionInfoErrorEvent.class, new SimpleRunLaterExecutor());
-		eventBus.subscribeWithExecutor(this, this::onConnectionStatusChanged, ConnectionStatusChangeEvent.class, new SimpleRunLaterExecutor());
+		eventBus.subscribe(this, this::onVersionInfoReceived, VersionInfoReceivedEvent.class, new SimpleRunLaterExecutor());
+		eventBus.subscribe(this, this::onVersionInfoError, VersionInfoErrorEvent.class, new SimpleRunLaterExecutor());
+		eventBus.subscribe(this, this::onConnectionStatusChanged, ConnectionStatusChangeEvent.class, new SimpleRunLaterExecutor());
 		//eventManager.registerVersionInfoObserver(this);
 		//eventManager.registerConnectionStatusObserver(this, null);
 		

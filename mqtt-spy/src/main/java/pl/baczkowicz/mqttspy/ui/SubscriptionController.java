@@ -298,7 +298,7 @@ public class SubscriptionController implements Initializable, TabController
 				store.getMessageList().getPreferredSize(), store.getMessageList().getMaxSize(), 
 				0, formattingManager);
 		
-		eventBus.subscribeWithFilter(this, this::onClearTab, ClearTabEvent.class, store);
+		eventBus.subscribeWithFilterOnly(this, this::onClearTab, ClearTabEvent.class, store);
 		// eventManager.registerClearTabObserver(this, store);
 		
 		getSummaryTablePaneController().setStore(store);
@@ -334,8 +334,8 @@ public class SubscriptionController implements Initializable, TabController
 				MessageIndexIncrementEvent.class, new SimpleRunLaterExecutor(), store);
 		// eventManager.registerIncrementMessageIndexObserver(messageNavigationPaneController, store);
 		
-		eventBus.subscribeWithFilter(messageNavigationPaneController, messageNavigationPaneController::onMessageAdded, MessageAddedEvent.class, store.getMessageList());		
-		eventBus.subscribeWithFilter(messageNavigationPaneController, messageNavigationPaneController::onMessageRemoved, MessageRemovedEvent.class, store.getMessageList());
+		eventBus.subscribeWithFilterOnly(messageNavigationPaneController, messageNavigationPaneController::onMessageAdded, MessageAddedEvent.class, store.getMessageList());		
+		eventBus.subscribeWithFilterOnly(messageNavigationPaneController, messageNavigationPaneController::onMessageRemoved, MessageRemovedEvent.class, store.getMessageList());
 		// eventManager.registerMessageAddedObserver(messageNavigationPaneController, store.getMessageList());
 		// eventManager.registerMessageRemovedObserver(messageNavigationPaneController, store.getMessageList());
 		
@@ -583,11 +583,11 @@ public class SubscriptionController implements Initializable, TabController
 			searchWindowController.setFormattingManager(formattingManager);
 			searchWindowController.setConnectionController(connectionController);
 			
-			eventBus.subscribeWithFilter(searchWindowController, searchWindowController::onMessageAdded, MessageAddedEvent.class, store.getMessageList());		
-			eventBus.subscribeWithFilter(searchWindowController, searchWindowController::onMessageRemoved, MessageRemovedEvent.class, store.getMessageList());
+			eventBus.subscribeWithFilterOnly(searchWindowController, searchWindowController::onMessageAdded, MessageAddedEvent.class, store.getMessageList());		
+			eventBus.subscribeWithFilterOnly(searchWindowController, searchWindowController::onMessageRemoved, MessageRemovedEvent.class, store.getMessageList());
 			//eventManager.registerMessageAddedObserver(searchWindowController, store.getMessageList());
 			//eventManager.registerMessageRemovedObserver(searchWindowController, store.getMessageList());
-			eventBus.subscribeWithFilter(searchWindowController, searchWindowController::onMessageListChanged, MessageListChangedEvent.class, store.getMessageList());
+			eventBus.subscribeWithFilterOnly(searchWindowController, searchWindowController::onMessageListChanged, MessageListChangedEvent.class, store.getMessageList());
 			// eventManager.registerMessageListChangedObserver(searchWindowController, store.getMessageList());
 					
 			// Set scene width, height and style
@@ -621,6 +621,7 @@ public class SubscriptionController implements Initializable, TabController
 		}			
 	}
 
+	@SuppressWarnings("unchecked")
 	public void updateSubscriptionStats()
 	{
 		final int topicCount = store.getNonFilteredMessageList().getTopicSummary().getObservableMessagesPerTopic().size();

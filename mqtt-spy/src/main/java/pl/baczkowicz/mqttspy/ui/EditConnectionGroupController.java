@@ -38,8 +38,6 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
@@ -57,6 +55,7 @@ import pl.baczkowicz.spy.exceptions.ConfigurationException;
 import pl.baczkowicz.spy.ui.configuration.ConfiguredConnectionGroupDetails;
 import pl.baczkowicz.spy.ui.properties.ConnectionListItemProperties;
 import pl.baczkowicz.spy.ui.properties.ConnectionTreeItemProperties;
+import pl.baczkowicz.spy.ui.utils.ImageUtils;
 
 /**
  * Controller for editing a single connection.
@@ -133,11 +132,8 @@ public class EditConnectionGroupController extends AnchorPane implements Initial
 						if (getTableRow().getItem() != null)
 						{
 							if (item.contains("MQTT"))
-							{
-								final ImageView image = new ImageView(new Image(EditConnectionsController.class.getResource("/images/small/mqtt-icon.png").toString()));
-								image.setFitHeight(18);
-								image.setFitWidth(18);
-								setGraphic(image);
+							{							
+								setGraphic(ImageUtils.createIcon("mqtt-icon", 18));
 								setText(item.replace("Default", ""));
 							}									
 							else

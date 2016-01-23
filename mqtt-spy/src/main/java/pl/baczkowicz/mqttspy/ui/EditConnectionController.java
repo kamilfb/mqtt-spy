@@ -47,7 +47,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.common.generated.MessageLog;
-import pl.baczkowicz.mqttspy.common.generated.ProtocolVersionEnum;
 import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
 import pl.baczkowicz.mqttspy.configuration.ConfigurationUtils;
 import pl.baczkowicz.mqttspy.configuration.ConfiguredConnectionDetails;
@@ -166,14 +165,14 @@ public class EditConnectionController extends AnchorPane implements Initializabl
 
 	private boolean emptyConnectionList;
 	
-	private final ChangeListener basicOnChangeListener = new ChangeListener()
-	{
-		@Override
-		public void changed(ObservableValue observable, Object oldValue, Object newValue)
-		{
-			onChange();			
-		}		
-	};
+//	private final ChangeListener basicOnChangeListener = new ChangeListener()
+//	{
+//		@Override
+//		public void changed(ObservableValue observable, Object oldValue, Object newValue)
+//		{
+//			onChange();			
+//		}		
+//	};
 	
 	// ===============================
 	// === Initialisation ============

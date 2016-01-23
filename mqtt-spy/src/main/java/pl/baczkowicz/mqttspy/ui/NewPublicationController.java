@@ -361,10 +361,10 @@ public class NewPublicationController implements Initializable, TitledPaneContro
 		button.setFocusTraversable(false);
 		// button.setMaxHeight(16);
 		
-		button.setGraphic(ImageUtils.createImage(iconLocation, 14));
+		button.setGraphic(ImageUtils.createIcon(iconLocation, 14));
 		
 		// TODO: actions
-		final MenuItem detach = new MenuItem("Detach to a separate window", ImageUtils.createImage("images/small/tab-detach.png", 14, "pane-settings-menu-graphic"));
+		final MenuItem detach = new MenuItem("Detach to a separate window", ImageUtils.createIcon("tab-detach", 14, "pane-settings-menu-graphic"));
 		detach.setOnAction(new EventHandler<ActionEvent>()
 		{
 			@Override
@@ -375,7 +375,7 @@ public class NewPublicationController implements Initializable, TitledPaneContro
 						PaneVisibilityStatus.DETACHED);				
 			}
 		});
-		final MenuItem hide = new MenuItem("Hide this pane", ImageUtils.createImage("images/small/tab-close.png", 14, "pane-settings-menu-graphic"));
+		final MenuItem hide = new MenuItem("Hide this pane", ImageUtils.createIcon("tab-close", 14, "pane-settings-menu-graphic"));
 		hide.setOnAction(new EventHandler<ActionEvent>()
 		{
 			@Override
@@ -403,7 +403,7 @@ public class NewPublicationController implements Initializable, TitledPaneContro
 	
 	public static MenuButton createTitleButtons(final TitledPane pane, final AnchorPane paneTitle, final ConnectionController connectionController)	
 	{
-		final MenuButton settingsButton = createTitleButton("Pane settings", "images/small/settings.png", -5, connectionController, pane);
+		final MenuButton settingsButton = createTitleButton("Pane settings", "settings", -5, connectionController, pane);
 			      
 		HBox titleBox = new HBox();
 		titleBox.setPadding(new Insets(0, 0, 0, 0));	

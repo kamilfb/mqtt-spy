@@ -569,7 +569,7 @@ public class ContextMenuUtils
 		final MenuItem detachMenu = new MenuItem("Detach to a separate window");
 		detachMenu.setOnAction(TabUtils.createTabDetachEvent(
 				detachMenu, connectionController, 
-				"Message log " + tab.getText(), 0));
+				"Message audit " + tab.getText(), 0));
 		view.getItems().add(detachMenu);
 		
 		final CheckMenuItem resizeMessageContent = connectionController.getResizeMessageContentMenu();

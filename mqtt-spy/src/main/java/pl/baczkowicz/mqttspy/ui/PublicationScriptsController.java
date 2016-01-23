@@ -311,7 +311,7 @@ public class PublicationScriptsController implements Initializable, TitledPaneCo
 	public void init()
 	{
 		scriptManager = connection.getScriptManager();
-		eventBus.subscribeWithExecutor(this, this::onScriptStateChange, ScriptStateChangeEvent.class, new SimpleRunLaterExecutor());
+		eventBus.subscribe(this, this::onScriptStateChange, ScriptStateChangeEvent.class, new SimpleRunLaterExecutor());
 		// TODO: replaced with event bus; to be deleted
 		// eventManager.registerScriptStateChangeObserver(this, null);
 		refreshList();

@@ -25,7 +25,6 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
-import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
@@ -38,6 +37,7 @@ import pl.baczkowicz.spy.eventbus.IKBus;
 import pl.baczkowicz.spy.eventbus.KBus;
 import pl.baczkowicz.spy.ui.configuration.UiProperties;
 import pl.baczkowicz.spy.ui.utils.FxmlUtils;
+import pl.baczkowicz.spy.ui.utils.ImageUtils;
 
 /** 
  * The main class, loading the app.
@@ -95,8 +95,7 @@ public class Main extends Application
 			mainController.setLastHeight(height);
 			mainController.setLastWidth(width);
 			mainController.init();
-			final Image applicationIcon = new Image(getClass().getResourceAsStream("/images/large/mqtt-spy-logo.png"));
-		    primaryStage.getIcons().add(applicationIcon);
+		    primaryStage.getIcons().add(ImageUtils.createIcon("mqtt-spy-logo").getImage());
 			
 			// Show the main window
 			primaryStage.show();

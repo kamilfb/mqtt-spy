@@ -64,7 +64,7 @@ public class LogReaderTask extends TaskWithProgressUpdater<List<BaseMqttMessage>
 		this.selectedFile = selectedFile;
 		this.connectionManager = connectionManager;
 		this.controller = mainController;
-		super.updateTitle("Processing message log file " + selectedFile.getName());
+		super.updateTitle("Processing message audit log file " + selectedFile.getName());
 	}
 
 	@Override
@@ -73,7 +73,7 @@ public class LogReaderTask extends TaskWithProgressUpdater<List<BaseMqttMessage>
 		try
 		{			
 			// Read the message log
-			updateMessage("Please wait - reading message log [1/4]");
+			updateMessage("Please wait - reading message audit log [1/4]");
 			updateProgress(0, 4);
 			final List<String> fileContent = FileUtils.readFileAsLines(selectedFile);					
 			final long totalItems = fileContent.size();
@@ -129,7 +129,7 @@ public class LogReaderTask extends TaskWithProgressUpdater<List<BaseMqttMessage>
 		}
 		catch (Exception e)
 		{
-			logger.error("Cannot process the message log - {}", selectedFile.getName(), e);
+			logger.error("Cannot process the message audit log - {}", selectedFile.getName(), e);
 		}
 		
 		return null;

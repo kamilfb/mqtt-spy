@@ -228,7 +228,7 @@ public class EditConnectionsController extends AnchorPane implements Initializab
 		groups = configurationManager.getConnectionGrops();
 		rootItemProperties.setGroup(configurationManager.getRootGroup());
 		
-		eventBus.subscribeWithExecutor(this, this::onConnectionStatusChanged, ConnectionStatusChangeEvent.class, new SimpleRunLaterExecutor());
+		eventBus.subscribe(this, this::onConnectionStatusChanged, ConnectionStatusChangeEvent.class, new SimpleRunLaterExecutor());
 		// eventManager.registerConnectionStatusObserver(this, null);
 
 		editConnectionGroupPaneController.setMainController(mainController);

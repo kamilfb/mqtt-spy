@@ -30,7 +30,6 @@ import javafx.fxml.Initializable;
 import javafx.scene.Cursor;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 
@@ -46,6 +45,7 @@ import pl.baczkowicz.mqttspy.versions.generated.MqttSpyVersions;
 import pl.baczkowicz.spy.eventbus.IKBus;
 import pl.baczkowicz.spy.exceptions.XMLException;
 import pl.baczkowicz.spy.ui.threading.SimpleRunLaterExecutor;
+import pl.baczkowicz.spy.ui.utils.ImageUtils;
 import pl.baczkowicz.spy.utils.ThreadingUtils;
 
 /**
@@ -178,8 +178,8 @@ public class AboutController implements Initializable
 	
 	public void init()
 	{
-		eventBus.subscribeWithExecutor(this, this::onVersionInfoReceived, VersionInfoReceivedEvent.class, new SimpleRunLaterExecutor());
-		eventBus.subscribeWithExecutor(this, this::onVersionInfoError, VersionInfoErrorEvent.class, new SimpleRunLaterExecutor());
+		eventBus.subscribe(this, this::onVersionInfoReceived, VersionInfoReceivedEvent.class, new SimpleRunLaterExecutor());
+		eventBus.subscribe(this, this::onVersionInfoError, VersionInfoErrorEvent.class, new SimpleRunLaterExecutor());
 		// eventManager.registerVersionInfoObserver(this);
 		
 		versionLabel.setText(configurationManager.getDefaultPropertyFile().getFullVersionName());
@@ -225,8 +225,9 @@ public class AboutController implements Initializable
 				statusIcon.setVisible(true);	
 				
 				final VersionInfoProperties properties = versionManager.getVersionInfoProperties(configurationManager);			
-				final String imageLocation = ControlPanelItemController.getStatusIconLocation(properties.getStatus());
-				statusIcon.setImage(new Image(ControlPanelItemController.class.getResource(imageLocation).toString()));		
+				final String imageName = ControlPanelItemController.getStatusIconName(properties.getStatus());
+				// statusIcon.setImage(new Image(ControlPanelItemController.class.getResource(imageLocation).toString()));		
+				statusIcon.setImage(ImageUtils.createIcon(imageName).getImage());
 				statusLabel.setText(properties.getTitle() + System.getProperty("line.separator") + properties.getDetails());
 //			}
 //		});

@@ -177,7 +177,7 @@ public class SubscriptionManager
 		final Tab tab = new Tab();
 		if (subscription != null)
 		{
-			eventBus.subscribeWithFilter(subscriptionController, subscriptionController::onSubscriptionStatusChanged, SubscriptionStatusChangeEvent.class, subscription);
+			eventBus.subscribeWithFilterOnly(subscriptionController, subscriptionController::onSubscriptionStatusChanged, SubscriptionStatusChangeEvent.class, subscription);
 			// eventManager.registerSubscriptionStatusObserver(subscriptionController, subscription);
 		}
 		
