@@ -58,7 +58,7 @@ public class MqttMessageLogParserUtils
 	public static List<BaseMqttMessage> readAndConvertMessageLog(final File selectedFile) throws SpyException
 	{
 		final List<String> lines = FileUtils.readFileAsLines(selectedFile);
-		logger.info("Message log - read {} messages from {}", lines.size(), selectedFile.getAbsoluteFile());		
+		logger.info("Message audit log - read {} messages from {}", lines.size(), selectedFile.getAbsoluteFile());		
 		
 		return processMessageLog(parseMessageLog(lines, null, 0, 0), null, 0, 0);
 	}
@@ -171,13 +171,13 @@ public class MqttMessageLogParserUtils
 	        	}
 	        }
 	        
-	        logger.info("Message log - parsed {} XML messages", list.size());		        		       
+	        logger.info("Message audit log - parsed {} XML messages", list.size());		        		       
 	        
 	        return list;
 		}
 		catch (XMLException e)
 		{
-			throw new SpyException("Can't parse the message log file", e);
+			throw new SpyException("Can't parse the message audit log file", e);
 		}
 	}
 	
@@ -218,7 +218,7 @@ public class MqttMessageLogParserUtils
         	
         	mqttMessageList.add(convertToBaseMqttMessage(loggedMessage));
         }
-        logger.info("Message log - processed {} MQTT messages", list.size());		        	
+        logger.info("Message audit log - processed {} MQTT messages", list.size());		        	
         
         return mqttMessageList;
 	}
