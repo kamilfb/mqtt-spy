@@ -19,10 +19,8 @@
  */
 package pl.baczkowicz.mqttspy.connectivity;
 
-import pl.baczkowicz.mqttspy.common.generated.SubscriptionDetails;
 import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
 import pl.baczkowicz.spy.connectivity.BaseSubscription;
-import pl.baczkowicz.spy.scripts.Script;
 import pl.baczkowicz.spy.storage.BasicMessageStore;
 import pl.baczkowicz.spy.storage.MessageList;
 
