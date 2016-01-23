@@ -59,15 +59,15 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.text.TextAlignment;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+//import org.slf4j.Logger;
+//import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.spy.ui.utils.ImageUtils;
 
 public class CommandLinksDialog
 {
 	/** Diagnostic logger. */
-	private final static Logger logger = LoggerFactory.getLogger(CommandLinksDialog.class);
+	// private final static Logger logger = LoggerFactory.getLogger(CommandLinksDialog.class);
 	
 	/**
      * Show a dialog filled with provided command links. Command links are used instead of button bar and represent 
@@ -87,7 +87,7 @@ public class CommandLinksDialog
         dialog.getDialogPane().getScene().getStylesheets().addAll(stylesheets);
         dialog.getDialogPane().getButtonTypes().clear();
         
-     	dialog.setGraphic(ImageUtils.createLargeIcon("dialog-information", 55));
+     	dialog.setGraphic(ImageUtils.createIcon("dialog-information-large", 55));
         dialog.setResizable(true);
         dialog.setHeight(windowHeight);
         
