@@ -31,24 +31,16 @@ import java.util.ResourceBundle;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.Tab;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableColumn.CellEditEvent;
-import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
-import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.util.Callback;
@@ -56,17 +48,15 @@ import javafx.util.StringConverter;
 
 import javax.net.ssl.SSLContext;
 
-import pl.baczkowicz.mqttspy.common.generated.SslModeEnum;
-import pl.baczkowicz.mqttspy.common.generated.SslSettings;
-import pl.baczkowicz.mqttspy.common.generated.UserCredentials;
+import pl.baczkowicz.mqttspy.common.generated.SecureSocketSettings;
+import pl.baczkowicz.spy.common.generated.UserCredentials;
 import pl.baczkowicz.mqttspy.configuration.ConfiguredConnectionDetails;
 import pl.baczkowicz.mqttspy.configuration.generated.UserAuthenticationOptions;
 import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnectionDetails;
 import pl.baczkowicz.mqttspy.ui.ConnectionController;
 import pl.baczkowicz.mqttspy.ui.EditConnectionController;
-import pl.baczkowicz.spy.common.generated.Property;
+import pl.baczkowicz.spy.common.generated.SecureSocketModeEnum;
 import pl.baczkowicz.spy.configuration.BaseConfigurationUtils;
-import pl.baczkowicz.spy.ui.properties.KeyValueProperty;
 
 /**
  * Controller for editing a single connection - security tab.
@@ -76,6 +66,27 @@ public class EditConnectionSecurityController extends AnchorPane implements Init
 {
 	/** The parent controller. */
 	private EditConnectionController parent;
+	
+	/**
+	 * The name of this field needs to be set to the name of the pane +
+	 * Controller (i.e. <fx:id>Controller).
+	 */
+	@FXML
+	private EditConnectionSecurityTlsCertificatesController certificatesPaneController;
+	
+	/**
+	 * The name of this field needs to be set to the name of the pane +
+	 * Controller (i.e. <fx:id>Controller).
+	 */
+	@FXML
+	private EditConnectionSecurityTlsKeyStoresController keyStoresPaneController;
+	
+	/**
+	 * The name of this field needs to be set to the name of the pane +
+	 * Controller (i.e. <fx:id>Controller).
+	 */
+	@FXML
+	private EditConnectionSecurityTlsPropertiesController propertiesPaneController;
 
 	// Security
 	
@@ -101,49 +112,13 @@ public class EditConnectionSecurityController extends AnchorPane implements Init
 	private PasswordField password;
 	
 	@FXML
-	private ComboBox<SslModeEnum> modeCombo;
+	private ComboBox<SecureSocketModeEnum> modeCombo;
 	
 	@FXML
 	private ComboBox<String> protocolCombo;
 	
 	@FXML
 	private AnchorPane customSocketFactoryPane;
-	
-	@FXML
-	private AnchorPane propertiesPane;
-	
-	@FXML
-	private TextField certificateAuthorityFile;
-	
-	@FXML
-	private TextField clientPassword;
-	
-	@FXML
-	private TextField clientKeyFile;
-	
-	@FXML
-	private TextField clientAuthorityFile;
-	
-	@FXML
-	private Label clientKeyPasswordLabel;
-	
-	@FXML
-	private Label clientKeyFileLabel;
-	
-	@FXML
-	private Label clientAuthorityFileLabel;
-	
-	@FXML
-	private TableView<KeyValueProperty> sslPropertiesTable;
-	
-	@FXML
-	private TableColumn<KeyValueProperty, String> propertyNameColumn;	
-	
-	@FXML
-	private TableColumn<KeyValueProperty, String> propertyValueColumn;
-	
-	@FXML
-	private Button removePropertyButton;
 	
 	@FXML
 	private Tab tlsTab;
@@ -187,44 +162,26 @@ public class EditConnectionSecurityController extends AnchorPane implements Init
 		predefinedPassword.selectedProperty().addListener(basicOnChangeListener);
 		
 		// SSL
-		certificateAuthorityFile.textProperty().addListener(basicOnChangeListener);
-		clientAuthorityFile.textProperty().addListener(basicOnChangeListener);
-		clientKeyFile.textProperty().addListener(basicOnChangeListener);
-		clientPassword.textProperty().addListener(basicOnChangeListener);
 		protocolCombo.getSelectionModel().selectedIndexProperty().addListener(basicOnChangeListener);
 		
-		propertyNameColumn.setCellValueFactory(new PropertyValueFactory<KeyValueProperty, String>("key"));
-		propertyNameColumn.setCellFactory(TextFieldTableCell.<KeyValueProperty>forTableColumn());
-		propertyNameColumn.setOnEditCommit(new EventHandler<TableColumn.CellEditEvent<KeyValueProperty, String>>()
-		{
-			@Override
-			public void handle(CellEditEvent<KeyValueProperty, String> event)
-			{
-				KeyValueProperty p = event.getRowValue();
-	            String newValue = event.getNewValue();
-	            p.keyProperty().set(newValue);            
-				onChange();
-			}		
-		});
-		propertyValueColumn.setCellValueFactory(new PropertyValueFactory<KeyValueProperty, String>("value"));
-		propertyValueColumn.setCellFactory(TextFieldTableCell.<KeyValueProperty>forTableColumn());
-		propertyValueColumn.setOnEditCommit(new EventHandler<TableColumn.CellEditEvent<KeyValueProperty, String>>()
-		{
-			@Override
-			public void handle(CellEditEvent<KeyValueProperty, String> event)
-			{
-				KeyValueProperty p = event.getRowValue();
-	            String newValue = event.getNewValue();
-	            p.valueProperty().set(newValue);            
-				onChange();
-			}		
-		});
+		final Map<SecureSocketModeEnum, String> modeEnumText = new HashMap<>();
+		modeEnumText.put(SecureSocketModeEnum.DISABLED, 			"Disabled");
 		
-		final Map<SslModeEnum, String> modeEnumText = new HashMap<>();
-		modeEnumText.put(SslModeEnum.DISABLED, "Disabled");
-		modeEnumText.put(SslModeEnum.PROPERTIES, "SSL/TLS properties (using default socket factory)");
-		modeEnumText.put(SslModeEnum.SERVER_ONLY, "Server authentication only (using custom socket factory)");
-		modeEnumText.put(SslModeEnum.SERVER_AND_CLIENT, "Server and client authentication (using custom socket factory)");				
+		// Certificates and keys provided externally, e.g.
+		// -Djavax.net.ssl.trustStore=/home/kamil/certificates/public_brokers.jks
+		// -Djavax.net.ssl.trustStorePassword=password
+		modeEnumText.put(SecureSocketModeEnum.BASIC, 				"Certificates & keys provided externally");
+		
+		// Server only - cert / trust store
+		modeEnumText.put(SecureSocketModeEnum.SERVER_ONLY, 			"CA certificate");
+		modeEnumText.put(SecureSocketModeEnum.SERVER_KEYSTORE, 		"CA trust store");
+		
+		// Server and client
+		modeEnumText.put(SecureSocketModeEnum.SERVER_AND_CLIENT, 	"CA certificate & client certificate/key");
+		modeEnumText.put(SecureSocketModeEnum.SERVER_AND_CLIENT_KEYSTORES, "CA trust store & client key store");
+		
+		// SSL&TLS properties
+		modeEnumText.put(SecureSocketModeEnum.PROPERTIES, 			"TLS/SSL properties");
 		
 		try
 		{
@@ -260,15 +217,15 @@ public class EditConnectionSecurityController extends AnchorPane implements Init
 				onChange();
 			}		
 		});
-		modeCombo.setCellFactory(new Callback<ListView<SslModeEnum>, ListCell<SslModeEnum>>()
+		modeCombo.setCellFactory(new Callback<ListView<SecureSocketModeEnum>, ListCell<SecureSocketModeEnum>>()
 		{
 			@Override
-			public ListCell<SslModeEnum> call(ListView<SslModeEnum> l)
+			public ListCell<SecureSocketModeEnum> call(ListView<SecureSocketModeEnum> l)
 			{
-				return new ListCell<SslModeEnum>()
+				return new ListCell<SecureSocketModeEnum>()
 				{
 					@Override
-					protected void updateItem(SslModeEnum item, boolean empty)
+					protected void updateItem(SecureSocketModeEnum item, boolean empty)
 					{
 						super.updateItem(item, empty);
 						if (item == null || empty)
@@ -283,10 +240,10 @@ public class EditConnectionSecurityController extends AnchorPane implements Init
 				};
 			}
 		});
-		modeCombo.setConverter(new StringConverter<SslModeEnum>()
+		modeCombo.setConverter(new StringConverter<SecureSocketModeEnum>()
 		{
 			@Override
-			public String toString(SslModeEnum item)
+			public String toString(SecureSocketModeEnum item)
 			{
 				if (item == null)
 				{
@@ -299,13 +256,13 @@ public class EditConnectionSecurityController extends AnchorPane implements Init
 			}
 
 			@Override
-			public SslModeEnum fromString(String id)
+			public SecureSocketModeEnum fromString(String id)
 			{
 				return null;
 			}
 		});
 		
-		for (SslModeEnum modeEnum : SslModeEnum.values())
+		for (SecureSocketModeEnum modeEnum : SecureSocketModeEnum.values())
 		{
 			modeCombo.getItems().add(modeEnum);
 		}
@@ -313,7 +270,9 @@ public class EditConnectionSecurityController extends AnchorPane implements Init
 
 	public void init()
 	{
-		// Nothing to do
+		certificatesPaneController.setParent(parent);
+		keyStoresPaneController.setParent(parent);
+		propertiesPaneController.setParent(parent);
 	}
 
 	// ===============================
@@ -327,22 +286,27 @@ public class EditConnectionSecurityController extends AnchorPane implements Init
 	
 	public void updateSSL()
 	{
-		final boolean serverAndClient = SslModeEnum.SERVER_AND_CLIENT.equals(modeCombo.getSelectionModel().getSelectedItem());
+		final SecureSocketModeEnum mode = modeCombo.getSelectionModel().getSelectedItem();
 		
-		propertiesPane.setVisible(SslModeEnum.PROPERTIES.equals(modeCombo.getSelectionModel().getSelectedItem()));
+		final boolean certificates = SecureSocketModeEnum.SERVER_ONLY.equals(mode) || SecureSocketModeEnum.SERVER_AND_CLIENT.equals(mode);
+		final boolean keyStores = SecureSocketModeEnum.SERVER_KEYSTORE.equals(mode)	|| SecureSocketModeEnum.SERVER_AND_CLIENT_KEYSTORES.equals(mode);
 		
-		customSocketFactoryPane.setVisible(serverAndClient
-				|| SslModeEnum.SERVER_ONLY.equals(modeCombo.getSelectionModel().getSelectedItem()));
+		// Set up pane visibility		
+		propertiesPaneController.getPropertiesPane().setVisible(SecureSocketModeEnum.PROPERTIES.equals(mode));
+		certificatesPaneController.getTlsCertificatesPane().setVisible(certificates);
+		keyStoresPaneController.getTlsKeyStoresPane().setVisible(keyStores);
+		customSocketFactoryPane.setVisible(certificates || keyStores || SecureSocketModeEnum.BASIC.equals(mode));
 		
-		clientPassword.setVisible(serverAndClient);
-		clientKeyFile.setVisible(serverAndClient);
-		clientAuthorityFile.setVisible(serverAndClient);
+		if (certificates)
+		{
+			certificatesPaneController.updateSSL(mode);
+		}
+		else if (keyStores)
+		{
+			keyStoresPaneController.updateSSL(mode);
+		}
 		
-		clientKeyPasswordLabel.setVisible(serverAndClient);
-		clientKeyFileLabel.setVisible(serverAndClient);
-		clientAuthorityFileLabel.setVisible(serverAndClient);
-		
-		updateTlsIcon(!SslModeEnum.DISABLED.equals(modeCombo.getSelectionModel().getSelectedItem()));
+		updateTlsIcon(!SecureSocketModeEnum.DISABLED.equals(mode));
 	}
 
 	@Override
@@ -363,31 +327,37 @@ public class EditConnectionSecurityController extends AnchorPane implements Init
 			connection.setUserCredentials(userCredentials);
 		}
 		
-		if (modeCombo.getSelectionModel().getSelectedItem() == null || SslModeEnum.DISABLED.equals(modeCombo.getSelectionModel().getSelectedItem()))
+		if (modeCombo.getSelectionModel().getSelectedItem() == null || SecureSocketModeEnum.DISABLED.equals(modeCombo.getSelectionModel().getSelectedItem()))
 		{
 			connection.setSSL(null);
 		}		
 		else
 		{
-			final SslSettings sslSettings = new SslSettings();
+			final SecureSocketSettings sslSettings = new SecureSocketSettings();
 			sslSettings.setMode(modeCombo.getSelectionModel().getSelectedItem());
-			
-			if (SslModeEnum.PROPERTIES.equals(modeCombo.getSelectionModel().getSelectedItem()))
-			{
-				for (final KeyValueProperty property : sslPropertiesTable.getItems())
-				{
-					sslSettings.getProperty().add(new Property(property.keyProperty().getValue(), property.valueProperty().getValue()));
-				}
-			}
-			else
-			{
-				sslSettings.setCertificateAuthorityFile(certificateAuthorityFile.getText());
-				sslSettings.setClientCertificateFile(clientAuthorityFile.getText());
-				sslSettings.setClientKeyFile(clientKeyFile.getText());
-				sslSettings.setClientKeyPassword(clientPassword.getText());
-				sslSettings.setProtocol(protocolCombo.getSelectionModel().getSelectedItem());				
-			}
 			connection.setSSL(sslSettings);
+			
+			final boolean certificates = SecureSocketModeEnum.SERVER_ONLY.equals(modeCombo.getSelectionModel().getSelectedItem())
+					|| SecureSocketModeEnum.SERVER_AND_CLIENT.equals(modeCombo.getSelectionModel().getSelectedItem());
+			final boolean keyStores = SecureSocketModeEnum.SERVER_KEYSTORE.equals(modeCombo.getSelectionModel().getSelectedItem())
+					|| SecureSocketModeEnum.SERVER_AND_CLIENT_KEYSTORES.equals(modeCombo.getSelectionModel().getSelectedItem());
+			
+			propertiesPaneController.readAndSetValues(modeCombo.getSelectionModel().getSelectedItem(), connection);
+			
+			if (SecureSocketModeEnum.BASIC.equals(modeCombo.getSelectionModel().getSelectedItem()))
+			{
+				sslSettings.setProtocol(protocolCombo.getSelectionModel().getSelectedItem());
+			}
+			else if (certificates)
+			{
+				sslSettings.setProtocol(protocolCombo.getSelectionModel().getSelectedItem());		
+				certificatesPaneController.readAndSetValues(modeCombo.getSelectionModel().getSelectedItem(), connection);
+			}
+			else if (keyStores)
+			{
+				sslSettings.setProtocol(protocolCombo.getSelectionModel().getSelectedItem());
+				keyStoresPaneController.readAndSetValues(modeCombo.getSelectionModel().getSelectedItem(), connection);
+			}
 		}
 		
 		return connection;
@@ -464,27 +434,14 @@ public class EditConnectionSecurityController extends AnchorPane implements Init
 		
 		if (connection.getSSL() == null)
 		{
-			modeCombo.getSelectionModel().select(SslModeEnum.DISABLED);
+			modeCombo.getSelectionModel().select(SecureSocketModeEnum.DISABLED);
 		}
 		else
 		{
-			removePropertyButton.setDisable(true);
-			sslPropertiesTable.getItems().clear();
-			sslPropertiesTable.getSelectionModel().selectedItemProperty().addListener(new ChangeListener()
-			{
-				@Override
-				public void changed(ObservableValue observable, Object oldValue, Object newValue)
-				{
-					removePropertyButton.setDisable(false);
-				}		
-			});
+			propertiesPaneController.displayConnectionDetails(connection);
 			
-			modeCombo.getSelectionModel().select(connection.getSSL().getMode());
-			
-			certificateAuthorityFile.setText(connection.getSSL().getCertificateAuthorityFile());
-			clientAuthorityFile.setText(connection.getSSL().getClientCertificateFile());
-			clientKeyFile.setText(connection.getSSL().getClientKeyFile());
-			clientPassword.setText(connection.getSSL().getClientKeyPassword());	
+			modeCombo.getSelectionModel().select(connection.getSSL().getMode());			
+
 			for (final String item : protocolCombo.getItems())
 			{
 				if (item.equals(connection.getSSL().getProtocol()))
@@ -494,10 +451,8 @@ public class EditConnectionSecurityController extends AnchorPane implements Init
 				}
 			}			
 
-			for (final Property property : connection.getSSL().getProperty())
-			{
-				sslPropertiesTable.getItems().add(new KeyValueProperty(property.getName(), property.getValue()));
-			}
+			certificatesPaneController.displayConnectionDetails(connection);
+			keyStoresPaneController.displayConnectionDetails(connection);
 		}
 				
 		showIcons(connection);
@@ -523,25 +478,6 @@ public class EditConnectionSecurityController extends AnchorPane implements Init
 	{
 		updateTlsIcon(connection.getSSL() != null);
 		updateAuthIcon(connection.getUserCredentials() != null);
-	}
-	
-	@FXML
-	private void addProperty()
-	{
-		final KeyValueProperty item = new KeyValueProperty("sample.property", "sampleValue");		
-		sslPropertiesTable.getItems().add(item);
-		onChange();
-	}
-	
-	@FXML
-	private void removeProperty()
-	{
-		final KeyValueProperty item = sslPropertiesTable.getSelectionModel().getSelectedItem(); 
-		if (item != null)
-		{
-			sslPropertiesTable.getItems().remove(item);
-			onChange();
-		}
 	}
 
 	// ===============================

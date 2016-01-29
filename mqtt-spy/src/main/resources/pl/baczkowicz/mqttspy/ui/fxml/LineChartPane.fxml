@@ -45,7 +45,7 @@
 		        <graphic>
 		      		<ImageView fitHeight="16" fitWidth="16" pickOnBounds="true">
 				         <image>
-				            <Image url="/images/small/refresh.png" />
+				            <Image url="/images/refresh.png" />
 				         </image>
 				      </ImageView>
 		      	</graphic>
@@ -57,7 +57,7 @@
 		      	<graphic>
 		      		<ImageView fitHeight="18.0" fitWidth="18.0" pickOnBounds="true">
 				         <image>
-				            <Image url="/images/small/settings.png"/>
+				            <Image url="/images/settings.png"/>
 				         </image>
 				      </ImageView>
 		      	</graphic>

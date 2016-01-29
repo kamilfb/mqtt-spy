@@ -40,7 +40,6 @@ import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnection
 import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnectionDetailsV010;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
-import pl.baczkowicz.mqttspy.ui.events.EventManager;
 import pl.baczkowicz.spy.common.generated.ConnectionGroup;
 import pl.baczkowicz.spy.common.generated.ConnectionGroupReference;
 import pl.baczkowicz.spy.common.generated.ConnectionReference;
@@ -96,8 +95,6 @@ public class ConfigurationManager
 	private File loadedConfigurationFile;
 
 	private Exception lastException;
-
-	private EventManager eventManager;
 	
 	private final XMLParser parser;
 	
@@ -105,7 +102,7 @@ public class ConfigurationManager
 	
 	private final PropertyFileLoader uiPropertyFile;
 
-	public ConfigurationManager(final EventManager eventManager) throws XMLException
+	public ConfigurationManager() throws XMLException
 	{
 		// Load the default property file from classpath
 		this.defaultPropertyFile = new PropertyFileLoader();
@@ -126,8 +123,6 @@ public class ConfigurationManager
 		this.configuration = new MqttSpyConfiguration();
 		this.configuration.setConnectivity(new Connectivity());
 		this.configuration.setFormatting(new Formatting());		
-		
-		this.eventManager = eventManager;
 	}
 	
 	public boolean loadConfiguration(final File file)
@@ -136,9 +131,9 @@ public class ConfigurationManager
 		{
 			clear();
 			configuration = (MqttSpyConfiguration) parser.loadFromFile(file);
-			createConnections();
-			createConnectionGroups();
-			createConfigurationDefaults();
+			
+			initialiseConfiguration();
+			
 			loadedConfigurationFile = file;
 			return true;
 		}
@@ -147,17 +142,24 @@ public class ConfigurationManager
 			setLastException(e);
 			DialogFactory.createErrorDialog("Invalid configuration file", "Cannot process the given configuration file. See the log file for more details.");					
 			logger.error("Cannot process the configuration file at " + file.getAbsolutePath(), e);
-			eventManager.notifyConfigurationFileReadFailure();
+			// eventManager.notifyConfigurationFileReadFailure();
 		}
 		catch (FileNotFoundException e)
 		{
 			setLastException(e);
 			DialogFactory.createErrorDialog("Invalid configuration file", "Cannot read the given configuration file. See the log file for more details.");
 			logger.error("Cannot read the configuration file from " + file.getAbsolutePath(), e);
-			eventManager.notifyConfigurationFileReadFailure();
+			// eventManager.notifyConfigurationFileReadFailure();
 		}
 		
 		return false;
+	}
+	
+	public void initialiseConfiguration()
+	{
+		createConnections();
+		createConnectionGroups();
+		createConfigurationDefaults();
 	}
 	
 	private void createConfigurationDefaults()
@@ -290,7 +292,7 @@ public class ConfigurationManager
 			{
 				setLastException(e);
 				logger.error("Cannot save the configuration file", e);
-				eventManager.notifyConfigurationFileWriteFailure();
+				// eventManager.notifyConfigurationFileWriteFailure();
 			}
 		}
 		
@@ -563,6 +565,10 @@ public class ConfigurationManager
 	{						
 		final List<ConnectionGroup> groupsWithoutParent = new ArrayList<>(configuration.getConnectionGroups());
 		
+		// Clear up resources - in case something was loaded before
+		connectionGroups.clear();
+		rootGroup = null;
+		
 		// This is expected from v0.3.0
 		for (final ConnectionGroup group : configuration.getConnectionGroups())
 		{			
@@ -579,6 +585,7 @@ public class ConfigurationManager
 		// Create the root if no groups present (pre v0.3.0)
 		if (connectionGroups.isEmpty() || groupsWithoutParent.isEmpty())
 		{
+			logger.debug("Creating root group called 'All connections'");
 			rootGroup = new ConfiguredConnectionGroupDetails(new ConnectionGroup(
 					BaseConfigurationUtils.DEFAULT_GROUP, "All connections", new ArrayList(), new ArrayList()), false);
 			

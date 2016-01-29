@@ -21,5 +21,5 @@ package pl.baczkowicz.spy.ui.panes;
 
 public enum SpyPerspective
 {
-	DEFAULT, DETAILED, SPY, SUPER_SPY
+	BASIC, DEFAULT, DETAILED, SPY, SUPER_SPY
 }

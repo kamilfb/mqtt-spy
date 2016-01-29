@@ -3,7 +3,7 @@
 	
 	<groupId>pl.baczkowicz.mqttspy</groupId>
 	<artifactId>mqtt-spy-common</artifactId>
-	<version>0.0.14</version>
+	<version>0.0.17</version>
 	
 	<name>mqtt-spy-common</name>
 	<url>http://kamilfb.github.io/mqtt-spy/</url>
@@ -41,20 +41,20 @@
 		<dependency>
 			<groupId>pl.baczkowicz.spy</groupId>
 			<artifactId>spy-common</artifactId>
-			<version>0.0.1</version>
+			<version>0.0.4</version>
 		</dependency>		
 		
 		<dependency>
 			<groupId>org.eclipse.paho</groupId>
 			<artifactId>org.eclipse.paho.client.mqttv3</artifactId>
-			<version>1.0.2</version>
+			<version>1.0.3-20151116.050526-315</version>
 		</dependency> 
 				
 		<dependency>
-			<groupId>org.dna.mqtt</groupId>
+			<groupId>org.eclipse.moquette</groupId>
 			<artifactId>moquette-broker</artifactId>
 			<scope>compile</scope>
-			<version>0.6</version>
+			<version>0.7</version>
 			<exclusions>
 				<exclusion>
 					<groupId>org.slf4j</groupId>
@@ -110,7 +110,7 @@
 				</exclusion>
 				<exclusion>
 					<artifactId>moquette-netty-parser</artifactId>
-					<groupId>org.dna.mqtt</groupId>
+					<groupId>org.eclipse.moquette</groupId>
 				</exclusion>
 			</exclusions>
 		</dependency>

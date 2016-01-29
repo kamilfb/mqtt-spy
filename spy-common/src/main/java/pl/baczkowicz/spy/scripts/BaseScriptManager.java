@@ -39,9 +39,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.spy.common.generated.ScriptDetails;
+import pl.baczkowicz.spy.eventbus.IKBus;
 import pl.baczkowicz.spy.exceptions.CriticalException;
+import pl.baczkowicz.spy.exceptions.SpyException;
+import pl.baczkowicz.spy.files.FileUtils;
 import pl.baczkowicz.spy.messages.IBaseMessage;
-import pl.baczkowicz.spy.utils.FileUtils;
 
 /**
  * This class manages script creation and execution.
@@ -69,7 +71,7 @@ public abstract class BaseScriptManager
 	private Map<String, Script> scripts = new HashMap<String, Script>();
 	
 	/** Used for notifying events related to script execution. */
-	protected IScriptEventManager eventManager;
+	protected IKBus eventBus;
 
 	/** Executor for tasks. */
 	protected Executor executor;
@@ -77,13 +79,13 @@ public abstract class BaseScriptManager
 	/**
 	 * Creates the script manager.
 	 * 
-	 * @param eventManager The event manager to be used
+	 * @param eventBus The event bus to be used
 	 * @param executor The executor to be used
 	 * @param connection The connection for which to run the scripts
 	 */
-	public BaseScriptManager(final IScriptEventManager eventManager, final Executor executor)
+	public BaseScriptManager(final IKBus eventBus, final Executor executor)
 	{
-		this.eventManager = eventManager;
+		this.eventBus = eventBus;
 		this.executor = executor;
 	}
 	
@@ -289,15 +291,18 @@ public abstract class BaseScriptManager
 	 */
 	public void createScript(final Script script, final String scriptName)
 	{
-		final ScriptEngine scriptEngine = new ScriptEngineManager().getEngineByName("nashorn");										
-		
-		if (scriptEngine != null)
+		try
 		{
-			script.setName(scriptName);			
-			script.setStatus(ScriptRunningState.NOT_STARTED);
-			script.setScriptEngine(scriptEngine);		
+			final ScriptEngine scriptEngine = new ScriptEngineManager().getEngineByName("nashorn");										
 			
-			populateEngineVariables(script);
+			if (scriptEngine != null)
+			{
+				script.setName(scriptName);			
+				script.setStatus(ScriptRunningState.NOT_STARTED);
+				script.setScriptEngine(scriptEngine);		
+				
+				populateEngineVariables(script);
+			
 //			final MqttScriptIO scriptIO = new MqttScriptIO(connection, eventManager, script, executor); 
 //			//script.setScriptIO(scriptIO);
 //			
@@ -318,15 +323,20 @@ public abstract class BaseScriptManager
 //			scriptVariables.put("messageLog", mqttMessageLog);
 //			
 //			putJavaVariablesIntoEngine(scriptEngine, scriptVariables);
+			}
+			else
+			{
+				throw new CriticalException("Cannot instantiate the nashorn javascript engine - most likely you don't have Java 8 installed. "
+						+ "Please either disable scripts in your configuration file or install the appropriate JRE/JDK.");
+			}
 		}
-		else
+		catch (SpyException e)
 		{
-			throw new CriticalException("Cannot instantiate the nashorn javascript engine - most likely you don't have Java 8 installed. "
-					+ "Please either disable scripts in your configuration file or install the appropriate JRE/JDK.");
+			throw new CriticalException("Cannot initialise the script objects");
 		}
 	}
 	
-	abstract public void populateEngineVariables(final Script script);
+	abstract public void populateEngineVariables(final Script script) throws SpyException;
 				
 	/**
 	 * Puts a the given map of variables into the engine.
@@ -370,7 +380,7 @@ public abstract class BaseScriptManager
 		// Only start if not running already
 		if (!ScriptRunningState.RUNNING.equals(script.getStatus()))
 		{
-			script.createScriptRunner(eventManager, executor);
+			script.createScriptRunner(eventBus, executor);
 			script.setAsynchronous(asynchronous);
 			// Set test case args
 			if (args != null)

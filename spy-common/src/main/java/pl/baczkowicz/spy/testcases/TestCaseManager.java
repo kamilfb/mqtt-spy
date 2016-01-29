@@ -24,9 +24,10 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -36,9 +37,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.spy.common.generated.ScriptDetails;
+import pl.baczkowicz.spy.files.FileUtils;
 import pl.baczkowicz.spy.scripts.BaseScriptManager;
 import pl.baczkowicz.spy.scripts.ScriptRunningState;
-import pl.baczkowicz.spy.utils.FileUtils;
 import pl.baczkowicz.spy.utils.ThreadingUtils;
 import pl.baczkowicz.spy.utils.TimeUtils;
 
@@ -54,7 +55,7 @@ public class TestCaseManager
 	
 	protected final BaseScriptManager scriptManager;
 	
-	protected List<TestCase> testCases = new ArrayList<>();
+	protected Map<String, TestCase> testCases = new HashMap<>();
 			
 	protected int running = 0;
 	
@@ -115,7 +116,7 @@ public class TestCaseManager
 			testCase.setName(scriptFile.getParentFile().getName());
 		}
 		
-		testCases.add(testCase);
+		testCases.put(testCase.getScriptId(), testCase);
 		return testCase;
 	}
 	
@@ -276,7 +277,7 @@ public class TestCaseManager
 			{
 				ThreadingUtils.logThreadStarting("runAllTestCases");
 
-				for (final TestCase testCase : testCases)
+				for (final TestCase testCase : testCases.values())
 				{
 					runTestCase(testCase, null);
 					running--;
@@ -301,9 +302,9 @@ public class TestCaseManager
 		return testCases.size();
 	}
 
-	public List<TestCase> getTestCases()
+	public Collection<TestCase> getTestCases()
 	{
-		return testCases;
+		return testCases.values();
 	}
 
 	// *** Export methods ***

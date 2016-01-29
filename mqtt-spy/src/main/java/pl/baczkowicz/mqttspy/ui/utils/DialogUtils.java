@@ -29,7 +29,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Window;
 import javafx.util.Pair;
-import pl.baczkowicz.mqttspy.common.generated.UserCredentials;
+import pl.baczkowicz.spy.common.generated.UserCredentials;
 import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
 import pl.baczkowicz.mqttspy.configuration.ConfigurationUtils;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
@@ -112,7 +112,7 @@ public class DialogUtils
 		
 		Optional<DialogAction> response = CommandLinksDialog.showCommandLinks(title,
 				"Please select one of the following options with regards to the mqtt-spy configuration file:",
-				links.get(0), links, 650, 30, 110, 
+				links.get(0), links, 550, 650, 30, 110, 
 				Arrays.asList(DialogUtils.class.getResource("/pl/baczkowicz/mqttspy/application.css").toExternalForm()));
 		
 		boolean configurationFileCreated = false;

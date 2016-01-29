@@ -47,9 +47,9 @@ import pl.baczkowicz.mqttspy.connectivity.BaseMqttSubscription;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
 import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
-import pl.baczkowicz.mqttspy.ui.events.EventManager;
 import pl.baczkowicz.mqttspy.ui.utils.StylingUtils;
-import pl.baczkowicz.spy.ui.events.observers.MessageIndexChangeObserver;
+import pl.baczkowicz.spy.eventbus.IKBus;
+import pl.baczkowicz.spy.ui.events.MessageIndexChangeEvent;
 import pl.baczkowicz.spy.ui.properties.MessageContentProperties;
 import pl.baczkowicz.spy.ui.storage.BasicMessageStoreWithSummary;
 import pl.baczkowicz.spy.ui.utils.UiUtils;
@@ -57,7 +57,7 @@ import pl.baczkowicz.spy.ui.utils.UiUtils;
 /**
  * Controller for the message list table.
  */
-public class MessageListTableController implements Initializable, MessageIndexChangeObserver
+public class MessageListTableController implements Initializable
 {
 	final static Logger logger = LoggerFactory.getLogger(MessageListTableController.class);
 	
@@ -79,7 +79,7 @@ public class MessageListTableController implements Initializable, MessageIndexCh
 	
 	private MqttAsyncConnection connection;
 
-	private EventManager<FormattedMqttMessage> eventManager;
+	private IKBus eventBus;
 
 	public void initialize(URL location, ResourceBundle resources)
 	{				
@@ -182,18 +182,25 @@ public class MessageListTableController implements Initializable, MessageIndexCh
 				if (list.get(i).getId() == item.getId())
 				{
 					// logger.info("{} Changing selection to " + (array.length - i), store.getName());
-					eventManager.changeMessageIndex(store, this, i + 1);
+					
+					eventBus.publish(new MessageIndexChangeEvent(i + 1, store, this));
+					// eventManager.changeMessageIndex(store, this, i + 1);
 				}
 			}
 		}
 	}
 
-	@Override
-	public void onMessageIndexChange(int messageIndex)
+	public void onMessageIndexChange(final MessageIndexChangeEvent event)
 	{
+		// Make sure this is not from itself
+		if (event.getDispatcher() == this)
+		{
+			return;
+		}
+		
 		if (store.getMessages().size() > 0)
 		{
-			final long id = (store.getMessages().get(messageIndex - 1)).getId();
+			final long id = (store.getMessages().get(event.getIndex() - 1)).getId();
 
 			for (final MessageContentProperties<FormattedMqttMessage> item : items)
 			{
@@ -213,11 +220,6 @@ public class MessageListTableController implements Initializable, MessageIndexCh
 	{
 		messageTable.setContextMenu(createMessageListTableContextMenu(messageTable));
 		messageTable.setItems(items);	
-	}
-
-	public void setEventManager(final EventManager<FormattedMqttMessage> eventManager)
-	{
-		this.eventManager = eventManager;
 	}
 	
 	public void setItems(final ObservableList<MessageContentProperties<FormattedMqttMessage>> items)
@@ -275,5 +277,10 @@ public class MessageListTableController implements Initializable, MessageIndexCh
 		contextMenu.getItems().add(copyContentItem);
 
 		return contextMenu;
+	}
+	
+	public void setEventBus(final IKBus eventBus)
+	{
+		this.eventBus = eventBus;
 	}
 }

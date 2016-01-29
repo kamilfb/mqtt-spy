@@ -53,9 +53,10 @@ public class InteractiveTestCaseManager extends TestCaseManager
 	
 	public void loadTestCases(final String testCaseLocation)
 	{
+		testCasesProperties.clear();
 		super.loadTestCases(testCaseLocation);
 		
-		for (final TestCase testCase : testCases)
+		for (final TestCase testCase : getTestCases())
 		{
 			final TestCaseProperties testCaseProperties = new TestCaseProperties(testCase); 
 			testCasesProperties.add(testCaseProperties);

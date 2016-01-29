@@ -19,30 +19,40 @@
  */
 package pl.baczkowicz.spy.ui.utils;
 
+import java.io.File;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.Optional;
 
 import javafx.application.Platform;
 import javafx.concurrent.Task;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import javafx.util.Pair;
+import pl.baczkowicz.spy.exceptions.ExceptionUtils;
 import pl.baczkowicz.spy.ui.controls.WorkerProgressPane;
 
 public class DialogFactory
@@ -62,6 +72,37 @@ public class DialogFactory
 
 		alert.showAndWait();
 	}
+	
+	public static void createExceptionDialog(final String title, final Exception e)
+	{	
+		final Alert alert = new Alert(AlertType.ERROR);
+		alert.setTitle(title);
+		alert.setHeaderText(null);
+		alert.setContentText(e.getMessage() + " - " + ExceptionUtils.getRootCauseMessage(e));
+		
+		final StringWriter sw = new StringWriter();
+		final PrintWriter pw = new PrintWriter(sw);
+		e.printStackTrace(pw);
+
+		final TextArea textArea = new TextArea(sw.toString());
+		
+		textArea.setEditable(false);
+		textArea.setWrapText(true);
+
+		textArea.setMaxWidth(Double.MAX_VALUE);
+		textArea.setMaxHeight(Double.MAX_VALUE);
+		
+		GridPane.setVgrow(textArea, Priority.ALWAYS);
+		GridPane.setHgrow(textArea, Priority.ALWAYS);
+
+		GridPane content = new GridPane();
+		content.setMaxWidth(Double.MAX_VALUE);
+		content.add(textArea, 0, 0);
+
+		alert.getDialogPane().setExpandableContent(content);
+
+		alert.showAndWait();
+	}	
 
 	public static void createWarningDialog(final String title, final String message)
 	{
@@ -125,7 +166,7 @@ public class DialogFactory
 		dialog.setHeaderText(header);
 
 		// Set the icon 
-		dialog.setGraphic(ImageUtils.createLargeIcon("dialog-password", 48));
+		dialog.setGraphic(ImageUtils.createIcon("preferences-desktop-user-password-large", 48));
 
 		// Set the button types
 		final ButtonType loginButtonType = new ButtonType("Connect", ButtonData.OK_DONE);
@@ -276,5 +317,25 @@ public class DialogFactory
         
         dialog.getDialogPane().setContent(vbox);
         content.setWorker(readAndProcess);
-	}		
+	}
+
+	public static void setUpTextFieldFileOpenButton(final TextField field, final Button button)
+	{
+		button.setOnAction(new EventHandler<ActionEvent>()
+		{			
+			@Override
+			public void handle(final ActionEvent event)
+			{
+				final FileChooser fileChooser = new FileChooser();
+				fileChooser.setTitle("Select file to open");
+				
+				final File selectedFile = fileChooser.showOpenDialog(field.getScene().getWindow());
+
+				if (selectedFile != null)
+				{			
+					field.setText(selectedFile.getAbsolutePath());
+				}				
+			}
+		});
+	}	
 }

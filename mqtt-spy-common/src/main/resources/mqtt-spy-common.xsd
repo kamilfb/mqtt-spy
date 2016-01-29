@@ -58,16 +58,17 @@
 			<xs:extension base="mqttspycommon:ConnectionDetails">
 				<xs:sequence>
 					<xs:element name="ServerURI" 			type="xs:string" 					minOccurs="1" maxOccurs="unbounded" />
+					<xs:element name="WebSocket" 			type="xs:boolean" 					minOccurs="0" maxOccurs="1" />
 					<xs:element name="ClientID" 			type="xs:string" />
 					
-					<xs:element name="UserCredentials" 		type="mqttspycommon:UserCredentials" 		minOccurs="0" maxOccurs="1" />
-					<xs:element name="LastWillAndTestament" type="mqttspycommon:SimpleMqttMessage"		minOccurs="0" maxOccurs="1" />
+					<xs:element name="UserCredentials" 		type="spycommon:UserCredentials" 		minOccurs="0" maxOccurs="1" />
+					<xs:element name="LastWillAndTestament" type="mqttspycommon:SimpleMqttMessage"	minOccurs="0" maxOccurs="1" />
 					
 					<xs:element name="CleanSession" 		type="xs:boolean" 					minOccurs="0" maxOccurs="1" />
 					<xs:element name="ConnectionTimeout" 	type="xs:int" 						minOccurs="0" maxOccurs="1" />
 					<xs:element name="KeepAliveInterval" 	type="xs:int" 						minOccurs="0" maxOccurs="1" />
 					
-					<xs:element name="SSL" 					type="mqttspycommon:SslSettings" 			minOccurs="0" maxOccurs="1" />
+					<xs:element name="SSL" 					type="mqttspycommon:SecureSocketSettings" 	minOccurs="0" maxOccurs="1" />
 					
 					<xs:element name="ReconnectionSettings" type="mqttspycommon:ReconnectionSettings" 	minOccurs="0" maxOccurs="1" />														
 				</xs:sequence>
@@ -82,14 +83,22 @@
    		</xs:sequence>
 	</xs:complexType>
 	
-	<xs:complexType name="SslSettings">
+	<xs:complexType name="SecureSocketSettings">
 		<xs:sequence>
-       		<xs:element name="Mode" 					type="mqttspycommon:SslModeEnum" 	/>
+       		<xs:element name="Mode" 					type="spycommon:SecureSocketModeEnum" 	/>
        		<xs:element name="Protocol" 				type="xs:string" 	minOccurs="0" />
+       		
        		<xs:element name="CertificateAuthorityFile" type="xs:string" 	minOccurs="0" />
        		<xs:element name="ClientCertificateFile"	type="xs:string" 	minOccurs="0" />
        		<xs:element name="ClientKeyFile" 			type="xs:string" 	minOccurs="0" />
        		<xs:element name="ClientKeyPassword" 		type="xs:string" 	minOccurs="0" />
+       		<xs:element name="ClientKeyPEM" 			type="xs:boolean" 	minOccurs="0" />
+       		
+       		<xs:element name="ServerKeyStoreFile" 		type="xs:string" 	minOccurs="0" />
+       		<xs:element name="ServerKeyStorePassword" 	type="xs:string" 	minOccurs="0" />
+       		<xs:element name="ClientKeyStoreFile" 		type="xs:string" 	minOccurs="0" />
+       		<xs:element name="ClientKeyStorePassword" 	type="xs:string" 	minOccurs="0" />
+       		
        		<xs:element name="Property" 				type="spycommon:Property" 	minOccurs="0" maxOccurs="unbounded"	/>       		
    		</xs:sequence>
 	</xs:complexType>	
@@ -102,27 +111,15 @@
    		</xs:sequence>
 	</xs:complexType>		
 	 -->
-	<xs:simpleType name="SslModeEnum">
-		<xs:restriction base="xs:string">
-			<xs:enumeration value="DISABLED" />
-			<xs:enumeration value="SERVER_ONLY" />		
-			<xs:enumeration value="SERVER_AND_CLIENT" />
-			<xs:enumeration value="PROPERTIES" />
-		</xs:restriction>
-	</xs:simpleType>
-	
-	<xs:complexType name="UserCredentials">
-		<xs:sequence>
-			<xs:element name="Username" 			type="xs:string" />
-			<xs:element name="Password" 			type="xs:string" />
-		</xs:sequence>
-	</xs:complexType>
 	
 	<xs:complexType name="SubscriptionDetails">
-		<xs:attribute 	name="topic" 				type="xs:string" use="required" />
-		<xs:attribute 	name="qos" 					type="mqttspycommon:qos" default="0" />
-		<xs:attribute 	name="scriptFile"			type="xs:string" />
+		<xs:complexContent>
+			<xs:extension base="spycommon:ScriptedSubscriptionDetails">
+				<xs:attribute 	name="qos" 					type="mqttspycommon:qos" default="0" />		
+			</xs:extension>
+		</xs:complexContent>
 	</xs:complexType>
+	
 	
 	<xs:complexType name="PublicationDetails">
 		<xs:attribute name="topic" 					type="xs:string" use="required" />

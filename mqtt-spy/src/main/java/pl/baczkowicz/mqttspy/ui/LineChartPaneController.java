@@ -66,10 +66,10 @@ import org.gillius.jfxutils.chart.StableTicksAxis;
 
 import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
 import pl.baczkowicz.mqttspy.ui.charts.ChartMode;
-import pl.baczkowicz.mqttspy.ui.events.EventManager;
 import pl.baczkowicz.mqttspy.ui.utils.StylingUtils;
+import pl.baczkowicz.spy.eventbus.IKBus;
 import pl.baczkowicz.spy.messages.FormattedMessage;
-import pl.baczkowicz.spy.ui.events.observers.MessageAddedObserver;
+import pl.baczkowicz.spy.ui.events.MessageAddedEvent;
 import pl.baczkowicz.spy.ui.events.queuable.ui.BrowseReceivedMessageEvent;
 import pl.baczkowicz.spy.ui.properties.MessageLimitProperties;
 import pl.baczkowicz.spy.ui.storage.BasicMessageStoreWithSummary;
@@ -79,7 +79,7 @@ import pl.baczkowicz.spy.utils.TimeUtils;
 /**
  * Controller for line chart pane.
  */
-public class LineChartPaneController<T extends FormattedMessage> implements Initializable, MessageAddedObserver<T>
+public class LineChartPaneController<T extends FormattedMessage> implements Initializable
 {
 	private static boolean lastAutoRefresh = true;
 	
@@ -110,8 +110,8 @@ public class LineChartPaneController<T extends FormattedMessage> implements Init
 	private MenuButton optionsButton;
 	
 	private BasicMessageStoreWithSummary<T> store;
-
-	private EventManager<T> eventManager;
+	
+	private IKBus eventBus;
 	
 	private MqttSubscription subscription;
 
@@ -292,7 +292,8 @@ public class LineChartPaneController<T extends FormattedMessage> implements Init
 //			showRangeLabel.setVisible(false);
 //		}
 		
-		eventManager.registerMessageAddedObserver(this, store.getMessageList());
+		eventBus.subscribeWithFilterOnly(this, this::onMessageAdded, MessageAddedEvent.class, store.getMessageList());
+		// eventManager.registerMessageAddedObserver(this, store.getMessageList());
 		
 		setupPanAndZoom();
 	}
@@ -352,7 +353,8 @@ public class LineChartPaneController<T extends FormattedMessage> implements Init
 	
 	public void cleanup()
 	{
-		eventManager.deregisterMessageAddedObserver(this);
+		eventBus.unsubscribeConsumer(this, MessageAddedEvent.class);
+		// eventManager.deregisterMessageAddedObserver(this);
 	}
 	
 	private void divideMessagesByTopic(final Collection<String> topics)
@@ -529,12 +531,11 @@ public class LineChartPaneController<T extends FormattedMessage> implements Init
 	}
 	
 	// TODO: optimise message handling
-	@Override
-	public void onMessageAdded(final List<BrowseReceivedMessageEvent<T>> events)
+	public void onMessageAdded(final MessageAddedEvent<FormattedMessage> event)
 	{
-		for (final BrowseReceivedMessageEvent<T> event : events)
+		for (final BrowseReceivedMessageEvent<FormattedMessage> message : event.getMessages())
 		{
-			onMessageAdded(event.getMessage());
+			onMessageAdded(message.getMessage());
 		}
 	}
 	
@@ -611,11 +612,6 @@ public class LineChartPaneController<T extends FormattedMessage> implements Init
 		this.subscription = subscription;		
 	}
 	
-	public void setEventManager(final EventManager<T> eventManager)
-	{
-		this.eventManager = eventManager;
-	}
-	
 	public void setStore(final BasicMessageStoreWithSummary<T> store)
 	{
 		this.store = store;		
@@ -629,5 +625,10 @@ public class LineChartPaneController<T extends FormattedMessage> implements Init
 	public void setSeriesUnit(String seriesUnit)
 	{
 		this.seriesUnit = seriesUnit;
+	}
+	
+	public void setEventBus(final IKBus eventBus)
+	{
+		this.eventBus = eventBus;
 	}
 }

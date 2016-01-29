@@ -52,7 +52,7 @@
 			
 				<Menu mnemonicParsing="false" text="Window">
 					<items>
-						<Menu mnemonicParsing="false" text="Change Perspective">
+						<Menu mnemonicParsing="false" text="Change perspective">
 							<items>
 								<RadioMenuItem fx:id="defaultPerspective" mnemonicParsing="false" onAction="#showPerspective" selected="true" text="Default (simplified publications and subscriptions)">
 		                           <toggleGroup>
@@ -65,9 +65,9 @@
 							</items>
 						</Menu>
 						
-						<Menu text="Open View">
+						<Menu text="Open view">
 								<items>
-									<MenuItem mnemonicParsing="false" onAction="#openMessageLog" text="Message log browser" />
+									<MenuItem mnemonicParsing="false" onAction="#openMessageLog" text="Message audit log browser" />
 									<!-- Converter has been replaced by Formatters -->
 									<!-- <MenuItem mnemonicParsing="false" text="Converter" onAction="#showConverter" /> -->
 									<MenuItem mnemonicParsing="false" text="Formatters" onAction="#showFormatters" />

@@ -66,20 +66,28 @@ import pl.baczkowicz.mqttspy.connectivity.RuntimeConnectionProperties;
 import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.stats.StatisticsManager;
 import pl.baczkowicz.mqttspy.ui.connections.SubscriptionManager;
-import pl.baczkowicz.mqttspy.ui.events.EventManager;
-import pl.baczkowicz.mqttspy.ui.events.observers.SubscriptionStatusChangeObserver;
+import pl.baczkowicz.mqttspy.ui.events.SubscriptionStatusChangeEvent;
 import pl.baczkowicz.mqttspy.ui.messagelog.MessageLogUtils;
 import pl.baczkowicz.spy.common.generated.FormatterDetails;
 import pl.baczkowicz.spy.common.generated.Formatting;
+import pl.baczkowicz.spy.eventbus.IKBus;
 import pl.baczkowicz.spy.formatting.FormattingManager;
 import pl.baczkowicz.spy.formatting.FormattingUtils;
-import pl.baczkowicz.spy.ui.events.observers.ClearTabObserver;
+import pl.baczkowicz.spy.ui.events.ClearTabEvent;
+import pl.baczkowicz.spy.ui.events.MessageAddedEvent;
+import pl.baczkowicz.spy.ui.events.MessageFormatChangeEvent;
+import pl.baczkowicz.spy.ui.events.MessageIndexChangeEvent;
+import pl.baczkowicz.spy.ui.events.MessageIndexIncrementEvent;
+import pl.baczkowicz.spy.ui.events.MessageIndexToFirstEvent;
+import pl.baczkowicz.spy.ui.events.MessageListChangedEvent;
+import pl.baczkowicz.spy.ui.events.MessageRemovedEvent;
 import pl.baczkowicz.spy.ui.events.queuable.ui.BrowseReceivedMessageEvent;
 import pl.baczkowicz.spy.ui.panes.TabController;
 import pl.baczkowicz.spy.ui.panes.TabStatus;
 import pl.baczkowicz.spy.ui.search.UniqueContentOnlyFilter;
 import pl.baczkowicz.spy.ui.storage.BasicMessageStoreWithSummary;
 import pl.baczkowicz.spy.ui.storage.ManagedMessageStoreWithFiltering;
+import pl.baczkowicz.spy.ui.threading.SimpleRunLaterExecutor;
 import pl.baczkowicz.spy.ui.utils.FxmlUtils;
 import pl.baczkowicz.spy.ui.utils.UiUtils;
 import pl.baczkowicz.spy.utils.ConversionUtils;
@@ -87,8 +95,7 @@ import pl.baczkowicz.spy.utils.ConversionUtils;
 /**
  * Controller for the subscription tab.
  */
-public class SubscriptionController implements Initializable, ClearTabObserver<FormattedMqttMessage>, 
-	SubscriptionStatusChangeObserver, TabController
+public class SubscriptionController implements Initializable, TabController
 {
 	/** Diagnostic logger. */
 	private final static Logger logger = LoggerFactory.getLogger(SubscriptionController.class);
@@ -170,7 +177,7 @@ public class SubscriptionController implements Initializable, ClearTabObserver<F
 
 	private SearchWindowController searchWindowController;
 
-	private EventManager<FormattedMqttMessage> eventManager;
+	private IKBus eventBus;
 
 	private ConnectionController connectionController;
 
@@ -291,32 +298,46 @@ public class SubscriptionController implements Initializable, ClearTabObserver<F
 				store.getMessageList().getPreferredSize(), store.getMessageList().getMaxSize(), 
 				0, formattingManager);
 		
-		eventManager.registerClearTabObserver(this, store);
+		eventBus.subscribeWithFilterOnly(this, this::onClearTab, ClearTabEvent.class, store);
+		// eventManager.registerClearTabObserver(this, store);
 		
 		getSummaryTablePaneController().setStore(store);
 		getSummaryTablePaneController().setConnectionController(connectionController);
-		getSummaryTablePaneController().setEventManager(eventManager);
+		getSummaryTablePaneController().setEventBus(eventBus);
 		getSummaryTablePaneController().init();
 		
 		messagePaneController.setStore(store);
 		messagePaneController.setConfingurationManager(configurationManager);
 		messagePaneController.setFormattingManager(formattingManager);
 		messagePaneController.init();
+		
 		// The search pane's message browser wants to know about changing indices and format
-		eventManager.registerChangeMessageIndexObserver(messagePaneController, store);
-		eventManager.registerFormatChangeObserver(messagePaneController, store);
+		eventBus.subscribe(messagePaneController, messagePaneController::onMessageIndexChange, 
+				MessageIndexChangeEvent.class, new SimpleRunLaterExecutor(), store);
+		// eventManager.registerChangeMessageIndexObserver(messagePaneController, store);
+		eventBus.subscribe(messagePaneController, messagePaneController::onFormatChange, MessageFormatChangeEvent.class, 
+				new SimpleRunLaterExecutor(), store);
+		// eventManager.registerFormatChangeObserver(messagePaneController, store);
 		
 		messageNavigationPaneController.setStore(store);
-		messageNavigationPaneController.setEventManager(eventManager);
+		messageNavigationPaneController.setEventBus(eventBus);
 		messageNavigationPaneController.init();		
 		
 		// The subscription pane's message browser wants to know about show first, index change and update index events 
-		eventManager.registerChangeMessageIndexObserver(messageNavigationPaneController, store);
-		eventManager.registerChangeMessageIndexFirstObserver(messageNavigationPaneController, store);
-		eventManager.registerIncrementMessageIndexObserver(messageNavigationPaneController, store);
+		eventBus.subscribe(messageNavigationPaneController, messageNavigationPaneController::onMessageIndexChange, 
+				MessageIndexChangeEvent.class, new SimpleRunLaterExecutor(), store);
+		// eventManager.registerChangeMessageIndexObserver(messageNavigationPaneController, store);
+		eventBus.subscribe(messageNavigationPaneController, messageNavigationPaneController::onNavigateToFirst, 
+				MessageIndexToFirstEvent.class, new SimpleRunLaterExecutor(), store);
+		// eventManager.registerChangeMessageIndexFirstObserver(messageNavigationPaneController, store);		
+		eventBus.subscribe(messageNavigationPaneController, messageNavigationPaneController::onMessageIndexIncrement, 
+				MessageIndexIncrementEvent.class, new SimpleRunLaterExecutor(), store);
+		// eventManager.registerIncrementMessageIndexObserver(messageNavigationPaneController, store);
 		
-		eventManager.registerMessageAddedObserver(messageNavigationPaneController, store.getMessageList());
-		eventManager.registerMessageRemovedObserver(messageNavigationPaneController, store.getMessageList());
+		eventBus.subscribeWithFilterOnly(messageNavigationPaneController, messageNavigationPaneController::onMessageAdded, MessageAddedEvent.class, store.getMessageList());		
+		eventBus.subscribeWithFilterOnly(messageNavigationPaneController, messageNavigationPaneController::onMessageRemoved, MessageRemovedEvent.class, store.getMessageList());
+		// eventManager.registerMessageAddedObserver(messageNavigationPaneController, store.getMessageList());
+		// eventManager.registerMessageRemovedObserver(messageNavigationPaneController, store.getMessageList());
 		
 		if (formatting.getFormatter().size() > 0)
 		{
@@ -405,8 +426,10 @@ public class SubscriptionController implements Initializable, ClearTabObserver<F
 			{
 				uniqueContentOnlyFilter.setUniqueContentOnly(messageNavigationPaneController.getUniqueOnlyMenu().isSelected());
 				store.getFilteredMessageStore().runFilter(uniqueContentOnlyFilter);
-				eventManager.notifyMessageListChanged(store.getMessageList());
-				eventManager.navigateToFirst(store);
+				eventBus.publish(new MessageListChangedEvent(store.getMessageList()));
+				// eventManager.notifyMessageListChanged(store.getMessageList());
+				eventBus.publish(new MessageIndexToFirstEvent(store));
+				// eventManager.navigateToFirst(store);
 			}
 		});	
 	}
@@ -424,15 +447,16 @@ public class SubscriptionController implements Initializable, ClearTabObserver<F
 	public void setDetailedViewVisibility(final boolean visible)
 	{
 		messagePaneController.setDetailedViewVisibility(visible);
+		messageNavigationPaneController.setDetailedViewVisibility(visible);
 	}
 	
 	public void toggleDetailedViewVisibility()
 	{
 		messagePaneController.toggleDetailedViewVisibility();
+		messageNavigationPaneController.toggleDetaileledViewVisibility();
 	}
 	
-	@Override
-	public void onClearTab(final ManagedMessageStoreWithFiltering<FormattedMqttMessage> subscription)
+	public void onClearTab(final ClearTabEvent event)
 	{	
 		messagePaneController.clear();
 		messageNavigationPaneController.clear();
@@ -441,9 +465,9 @@ public class SubscriptionController implements Initializable, ClearTabObserver<F
 		store.setAllShowValues(false);		
 	}
 	
-	public void onSubscriptionStatusChanged(final MqttSubscription changedSubscription)
+	public void onSubscriptionStatusChanged(final SubscriptionStatusChangeEvent event)
 	{
-		subscription = changedSubscription;
+		subscription = event.getChangedSubscription();
 		updateContextMenu();
 	}
 
@@ -452,7 +476,8 @@ public class SubscriptionController implements Initializable, ClearTabObserver<F
 	{
 		store.setFormatter((FormatterDetails) wholeMessageFormat.getSelectedToggle().getUserData());
 	
-		eventManager.notifyFormatChanged(store);
+		eventBus.publish(new MessageFormatChangeEvent(store));
+		// eventManager.notifyFormatChanged(store);
 	}
 	
 	@FXML
@@ -498,11 +523,6 @@ public class SubscriptionController implements Initializable, ClearTabObserver<F
 	public void setStore(final ManagedMessageStoreWithFiltering<FormattedMqttMessage> store)
 	{
 		this.store = store;
-	}
-	
-	public void setEventManager(final EventManager<FormattedMqttMessage> eventManager)
-	{
-		this.eventManager = eventManager;
 	}
 
 	/**
@@ -558,14 +578,17 @@ public class SubscriptionController implements Initializable, ClearTabObserver<F
 			searchWindowController.setSubscription(subscription);
 			searchWindowController.setConnection(connectionController.getConnection());
 			searchWindowController.setSubscriptionName(subscription != null ? subscription.getTopic() : SubscriptionManager.ALL_SUBSCRIPTIONS_TAB_TITLE);
-			searchWindowController.setEventManager(eventManager);
+			searchWindowController.setEventBus(eventBus);
 			searchWindowController.setConfingurationManager(configurationManager);
 			searchWindowController.setFormattingManager(formattingManager);
 			searchWindowController.setConnectionController(connectionController);
 			
-			eventManager.registerMessageAddedObserver(searchWindowController, store.getMessageList());
-			eventManager.registerMessageRemovedObserver(searchWindowController, store.getMessageList());
-			eventManager.registerMessageListChangedObserver(searchWindowController, store.getMessageList());
+			eventBus.subscribeWithFilterOnly(searchWindowController, searchWindowController::onMessageAdded, MessageAddedEvent.class, store.getMessageList());		
+			eventBus.subscribeWithFilterOnly(searchWindowController, searchWindowController::onMessageRemoved, MessageRemovedEvent.class, store.getMessageList());
+			//eventManager.registerMessageAddedObserver(searchWindowController, store.getMessageList());
+			//eventManager.registerMessageRemovedObserver(searchWindowController, store.getMessageList());
+			eventBus.subscribeWithFilterOnly(searchWindowController, searchWindowController::onMessageListChanged, MessageListChangedEvent.class, store.getMessageList());
+			// eventManager.registerMessageListChangedObserver(searchWindowController, store.getMessageList());
 					
 			// Set scene width, height and style
 			final Scene scene = new Scene(searchWindow, SearchWindowController.WIDTH, SearchWindowController.HEIGHT);
@@ -598,6 +621,7 @@ public class SubscriptionController implements Initializable, ClearTabObserver<F
 		}			
 	}
 
+	@SuppressWarnings("unchecked")
 	public void updateSubscriptionStats()
 	{
 		final int topicCount = store.getNonFilteredMessageList().getTopicSummary().getObservableMessagesPerTopic().size();
@@ -653,15 +677,15 @@ public class SubscriptionController implements Initializable, ClearTabObserver<F
 		statsHistory.storeMessage(avg5message);
 		statsHistory.storeMessage(avg30message);
 		statsHistory.storeMessage(avg300message);
-		eventManager.notifyMessageAdded(
+		eventBus.publish(new MessageAddedEvent(
 				Arrays.asList(new BrowseReceivedMessageEvent<FormattedMqttMessage>(statsHistory.getMessageList(), avg5message)),
-				statsHistory.getMessageList());
-		eventManager.notifyMessageAdded(
+				statsHistory.getMessageList()));
+		eventBus.publish(new MessageAddedEvent(
 				Arrays.asList(new BrowseReceivedMessageEvent<FormattedMqttMessage>(statsHistory.getMessageList(), avg30message)),
-				statsHistory.getMessageList());
-		eventManager.notifyMessageAdded(
+				statsHistory.getMessageList()));
+		eventBus.publish(new MessageAddedEvent(
 				Arrays.asList(new BrowseReceivedMessageEvent<FormattedMqttMessage>(statsHistory.getMessageList(), avg300message)),
-				statsHistory.getMessageList());
+				statsHistory.getMessageList()));
 	}
 
 	/**
@@ -809,5 +833,10 @@ public class SubscriptionController implements Initializable, ClearTabObserver<F
 	public void setFormattingManager(FormattingManager formattingManager)
 	{
 		this.formattingManager = formattingManager;
+	}
+	
+	public void setEventBus(final IKBus eventBus)
+	{
+		this.eventBus = eventBus;
 	}
 }

@@ -49,21 +49,22 @@ import pl.baczkowicz.mqttspy.common.generated.ProtocolVersionEnum;
 import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
 import pl.baczkowicz.mqttspy.configuration.ConfiguredConnectionDetails;
 import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnectionDetails;
-import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.ui.connections.ConnectionManager;
-import pl.baczkowicz.mqttspy.ui.events.EventManager;
-import pl.baczkowicz.mqttspy.ui.events.observers.ConnectionStatusChangeObserver;
+import pl.baczkowicz.mqttspy.ui.events.ConnectionStatusChangeEvent;
 import pl.baczkowicz.mqttspy.utils.ConnectionUtils;
 import pl.baczkowicz.mqttspy.utils.MqttUtils;
 import pl.baczkowicz.spy.common.generated.ConnectionGroup;
 import pl.baczkowicz.spy.common.generated.ConnectionGroupReference;
 import pl.baczkowicz.spy.common.generated.ConnectionReference;
 import pl.baczkowicz.spy.configuration.BaseConfigurationUtils;
+import pl.baczkowicz.spy.eventbus.IKBus;
 import pl.baczkowicz.spy.exceptions.ConfigurationException;
 import pl.baczkowicz.spy.ui.configuration.ConfiguredConnectionGroupDetails;
 import pl.baczkowicz.spy.ui.controls.DragAndDropTreeViewCell;
 import pl.baczkowicz.spy.ui.events.observers.ItemsReorderedObserver;
+import pl.baczkowicz.spy.ui.panes.SpyPerspective;
 import pl.baczkowicz.spy.ui.properties.ConnectionTreeItemProperties;
+import pl.baczkowicz.spy.ui.threading.SimpleRunLaterExecutor;
 import pl.baczkowicz.spy.ui.utils.DialogFactory;
 import pl.baczkowicz.spy.ui.utils.TooltipFactory;
 
@@ -71,7 +72,7 @@ import pl.baczkowicz.spy.ui.utils.TooltipFactory;
  * Controller for editing all connections.
  */
 @SuppressWarnings({"unchecked", "rawtypes"})
-public class EditConnectionsController extends AnchorPane implements Initializable, ConnectionStatusChangeObserver, ItemsReorderedObserver
+public class EditConnectionsController extends AnchorPane implements Initializable, ItemsReorderedObserver
 {
 	/** Diagnostic logger. */
 	private final static Logger logger = LoggerFactory.getLogger(EditConnectionsController.class);
@@ -120,7 +121,9 @@ public class EditConnectionsController extends AnchorPane implements Initializab
 
 	private List<ConfiguredConnectionDetails> connections = new ArrayList<ConfiguredConnectionDetails>();
 
-	private EventManager eventManager;
+	// private EventManager eventManager;
+	
+	private IKBus eventBus;
 
 	private ConnectionManager connectionManager;
 	
@@ -225,7 +228,8 @@ public class EditConnectionsController extends AnchorPane implements Initializab
 		groups = configurationManager.getConnectionGrops();
 		rootItemProperties.setGroup(configurationManager.getRootGroup());
 		
-		eventManager.registerConnectionStatusObserver(this, null);
+		eventBus.subscribe(this, this::onConnectionStatusChanged, ConnectionStatusChangeEvent.class, new SimpleRunLaterExecutor());
+		// eventManager.registerConnectionStatusObserver(this, null);
 
 		editConnectionGroupPaneController.setMainController(mainController);
 		editConnectionGroupPaneController.setEditConnectionsController(this);
@@ -614,21 +618,37 @@ public class EditConnectionsController extends AnchorPane implements Initializab
 	@FXML
 	private void applyAll()
 	{
-		for (final ConfiguredConnectionDetails connection : connections)
+		if (configurationManager.isConfigurationWritable())
 		{
-			connection.apply();
+			for (final ConfiguredConnectionDetails connection : connections)
+			{
+				connection.apply();
+			}
+			for (final ConfiguredConnectionGroupDetails group : groups)
+			{
+				group.apply();
+			}
+			
+			listConnections();
+				
+			logger.debug("Saving all connections & groups");
+			if (configurationManager.saveConfiguration())
+			{
+				TooltipFactory.createTooltip(applyAllButton, "Changes for all connections and groups have been saved.");
+			}
+			else
+			{
+				DialogFactory.createErrorDialog(
+						"Cannot save the configuration file", 
+						"Oops... an error has occurred while trying to save your configuration. "
+						+ "Please check the log file for more information. Your changes were not saved.");
+			}
 		}
-		for (final ConfiguredConnectionGroupDetails group : groups)
+		else
 		{
-			group.apply();
-		}
-		
-		listConnections();
-		
-		logger.debug("Saving all connections & groups");
-		if (configurationManager.saveConfiguration())
-		{
-			TooltipFactory.createTooltip(applyAllButton, "Changes for all connections and groups have been saved.");
+			DialogFactory.createErrorDialog(
+					"Cannot save the configuration file", 
+					"Oops... your configuration file isn't right. Please restore default configuration. ");
 		}
 	}
 	
@@ -813,13 +833,12 @@ public class EditConnectionsController extends AnchorPane implements Initializab
 		this.configurationManager = configurationManager;
 	}	
 
-	public void setEventManager(final EventManager eventManager)
-	{
-		this.eventManager = eventManager;		
-	}
+//	public void setEventManager(final EventManager eventManager)
+//	{
+//		this.eventManager = eventManager;		
+//	}
 
-	@Override
-	public void onConnectionStatusChanged(final MqttAsyncConnection changedConnection)
+	public void onConnectionStatusChanged(final ConnectionStatusChangeEvent event)
 	{
 		if (getSelectedItem() != null)
 		{
@@ -837,5 +856,15 @@ public class EditConnectionsController extends AnchorPane implements Initializab
 	public void onItemsReordered()
 	{
 		listConnections();		
+	}
+	
+	public void setPerspective(final SpyPerspective perspective)
+	{
+		editConnectionPaneController.setPerspective(perspective);
+	}
+	
+	public void setEventBus(final IKBus eventBus)
+	{
+		this.eventBus = eventBus;
 	}
 }

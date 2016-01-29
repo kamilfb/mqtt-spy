@@ -52,20 +52,20 @@ import pl.baczkowicz.mqttspy.configuration.ConfiguredConnectionDetails;
 import pl.baczkowicz.mqttspy.configuration.generated.TabbedSubscriptionDetails;
 import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnectionDetails;
 import pl.baczkowicz.mqttspy.messages.BaseMqttMessage;
-import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.stats.ConnectionStatsUpdater;
 import pl.baczkowicz.mqttspy.stats.StatisticsManager;
 import pl.baczkowicz.mqttspy.ui.connections.ConnectionManager;
-import pl.baczkowicz.mqttspy.ui.events.EventManager;
+import pl.baczkowicz.mqttspy.ui.events.ConnectionStatusChangeEvent;
 import pl.baczkowicz.mqttspy.ui.messagelog.LogReaderTask;
 import pl.baczkowicz.mqttspy.ui.messagelog.TaskWithProgressUpdater;
 import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
 import pl.baczkowicz.mqttspy.versions.VersionManager;
+import pl.baczkowicz.spy.eventbus.IKBus;
 import pl.baczkowicz.spy.exceptions.ConfigurationException;
 import pl.baczkowicz.spy.exceptions.SpyUncaughtExceptionHandler;
 import pl.baczkowicz.spy.exceptions.XMLException;
-import pl.baczkowicz.spy.ui.panes.SpyPerspective;
 import pl.baczkowicz.spy.ui.panes.PaneVisibilityStatus;
+import pl.baczkowicz.spy.ui.panes.SpyPerspective;
 import pl.baczkowicz.spy.ui.utils.FxmlUtils;
 
 /**
@@ -117,8 +117,8 @@ public class MainController
 	private Stage stage;
 	
 	private Scene scene;
-
-	private EventManager<FormattedMqttMessage> eventManager;
+	
+	private IKBus eventBus;
 	
 	private StatisticsManager statisticsManager;
 
@@ -149,7 +149,7 @@ public class MainController
 	
 	public void init()
 	{		
-		this.connectionManager = new ConnectionManager(eventManager, statisticsManager, configurationManager);	
+		this.connectionManager = new ConnectionManager(eventBus, statisticsManager, configurationManager);	
 				
 		statisticsManager.loadStats();
 		
@@ -200,7 +200,8 @@ public class MainController
 		controlPanelPaneController.setMainController(this);
 		controlPanelPaneController.setConfigurationMananger(configurationManager);
 		controlPanelPaneController.setApplication(application);
-		controlPanelPaneController.setEventManager(eventManager);
+		// controlPanelPaneController.setEventManager(eventManager);
+		controlPanelPaneController.setEventBus(eventBus);
 		controlPanelPaneController.setConnectionManager(connectionManager);
 		controlPanelPaneController.setVersionManager(versionManager);
 		controlPanelPaneController.init();	
@@ -265,9 +266,9 @@ public class MainController
 	public void openMessageLog()
 	{
 		final FileChooser fileChooser = new FileChooser();
-		fileChooser.setTitle("Select message log file to open");
+		fileChooser.setTitle("Select message audit log file to open");
 		String extensions = "messages";
-		fileChooser.setSelectedExtensionFilter(new ExtensionFilter("Message log file", extensions));
+		fileChooser.setSelectedExtensionFilter(new ExtensionFilter("Message audit log file", extensions));
 
 		final File selectedFile = fileChooser.showOpenDialog(getParentWindow());
 
@@ -286,14 +287,16 @@ public class MainController
 		// This is a dirty way to reload connection settings :) possibly could be removed if all connections are closed before loading a new config file
 		if (editConnectionsController != null)
 		{
-			eventManager.deregisterConnectionStatusObserver(editConnectionsController);
+			eventBus.unsubscribeConsumer(editConnectionsController, ConnectionStatusChangeEvent.class);
+			// eventManager.deregisterConnectionStatusObserver(editConnectionsController);
 		}
 		
 		final FXMLLoader loader = FxmlUtils.createFxmlLoaderForProjectFile("EditConnectionsWindow.fxml");
 		final AnchorPane connectionWindow = FxmlUtils.loadAnchorPane(loader);
 		editConnectionsController = ((EditConnectionsController) loader.getController());		
 		editConnectionsController.setMainController(this);
-		editConnectionsController.setEventManager(eventManager);
+		// editConnectionsController.setEventManager(eventManager);
+		editConnectionsController.setEventBus(eventBus);
 		editConnectionsController.setConnectionManager(connectionManager);
 		editConnectionsController.setConfigurationManager(configurationManager);
 		editConnectionsController.init();
@@ -336,9 +339,8 @@ public class MainController
 		aboutController.setApplication(application);
 		aboutController.setConfigurationManager(configurationManager);
 		aboutController.setVersionManager(versionManager);
-		aboutController.setEventManager(eventManager);
-		
-		eventManager.registerVersionInfoObserver(aboutController);
+		// aboutController.setEventManager(eventManager);
+		aboutController.setEventBus(eventBus);
 		
 		aboutController.init();
 		
@@ -380,6 +382,7 @@ public class MainController
 		}
 
 		editConnectionsController.updateUIForSelectedItem();
+		editConnectionsController.setPerspective(selectedPerspective);
 		editConnectionsStage.showAndWait();		
 		controlPanelPaneController.refreshConnectionsStatus();
 	}
@@ -452,7 +455,7 @@ public class MainController
 
 		if (selectedFile != null)
 		{
-			loadConfigurationFileAndShowErrorWhenApplicable(selectedFile);			
+			loadConfigurationFileAndShowErrorWhenApplicable(selectedFile);
 		}
 	}
 	
@@ -541,6 +544,10 @@ public class MainController
 		if (defaultConfigurationFile.exists())
 		{
 			loadConfigurationFileAndShowErrorWhenApplicable(defaultConfigurationFile);
+		}
+		else
+		{
+			configurationManager.initialiseConfiguration();
 		}
 	}
 	
@@ -691,15 +698,15 @@ public class MainController
 	{
 		this.configurationManager = configurationManager;
 	}
-
+	
 	/**
-	 * Sets the event manager.
+	 * Sets the event bus.
 	 *  
-	 * @param eventManager the eventManager to set
+	 * @param eventBus the eventBus to set
 	 */
-	public void setEventManager(EventManager<FormattedMqttMessage> eventManager)
+	public void setEventBus(final IKBus eventBus)
 	{
-		this.eventManager = eventManager;
+		this.eventBus = eventBus;
 	}
 
 	/**

@@ -46,7 +46,7 @@
 	        	<graphic>
 	      		<ImageView fx:id="searchIcon" fitHeight="17" fitWidth="17" pickOnBounds="true">
 			         <image>
-			            <Image url="/images/small/search.png" />
+			            <Image url="/images/edit-find-mail.png" />
 			         </image>
 			      </ImageView>
 	      		</graphic>
@@ -79,7 +79,7 @@
 	      	<graphic>
 	      		<ImageView fitHeight="18.0" fitWidth="18.0" pickOnBounds="true">
 			         <image>
-			            <Image url="/images/small/tools.png"/>
+			            <Image url="/images/tools.png"/>
 			         </image>
 			      </ImageView>
 	      	</graphic>
@@ -93,7 +93,7 @@
 	            			</items>
 	            		</Menu>
 	            		
-	            		<Menu text="Message log file">
+	            		<Menu text="Message audit log file">
 	            			<items>
 	            				<MenuItem text="This message" onAction="#copyMessageToFile"/>
 	            				<MenuItem text="All browsed messages" onAction="#copyMessagesToFile"/>

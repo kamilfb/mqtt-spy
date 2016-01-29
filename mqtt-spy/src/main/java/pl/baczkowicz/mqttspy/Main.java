@@ -25,7 +25,6 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
-import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
@@ -33,11 +32,12 @@ import javafx.stage.Stage;
 import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
-import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.ui.MainController;
-import pl.baczkowicz.mqttspy.ui.events.EventManager;
+import pl.baczkowicz.spy.eventbus.IKBus;
+import pl.baczkowicz.spy.eventbus.KBus;
 import pl.baczkowicz.spy.ui.configuration.UiProperties;
 import pl.baczkowicz.spy.ui.utils.FxmlUtils;
+import pl.baczkowicz.spy.ui.utils.ImageUtils;
 
 /** 
  * The main class, loading the app.
@@ -55,12 +55,12 @@ public class Main extends Application
 	 * Starts the application.
 	 */
 	public void start(final Stage primaryStage)
-	{
-		final EventManager<FormattedMqttMessage> eventManager = new EventManager<FormattedMqttMessage>();			
+	{			
+		final IKBus eventBus = new KBus();
 				
 		try
 		{
-			final ConfigurationManager configurationManager = new ConfigurationManager(eventManager);			
+			final ConfigurationManager configurationManager = new ConfigurationManager();			
 			
 			// Load the main window
 			FxmlUtils.setParentClass(getClass());
@@ -80,7 +80,7 @@ public class Main extends Application
 			
 			// Get the associated controller
 			final MainController mainController = (MainController) loader.getController();
-			mainController.setEventManager(eventManager);
+			mainController.setEventBus(eventBus);
 			mainController.setConfigurationManager(configurationManager);
 			mainController.setSelectedPerspective(UiProperties.getApplicationPerspective(configurationManager.getUiPropertyFile()));
 			mainController.getResizeMessagePaneMenu().setSelected(UiProperties.getResizeMessagePane(configurationManager.getUiPropertyFile()));
@@ -95,8 +95,7 @@ public class Main extends Application
 			mainController.setLastHeight(height);
 			mainController.setLastWidth(width);
 			mainController.init();
-			final Image applicationIcon = new Image(getClass().getResourceAsStream("/images/large/mqtt-spy-logo.png"));
-		    primaryStage.getIcons().add(applicationIcon);
+		    primaryStage.getIcons().add(ImageUtils.createIcon("mqtt-spy-logo").getImage());
 			
 			// Show the main window
 			primaryStage.show();

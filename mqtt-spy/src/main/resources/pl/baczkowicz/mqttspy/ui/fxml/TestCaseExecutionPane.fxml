@@ -45,7 +45,7 @@
       	<graphic>
       		<ImageView fitHeight="16" fitWidth="16" pickOnBounds="true" preserveRatio="true">
 		         <image>
-		            <Image url="/images/small/testcase_play.png" />
+		            <Image url="/images/testcase_play.png" />
 		         </image>
 		      </ImageView>
       	</graphic>
@@ -54,7 +54,7 @@
       	      	<graphic>
       		<ImageView fitHeight="16" fitWidth="16" pickOnBounds="true" preserveRatio="true">
 		         <image>
-		            <Image url="/images/small/testcase_stop.png" />
+		            <Image url="/images/testcase_stop.png" />
 		         </image>
 		      </ImageView>
       	</graphic>
@@ -63,7 +63,7 @@
 	    <graphic>
       		<ImageView fitHeight="18.0" fitWidth="18.0" pickOnBounds="true">
 		         <image>
-		            <Image url="/images/small/tools.png" />
+		            <Image url="/images/tools.png" />
 		         </image>
 		      </ImageView>
       	</graphic>
@@ -84,7 +84,7 @@
             	<graphic>
 		      		<ImageView fitHeight="18.0" fitWidth="18.0" pickOnBounds="true">
 				         <image>
-				            <Image url="/images/small/save.png" />
+				            <Image url="/images/save.png" />
 				         </image>
 				      </ImageView>
 		      	</graphic>
@@ -93,7 +93,7 @@
           		<graphic>
 		      		<ImageView fitHeight="18.0" fitWidth="18.0" pickOnBounds="true">
 				         <image>
-				            <Image url="/images/small/save.png" />
+				            <Image url="/images/save.png" />
 				         </image>
 				      </ImageView>
 		      	</graphic>

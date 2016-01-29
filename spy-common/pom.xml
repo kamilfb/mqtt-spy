@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>pl.baczkowicz.spy</groupId>
 	<artifactId>spy-common</artifactId>
-	<version>0.0.1</version>
+	<version>0.0.4</version>
 
 	<name>spy-common</name>
 	<url>http://kamilfb.github.io/mq-spy/</url>
@@ -94,6 +94,15 @@
 			<artifactId>commons-lang3</artifactId>
 			<version>3.4</version>
 		</dependency>	
+		
+		<!--=== TEST === -->
+	
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.11</version>
+			<scope>test</scope>
+		</dependency>
 	
 	</dependencies>
 	
@@ -113,7 +122,7 @@
 			    <executions>						     
 			        
 			        <execution>
-			            <id>mqtt-spy-configuration</id>
+			            <id>spy-common</id>
 			            <phase>generate-resources</phase>
 			            <goals>
 			                <goal>generate</goal>

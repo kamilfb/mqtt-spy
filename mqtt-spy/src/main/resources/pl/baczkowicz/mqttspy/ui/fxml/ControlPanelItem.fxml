@@ -33,7 +33,7 @@
    	<!-- AnchorPane.topAnchor="10.0" -->
       <ImageView fx:id="statusIcon" fitHeight="64.0" fitWidth="64.0" layoutX="9.0" pickOnBounds="true" preserveRatio="true" AnchorPane.leftAnchor="9.0">
          <image>
-            <Image url="/images/large/dialog-ok-apply.png" />
+            <Image url="/images/dialog-ok-apply-large.png" />
          </image>
       </ImageView>
       <VBox fx:id="itemsBox" layoutX="104.0" layoutY="19.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="15.0" AnchorPane.bottomAnchor="15.0" AnchorPane.leftAnchor="90.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="15.0">
