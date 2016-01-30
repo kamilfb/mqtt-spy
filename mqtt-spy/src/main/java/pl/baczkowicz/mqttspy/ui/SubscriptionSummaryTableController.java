@@ -60,12 +60,14 @@ import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
 import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.ui.charts.ChartFactory;
 import pl.baczkowicz.mqttspy.ui.charts.ChartMode;
-import pl.baczkowicz.mqttspy.ui.events.EventManager;
+import pl.baczkowicz.mqttspy.ui.utils.StylingUtils;
+import pl.baczkowicz.spy.eventbus.IKBus;
+import pl.baczkowicz.spy.ui.events.MessageIndexToFirstEvent;
+import pl.baczkowicz.spy.ui.events.MessageListChangedEvent;
 import pl.baczkowicz.spy.ui.properties.SubscriptionTopicSummaryProperties;
 import pl.baczkowicz.spy.ui.storage.ManagedMessageStoreWithFiltering;
 import pl.baczkowicz.spy.ui.utils.DialogFactory;
 import pl.baczkowicz.spy.ui.utils.UiUtils;
-import pl.baczkowicz.mqttspy.ui.utils.StylingUtils;
 
 /**
  * Controller for the subscription summary table.
@@ -101,7 +103,7 @@ public class SubscriptionSummaryTableController implements Initializable
 	
 	private ConnectionController connectionController;
 	
-	private EventManager<FormattedMqttMessage> eventManager;
+	private IKBus eventBus;
 
 	private Menu filteredTopicsMenu;
 
@@ -277,8 +279,10 @@ public class SubscriptionSummaryTableController implements Initializable
 				@Override
 				public void run()
 				{
-					eventManager.navigateToFirst(store);	
-					eventManager.notifyMessageListChanged(store.getMessageList());
+					eventBus.publish(new MessageIndexToFirstEvent(store));
+					// eventManager.navigateToFirst(store);
+					eventBus.publish(new MessageListChangedEvent(store.getMessageList()));
+					// eventManager.notifyMessageListChanged(store.getMessageList());
 				}											
 			});
 		}				
@@ -374,13 +378,13 @@ public class SubscriptionSummaryTableController implements Initializable
 		{
 			new ChartFactory<FormattedMqttMessage>().createMessageBasedLineChart(topics, store, mode, 
 					"Topic", "Size", "bytes", "Message size chart" + connectionName, 
-					filterTable.getScene(), eventManager);
+					filterTable.getScene(), eventBus);
 		}
 		else
 		{
 			new ChartFactory<FormattedMqttMessage>().createMessageBasedLineChart(topics, store, mode, 
 					"Topic", "Value", "", "Message content chart" + connectionName,
-					filterTable.getScene(), eventManager);
+					filterTable.getScene(), eventBus);
 		}		
 	}
 	
@@ -462,7 +466,8 @@ public class SubscriptionSummaryTableController implements Initializable
 				if (item != null)
 				{
 					store.setAllShowValues(true);
-					eventManager.navigateToFirst(store);
+					eventBus.publish(new MessageIndexToFirstEvent(store));
+					// eventManager.navigateToFirst(store);
 				}
 			}
 		});
@@ -480,7 +485,8 @@ public class SubscriptionSummaryTableController implements Initializable
 				if (item != null)
 				{
 					store.toggleAllShowValues();
-					eventManager.navigateToFirst(store);
+					eventBus.publish(new MessageIndexToFirstEvent(store));
+					// eventManager.navigateToFirst(store);
 				}
 			}
 		});
@@ -497,7 +503,8 @@ public class SubscriptionSummaryTableController implements Initializable
 				if (item != null)
 				{
 					store.setAllShowValues(false);
-					eventManager.navigateToFirst(store);
+					eventBus.publish(new MessageIndexToFirstEvent(store));
+					// eventManager.navigateToFirst(store);
 				}
 			}
 		});
@@ -518,7 +525,8 @@ public class SubscriptionSummaryTableController implements Initializable
 				if (item != null)
 				{
 					store.setShowValues(true, shownTopics);
-					eventManager.navigateToFirst(store);
+					eventBus.publish(new MessageIndexToFirstEvent(store));
+					// eventManager.navigateToFirst(store);
 				}
 			}
 		});		
@@ -536,7 +544,8 @@ public class SubscriptionSummaryTableController implements Initializable
 				{
 					store.setAllShowValues(false);
 					store.setShowValues(true, shownTopics);
-					eventManager.navigateToFirst(store);
+					eventBus.publish(new MessageIndexToFirstEvent(store));
+					// eventManager.navigateToFirst(store);
 				}
 			}
 		});
@@ -553,7 +562,8 @@ public class SubscriptionSummaryTableController implements Initializable
 				if (item != null)
 				{
 					store.toggleShowValues(shownTopics);
-					eventManager.navigateToFirst(store);
+					eventBus.publish(new MessageIndexToFirstEvent(store));
+					// eventManager.navigateToFirst(store);
 				}
 			}
 		});
@@ -570,7 +580,8 @@ public class SubscriptionSummaryTableController implements Initializable
 				if (item != null)
 				{
 					store.setShowValues(false, shownTopics);
-					eventManager.navigateToFirst(store);
+					eventBus.publish(new MessageIndexToFirstEvent(store));
+					// eventManager.navigateToFirst(store);
 				}
 			}
 		});
@@ -589,7 +600,8 @@ public class SubscriptionSummaryTableController implements Initializable
 				{
 					store.setAllShowValues(false);
 					store.setShowValue(item.topicProperty().getValue(), true);
-					eventManager.navigateToFirst(store);
+					eventBus.publish(new MessageIndexToFirstEvent(store));
+					// eventManager.navigateToFirst(store);
 				}
 			}
 		});
@@ -698,12 +710,7 @@ public class SubscriptionSummaryTableController implements Initializable
 
 		return contextMenu;
 	}
-		
-	public void setEventManager(final EventManager<FormattedMqttMessage> eventManager)
-	{
-		this.eventManager = eventManager;
-	}
-	
+
 	public void setStore(final ManagedMessageStoreWithFiltering<FormattedMqttMessage> store)
 	{
 		this.store = store;
@@ -722,5 +729,10 @@ public class SubscriptionSummaryTableController implements Initializable
 	public Set<String> getShownTopics()
 	{
 		return shownTopics;
+	}
+	
+	public void setEventBus(final IKBus eventBus)
+	{
+		this.eventBus = eventBus;
 	}
 }

@@ -52,12 +52,16 @@ import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.scripts.MqttScriptManager;
-import pl.baczkowicz.mqttspy.ui.events.EventManager;
+import pl.baczkowicz.spy.eventbus.IKBus;
 import pl.baczkowicz.spy.formatting.FormattingManager;
+import pl.baczkowicz.spy.messages.FormattedMessage;
 import pl.baczkowicz.spy.scripts.Script;
 import pl.baczkowicz.spy.ui.configuration.UiProperties;
-import pl.baczkowicz.spy.ui.events.observers.MessageAddedObserver;
-import pl.baczkowicz.spy.ui.events.observers.MessageFormatChangeObserver;
+import pl.baczkowicz.spy.ui.events.MessageAddedEvent;
+import pl.baczkowicz.spy.ui.events.MessageFormatChangeEvent;
+import pl.baczkowicz.spy.ui.events.MessageIndexChangeEvent;
+import pl.baczkowicz.spy.ui.events.MessageIndexIncrementEvent;
+import pl.baczkowicz.spy.ui.events.MessageIndexToFirstEvent;
 import pl.baczkowicz.spy.ui.events.queuable.ui.BrowseReceivedMessageEvent;
 import pl.baczkowicz.spy.ui.properties.MessageContentProperties;
 import pl.baczkowicz.spy.ui.search.InlineScriptMatcher;
@@ -68,11 +72,12 @@ import pl.baczkowicz.spy.ui.search.SimplePayloadMatcher;
 import pl.baczkowicz.spy.ui.search.UniqueContentOnlyFilter;
 import pl.baczkowicz.spy.ui.storage.FilteredMessageStore;
 import pl.baczkowicz.spy.ui.storage.ManagedMessageStoreWithFiltering;
+import pl.baczkowicz.spy.ui.threading.SimpleRunLaterExecutor;
 
 /**
  * Controller for the search pane.
  */
-public class SearchPaneController implements Initializable, MessageFormatChangeObserver, MessageAddedObserver<FormattedMqttMessage>
+public class SearchPaneController implements Initializable
 {
 	/** Diagnostic logger. */
 	private final static Logger logger = LoggerFactory.getLogger(SearchPaneController.class);
@@ -130,7 +135,9 @@ public class SearchPaneController implements Initializable, MessageFormatChangeO
 	@FXML 
 	private SplitPane splitPane;
 	
-	private EventManager<FormattedMqttMessage> eventManager;
+	// private EventManager<FormattedMqttMessage> eventManager;
+	
+	private IKBus eventBus;
 	
 	private ManagedMessageStoreWithFiltering<FormattedMqttMessage> store; 
 	
@@ -191,16 +198,19 @@ public class SearchPaneController implements Initializable, MessageFormatChangeO
 				uniqueContentOnlyFilter.setUniqueContentOnly(messageNavigationPaneController.getUniqueOnlyMenu().isSelected());
 				//store.getFilteredMessageStore().runFilter(uniqueContentOnlyFilter);
 				search();
-				eventManager.navigateToFirst(foundMessageStore);				
+				eventBus.publish(new MessageIndexToFirstEvent(foundMessageStore));
+				// eventManager.navigateToFirst(foundMessageStore);				
 			}
 		});
 		
 		messageListTablePaneController.setItems(foundMessages);
 		messageListTablePaneController.setStore(foundMessageStore);
 		messageListTablePaneController.setConnection(connection);
-		messageListTablePaneController.setEventManager(eventManager);
+		messageListTablePaneController.setEventBus(eventBus);
 		messageListTablePaneController.init();
-		eventManager.registerChangeMessageIndexObserver(messageListTablePaneController, foundMessageStore);
+		eventBus.subscribe(messageListTablePaneController, messageListTablePaneController::onMessageIndexChange, 
+				MessageIndexChangeEvent.class, new SimpleRunLaterExecutor(), foundMessageStore);
+		// eventManager.registerChangeMessageIndexObserver(messageListTablePaneController, foundMessageStore);
 		
 		messagePaneController.setStore(foundMessageStore);
 		messagePaneController.setConfingurationManager(configurationManager);
@@ -208,22 +218,33 @@ public class SearchPaneController implements Initializable, MessageFormatChangeO
 		messagePaneController.setStyled(true);
 		messagePaneController.init();		
 		// The search pane's message browser wants to know about changing indices and format
-		eventManager.registerChangeMessageIndexObserver(messagePaneController, foundMessageStore);
-		eventManager.registerFormatChangeObserver(messagePaneController, foundMessageStore);
+		eventBus.subscribe(messagePaneController, messagePaneController::onMessageIndexChange, 
+				MessageIndexChangeEvent.class, new SimpleRunLaterExecutor(), foundMessageStore);
+		// eventManager.registerChangeMessageIndexObserver(messagePaneController, foundMessageStore);
+		eventBus.subscribe(messagePaneController, messagePaneController::onFormatChange, MessageFormatChangeEvent.class, 
+				new SimpleRunLaterExecutor(), foundMessageStore);
+		// eventManager.registerFormatChangeObserver(messagePaneController, foundMessageStore);
 		
 		messageNavigationPaneController.setStore(foundMessageStore);		
-		messageNavigationPaneController.setEventManager(eventManager);
 		messageNavigationPaneController.init();		
-		// The search pane's message browser wants to know about show first, index change and update index events 
-		eventManager.registerChangeMessageIndexObserver(messageNavigationPaneController, foundMessageStore);
-		eventManager.registerChangeMessageIndexFirstObserver(messageNavigationPaneController, foundMessageStore);
-		eventManager.registerIncrementMessageIndexObserver(messageNavigationPaneController, foundMessageStore);
+		// The search pane's message browser wants to know about show first, index change and update index events
+		eventBus.subscribe(messageNavigationPaneController, messageNavigationPaneController::onMessageIndexChange, 
+				MessageIndexChangeEvent.class, new SimpleRunLaterExecutor(), foundMessageStore);
+		// eventManager.registerChangeMessageIndexObserver(messageNavigationPaneController, foundMessageStore);
+		eventBus.subscribe(messageNavigationPaneController, messageNavigationPaneController::onNavigateToFirst, 
+				MessageIndexToFirstEvent.class, new SimpleRunLaterExecutor(), foundMessageStore);
+		// eventManager.registerChangeMessageIndexFirstObserver(messageNavigationPaneController, foundMessageStore);
+		eventBus.subscribe(messageNavigationPaneController, messageNavigationPaneController::onMessageIndexIncrement, 
+				MessageIndexIncrementEvent.class, new SimpleRunLaterExecutor(), foundMessageStore);
+		// eventManager.registerIncrementMessageIndexObserver(messageNavigationPaneController, foundMessageStore);
 		
 		scriptManager = new MqttScriptManager(null, null, connection);
 		refreshList();
 		
-		eventManager.registerMessageAddedObserver(this, store.getMessageList());
-		eventManager.registerFormatChangeObserver(this, store);
+		eventBus.subscribeWithFilterOnly(this, this::onMessageAdded, MessageAddedEvent.class, store.getMessageList());
+		// eventManager.registerMessageAddedObserver(this, store.getMessageList());
+		eventBus.subscribe(this, this::onFormatChange, MessageFormatChangeEvent.class, new SimpleRunLaterExecutor(), store);
+		//eventManager.registerFormatChangeObserver(this, store);
 	}
 	
 	/**
@@ -415,7 +436,8 @@ public class SearchPaneController implements Initializable, MessageFormatChangeO
 		updateTabTitle();	
 		messagePaneController.setSearchOptions(new SearchOptions(searchField.getText(), caseSensitiveCheckBox.isSelected()));
 		
-		eventManager.navigateToFirst(foundMessageStore);
+		eventBus.publish(new MessageIndexToFirstEvent(foundMessageStore));
+		// eventManager.navigateToFirst(foundMessageStore);
 	}
 	
 	private void updateTabTitle()
@@ -442,20 +464,20 @@ public class SearchPaneController implements Initializable, MessageFormatChangeO
 		tab.setGraphic(title);		
 	}
 
-	@Override
-	public void onFormatChange()
+	public void onFormatChange(final MessageFormatChangeEvent event)
 	{
 		foundMessageStore.setFormatter(store.getFormatter());
-		eventManager.notifyFormatChanged(foundMessageStore);
+		
+		eventBus.publish(new MessageFormatChangeEvent(foundMessageStore));
+		//eventManager.notifyFormatChanged(foundMessageStore);
 	}
 
 	// TODO: optimise message handling
-	@Override
-	public void onMessageAdded(final List<BrowseReceivedMessageEvent<FormattedMqttMessage>> events)
+	public void onMessageAdded(final MessageAddedEvent<FormattedMessage> event)
 	{
-		for (final BrowseReceivedMessageEvent<FormattedMqttMessage> event : events)
+		for (final BrowseReceivedMessageEvent<FormattedMessage> message : event.getMessages())
 		{
-			onMessageAdded(event.getMessage());
+			onMessageAdded((FormattedMqttMessage) message.getMessage());
 		}
 	}
 	
@@ -469,11 +491,13 @@ public class SearchPaneController implements Initializable, MessageFormatChangeO
 			{
 				if (messageNavigationPaneController.showLatest())
 				{
-					eventManager.navigateToFirst(foundMessageStore);
+					eventBus.publish(new MessageIndexToFirstEvent(foundMessageStore));
+					// eventManager.navigateToFirst(foundMessageStore);
 				}
 				else
 				{
-					eventManager.incrementMessageIndex(foundMessageStore);
+					eventBus.publish(new MessageIndexIncrementEvent(1, foundMessageStore));
+					// eventManager.incrementMessageIndex(foundMessageStore);
 				}
 			}
 			
@@ -486,8 +510,10 @@ public class SearchPaneController implements Initializable, MessageFormatChangeO
 		disableAutoSearch();
 		
 		// TODO: need to check this
-		eventManager.deregisterFormatChangeObserver(this);
-		eventManager.deregisterMessageAddedObserver(this);
+		eventBus.unsubscribeConsumer(this, MessageFormatChangeEvent.class);
+		// eventManager.deregisterFormatChangeObserver(this);
+		eventBus.unsubscribeConsumer(this, MessageAddedEvent.class);
+		// eventManager.deregisterMessageAddedObserver(this);
 	}
 
 	public void disableAutoSearch()
@@ -523,11 +549,6 @@ public class SearchPaneController implements Initializable, MessageFormatChangeO
 	// ===============================
 	// === Setters and getters =======
 	// ===============================
-
-	public void setEventManager(final EventManager<FormattedMqttMessage> eventManager)
-	{
-		this.eventManager = eventManager;
-	}
 	
 	public void setTab(Tab tab)
 	{
@@ -552,5 +573,10 @@ public class SearchPaneController implements Initializable, MessageFormatChangeO
 	public void setConfingurationManager(final ConfigurationManager configurationManager)
 	{
 		this.configurationManager = configurationManager;
+	}
+	
+	public void setEventBus(final IKBus eventBus)
+	{
+		this.eventBus = eventBus;
 	}
 }

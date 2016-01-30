@@ -29,6 +29,7 @@ import pl.baczkowicz.mqttspy.ui.events.queuable.connectivity.MqttConnectionFailu
 import pl.baczkowicz.mqttspy.ui.events.queuable.connectivity.MqttConnectionLostEvent;
 import pl.baczkowicz.mqttspy.ui.events.queuable.connectivity.MqttDisconnectionAttemptSuccessEvent;
 import pl.baczkowicz.spy.events.SpyEvent;
+import pl.baczkowicz.spy.exceptions.ExceptionUtils;
 
 public class MqttEventHandler implements Runnable
 {
@@ -54,7 +55,7 @@ public class MqttEventHandler implements Runnable
 		{
 			final MqttConnectionFailureEvent mqttConnectionFailureEvent = (MqttConnectionFailureEvent) event;
 			
-			mqttConnectionFailureEvent.getConnection().setDisconnectionReason(mqttConnectionFailureEvent.getCause().getMessage());
+			mqttConnectionFailureEvent.getConnection().setDisconnectionReason(ExceptionUtils.getInfo(mqttConnectionFailureEvent.getCause()));
 			mqttConnectionFailureEvent.getConnection().setConnectionStatus(MqttConnectionStatus.DISCONNECTED);
 		}
 		
@@ -62,8 +63,8 @@ public class MqttEventHandler implements Runnable
 		{
 			final MqttAsyncConnection connection = ((MqttConnectionAttemptSuccessEvent) event).getConnection(); 
 			
-			connection.setConnectionStatus(MqttConnectionStatus.CONNECTED);
 			connection.recordSuccessfulConnection();
+			connection.setConnectionStatus(MqttConnectionStatus.CONNECTED);			
 			
 			// This should restore any previously requested subscriptions
 			logger.info("About to resubscribe to all requested topics");			

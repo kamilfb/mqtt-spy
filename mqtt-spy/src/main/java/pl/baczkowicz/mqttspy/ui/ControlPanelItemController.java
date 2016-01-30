@@ -40,6 +40,7 @@ import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
 import pl.baczkowicz.mqttspy.ui.controlpanel.ItemStatus;
+import pl.baczkowicz.spy.ui.utils.ImageUtils;
 
 /**
  * Controller for a single control panel item.
@@ -93,10 +94,10 @@ public class ControlPanelItemController extends AnchorPane implements Initializa
 		//
 	}
 	
-	public static void setButtonProperties(final Button button, final String imageLocation, final boolean visibility, final EventHandler<ActionEvent> action)
+	public static void setButtonProperties(final Button button, final String imageName, final boolean visibility, final EventHandler<ActionEvent> action)
 	{
 		button.setVisible(true);
-		button.setGraphic(new ImageView(new Image(ControlPanelItemController.class.getResource(imageLocation).toString())));
+		button.setGraphic(ImageUtils.createIcon(imageName));
 		button.setOnAction(action);
 	}
 	
@@ -116,29 +117,29 @@ public class ControlPanelItemController extends AnchorPane implements Initializa
 		return smallButton2;
 	}
 	
-	public static String getStatusIconLocation(ItemStatus status)
+	public static String getStatusIconName(final ItemStatus status)
 	{
 		String imageLocation;
 		
 		switch (status)
 		{
 			case OK:
-				imageLocation = "/images/large/dialog-ok-apply.png";
+				imageLocation = "dialog-ok-apply-large";
 				break;
 			case INFO:
-				imageLocation = "/images/large/dialog-information.png";
+				imageLocation = "dialog-information-large";
 				break;
 			case WARN:
-				imageLocation = "/images/large/dialog-warning.png";
+				imageLocation = "dialog-warning-large";
 				break;
 			case ERROR:
-				imageLocation = "/images/large/dialog-error.png";
+				imageLocation = "dialog-error-large";
 				break;
 			case STATS:
-				imageLocation = "/images/large/rating.png";
+				imageLocation = "rating-large";
 				break;
 			default:
-				imageLocation = "/images/large/dialog-error.png";
+				imageLocation = "dialog-error-large";
 				break;
 		}
 		
@@ -147,7 +148,7 @@ public class ControlPanelItemController extends AnchorPane implements Initializa
 	
 	public void refresh()
 	{
-		String imageLocation = getStatusIconLocation(status);
+		String imageName = getStatusIconName(status);
 		
 		if (showProgress)
 		{
@@ -159,7 +160,8 @@ public class ControlPanelItemController extends AnchorPane implements Initializa
 			progressIndicator.setVisible(false);
 			statusIcon.setVisible(true);
 			
-			statusIcon.setImage(new Image(ControlPanelItemController.class.getResource(imageLocation).toString()));		
+			statusIcon.setImage(ImageUtils.createIcon(imageName).getImage());
+			// statusIcon.setImage(new Image(ControlPanelItemController.class.getResource(imageLocation).toString()));		
 			if (status == ItemStatus.OK)
 			{
 				statusIcon.setLayoutY(5);

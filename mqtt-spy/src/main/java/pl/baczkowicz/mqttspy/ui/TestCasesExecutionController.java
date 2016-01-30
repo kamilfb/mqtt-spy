@@ -24,9 +24,6 @@ import java.net.URL;
 import java.util.Date;
 import java.util.ResourceBundle;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
@@ -48,11 +45,14 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.DirectoryChooser;
 import javafx.util.Callback;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
-import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
-import pl.baczkowicz.mqttspy.ui.events.EventManager;
 import pl.baczkowicz.mqttspy.ui.scripts.InteractiveScriptManager;
 import pl.baczkowicz.mqttspy.ui.testcases.InteractiveTestCaseManager;
+import pl.baczkowicz.spy.eventbus.IKBus;
 import pl.baczkowicz.spy.testcases.TestCaseManager;
 import pl.baczkowicz.spy.testcases.TestCaseStatus;
 import pl.baczkowicz.spy.ui.panes.PaneVisibilityStatus;
@@ -138,7 +138,9 @@ public class TestCasesExecutionController extends AnchorPane implements Initiali
 		
 	private String scriptsLocation;
 	
-	private EventManager<FormattedMqttMessage> eventManager;
+	// private EventManager<FormattedMqttMessage> eventManager;
+	
+	private IKBus eventBus;
 	
 	private InteractiveScriptManager scriptManager;
 
@@ -339,7 +341,7 @@ public class TestCasesExecutionController extends AnchorPane implements Initiali
 
 	public void init()
 	{
-		scriptManager = new InteractiveScriptManager(eventManager, connection);
+		scriptManager = new InteractiveScriptManager(eventBus, connection);
 		testCaseManager = new InteractiveTestCaseManager(scriptManager, this, testCaseExecutionPaneController);
 		
 		testCaseExecutionPaneController.setTestCaseManager(testCaseManager);
@@ -431,9 +433,9 @@ public class TestCasesExecutionController extends AnchorPane implements Initiali
 	// === Setters and getters =======
 	// ===============================
 	
-	public void setEventManager(final EventManager<FormattedMqttMessage> eventManager)
+	public void setEventBus(final IKBus eventBus)
 	{
-		this.eventManager = eventManager;
+		this.eventBus = eventBus;
 	}
 	
 	@Override

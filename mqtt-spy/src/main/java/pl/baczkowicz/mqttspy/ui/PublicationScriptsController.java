@@ -25,9 +25,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.ResourceBundle;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -47,23 +44,28 @@ import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
 import javafx.util.Callback;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
-import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
-import pl.baczkowicz.mqttspy.ui.events.EventManager;
 import pl.baczkowicz.mqttspy.ui.scripts.InteractiveScriptManager;
+import pl.baczkowicz.spy.eventbus.IKBus;
 import pl.baczkowicz.spy.scripts.ScriptRunningState;
-import pl.baczkowicz.spy.ui.events.observers.ScriptStateChangeObserver;
+import pl.baczkowicz.spy.scripts.events.ScriptStateChangeEvent;
 import pl.baczkowicz.spy.ui.panes.PaneVisibilityStatus;
 import pl.baczkowicz.spy.ui.panes.TitledPaneController;
 import pl.baczkowicz.spy.ui.properties.PublicationScriptProperties;
 import pl.baczkowicz.spy.ui.scripts.ScriptTypeEnum;
+import pl.baczkowicz.spy.ui.scripts.events.ScriptListChangeEvent;
+import pl.baczkowicz.spy.ui.threading.SimpleRunLaterExecutor;
 import pl.baczkowicz.spy.ui.utils.DialogFactory;
 import pl.baczkowicz.spy.ui.utils.UiUtils;
 
 /**
  * Controller for publications scripts pane.
  */
-public class PublicationScriptsController implements Initializable, ScriptStateChangeObserver, TitledPaneController
+public class PublicationScriptsController implements Initializable, TitledPaneController
 {
 	/** Diagnostic logger. */
 	private final static Logger logger = LoggerFactory.getLogger(PublicationScriptsController.class);
@@ -92,8 +94,10 @@ public class PublicationScriptsController implements Initializable, ScriptStateC
 	private MqttAsyncConnection connection;
 
 	private InteractiveScriptManager scriptManager;
+	
+	private IKBus eventBus;
 
-	private EventManager<FormattedMqttMessage> eventManager;
+	// private EventManager<FormattedMqttMessage> eventManager;
 
 	private Map<ScriptTypeEnum, ContextMenu> contextMenus = new HashMap<>();
 
@@ -307,7 +311,9 @@ public class PublicationScriptsController implements Initializable, ScriptStateC
 	public void init()
 	{
 		scriptManager = connection.getScriptManager();
-		eventManager.registerScriptStateChangeObserver(this, null);
+		eventBus.subscribe(this, this::onScriptStateChange, ScriptStateChangeEvent.class, new SimpleRunLaterExecutor());
+		// TODO: replaced with event bus; to be deleted
+		// eventManager.registerScriptStateChangeObserver(this, null);
 		refreshList();
 		scriptTable.setItems(scriptManager.getObservableScriptList());
 		
@@ -315,6 +321,8 @@ public class PublicationScriptsController implements Initializable, ScriptStateC
 		contextMenus.put(ScriptTypeEnum.PUBLICATION, createDirectoryTypeScriptTableContextMenu(ScriptTypeEnum.PUBLICATION));		
 		contextMenus.put(ScriptTypeEnum.BACKGROUND, createDirectoryTypeScriptTableContextMenu(ScriptTypeEnum.BACKGROUND));
 		contextMenus.put(ScriptTypeEnum.SUBSCRIPTION, createDirectoryTypeScriptTableContextMenu(ScriptTypeEnum.SUBSCRIPTION));
+		
+		scriptTable.setContextMenu(new ContextMenu(createRefreshListMenuItem()));
 		
 		paneTitle = new AnchorPane();
 		settingsButton = NewPublicationController.createTitleButtons(pane, paneTitle, connectionController);
@@ -327,7 +335,9 @@ public class PublicationScriptsController implements Initializable, ScriptStateC
 		scriptManager.addSubscriptionScripts(connection.getProperties().getConfiguredProperties().getSubscription());
 		
 		// TODO: move this to script manager?
-		eventManager.notifyScriptListChange(connection);
+		eventBus.publish(new ScriptListChangeEvent(connection));
+		// TODO: replaced with event bus; remove
+		// eventManager.notifyScriptListChange(connection);
 	}
 
 	public void setConnection(MqttAsyncConnection connection)
@@ -345,11 +355,6 @@ public class PublicationScriptsController implements Initializable, ScriptStateC
 		scriptManager.stopScriptFile(file);
 	}
 	
-	public void setEventManager(final EventManager<FormattedMqttMessage> eventManager)
-	{
-		this.eventManager = eventManager;
-	}
-	
 	private void startScript()
 	{
 		final PublicationScriptProperties item = scriptTable.getSelectionModel().getSelectedItem();
@@ -365,7 +370,7 @@ public class PublicationScriptsController implements Initializable, ScriptStateC
 	{
 		final ContextMenu contextMenu = new ContextMenu();
 	
-		if (type.equals(ScriptTypeEnum.PUBLICATION) || type.equals(ScriptTypeEnum.BACKGROUND))
+		if (ScriptTypeEnum.PUBLICATION.equals(type) || ScriptTypeEnum.BACKGROUND.equals(type))
 		{
 			// Start script
 			final MenuItem startScriptItem = new MenuItem("Start");
@@ -397,6 +402,7 @@ public class PublicationScriptsController implements Initializable, ScriptStateC
 			// Separator
 			contextMenu.getItems().add(new SeparatorMenuItem());
 		}
+		
 		
 		// Copy script location
 		final MenuItem copyScriptLocationItem = new MenuItem("Copy script location to clipboard");
@@ -461,6 +467,13 @@ public class PublicationScriptsController implements Initializable, ScriptStateC
 			contextMenu.getItems().add(new SeparatorMenuItem());
 		}
 
+		contextMenu.getItems().add(createRefreshListMenuItem());
+		
+		return contextMenu;
+	}
+	
+	private MenuItem createRefreshListMenuItem()
+	{
 		// Refresh list
 		final MenuItem refreshListItem = new MenuItem("Refresh list");
 		refreshListItem.setOnAction(new EventHandler<ActionEvent>()
@@ -470,13 +483,11 @@ public class PublicationScriptsController implements Initializable, ScriptStateC
 				refreshList();
 			}
 		});
-		contextMenu.getItems().add(refreshListItem);
 		
-		return contextMenu;
+		return refreshListItem;
 	}
 
-	@Override
-	public void onScriptStateChange(String scriptName, ScriptRunningState state)
+	public void onScriptStateChange(final ScriptStateChangeEvent event)
 	{
 		// TODO: update the context menu - but this requires context menu per row, not type
 	}
@@ -505,10 +516,14 @@ public class PublicationScriptsController implements Initializable, ScriptStateC
 			settingsButton.setVisible(false);
 		}
 	}
-	
 
 	public void setConnectionController(ConnectionController connectionController)
 	{
 		this.connectionController = connectionController;
+	}
+	
+	public void setEventBus(final IKBus eventBus)
+	{
+		this.eventBus = eventBus;
 	}
 }

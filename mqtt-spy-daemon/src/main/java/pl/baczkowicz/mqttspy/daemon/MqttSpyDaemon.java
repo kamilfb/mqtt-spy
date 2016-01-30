@@ -19,8 +19,6 @@
  */
 package pl.baczkowicz.mqttspy.daemon;
 
-import java.io.File;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,6 +34,8 @@ import pl.baczkowicz.mqttspy.scripts.MqttScriptIO;
 import pl.baczkowicz.mqttspy.scripts.MqttScriptManager;
 import pl.baczkowicz.spy.configuration.PropertyFileLoader;
 import pl.baczkowicz.spy.daemon.BaseDaemon;
+import pl.baczkowicz.spy.eventbus.IKBus;
+import pl.baczkowicz.spy.eventbus.KBus;
 import pl.baczkowicz.spy.exceptions.SpyException;
 import pl.baczkowicz.spy.exceptions.XMLException;
 import pl.baczkowicz.spy.testcases.TestCaseManager;
@@ -87,7 +87,8 @@ public class MqttSpyDaemon extends BaseDaemon
 	public void loadAndRun(final String configurationFile) throws SpyException
 	{
 		// Load the configuration
-		loader.loadConfiguration(new File(configurationFile));
+		// loader.loadConfiguration(new File(configurationFile));
+		loader.loadConfiguration(configurationFile);
 		
 		loadAndRun(loader.getConfiguration());
 	}
@@ -109,10 +110,12 @@ public class MqttSpyDaemon extends BaseDaemon
 	
 	protected void configureMqtt(final DaemonMqttConnectionDetails connectionSettings) throws SpyException
 	{
+		final IKBus eventBus = new KBus();
+		
 		// Wire up all classes (assuming ID = 0)
 		mqttReconnectionManager = new ReconnectionManager();
 		mqttConnection = new SimpleMqttConnection(mqttReconnectionManager, "0", connectionSettings);
-		scriptManager = new MqttScriptManager(null, null, mqttConnection);
+		scriptManager = new MqttScriptManager(eventBus, null, mqttConnection);
 		testCaseManager = new TestCaseManager(scriptManager);
 		mqttCallback = new MqttCallbackHandler(mqttConnection, connectionSettings, scriptManager); 
 				
@@ -122,14 +125,14 @@ public class MqttSpyDaemon extends BaseDaemon
 		
 		mqttConnection.setScriptManager(scriptManager);
 		mqttConnection.connect(mqttCallback, connectionRunnable);
-		scriptIO = new MqttScriptIO(mqttConnection, null, null, null);
+		scriptIO = new MqttScriptIO(mqttConnection, eventBus, null, null);
 		if (reconnectionSettings != null)
 		{
 			new Thread(mqttReconnectionManager).start();
 		}
 	}
 	
-	protected boolean canPublish()
+	public boolean canPublish()
 	{
 		return mqttConnection.canPublish();
 	}

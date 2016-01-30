@@ -27,7 +27,6 @@ import java.util.Map;
 import java.util.ResourceBundle;
 
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
@@ -49,30 +48,31 @@ import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
 import pl.baczkowicz.mqttspy.configuration.ConfiguredConnectionDetails;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.connectivity.MqttConnectionStatus;
-import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.ui.connections.ConnectionManager;
 import pl.baczkowicz.mqttspy.ui.controlpanel.ControlPanelStatsUpdater;
 import pl.baczkowicz.mqttspy.ui.controlpanel.GettingInvolvedTooltip;
 import pl.baczkowicz.mqttspy.ui.controlpanel.ItemStatus;
-import pl.baczkowicz.mqttspy.ui.events.EventManager;
-import pl.baczkowicz.mqttspy.ui.events.observers.ConnectionStatusChangeObserver;
-import pl.baczkowicz.mqttspy.ui.events.observers.VersionInfoObserver;
+import pl.baczkowicz.mqttspy.ui.events.ConnectionStatusChangeEvent;
 import pl.baczkowicz.mqttspy.ui.properties.VersionInfoProperties;
 import pl.baczkowicz.mqttspy.ui.utils.ActionUtils;
 import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
 import pl.baczkowicz.mqttspy.ui.utils.StylingUtils;
 import pl.baczkowicz.mqttspy.versions.VersionManager;
+import pl.baczkowicz.mqttspy.versions.events.VersionInfoErrorEvent;
+import pl.baczkowicz.mqttspy.versions.events.VersionInfoReceivedEvent;
 import pl.baczkowicz.mqttspy.versions.generated.MqttSpyVersions;
 import pl.baczkowicz.spy.configuration.PropertyFileLoader;
+import pl.baczkowicz.spy.eventbus.IKBus;
 import pl.baczkowicz.spy.exceptions.ConfigurationException;
 import pl.baczkowicz.spy.exceptions.XMLException;
 import pl.baczkowicz.spy.ui.configuration.ConfiguredConnectionGroupDetails;
+import pl.baczkowicz.spy.ui.threading.SimpleRunLaterExecutor;
 import pl.baczkowicz.spy.utils.ThreadingUtils;
 
 /**
  * The controller looking after the control panel.
  */
-public class ControlPanelController extends AnchorPane implements Initializable, ConnectionStatusChangeObserver, VersionInfoObserver
+public class ControlPanelController extends AnchorPane implements Initializable
 {
 	private final static Logger logger = LoggerFactory.getLogger(ControlPanelController.class);
 
@@ -114,7 +114,9 @@ public class ControlPanelController extends AnchorPane implements Initializable,
 
 	private MainController mainController;
 
-	private EventManager<FormattedMqttMessage> eventManager;
+	// private EventManager<FormattedMqttMessage> eventManager;
+	
+	private IKBus eventBus;
 
 	private ConnectionManager connectionManager;
 	
@@ -138,9 +140,13 @@ public class ControlPanelController extends AnchorPane implements Initializable,
 	}
 		
 	public void init()
-	{					
-		eventManager.registerVersionInfoObserver(this);
-		eventManager.registerConnectionStatusObserver(this, null);
+	{		
+		eventBus.subscribe(this, this::onVersionInfoReceived, VersionInfoReceivedEvent.class, new SimpleRunLaterExecutor());
+		eventBus.subscribe(this, this::onVersionInfoError, VersionInfoErrorEvent.class, new SimpleRunLaterExecutor());
+		eventBus.subscribe(this, this::onConnectionStatusChanged, ConnectionStatusChangeEvent.class, new SimpleRunLaterExecutor());
+		//eventManager.registerVersionInfoObserver(this);
+		//eventManager.registerConnectionStatusObserver(this, null);
+		
 		controlPanelItem1Controller.setConfigurationMananger(configurationManager);
 		controlPanelItem2Controller.setConfigurationMananger(configurationManager);
 		controlPanelItem3Controller.setConfigurationMananger(configurationManager);
@@ -191,10 +197,9 @@ public class ControlPanelController extends AnchorPane implements Initializable,
 		});
 	}
 	
-	@Override
-	public void onConnectionStatusChanged(final MqttAsyncConnection changedConnection)
+	public void onConnectionStatusChanged(final ConnectionStatusChangeEvent event)
 	{
-		refreshConnectionsStatus();		
+		refreshConnectionsStatus();
 	}
 	
 	public void refreshConnectionsStatus()
@@ -214,7 +219,7 @@ public class ControlPanelController extends AnchorPane implements Initializable,
 	{
 		if (configurationManager.getLoadedConfigurationFile() == null)
 		{
-			controller.setTitle("No default configuration file found.");
+			controller.setTitle("No configuration file found.");
 			controller.setDetails("Click here display all available options for resolving missing configuration file.");
 			controller.setStatus(ItemStatus.WARN);
 			
@@ -223,7 +228,7 @@ public class ControlPanelController extends AnchorPane implements Initializable,
 				@Override
 				public void handle(ActionEvent event)
 				{
-					if (DialogUtils.showDefaultConfigurationFileMissingChoice("Default configuration file not found", button.getScene().getWindow()))
+					if (DialogUtils.showDefaultConfigurationFileMissingChoice("Configuration file not found", button.getScene().getWindow()))
 					{
 						mainController.loadConfigurationFileAndShowErrorWhenApplicable(ConfigurationManager.getDefaultConfigurationFile());
 					}					
@@ -464,12 +469,14 @@ public class ControlPanelController extends AnchorPane implements Initializable,
 					final MqttSpyVersions versions = versionManager.loadVersions();
 					
 					logger.debug("Retrieved version info = " + versions.toString());
-					eventManager.notifyVersionInfoRetrieved(versions);
+					eventBus.publish(new VersionInfoReceivedEvent(versions));
+					// eventManager.notifyVersionInfoRetrieved(versions);
 				}
 				catch (final XMLException e)
 				{
 					// If an error occurred					
-					eventManager.notifyVersionInfoError(e);				
+					eventBus.publish(new VersionInfoErrorEvent(e));
+					// eventManager.notifyVersionInfoError(e);				
 				}
 			}
 		}).start();		
@@ -540,50 +547,53 @@ public class ControlPanelController extends AnchorPane implements Initializable,
 		this.mainController = mainController;
 	}
 
-	public void setEventManager(EventManager<FormattedMqttMessage> eventManager)
-	{
-		this.eventManager = eventManager;		
-	}
+//	public void setEventManager(EventManager<FormattedMqttMessage> eventManager)
+//	{
+//		this.eventManager = eventManager;		
+//	}
 
 	public void setConnectionManager(final ConnectionManager connectionManager)
 	{
 		this.connectionManager = connectionManager;		
 	}
 
-	@Override
-	public void onVersionInfoReceived(final MqttSpyVersions versions)
+	public void onVersionInfoReceived(final VersionInfoReceivedEvent event)
 	{
 		// If all OK
-		Platform.runLater(new Runnable()
-		{						
-			@Override
-			public void run()
-			{
+//		Platform.runLater(new Runnable()
+//		{						
+//			@Override
+//			public void run()
+//			{
 				showUpdateInfo(controlPanelItem3Controller, button3);							
-			}
-		});
+//			}
+//		});
 	}
 
-	@Override
-	public void onVersionInfoError(final Exception e)
+	public void onVersionInfoError(final VersionInfoErrorEvent event)
 	{
-		Platform.runLater(new Runnable()
-		{						
-			@Override
-			public void run()
-			{
+//		Platform.runLater(new Runnable()
+//		{						
+//			@Override
+//			public void run()
+//			{
 				controlPanelItem3Controller.setStatus(ItemStatus.ERROR);
 				controlPanelItem3Controller.setShowProgress(false);
 				controlPanelItem3Controller.setTitle("Error occurred while getting version info. Please perform manual update.");
-				logger.error("Cannot retrieve version info", e);
+				logger.error("Cannot retrieve version info", event.getException());
 				
 				controlPanelItem3Controller.refresh();
-			}
-		});		
+//			}
+//		});		
 	}
 
 	public void setVersionManager(VersionManager versionManager)
 	{
 		this.versionManager = versionManager;		
+	}
+	
+	public void setEventBus(final IKBus eventBus)
+	{
+		this.eventBus = eventBus;
 	}
 }

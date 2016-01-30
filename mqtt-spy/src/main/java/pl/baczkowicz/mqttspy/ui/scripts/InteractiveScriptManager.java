@@ -30,12 +30,12 @@ import pl.baczkowicz.mqttspy.configuration.generated.TabbedSubscriptionDetails;
 import pl.baczkowicz.mqttspy.connectivity.IMqttConnection;
 import pl.baczkowicz.mqttspy.scripts.MqttScriptManager;
 import pl.baczkowicz.spy.common.generated.ScriptDetails;
-import pl.baczkowicz.spy.scripts.IScriptEventManager;
+import pl.baczkowicz.spy.eventbus.IKBus;
+import pl.baczkowicz.spy.files.FileUtils;
 import pl.baczkowicz.spy.scripts.Script;
 import pl.baczkowicz.spy.ui.properties.PublicationScriptProperties;
 import pl.baczkowicz.spy.ui.scripts.ScriptTypeEnum;
 import pl.baczkowicz.spy.ui.utils.RunLaterExecutor;
-import pl.baczkowicz.spy.utils.FileUtils;
 
 /**
  * Script manager that interacts with the UI.
@@ -48,9 +48,9 @@ public class InteractiveScriptManager extends MqttScriptManager
 	/** List of scripts, as displayed on the UI. */
 	private final ObservableList<PublicationScriptProperties> observableScriptList = FXCollections.observableArrayList();
 	
-	public InteractiveScriptManager(final IScriptEventManager eventManager, final IMqttConnection connection)
+	public InteractiveScriptManager(final IKBus eventBus, final IMqttConnection connection)
 	{
-		super(eventManager, new RunLaterExecutor(), connection);
+		super(eventBus, new RunLaterExecutor(), connection);
 	}
 	
 	public void addScripts(final List<ScriptDetails> scriptDetails, final ScriptTypeEnum type)

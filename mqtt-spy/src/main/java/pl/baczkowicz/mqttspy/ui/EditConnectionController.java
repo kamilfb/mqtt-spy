@@ -20,6 +20,8 @@
 package pl.baczkowicz.mqttspy.ui;
 
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
@@ -33,6 +35,8 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
@@ -43,7 +47,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.common.generated.MessageLog;
-import pl.baczkowicz.mqttspy.common.generated.ProtocolVersionEnum;
 import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
 import pl.baczkowicz.mqttspy.configuration.ConfigurationUtils;
 import pl.baczkowicz.mqttspy.configuration.ConfiguredConnectionDetails;
@@ -61,6 +64,7 @@ import pl.baczkowicz.mqttspy.ui.utils.ConnectivityUtils;
 import pl.baczkowicz.mqttspy.utils.ConnectionUtils;
 import pl.baczkowicz.spy.common.generated.ConnectionGroupReference;
 import pl.baczkowicz.spy.exceptions.ConfigurationException;
+import pl.baczkowicz.spy.ui.panes.SpyPerspective;
 import pl.baczkowicz.spy.ui.utils.DialogFactory;
 import pl.baczkowicz.spy.ui.utils.TooltipFactory;
 
@@ -72,11 +76,33 @@ public class EditConnectionController extends AnchorPane implements Initializabl
 {
 	final static Logger logger = LoggerFactory.getLogger(EditConnectionController.class);
 	
+	private SpyPerspective perspective;
+	
+	private List<Tab> tabs;
+	
 	@FXML
 	private TextField connectionNameText;
 	
 	@FXML
-	private ComboBox<ProtocolVersionEnum> protocolCombo;
+	private ComboBox<SpyPerspective> perspectiveCombo;
+	
+	@FXML
+	private Tab publicationsTab;
+	
+	@FXML
+	private Tab subscriptionsTab;
+	
+	@FXML
+	private Tab otherTab;
+
+	@FXML
+	private Tab logTab;
+	
+	@FXML
+	private Tab ltwTab;
+	
+	@FXML
+	private TabPane tabPane;
 	
 	// Action buttons
 	
@@ -139,14 +165,14 @@ public class EditConnectionController extends AnchorPane implements Initializabl
 
 	private boolean emptyConnectionList;
 	
-	private final ChangeListener basicOnChangeListener = new ChangeListener()
-	{
-		@Override
-		public void changed(ObservableValue observable, Object oldValue, Object newValue)
-		{
-			onChange();			
-		}		
-	};
+//	private final ChangeListener basicOnChangeListener = new ChangeListener()
+//	{
+//		@Override
+//		public void changed(ObservableValue observable, Object oldValue, Object newValue)
+//		{
+//			onChange();			
+//		}		
+//	};
 	
 	// ===============================
 	// === Initialisation ============
@@ -163,57 +189,6 @@ public class EditConnectionController extends AnchorPane implements Initializabl
 			}		
 		});
 		
-		protocolCombo.getSelectionModel().selectedIndexProperty().addListener(basicOnChangeListener);
-		protocolCombo.setCellFactory(new Callback<ListView<ProtocolVersionEnum>, ListCell<ProtocolVersionEnum>>()
-		{
-			@Override
-			public ListCell<ProtocolVersionEnum> call(ListView<ProtocolVersionEnum> l)
-			{
-				return new ListCell<ProtocolVersionEnum>()
-				{
-					@Override
-					protected void updateItem(ProtocolVersionEnum item, boolean empty)
-					{
-						super.updateItem(item, empty);
-						if (item == null || empty)
-						{
-							setText(null);
-						}
-						else
-						{									
-							setText(item.value());
-						}
-					}
-				};
-			}
-		});
-		protocolCombo.setConverter(new StringConverter<ProtocolVersionEnum>()
-		{
-			@Override
-			public String toString(ProtocolVersionEnum item)
-			{
-				if (item == null)
-				{
-					return null;
-				}
-				else
-				{
-					return item.value();
-				}
-			}
-
-			@Override
-			public ProtocolVersionEnum fromString(String id)
-			{
-				return null;
-			}
-		});
-		
-		for (ProtocolVersionEnum protocolEnum : ProtocolVersionEnum.values())
-		{
-			protocolCombo.getItems().add(protocolEnum);
-		}
-		
 		editConnectionConnectivityController.setParent(this);
 		editConnectionLastWillController.setParent(this);
 		editConnectionMessageLogController.setParent(this);
@@ -221,10 +196,103 @@ public class EditConnectionController extends AnchorPane implements Initializabl
 		editConnectionPublicationsController.setParent(this);
 		editConnectionSecurityController.setParent(this);
 		editConnectionSubscriptionsController.setParent(this);
+		
+		tabs = new ArrayList(tabPane.getTabs());
+	}
+	
+	private String getPerspectiveString(final SpyPerspective item)
+	{
+		if (item.equals(SpyPerspective.BASIC))
+		{
+			return ("Basic - the absolute minimum");
+		}
+		else if (item.equals(SpyPerspective.DEFAULT))
+		{
+			return ("Default - simpified properties");
+		}
+		else if (item.equals(SpyPerspective.DETAILED))
+		{
+			return ("Detailed - all properties");
+		}
+		else if (item.equals(SpyPerspective.SPY))
+		{
+			return ("Spy - simplified subscriptions");
+		}
+		else if (item.equals(SpyPerspective.SUPER_SPY))
+		{
+			return ("Super Spy - subscriptions only");
+		}
+		
+		return null;
 	}
 
 	public void init()
 	{
+//		perspectiveCombo.getItems().add("Minimalistic - the bare minimum");
+//		perspectiveCombo.getItems().add("Simplified - key configuration parameters only");
+//		perspectiveCombo.getItems().add("Detailed - all configuration parameters");
+//		
+		for (SpyPerspective sp : SpyPerspective.values())
+		{
+			perspectiveCombo.getItems().add(sp);
+		}
+		
+		perspectiveCombo.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener<Number>()
+		{
+			@Override
+			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue)
+			{
+				updatePerspective(perspectiveCombo.getSelectionModel().getSelectedItem());
+				
+			}
+		});
+		
+		perspectiveCombo.setCellFactory(new Callback<ListView<SpyPerspective>, ListCell<SpyPerspective>>()
+		{
+			@Override
+			public ListCell<SpyPerspective> call(ListView<SpyPerspective> l)
+			{
+				return new ListCell<SpyPerspective>()
+				{
+					@Override
+					protected void updateItem(SpyPerspective item, boolean empty)
+					{
+						super.updateItem(item, empty);
+						if (item == null || empty)
+						{
+							setText(null);
+						}
+						else
+						{			
+							setText(getPerspectiveString(item));
+						}
+					}
+				};
+			}
+		});
+		
+		perspectiveCombo.setConverter(new StringConverter<SpyPerspective>()
+		{
+			@Override
+			public String toString(SpyPerspective item)
+			{
+				if (item == null)
+				{
+					return null;
+				}
+				else
+				{
+					return getPerspectiveString(item);
+				}
+			}
+
+			@Override
+			public SpyPerspective fromString(String id)
+			{
+				return null;
+			}
+		});
+		
 		editConnectionOtherController.setConfigurationManager(configurationManager);
 		
 		editConnectionConnectivityController.init();
@@ -234,6 +302,29 @@ public class EditConnectionController extends AnchorPane implements Initializabl
 		editConnectionPublicationsController.init();
 		editConnectionSecurityController.init();
 		editConnectionSubscriptionsController.init();
+	}
+	
+	private void updatePerspective(final SpyPerspective perspective)
+	{
+		editConnectionConnectivityController.setPerspective(perspective);
+		
+		tabPane.getTabs().clear();
+		tabPane.getTabs().addAll(tabs);
+		
+		if (perspective.equals(SpyPerspective.BASIC) || perspective.equals(SpyPerspective.SPY) || perspective.equals(SpyPerspective.SUPER_SPY))
+		{
+			tabPane.getTabs().remove(publicationsTab);
+		}
+		
+		if (perspective.equals(SpyPerspective.BASIC))
+		{
+			tabPane.getTabs().remove(subscriptionsTab);
+			tabPane.getTabs().remove(otherTab);
+			tabPane.getTabs().remove(logTab);
+			tabPane.getTabs().remove(ltwTab);
+		}
+		
+		// TODO Auto-generated method stub
 	}
 
 	// ===============================
@@ -261,22 +352,31 @@ public class EditConnectionController extends AnchorPane implements Initializabl
 	@FXML
 	private void save()
 	{		
-		logger.debug("Saving connection " + getConnectionName().getText());
-		if (configurationManager.saveConfiguration())
+		if (configurationManager.isConfigurationWritable())
 		{
-			editedConnectionDetails.apply();
-			editConnectionsController.listConnections();
-					
-			updateButtons();
-			
-			TooltipFactory.createTooltip(saveButton, "Changes for connection " + editedConnectionDetails.getName() + " have been saved.");
+			logger.debug("Saving connection " + getConnectionName().getText());
+			if (configurationManager.saveConfiguration())
+			{
+				editedConnectionDetails.apply();
+				editConnectionsController.listConnections();
+						
+				updateButtons();
+				
+				TooltipFactory.createTooltip(saveButton, "Changes for connection " + editedConnectionDetails.getName() + " have been saved.");
+			}
+			else
+			{
+				DialogFactory.createErrorDialog(
+						"Cannot save the configuration file", 
+						"Oops... an error has occurred while trying to save your configuration. "
+						+ "Please check the log file for more information. Your changes were not saved.");
+			}
 		}
 		else
 		{
 			DialogFactory.createErrorDialog(
 					"Cannot save the configuration file", 
-					"Oops... an error has occurred while trying to save your configuration. "
-					+ "Please check the log file for more information. Your changes were not saved.");
+					"Oops... your configuration file isn't right. Please restore default configuration. ");
 		}
 	}	
 	
@@ -406,7 +506,6 @@ public class EditConnectionController extends AnchorPane implements Initializabl
 		ConfigurationUtils.populateConnectionDefaults(connection);
 		
 		connection.setName(connectionNameText.getText());
-		connection.setProtocol(protocolCombo.getSelectionModel().getSelectedItem());
 		
 		editConnectionConnectivityController.readValues(connection);
 		editConnectionOtherController.readValues(connection);
@@ -510,7 +609,6 @@ public class EditConnectionController extends AnchorPane implements Initializabl
 		ConfigurationUtils.populateConnectionDefaults(connection);
 		
 		connectionNameText.setText(connection.getName());
-		protocolCombo.getSelectionModel().select(connection.getProtocol());
 		
 		editConnectionConnectivityController.displayConnectionDetails(connection);
 		editConnectionSecurityController.displayConnectionDetails(connection);
@@ -595,5 +693,16 @@ public class EditConnectionController extends AnchorPane implements Initializabl
 	public MainController getMainController()
 	{
 		return mainController;
+	}
+
+	public SpyPerspective getPerspective()
+	{
+		return perspective;
+	}
+
+	public void setPerspective(SpyPerspective perspective)
+	{
+		this.perspective = perspective;
+		perspectiveCombo.getSelectionModel().select(perspective);
 	}
 }

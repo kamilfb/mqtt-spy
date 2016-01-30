@@ -39,6 +39,12 @@ public class MqttUtils
 	/** SSL prefix. */
 	public final static String SSL_PREFIX = "ssl://";
 	
+	/** WebSocket prefix. */
+	public final static String WS_PREFIX = "ws://";
+	
+	/** Secure WebSocket prefix. */
+	public final static String SWS_PREFIX = "wss://";
+	
 	/** Multi-level MQTT topic wildcard. */
 	public static final String MULTI_LEVEL_WILDCARD = "#";
 	
@@ -123,13 +129,21 @@ public class MqttUtils
 	 * 
 	 * @return Complete URL
 	 */
-	public static String getCompleteServerURI(final String brokerAddress, final boolean sslEnabled)
+	public static String getCompleteServerURI(final String brokerAddress, final boolean sslEnabled, final boolean websocket)
 	{
-		String serverURI = brokerAddress.replaceAll(TCP_PREFIX, "").replaceAll(SSL_PREFIX, "");
+		String serverURI = brokerAddress.replaceAll(TCP_PREFIX, "").replaceAll(SSL_PREFIX, "").replaceAll(WS_PREFIX, "").replaceAll(SWS_PREFIX, "");
 		
-		if (sslEnabled)
+		if (sslEnabled && websocket)
 		{
-			serverURI = SSL_PREFIX + serverURI;			
+			serverURI = SWS_PREFIX + serverURI;			
+		}
+		else if (sslEnabled && !websocket)
+		{			
+			serverURI = SSL_PREFIX + serverURI;
+		}
+		else if (!sslEnabled && websocket)
+		{
+			serverURI = WS_PREFIX + serverURI;			
 		}
 		else
 		{			

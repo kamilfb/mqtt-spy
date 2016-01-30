@@ -57,7 +57,7 @@ public interface IConnection
 	 * 
 	 * @return True if publication was successful
 	 */
-	//boolean publish(final String publicationTopic, final String payload);
+	// boolean publish(final String publicationTopic, final String payload);
 	
 	/**
 	 * Publishes a message with the given parameters.

@@ -41,12 +41,19 @@
       	<graphic>
       		<ImageView fitHeight="18.0" fitWidth="18.0" pickOnBounds="true">
 		         <image>
-		            <Image url="/images/small/tools.png"/>
+		            <Image url="/images/tools.png"/>
 		         </image>
 		      </ImageView>
       	</graphic>
         <items>
         	<Menu mnemonicParsing="false" text="Formatting">
+        		<graphic>
+		      		<ImageView fitHeight="18.0" fitWidth="18.0" pickOnBounds="true">
+				         <image>
+				            <Image url="/images/tools-wizard.png"/>
+				         </image>
+				      </ImageView>
+		      	</graphic>
         		<items>
         			<Menu fx:id="formatterMenu" mnemonicParsing="false" text="Convert whole message">
 		               <items>
@@ -82,8 +89,22 @@
         	</Menu>        
         	
         	<Menu fx:id="exportMenu" mnemonicParsing="false" text="Export">
+        		<graphic>
+		      		<ImageView fitHeight="18.0" fitWidth="18.0" pickOnBounds="true">
+				         <image>
+				            <Image url="/images/document-save-all.png"/>
+				         </image>
+				      </ImageView>
+		      	</graphic>
             	<items>
             		<Menu text="Messages">
+	            		<graphic>
+				      		<ImageView fitHeight="18.0" fitWidth="18.0" pickOnBounds="true">
+						         <image>
+						            <Image url="/images/mail-unread.png"/>
+						         </image>
+						      </ImageView>
+				      	</graphic>
             			<items>
             				<Menu text="Clipboard">
             					<items>
@@ -92,7 +113,7 @@
             					</items>
             				</Menu>
             				
-		            		<Menu text="Message log file">
+		            		<Menu text="Message audit log file">
 		            			<items>
 		            				<MenuItem text="This message" onAction="#copyMessageToFile"/>
 		            				<MenuItem text="All browsed messages" onAction="#copyMessagesToFile"/>		            				
@@ -107,7 +128,14 @@
             			</items>
             		</Menu>
             		<Menu text="Topics">
-            			<items>
+	            		<graphic>
+				      		<ImageView fitHeight="18.0" fitWidth="18.0" pickOnBounds="true">
+						         <image>
+						            <Image url="/images/feed-subscribe.png"/>
+						         </image>
+						      </ImageView>
+				      	</graphic>
+	            			<items>
             				<Menu text="Clipboard">
             					<items>
             						<MenuItem text="This topic" onAction="#copyBrowsedTopic" />
@@ -131,7 +159,7 @@
         <graphic>
       		<ImageView fitHeight="20" fitWidth="20" pickOnBounds="true">
 		         <image>
-		            <Image url="/images/small/search.png" />
+		            <Image url="/images/edit-find-mail.png" />
 		         </image>
 		      </ImageView>
       	</graphic>

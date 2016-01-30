@@ -70,9 +70,9 @@ public class ControlPanelStatsUpdater implements Runnable
 	
 	/** List of getting involved messages. */
 	private List<String> gettingInvolvedDetails = new ArrayList<String>(Arrays.asList(
-			"Finding mqtt-spy useful? Get involved and make mqtt-spy even better", 
-			"Like your mqtt-spy? Get involved and see how you can help at", 
-			"Using mqtt-spy on a regular basis? See how you can help the project at"));
+			"Finding mqtt-spy useful? See how you can make mqtt-spy even better", 
+			"Like your mqtt-spy? See how you can help at", 
+			"Using mqtt-spy on a regular basis? See how you can help at"));
 
 	/** The controller of the stats control panel item. */
 	private final ControlPanelItemController controlPanelItemController;
@@ -137,19 +137,19 @@ public class ControlPanelStatsUpdater implements Runnable
 		controlPanelItemController.getDetails().getChildren().addAll(items);
 		
 		statsPlaying = true;
-		ControlPanelItemController.setButtonProperties(controlPanelItemController.getButton1(), "/images/small/pause.png", true, new EventHandler<ActionEvent>()
+		ControlPanelItemController.setButtonProperties(controlPanelItemController.getButton1(), "pause", true, new EventHandler<ActionEvent>()
 		{			
 			@Override
 			public void handle(ActionEvent event)
 			{
 				if (statsPlaying)
 				{
-					ControlPanelItemController.setButtonProperties(controlPanelItemController.getButton1(), "/images/small/play.png", true);
+					ControlPanelItemController.setButtonProperties(controlPanelItemController.getButton1(), "play", true);
 					statsPlaying = false;
 				}
 				else
 				{
-					ControlPanelItemController.setButtonProperties(controlPanelItemController.getButton1(), "/images/small/pause.png", true);
+					ControlPanelItemController.setButtonProperties(controlPanelItemController.getButton1(), "pause", true);
 					statsPlaying = true;
 				}
 				event.consume();

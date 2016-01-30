@@ -44,7 +44,8 @@ import pl.baczkowicz.mqttspy.ui.charts.ChartFactory;
 import pl.baczkowicz.mqttspy.ui.charts.ChartMode;
 import pl.baczkowicz.mqttspy.ui.connections.ConnectionManager;
 import pl.baczkowicz.mqttspy.ui.connections.SubscriptionManager;
-import pl.baczkowicz.mqttspy.ui.events.EventManager;
+import pl.baczkowicz.spy.eventbus.IKBus;
+import pl.baczkowicz.spy.ui.events.ClearTabEvent;
 import pl.baczkowicz.spy.ui.panes.PaneVisibilityStatus;
 import pl.baczkowicz.spy.ui.panes.TitledPaneStatus;
 import pl.baczkowicz.spy.ui.utils.DialogFactory;
@@ -72,8 +73,8 @@ public class ContextMenuUtils
 	 */
 	public static ContextMenu createSubscriptionTabContextMenu(
 			final MqttAsyncConnection connection, 
-			final MqttSubscription subscription, 
-			final EventManager<FormattedMqttMessage> eventManager, 
+			final MqttSubscription subscription,  
+			final IKBus eventBus,
 			final SubscriptionManager subscriptionManager,
 			final ConfigurationManager configurationManager,
 			final SubscriptionController subscriptionController)
@@ -143,7 +144,8 @@ public class ContextMenuUtils
 		{
 			public void handle(ActionEvent e)
 			{				
-				eventManager.notifyClearHistory(subscription.getStore());
+				eventBus.publish(new ClearTabEvent(subscription.getStore()));
+				// eventManager.notifyClearHistory(subscription.getStore());
 				StatisticsManager.resetMessagesReceived(connection.getId(), subscription.getTopic());
 				subscription.getStore().clear();
 			}
@@ -169,7 +171,7 @@ public class ContextMenuUtils
 						ChartMode.USER_DRIVEN_MSG_PAYLOAD,
 						"Series", "Load", "msgs/s", 
 						"Message load statistics for " + subscription.getTopic() + " - " + connection.getName(), 
-						subscriptionController.getScene(), eventManager);
+						subscriptionController.getScene(), eventBus);
 			}
 		});			
 		chartsMenu.getItems().add(messageLoadChartItem);
@@ -214,16 +216,10 @@ public class ContextMenuUtils
 			}
 		});
 		configuration.getItems().add(removeItem);
-		
-		// Separator
-		configuration.getItems().add(new SeparatorMenuItem());
-		
 
 		final Menu view = new Menu("View");
 		contextMenu.getItems().add(view);
-		
-		// Separator
-		//contextMenu.getItems().add(new SeparatorMenuItem());
+	
 		
 		// Change color
 		final MenuItem changeColorMenu = new MenuItem("Change tab color");
@@ -274,7 +270,7 @@ public class ContextMenuUtils
 	 */
 	public static ContextMenu createAllSubscriptionsTabContextMenu(
 			final MqttAsyncConnection connection, 
-			final EventManager<FormattedMqttMessage> eventManager,
+			final IKBus eventBus,
 			final SubscriptionManager subscriptionManager,
 			final ConfigurationManager configurationManager,
 			final SubscriptionController subscriptionController)
@@ -312,7 +308,8 @@ public class ContextMenuUtils
 		{
 			public void handle(ActionEvent e)
 			{
-				eventManager.notifyClearHistory(connection.getStore());
+				eventBus.publish(new ClearTabEvent(connection.getStore()));
+				// eventManager.notifyClearHistory(connection.getStore());
 				StatisticsManager.resetMessagesReceived(connection.getId());
 				connection.getStore().clear();
 			}
@@ -334,7 +331,7 @@ public class ContextMenuUtils
 						ChartMode.USER_DRIVEN_MSG_PAYLOAD,
 						"Series", "Load", "msgs/s", 
 						"Message load statistics for all subscriptions - " + connection.getName(), 
-						subscriptionController.getScene(), eventManager);
+						subscriptionController.getScene(), eventBus);
 			}
 		});
 		contextMenu.getItems().add(charts);
@@ -572,7 +569,7 @@ public class ContextMenuUtils
 		final MenuItem detachMenu = new MenuItem("Detach to a separate window");
 		detachMenu.setOnAction(TabUtils.createTabDetachEvent(
 				detachMenu, connectionController, 
-				"Message log " + tab.getText(), 0));
+				"Message audit " + tab.getText(), 0));
 		view.getItems().add(detachMenu);
 		
 		final CheckMenuItem resizeMessageContent = connectionController.getResizeMessageContentMenu();

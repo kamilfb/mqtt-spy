@@ -38,7 +38,7 @@
 	        <graphic>
 	      		<ImageView fx:id="searchIcon" fitHeight="32" fitWidth="32" pickOnBounds="true">
 			         <image>
-			            <Image url="/images/small/tab-new.png" />
+			            <Image url="/images/tab-new.png" />
 			         </image>
 			      </ImageView>
 	      	</graphic>

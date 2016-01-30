@@ -19,6 +19,7 @@
  */
 package pl.baczkowicz.mqttspy.connectivity;
 
+import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,14 +56,16 @@ public class MqttAsyncConnectionRunnable implements Runnable
 			{
 				return;
 			}
+			
+			final MqttConnectOptions options = connection.getProperties().getOptions();
 
 			// Asynch connect
 			logger.info("Connecting client ID [{}] to server [{}]; options = {}",
 					connection.getProperties().getClientID(), 
 					connection.getProperties().getServerURI(), 
-					connection.getProperties().getOptions().toString());
+					options.toString());
 			
-			connection.connect(connection.getProperties().getOptions(), connection, new MqttConnectionResultHandler());
+			connection.connect(options, connection, new MqttConnectionResultHandler());
 			
 			// TODO: resubscribe when connection regained?
 		}

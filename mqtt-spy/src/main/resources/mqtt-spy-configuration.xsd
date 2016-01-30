@@ -133,7 +133,7 @@
 	
 	<xs:complexType name="UserAuthentication">
 		<xs:complexContent>
-			<xs:extension base="mqttspycommon:UserCredentials">
+			<xs:extension base="spycommon:UserCredentials">
 				<xs:sequence>
 		        	<xs:element name="AskForUsername" 		type="xs:boolean"/>
 					<xs:element name="AskForPassword" 		type="xs:boolean"/>

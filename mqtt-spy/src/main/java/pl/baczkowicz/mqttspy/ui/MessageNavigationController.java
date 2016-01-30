@@ -21,7 +21,6 @@ package pl.baczkowicz.mqttspy.ui;
 
 import java.io.File;
 import java.net.URL;
-import java.util.List;
 import java.util.ResourceBundle;
 
 import javafx.beans.value.ChangeListener;
@@ -50,26 +49,25 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
-import pl.baczkowicz.mqttspy.ui.events.EventManager;
 import pl.baczkowicz.mqttspy.ui.messagelog.MessageLogUtils;
-import pl.baczkowicz.spy.ui.events.observers.MessageAddedObserver;
-import pl.baczkowicz.spy.ui.events.observers.MessageIndexIncrementObserver;
-import pl.baczkowicz.spy.ui.events.observers.MessageIndexToFirstObserver;
-import pl.baczkowicz.spy.ui.events.observers.MessageRemovedObserver;
-import pl.baczkowicz.spy.ui.events.queuable.ui.BrowseReceivedMessageEvent;
+import pl.baczkowicz.spy.eventbus.IKBus;
+import pl.baczkowicz.spy.files.FileUtils;
+import pl.baczkowicz.spy.messages.FormattedMessage;
+import pl.baczkowicz.spy.ui.events.MessageAddedEvent;
+import pl.baczkowicz.spy.ui.events.MessageIndexChangeEvent;
+import pl.baczkowicz.spy.ui.events.MessageIndexIncrementEvent;
+import pl.baczkowicz.spy.ui.events.MessageIndexToFirstEvent;
+import pl.baczkowicz.spy.ui.events.MessageRemovedEvent;
 import pl.baczkowicz.spy.ui.events.queuable.ui.BrowseRemovedMessageEvent;
 import pl.baczkowicz.spy.ui.storage.BasicMessageStoreWithSummary;
 import pl.baczkowicz.spy.ui.storage.ManagedMessageStoreWithFiltering;
 import pl.baczkowicz.spy.ui.utils.TextUtils;
 import pl.baczkowicz.spy.ui.utils.UiUtils;
-import pl.baczkowicz.spy.utils.FileUtils;
 
 /**
  * Controller for the message navigation buttons.
  */
-public class MessageNavigationController implements Initializable, 
-	MessageIndexToFirstObserver, MessageIndexIncrementObserver, 
-	MessageAddedObserver<FormattedMqttMessage>, MessageRemovedObserver<FormattedMqttMessage>
+public class MessageNavigationController implements Initializable
 {
 	final static Logger logger = LoggerFactory.getLogger(MessageNavigationController.class);
 
@@ -126,7 +124,7 @@ public class MessageNavigationController implements Initializable,
 	
 	private Label totalMessagesValueLabel;
 	
-	private EventManager<FormattedMqttMessage> eventManager;
+	private IKBus eventBus;
 
 	public void initialize(URL location, ResourceBundle resources)
 	{				
@@ -265,44 +263,46 @@ public class MessageNavigationController implements Initializable,
 	// === Other methods ==
 	// ====================
 		
-	@Override
-	public void onMessageAdded(final List<BrowseReceivedMessageEvent<FormattedMqttMessage>> events)
+	public void onMessageAdded(final MessageAddedEvent<FormattedMessage> event)
 	{
 		// This is registered for filtered messages only
 		if (showLatest())
 		{
-			onNavigateToFirst();
+			onNavigateToFirst(new MessageIndexToFirstEvent(this));
 		}
 		else
 		{
-			onMessageIndexIncrement(events.size());
+			onMessageIndexIncrement(new MessageIndexIncrementEvent(event.getMessages().size(), store));
 		}
 	}
 		
-	@Override
-	public void onMessageIndexChange(final int newSelectedMessage)
+	public void onMessageIndexChange(final MessageIndexChangeEvent event)
 	{
-		// logger.info("{} Index change = " + newSelectedMessage, store.getName()); 
-		if (selectedMessage != newSelectedMessage)
+		// Make sure this is not from itself
+		if (event.getDispatcher() == this)
 		{
-			selectedMessage = newSelectedMessage;
+			return;
+		}
+		
+		// logger.info("{} Index change = " + newSelectedMessage, store.getName()); 
+		if (selectedMessage != event.getIndex())
+		{
+			selectedMessage = event.getIndex();
 			updateIndex();
 		}		
 	}
 	
-	@Override
-	public void onNavigateToFirst()
+	public void onNavigateToFirst(final MessageIndexToFirstEvent event)
 	{
 		// logger.info("{} Index change to first", store.getName());
 		showFirstMessage();				
 	}
 	
-	@Override
-	public void onMessageIndexIncrement(final int incrementValue)
+	public void onMessageIndexIncrement(final MessageIndexIncrementEvent event)
 	{
 		// logger.info("{} Index increment", store.getName());
 		
-		selectedMessage = selectedMessage + incrementValue;
+		selectedMessage = selectedMessage + event.getIncrement();
 		
 		// Because this is an event saying a new message is available, but we don't want to display it,
 		// so by not refreshing the content of the old one we allow uninterrupted interaction with UI fields (e.g. selection, etc.)
@@ -310,12 +310,11 @@ public class MessageNavigationController implements Initializable,
 	}
 	
 	// TODO: optimise message handling
-	@Override
-	public void onMessageRemoved(final List<BrowseRemovedMessageEvent<FormattedMqttMessage>> events)
+	public void onMessageRemoved(final MessageRemovedEvent<FormattedMessage> event)
 	{
-		for (final BrowseRemovedMessageEvent<FormattedMqttMessage> event : events)
+		for (final BrowseRemovedMessageEvent<FormattedMessage> message : event.getMessages())
 		{
-			if (event.getMessageIndex() < selectedMessage)
+			if (message.getMessageIndex() < selectedMessage)
 			{
 				selectedMessage--;					
 			}	
@@ -392,7 +391,8 @@ public class MessageNavigationController implements Initializable,
 		
 		if (refreshMessageDetails)
 		{
-			eventManager.changeMessageIndex(store, this, selectedMessage);
+			eventBus.publish(new MessageIndexChangeEvent(selectedMessage, store, this));
+			// eventManager.changeMessageIndex(store, this, selectedMessage);
 		}
 	}
 	
@@ -487,9 +487,9 @@ public class MessageNavigationController implements Initializable,
 		if (getSelectedMessageIndex() > 0)
 		{
 			final FileChooser fileChooser = new FileChooser();
-			fileChooser.setTitle("Select message log file to save to");
+			fileChooser.setTitle("Select message audit log file to save to");
 			String extensions = "messages";
-			fileChooser.setSelectedExtensionFilter(new ExtensionFilter("Message log file", extensions));
+			fileChooser.setSelectedExtensionFilter(new ExtensionFilter("Message audit log file", extensions));
 	
 			final File selectedFile = fileChooser.showSaveDialog(getParentWindow());
 	
@@ -521,9 +521,9 @@ public class MessageNavigationController implements Initializable,
 	public void copyMessagesToFile()
 	{
 		final FileChooser fileChooser = new FileChooser();
-		fileChooser.setTitle("Select message log file to save to");
+		fileChooser.setTitle("Select message audit log file to save to");
 		String extensions = "messages";
-		fileChooser.setSelectedExtensionFilter(new ExtensionFilter("Message log file", extensions));
+		fileChooser.setSelectedExtensionFilter(new ExtensionFilter("Message audit log file", extensions));
 
 		final File selectedFile = fileChooser.showSaveDialog(getParentWindow());
 
@@ -552,11 +552,6 @@ public class MessageNavigationController implements Initializable,
 		return selectedMessage;
 	}
 	
-	public void setEventManager(final EventManager<FormattedMqttMessage> eventManager)
-	{
-		this.eventManager = eventManager;
-	}
-	
 	/**
 	 * Get the 'unique only' menu item.
 	 * 
@@ -567,8 +562,23 @@ public class MessageNavigationController implements Initializable,
 		return uniqueOnlyMenu;
 	}
 
-	public MenuButton getFilterButton()
+	public void setDetailedViewVisibility(final boolean detailed)
 	{
-		return filterButton;		
+		filterButton.setVisible(detailed);
 	}
+
+	public void toggleDetaileledViewVisibility()
+	{
+		filterButton.setVisible(!filterButton.isVisible());
+	}
+	
+	public void setEventBus(final IKBus eventBus)
+	{
+		this.eventBus = eventBus;
+	}
+
+//	public MenuButton getFilterButton()
+//	{
+//		return filterButton;		
+//	}
 }

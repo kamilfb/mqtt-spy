@@ -234,5 +234,5 @@ public abstract class BaseDaemon implements IDaemon
 	
 	public abstract void loadAndRun(final String configurationFile) throws SpyException;
 	
-	protected abstract boolean canPublish();	
+	public abstract boolean canPublish();	
 }

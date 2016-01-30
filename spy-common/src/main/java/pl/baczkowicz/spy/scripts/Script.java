@@ -27,6 +27,7 @@ import java.util.concurrent.Executor;
 
 import javax.script.ScriptEngine;
 
+import pl.baczkowicz.spy.eventbus.IKBus;
 import pl.baczkowicz.spy.utils.TimeUtils;
 import pl.baczkowicz.spy.utils.tasks.StoppableTask;
 
@@ -108,14 +109,14 @@ public class Script extends BasicScriptProperties
 	/**
 	 * Creates a script runner for the script if it doesn't exist yet.
 	 * 
-	 * @param eventManager The event manager to use
+	 * @param eventBus The event bus to use
 	 * @param executor The executor to use
 	 */
-	public void createScriptRunner(final IScriptEventManager eventManager, final Executor executor)
+	public void createScriptRunner(final IKBus eventBus, final Executor executor)
 	{
 		if (scriptRunner == null)
 		{
-			this.scriptRunner = new ScriptRunner(eventManager, this, executor);
+			this.scriptRunner = new ScriptRunner(eventBus, this, executor);
 		}
 	}
 	

@@ -44,9 +44,10 @@ import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.scripts.MqttScriptManager;
 import pl.baczkowicz.mqttspy.ui.ConnectionController;
 import pl.baczkowicz.mqttspy.ui.SubscriptionController;
-import pl.baczkowicz.mqttspy.ui.events.EventManager;
+import pl.baczkowicz.mqttspy.ui.events.SubscriptionStatusChangeEvent;
 import pl.baczkowicz.mqttspy.ui.utils.ContextMenuUtils;
 import pl.baczkowicz.mqttspy.ui.utils.StylingUtils;
+import pl.baczkowicz.spy.eventbus.IKBus;
 import pl.baczkowicz.spy.formatting.FormattingManager;
 import pl.baczkowicz.spy.ui.configuration.UiProperties;
 import pl.baczkowicz.spy.ui.events.queuable.EventQueueManager;
@@ -67,9 +68,6 @@ public class SubscriptionManager
 	/** Diagnostic logger. */
 	private final static Logger logger = LoggerFactory.getLogger(SubscriptionManager.class);
 		
-	/** Global event manager. */
-	private final EventManager eventManager;
-	
 	/** Subscription controllers (subscription topic to controller mapping). */
 	private final Map<String, SubscriptionController> subscriptionControllers = new LinkedHashMap<>();
 	
@@ -79,17 +77,19 @@ public class SubscriptionManager
 	/** Configuration manager. */
 	private ConfigurationManager configurationManager;
 
+	private IKBus eventBus;
+
 	/**
 	 * Creates a SubscriptionManager with the given parameters.
 	 * 
 	 * @param eventManager The global event manager
+	 * @param eventBus The global event bus
 	 * @param configurationManager The configuration manager
 	 * @param uiEventQueue The UI event queue to be used
 	 */
-	public SubscriptionManager(final EventManager eventManager, final ConfigurationManager configurationManager, 
-		final EventQueueManager<FormattedMqttMessage> uiEventQueue)
+	public SubscriptionManager(final IKBus eventBus, final ConfigurationManager configurationManager, final EventQueueManager<FormattedMqttMessage> uiEventQueue)
 	{
-		this.eventManager = eventManager;
+		this.eventBus = eventBus;
 		this.configurationManager = configurationManager;
 		this.uiEventQueue = uiEventQueue;
 	}
@@ -113,7 +113,7 @@ public class SubscriptionManager
 		final MqttSubscription subscription = new MqttSubscription(subscriptionDetails.getTopic(),
 				subscriptionDetails.getQos(), color,
 				connection.getProperties().getConfiguredProperties().getMinMessagesStoredPerTopic(),
-				connection.getPreferredStoreSize(), uiEventQueue, eventManager, 
+				connection.getPreferredStoreSize(), uiEventQueue, eventBus,   
 				connection.getStore().getFormattingManager(),
 				UiProperties.getSummaryMaxPayloadLength(configurationManager.getUiPropertyFile()));
 		subscription.setConnection(connection);
@@ -123,14 +123,14 @@ public class SubscriptionManager
 		final SubscriptionController subscriptionController = createSubscriptionTab(
 				false, subscription.getStore(), subscription, connection, connectionController);
 		subscriptionController.getTab().setContextMenu(ContextMenuUtils.createSubscriptionTabContextMenu(
-				connection, subscription, eventManager, this, configurationManager, subscriptionController));		
+				connection, subscription, eventBus, this, configurationManager, subscriptionController));		
 
 		subscriptionController.setConnectionController(connectionController);
 		subscriptionController.setFormatting(configurationManager.getConfiguration().getFormatting());
 		subscriptionController.setTabStatus(new TabStatus());
 		subscriptionController.getTabStatus().setVisibility(PaneVisibilityStatus.NOT_VISIBLE);
 		subscriptionController.init();
-		subscriptionController.onSubscriptionStatusChanged(subscription);
+		subscriptionController.onSubscriptionStatusChanged(new SubscriptionStatusChangeEvent(subscription));
 		
 		subscription.setSubscriptionController(subscriptionController);
 		subscriptionController.setDetailedViewVisibility(connectionController.getDetailedViewVisibility());
@@ -177,11 +177,12 @@ public class SubscriptionManager
 		final Tab tab = new Tab();
 		if (subscription != null)
 		{
-			eventManager.registerSubscriptionStatusObserver(subscriptionController, subscription);
+			eventBus.subscribeWithFilterOnly(subscriptionController, subscriptionController::onSubscriptionStatusChanged, SubscriptionStatusChangeEvent.class, subscription);
+			// eventManager.registerSubscriptionStatusObserver(subscriptionController, subscription);
 		}
 		
 		subscriptionController.setStore(observableMessageStore);
-		subscriptionController.setEventManager(eventManager);
+		subscriptionController.setEventBus(eventBus);
 		subscriptionController.setConfingurationManager(configurationManager);
 		if (connection != null)
 		{

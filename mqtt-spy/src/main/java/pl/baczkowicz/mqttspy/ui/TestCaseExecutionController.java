@@ -23,9 +23,6 @@ import java.io.File;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -40,16 +37,19 @@ import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.FileChooser;
 import javafx.util.Callback;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import pl.baczkowicz.mqttspy.ui.testcases.InteractiveTestCaseManager;
 import pl.baczkowicz.spy.scripts.ScriptRunningState;
 import pl.baczkowicz.spy.testcases.TestCaseStatus;
 import pl.baczkowicz.spy.ui.properties.TestCaseProperties;
 import pl.baczkowicz.spy.ui.properties.TestCaseStepProperties;
+import pl.baczkowicz.spy.ui.utils.ImageUtils;
 
 /**
  * Controller for the search window.
@@ -218,13 +218,13 @@ public class TestCaseExecutionController extends AnchorPane implements Initializ
 		switch (status)
 		{
 			case ACTIONED:
-				iconName = "testcase_actioned.png";
+				iconName = "testcase_actioned";
 				break;
 			case ERROR:
-				iconName = "testcase_error.png";
+				iconName = "testcase_error";
 				break;
 			case FAILED:
-				iconName = "testcase_fail.png";
+				iconName = "testcase_fail";
 				break;
 			case IN_PROGRESS:
 			{
@@ -236,10 +236,10 @@ public class TestCaseExecutionController extends AnchorPane implements Initializ
 			case NOT_RUN:
 				break;
 			case PASSED:
-				iconName = "testcase_pass.png";
+				iconName = "testcase_pass";
 				break;
 			case SKIPPED:
-				iconName = "testcase_skipped.png";
+				iconName = "testcase_skipped";
 				break;
 			default:
 				break;		
@@ -247,8 +247,7 @@ public class TestCaseExecutionController extends AnchorPane implements Initializ
 	
 		if (iconName != null)
 		{
-			final ImageView imageView = new ImageView (new Image(getClass().getResourceAsStream("/images/" + iconName)));
-			return imageView;
+			return ImageUtils.createIcon(iconName);
 		}
 		
 		return null;
