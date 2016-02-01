@@ -32,7 +32,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.control.CheckMenuItem?>
 
-<AnchorPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.baczkowicz.mqttspy.ui.LineChartPaneController">
+<AnchorPane xmlns="http://javafx.com/javafx/8.0.66" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.baczkowicz.mqttspy.ui.LineChartPaneController">
    <children>
       <AnchorPane fx:id="chartPane" prefHeight="40.0" prefWidth="599.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
@@ -40,7 +40,7 @@
             <Label fx:id="showRangeLabel" layoutX="368.0" layoutY="11.0" text="Show" AnchorPane.rightAnchor="285.0" />
             <ComboBox fx:id="showRangeBox" focusTraversable="false" layoutY="7.0" prefHeight="25.0" prefWidth="150.0" AnchorPane.rightAnchor="127.0" AnchorPane.topAnchor="7.0" />
             
-            <Button fx:id="refreshButton" layoutX="14.0" layoutY="9.0" prefHeight="25.0" prefWidth="100.0" mnemonicParsing="false" onAction="#refresh" text="Refresh" AnchorPane.leftAnchor="7.0" AnchorPane.topAnchor="7.0">
+            <Button fx:id="refreshButton" layoutX="14.0" layoutY="9.0" mnemonicParsing="false" onAction="#refresh" prefHeight="25.0" prefWidth="100.0" text="Refresh" AnchorPane.leftAnchor="7.0" AnchorPane.topAnchor="7.0">
             	<padding><Insets bottom="1.0" left="1.0" right="1.0" top="1.0" /></padding>
 		        <graphic>
 		      		<ImageView fitHeight="16" fitWidth="16" pickOnBounds="true">
@@ -57,14 +57,20 @@
 		      	<graphic>
 		      		<ImageView fitHeight="18.0" fitWidth="18.0" pickOnBounds="true">
 				         <image>
-				            <Image url="/images/settings.png"/>
+				            <Image url="/images/settings.png" />
 				         </image>
 				      </ImageView>
 		      	</graphic>
 		        <items>
-		        	<CheckMenuItem fx:id="displaySymbolsCheckBox" text="Display points and tooltips"/>   
+		        	<CheckMenuItem fx:id="displaySymbolsCheckBox" text="Display points and tooltips" />   
 		            <SeparatorMenuItem mnemonicParsing="false" />
-		            <MenuItem text="Reset chart" onAction="#reset"/>
+		            <MenuItem onAction="#reset" text="Reset chart" />
+                  <SeparatorMenuItem mnemonicParsing="false" />
+                  <Menu mnemonicParsing="false" text="Export">
+                    <items>
+                      <MenuItem mnemonicParsing="false" onAction="#exportAsImage" text="Chart as image..." />
+                    </items>
+                  </Menu>
 		        </items>
 		         <font>
 		            <Font size="11.0" />

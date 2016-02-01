@@ -23,6 +23,8 @@
  */
 package pl.baczkowicz.mqttspy.ui;
 
+import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -33,13 +35,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
 
+import javax.imageio.ImageIO;
+
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.SnapshotParameters;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
@@ -54,15 +60,19 @@ import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.MenuButton;
 import javafx.scene.control.Tooltip;
+import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.stage.FileChooser;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
 
 import org.gillius.jfxutils.chart.ChartPanManager;
 import org.gillius.jfxutils.chart.JFXChartUtil;
 import org.gillius.jfxutils.chart.StableTicksAxis;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
 import pl.baczkowicz.mqttspy.ui.charts.ChartMode;
@@ -81,6 +91,9 @@ import pl.baczkowicz.spy.utils.TimeUtils;
  */
 public class LineChartPaneController<T extends FormattedMessage> implements Initializable
 {
+	/** Diagnostic logger. */
+	private final static Logger logger = LoggerFactory.getLogger(LineChartPaneController.class);
+	
 	private static boolean lastAutoRefresh = true;
 	
 	private static boolean lastDisplaySymbols = true;
@@ -443,6 +456,30 @@ public class LineChartPaneController<T extends FormattedMessage> implements Init
     			warningShown = true;
     		}
     	}
+	}
+	
+	@FXML
+	private void exportAsImage()
+	{
+		final FileChooser fileChooser = new FileChooser();
+		fileChooser.setTitle("Select PNG file to save as...");
+		
+		final File selectedFile = fileChooser.showSaveDialog(lineChart.getScene().getWindow());
+
+		if (selectedFile != null)
+		{			
+			final WritableImage image = lineChart.snapshot(new SnapshotParameters(), null);
+
+		    try 
+		    {
+		        ImageIO.write(SwingFXUtils.fromFXImage(image, null), "png", selectedFile);
+		    } 
+		    catch (IOException e) 
+		    {
+		        logger.error("Cannot export to file {}", selectedFile.getAbsoluteFile(), e);
+		        DialogFactory.createErrorDialog("Cannot export to file", "Chart cannot be exported to file: " + e.getLocalizedMessage());
+		    }
+		}		
 	}
 	
 	@FXML
