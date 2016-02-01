@@ -33,10 +33,12 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 import javax.imageio.ImageIO;
 
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -58,7 +60,9 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.control.Menu;
 import javafx.scene.control.MenuButton;
+import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseButton;
@@ -122,6 +126,18 @@ public class LineChartPaneController<T extends FormattedMessage> implements Init
 	@FXML
 	private MenuButton optionsButton;
 	
+	@FXML
+	private CheckMenuItem saveImageOnMessage;
+	
+	@FXML
+	private CheckMenuItem saveImageAtInterval;
+	
+	@FXML
+	private CheckMenuItem addTimestampOnExport;
+	
+	@FXML
+	private Menu autoImageExport;
+	
 	private BasicMessageStoreWithSummary<T> store;
 	
 	private IKBus eventBus;
@@ -145,6 +161,14 @@ public class LineChartPaneController<T extends FormattedMessage> implements Init
 	private String seriesValueName;
 
 	private String seriesUnit;
+
+	private File selectedImageFile;
+
+	private boolean saveOnMessage;
+
+	private Integer exportInterval;
+
+	private boolean addTimestampOnAutoExport;
 	
 	/**
 	 * @param seriesValueName the seriesValueName to set
@@ -367,7 +391,8 @@ public class LineChartPaneController<T extends FormattedMessage> implements Init
 	public void cleanup()
 	{
 		eventBus.unsubscribeConsumer(this, MessageAddedEvent.class);
-		// eventManager.deregisterMessageAddedObserver(this);
+		
+		exportInterval = null;
 	}
 	
 	private void divideMessagesByTopic(final Collection<String> topics)
@@ -464,22 +489,122 @@ public class LineChartPaneController<T extends FormattedMessage> implements Init
 		final FileChooser fileChooser = new FileChooser();
 		fileChooser.setTitle("Select PNG file to save as...");
 		
-		final File selectedFile = fileChooser.showSaveDialog(lineChart.getScene().getWindow());
+		selectedImageFile = fileChooser.showSaveDialog(lineChart.getScene().getWindow());
 
-		if (selectedFile != null)
+		if (selectedImageFile != null)
 		{			
-			final WritableImage image = lineChart.snapshot(new SnapshotParameters(), null);
-
-		    try 
-		    {
-		        ImageIO.write(SwingFXUtils.fromFXImage(image, null), "png", selectedFile);
-		    } 
-		    catch (IOException e) 
-		    {
-		        logger.error("Cannot export to file {}", selectedFile.getAbsoluteFile(), e);
-		        DialogFactory.createErrorDialog("Cannot export to file", "Chart cannot be exported to file: " + e.getLocalizedMessage());
-		    }
+			exportAsImage(selectedImageFile);
 		}		
+	}
+
+	private void exportAsImage(final File selectedFile)
+	{
+		final WritableImage image = lineChart.snapshot(new SnapshotParameters(), null);
+
+	    try 
+	    {
+	    	if (addTimestampOnAutoExport)
+	    	{
+	    		final String newName = selectedFile.getAbsolutePath().replace(
+	    				selectedFile.getName(), 
+	    				TimeUtils.DATE_WITH_SECONDS_FILENAME_SDF.format(new Date()) + "_" + selectedFile.getName());
+	    		
+	    		final File withTimestamp = new File(newName);
+	    		ImageIO.write(SwingFXUtils.fromFXImage(image, null), "png", withTimestamp);
+	    	}
+	    	else
+	    	{
+	    		ImageIO.write(SwingFXUtils.fromFXImage(image, null), "png", selectedFile);
+	    	}
+	        
+	    	autoImageExport.setDisable(false);
+	    } 
+	    catch (IOException e) 
+	    {
+	        logger.error("Cannot export to file {}", selectedFile.getAbsoluteFile(), e);
+	        DialogFactory.createErrorDialog("Cannot export to file", "Chart cannot be exported to file: " + e.getLocalizedMessage());
+	    }
+	}
+	
+	@FXML
+	private void updateSaveOnMessage()
+	{
+		saveOnMessage = saveImageOnMessage.isSelected();
+	}
+	
+	@FXML
+	private void updateSaveOnInterval()
+	{
+		if (saveImageAtInterval.isSelected())
+		{
+			final TextInputDialog dialog = new TextInputDialog("60");
+			dialog.setTitle("Export interval");
+			dialog.setHeaderText(null);
+			dialog.setContentText("Please enter export interval (in seconds):");
+	
+			final Optional<String> result = dialog.showAndWait();
+			if (result.isPresent())
+			{
+				try
+				{
+					exportInterval = Integer.valueOf(result.get());
+					
+					if (exportInterval > 0)
+					{
+						new Thread(new Runnable()
+						{
+							@Override
+							public void run()
+							{
+								while (exportInterval != null && exportInterval > 0)
+								{
+									Platform.runLater(new Runnable()
+									{										
+										@Override
+										public void run()
+										{
+											exportAsImage(selectedImageFile);											
+										}
+									});									
+								
+									try
+									{
+										Thread.sleep(exportInterval * 1000);
+									}
+									catch (InterruptedException e)
+									{
+										e.printStackTrace();
+									}
+								}
+							}						
+						}).start();
+					}
+//					else if (exportInterval == 0)
+//					{
+//						exportInterval = null;
+//					}						
+					else
+					{
+						DialogFactory.createErrorDialog("Invalid number format", "The provided value is not a correct number (>0).");
+						exportInterval = null;
+					}
+				}
+				catch (NumberFormatException e)
+				{
+					DialogFactory.createErrorDialog("Invalid number format", "The provided value is not a correct number (>0).");
+				}
+			}
+		}
+		else
+		{
+			exportInterval = null;
+		}
+	}
+	
+	@FXML
+	private void addTimestampOnAutoExport()
+	{
+		addTimestampOnAutoExport = addTimestampOnExport.isSelected();
 	}
 	
 	@FXML
@@ -626,9 +751,42 @@ public class LineChartPaneController<T extends FormattedMessage> implements Init
 					populateTooltip(topicToSeries.get(topic), 
 						topicToSeries.get(topic).getData().get(topicToSeries.get(topic).getData().size() - 1));
 				}
+				
+				saveOnMessage();
 			}
 		}
 	}	
+	
+	private void saveOnMessage()
+	{
+		if (saveOnMessage)
+		{
+			new Thread(new Runnable()
+			{						
+				@Override
+				public void run()
+				{
+					try
+					{
+						Thread.sleep(1000);
+					}
+					catch (InterruptedException e)
+					{
+						e.printStackTrace();
+					}
+					
+					Platform.runLater(new Runnable()
+					{						
+						@Override
+						public void run()
+						{
+							exportAsImage(selectedImageFile);						
+						}
+					});									
+				}
+			}).start();								
+		}
+	}
 	
 	public void setChartMode(final ChartMode mode)
 	{

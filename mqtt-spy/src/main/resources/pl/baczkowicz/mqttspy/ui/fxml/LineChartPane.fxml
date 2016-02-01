@@ -55,7 +55,7 @@
 
 			<MenuButton fx:id="optionsButton" focusTraversable="false" mnemonicParsing="false" prefWidth="110.0" text="Options" AnchorPane.rightAnchor="7.0" AnchorPane.topAnchor="7.0">
 		      	<graphic>
-		      		<ImageView fitHeight="18.0" fitWidth="18.0" pickOnBounds="true">
+		      		<ImageView fitHeight="16.0" fitWidth="16.0" pickOnBounds="true">
 				         <image>
 				            <Image url="/images/settings.png" />
 				         </image>
@@ -68,13 +68,18 @@
                   <SeparatorMenuItem mnemonicParsing="false" />
                   <Menu mnemonicParsing="false" text="Export">
                     <items>
-                      <MenuItem mnemonicParsing="false" onAction="#exportAsImage" text="Chart as image..." />
+                    	<Menu mnemonicParsing="false" text="Chart as PNG image">
+                   			<MenuItem mnemonicParsing="false" onAction="#exportAsImage" text="Save as..." />
+                   			<SeparatorMenuItem mnemonicParsing="false" />
+                   			<Menu fx:id="autoImageExport" mnemonicParsing="false" text="Auto-export" disable="true" >                   			
+                   				<CheckMenuItem fx:id="saveImageOnMessage" onAction="#updateSaveOnMessage" text="Export on new message" />
+                   				<CheckMenuItem fx:id="saveImageAtInterval" onAction="#updateSaveOnInterval" text="Export at fixed interval..." />
+                   				<CheckMenuItem fx:id="addTimestampOnExport" onAction="#addTimestampOnAutoExport" text="Append timestamp on export" />
+                   			</Menu>
+                    	</Menu>
                     </items>
                   </Menu>
 		        </items>
-		         <font>
-		            <Font size="11.0" />
-		         </font>
 		      </MenuButton>
 		      
          </children>
