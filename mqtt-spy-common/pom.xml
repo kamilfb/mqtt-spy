@@ -3,7 +3,7 @@
 	
 	<groupId>pl.baczkowicz.mqttspy</groupId>
 	<artifactId>mqtt-spy-common</artifactId>
-	<version>0.0.17</version>
+	<version>0.1.0</version>
 	
 	<name>mqtt-spy-common</name>
 	<url>http://kamilfb.github.io/mqtt-spy/</url>
@@ -41,7 +41,7 @@
 		<dependency>
 			<groupId>pl.baczkowicz.spy</groupId>
 			<artifactId>spy-common</artifactId>
-			<version>0.0.4</version>
+			<version>0.1.0</version>
 		</dependency>		
 		
 		<dependency>
