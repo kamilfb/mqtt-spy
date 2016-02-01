@@ -181,18 +181,6 @@ public class EditConnectionSecurityTlsKeyStoresController extends AnchorPane imp
 			clientKeyPassword.setText(connection.getSSL().getClientKeyPassword());
 		}			
 	}	
-	
-	@FXML
-	private void editServerKeyStoreFile()
-	{
-		// TODO
-	}
-	
-	@FXML
-	private void editClientKeyStoreFile()
-	{
-		// TODO
-	}
 
 	// ===============================
 	// === Setters and getters =======

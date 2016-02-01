@@ -194,24 +194,6 @@ public class EditConnectionSecurityTlsCertificatesController extends AnchorPane 
 			clientKeyPemFormatted.setSelected(Boolean.TRUE.equals(connection.getSSL().isClientKeyPEM()));
 		}
 	}
-	
-	@FXML
-	private void editCaCrtFile()
-	{
-		// TODO
-	}
-	
-	@FXML
-	private void editClientCrtFile()
-	{
-		// TODO
-	}
-	
-	@FXML
-	private void editClientKeyFile()
-	{
-		// TODO
-	}
 
 	// ===============================
 	// === Setters and getters =======
