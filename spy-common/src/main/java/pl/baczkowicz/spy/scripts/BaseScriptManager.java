@@ -75,6 +75,8 @@ public abstract class BaseScriptManager
 
 	/** Executor for tasks. */
 	protected Executor executor;
+
+	private Map<String, Object> customParameters;
 	
 	/**
 	 * Creates the script manager.
@@ -382,11 +384,18 @@ public abstract class BaseScriptManager
 		{
 			script.createScriptRunner(eventBus, executor);
 			script.setAsynchronous(asynchronous);
-			// Set test case args
+			
+			final Map<String, Object> scriptArgs = new HashMap<>();			
 			if (args != null)
+			{				
+				scriptArgs.putAll(args);
+			}			
+			if (customParameters != null)
 			{
-				setVariable(script, "args", args);
-			}
+				scriptArgs.putAll(customParameters);		
+			}			
+			setVariable(script, "args", scriptArgs);
+
 			
 			if (asynchronous)
 			{
@@ -620,5 +629,10 @@ public abstract class BaseScriptManager
 	public boolean containsScript(final Script script)
 	{
 		return scripts.containsKey(script.getScriptId());
+	}
+
+	public void addCustomParameters(final Map<String, Object> parameters)
+	{
+		this.customParameters = parameters;
 	}
 }
