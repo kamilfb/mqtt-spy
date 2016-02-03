@@ -61,6 +61,7 @@ import pl.baczkowicz.mqttspy.stats.StatisticsManager;
 import pl.baczkowicz.mqttspy.ui.ConnectionController;
 import pl.baczkowicz.mqttspy.ui.MainController;
 import pl.baczkowicz.mqttspy.ui.SubscriptionController;
+import pl.baczkowicz.mqttspy.ui.ViewManager;
 import pl.baczkowicz.mqttspy.ui.events.ConnectionStatusChangeEvent;
 import pl.baczkowicz.mqttspy.ui.events.queuable.UIEventHandler;
 import pl.baczkowicz.mqttspy.ui.events.queuable.connectivity.MqttConnectionAttemptFailureEvent;
@@ -115,6 +116,8 @@ public class ConnectionManager
 	
 	/** UI event queue. */
 	private final EventQueueManager<FormattedMqttMessage> uiEventQueue;
+	
+	private ViewManager viewManager;
 
 	/** Reconnection manager. */
 	private ReconnectionManager reconnectionManager;
@@ -286,7 +289,7 @@ public class ConnectionManager
 				mainController.populateConnectionPanes(connectionProperties.getConfiguredProperties(), connectionController);	
 				
 				// Apply perspective
-				mainController.showPerspective(connectionController);
+				viewManager.showPerspective(connectionController);
 			}
 		});		
 	}
@@ -584,5 +587,10 @@ public class ConnectionManager
 	public SubscriptionManager getSubscriptionManager(final ConnectionController connectionController)
 	{
 		return subscriptionManagers.get(connectionController);
+	}
+	
+	public void setViewManager(final ViewManager viewManager)
+	{
+		this.viewManager = viewManager;		
 	}
 }

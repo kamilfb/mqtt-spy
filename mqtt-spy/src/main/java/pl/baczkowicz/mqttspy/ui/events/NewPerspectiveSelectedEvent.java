@@ -20,24 +20,22 @@
 
 package pl.baczkowicz.mqttspy.ui.events;
 
-import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
-import pl.baczkowicz.spy.eventbus.FilterableEvent;
+import pl.baczkowicz.spy.ui.panes.SpyPerspective;
 
-public class SubscriptionStatusChangeEvent extends FilterableEvent
+public class NewPerspectiveSelectedEvent
 {
-	private final MqttSubscription changedSubscription;
+	private final SpyPerspective perspective;
 
-	public SubscriptionStatusChangeEvent(final MqttSubscription changedSubscription)
+	public NewPerspectiveSelectedEvent(final SpyPerspective perspective)
 	{
-		this.setFilter(changedSubscription);
-		this.changedSubscription = changedSubscription;
+		this.perspective = perspective;
 	}
 
 	/**
-	 * @return the changedSubscription
+	 * @return the perspective
 	 */
-	public MqttSubscription getChangedSubscription()
+	public SpyPerspective getPerspective()
 	{
-		return changedSubscription;
+		return perspective;
 	}
 }

@@ -63,6 +63,7 @@ import pl.baczkowicz.mqttspy.ui.controllers.edit.EditConnectionSubscriptionsCont
 import pl.baczkowicz.mqttspy.ui.utils.ConnectivityUtils;
 import pl.baczkowicz.mqttspy.utils.ConnectionUtils;
 import pl.baczkowicz.spy.common.generated.ConnectionGroupReference;
+import pl.baczkowicz.spy.eventbus.IKBus;
 import pl.baczkowicz.spy.exceptions.ConfigurationException;
 import pl.baczkowicz.spy.ui.panes.SpyPerspective;
 import pl.baczkowicz.spy.ui.utils.DialogFactory;
@@ -164,6 +165,8 @@ public class EditConnectionController extends AnchorPane implements Initializabl
 	private ConnectionManager connectionManager;
 
 	private boolean emptyConnectionList;
+
+	private IKBus eventBus;
 	
 //	private final ChangeListener basicOnChangeListener = new ChangeListener()
 //	{
@@ -293,6 +296,7 @@ public class EditConnectionController extends AnchorPane implements Initializabl
 			}
 		});
 		
+		editConnectionOtherController.setEventBus(eventBus);
 		editConnectionOtherController.setConfigurationManager(configurationManager);
 		
 		editConnectionConnectivityController.init();
@@ -704,5 +708,15 @@ public class EditConnectionController extends AnchorPane implements Initializabl
 	{
 		this.perspective = perspective;
 		perspectiveCombo.getSelectionModel().select(perspective);
+	}
+	
+	/**
+	 * Sets the event bus.
+	 *  
+	 * @param eventBus the eventBus to set
+	 */
+	public void setEventBus(final IKBus eventBus)
+	{
+		this.eventBus = eventBus;
 	}
 }

@@ -20,24 +20,33 @@
 
 package pl.baczkowicz.mqttspy.ui.events;
 
-import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
-import pl.baczkowicz.spy.eventbus.FilterableEvent;
+import javafx.stage.Window;
 
-public class SubscriptionStatusChangeEvent extends FilterableEvent
+public class ShowEditConnectionsWindowEvent
 {
-	private final MqttSubscription changedSubscription;
+	private final Window parent;
+	
+	private final boolean createNew;
 
-	public SubscriptionStatusChangeEvent(final MqttSubscription changedSubscription)
+	public ShowEditConnectionsWindowEvent(final Window parent, final boolean createNew)
 	{
-		this.setFilter(changedSubscription);
-		this.changedSubscription = changedSubscription;
+		this.parent = parent;
+		this.createNew = createNew;
 	}
 
 	/**
 	 * @return the changedSubscription
 	 */
-	public MqttSubscription getChangedSubscription()
+	public Window getParent()
 	{
-		return changedSubscription;
+		return parent;
+	}
+
+	/**
+	 * @return the createNew
+	 */
+	public boolean isCreateNew()
+	{
+		return createNew;
 	}
 }

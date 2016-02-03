@@ -41,7 +41,9 @@ import pl.baczkowicz.mqttspy.configuration.ConfiguredConnectionDetails;
 import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnectionDetails;
 import pl.baczkowicz.mqttspy.ui.EditConnectionController;
 import pl.baczkowicz.mqttspy.ui.FormattersController;
+import pl.baczkowicz.mqttspy.ui.events.ShowFormattersWindowEvent;
 import pl.baczkowicz.spy.common.generated.FormatterDetails;
+import pl.baczkowicz.spy.eventbus.IKBus;
 import pl.baczkowicz.spy.formatting.FormattingUtils;
 import pl.baczkowicz.spy.ui.keyboard.KeyboardUtils;
 
@@ -89,6 +91,8 @@ public class EditConnectionOtherController extends AnchorPane implements Initial
 	};
 
 	private ConfiguredConnectionDetails currentConnection;
+
+	private IKBus eventBus;
 	
 	// ===============================
 	// === Initialisation ============
@@ -172,7 +176,10 @@ public class EditConnectionOtherController extends AnchorPane implements Initial
 	@FXML
 	private void editFormatters()
 	{
-		parent.getMainController().showFormatters(true, parent.getMainController().getEditConnectionsStage());
+		
+		// parent.getMainController().getEditConnectionsStage().getScene().getWindow()
+		//parent.getMainController().showFormatters(true, this.getScene().getWindow());
+		eventBus.publish(new ShowFormattersWindowEvent(this.getScene().getWindow(), true));
 		
 		// In case there was a change
 		init();
@@ -239,5 +246,15 @@ public class EditConnectionOtherController extends AnchorPane implements Initial
 	public void setParent(final EditConnectionController controller)
 	{
 		this.parent = controller;
+	}
+	
+	/**
+	 * Sets the event bus.
+	 *  
+	 * @param eventBus the eventBus to set
+	 */
+	public void setEventBus(final IKBus eventBus)
+	{
+		this.eventBus = eventBus;
 	}
 }

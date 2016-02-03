@@ -20,24 +20,20 @@
 
 package pl.baczkowicz.mqttspy.ui.events;
 
-import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
-import pl.baczkowicz.spy.eventbus.FilterableEvent;
-
-public class SubscriptionStatusChangeEvent extends FilterableEvent
+public class ShowExternalWebPageEvent
 {
-	private final MqttSubscription changedSubscription;
+	private final String webpage;
 
-	public SubscriptionStatusChangeEvent(final MqttSubscription changedSubscription)
+	public ShowExternalWebPageEvent(final String webpage)
 	{
-		this.setFilter(changedSubscription);
-		this.changedSubscription = changedSubscription;
+		this.webpage = webpage;
 	}
 
 	/**
 	 * @return the changedSubscription
 	 */
-	public MqttSubscription getChangedSubscription()
+	public String getWebpage()
 	{
-		return changedSubscription;
+		return webpage;
 	}
 }

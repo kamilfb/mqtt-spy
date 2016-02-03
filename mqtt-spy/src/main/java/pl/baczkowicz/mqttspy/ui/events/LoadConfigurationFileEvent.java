@@ -20,24 +20,22 @@
 
 package pl.baczkowicz.mqttspy.ui.events;
 
-import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
-import pl.baczkowicz.spy.eventbus.FilterableEvent;
+import java.io.File;
 
-public class SubscriptionStatusChangeEvent extends FilterableEvent
+public class LoadConfigurationFileEvent
 {
-	private final MqttSubscription changedSubscription;
+	private final File file;
 
-	public SubscriptionStatusChangeEvent(final MqttSubscription changedSubscription)
+	public LoadConfigurationFileEvent(final File file)
 	{
-		this.setFilter(changedSubscription);
-		this.changedSubscription = changedSubscription;
+		this.file = file;
 	}
 
 	/**
 	 * @return the changedSubscription
 	 */
-	public MqttSubscription getChangedSubscription()
+	public File getFile()
 	{
-		return changedSubscription;
+		return file;
 	}
 }

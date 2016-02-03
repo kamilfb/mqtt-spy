@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
 
-import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
@@ -52,7 +51,11 @@ import pl.baczkowicz.mqttspy.ui.connections.ConnectionManager;
 import pl.baczkowicz.mqttspy.ui.controlpanel.ControlPanelStatsUpdater;
 import pl.baczkowicz.mqttspy.ui.controlpanel.GettingInvolvedTooltip;
 import pl.baczkowicz.mqttspy.ui.controlpanel.ItemStatus;
+import pl.baczkowicz.mqttspy.ui.events.ConfigurationLoadedEvent;
 import pl.baczkowicz.mqttspy.ui.events.ConnectionStatusChangeEvent;
+import pl.baczkowicz.mqttspy.ui.events.ConnectionsChangedEvent;
+import pl.baczkowicz.mqttspy.ui.events.LoadConfigurationFileEvent;
+import pl.baczkowicz.mqttspy.ui.events.ShowExternalWebPageEvent;
 import pl.baczkowicz.mqttspy.ui.properties.VersionInfoProperties;
 import pl.baczkowicz.mqttspy.ui.utils.ActionUtils;
 import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
@@ -108,8 +111,6 @@ public class ControlPanelController extends AnchorPane implements Initializable
 
 	private VersionManager versionManager;
 
-	private Application application;
-
 	private ConfigurationManager configurationManager;
 
 	private MainController mainController;
@@ -144,8 +145,8 @@ public class ControlPanelController extends AnchorPane implements Initializable
 		eventBus.subscribe(this, this::onVersionInfoReceived, VersionInfoReceivedEvent.class, new SimpleRunLaterExecutor());
 		eventBus.subscribe(this, this::onVersionInfoError, VersionInfoErrorEvent.class, new SimpleRunLaterExecutor());
 		eventBus.subscribe(this, this::onConnectionStatusChanged, ConnectionStatusChangeEvent.class, new SimpleRunLaterExecutor());
-		//eventManager.registerVersionInfoObserver(this);
-		//eventManager.registerConnectionStatusObserver(this, null);
+		eventBus.subscribe(this, this::onConnectionsChanged, ConnectionsChangedEvent.class);
+		eventBus.subscribe(this, this::onConfigurationFileStatusChange, ConfigurationLoadedEvent.class);
 		
 		controlPanelItem1Controller.setConfigurationMananger(configurationManager);
 		controlPanelItem2Controller.setConfigurationMananger(configurationManager);
@@ -178,7 +179,7 @@ public class ControlPanelController extends AnchorPane implements Initializable
 	{
 		controlPanelItem4Controller.refresh();
 		
-		statsUpdater = new ControlPanelStatsUpdater(controlPanelItem4Controller, button, application);
+		statsUpdater = new ControlPanelStatsUpdater(controlPanelItem4Controller, button, eventBus);
 		statsUpdater.show();
 		gettingInvolvedTooltip = new GettingInvolvedTooltip();				  
 		button.setTooltip(gettingInvolvedTooltip);
@@ -202,13 +203,18 @@ public class ControlPanelController extends AnchorPane implements Initializable
 		refreshConnectionsStatus();
 	}
 	
+	public void onConnectionsChanged(final ConnectionsChangedEvent event)
+	{
+		refreshConnectionsStatus();
+	}
+	
 	public void refreshConnectionsStatus()
 	{
 		logger.trace("Refreshing connection status...");
 		showConnections(controlPanelItem2Controller, button2);				
 	}
 
-	public void refreshConfigurationFileStatus()
+	public void onConfigurationFileStatusChange(final ConfigurationLoadedEvent event)
 	{
 		showConfigurationFileStatus(controlPanelItem1Controller, button1);		
 	}
@@ -230,7 +236,8 @@ public class ControlPanelController extends AnchorPane implements Initializable
 				{
 					if (DialogUtils.showDefaultConfigurationFileMissingChoice("Configuration file not found", button.getScene().getWindow()))
 					{
-						mainController.loadConfigurationFileAndShowErrorWhenApplicable(ConfigurationManager.getDefaultConfigurationFile());
+						eventBus.publish(new LoadConfigurationFileEvent(ConfigurationManager.getDefaultConfigurationFile()));
+						// mainController.loadConfigurationFileOnRunLater(ConfigurationManager.getDefaultConfigurationFile());
 					}					
 				}
 			});
@@ -443,7 +450,8 @@ public class ControlPanelController extends AnchorPane implements Initializable
 			@Override
 			public void handle(ActionEvent event)
 			{				
-				application.getHostServices().showDocument(configurationManager.getDefaultPropertyFile().getProperty(PropertyFileLoader.DOWNLOAD_URL));			
+				eventBus.publish(new ShowExternalWebPageEvent(configurationManager.getDefaultPropertyFile().getProperty(PropertyFileLoader.DOWNLOAD_URL)));
+				// application.getHostServices().showDocument(configurationManager.getDefaultPropertyFile().getProperty(PropertyFileLoader.DOWNLOAD_URL));			
 			}
 		});
 		
@@ -532,11 +540,6 @@ public class ControlPanelController extends AnchorPane implements Initializable
 	// === Setters and getters =======
 	// ===============================
 	
-	public void setApplication(final Application application)
-	{
-		this.application = application;
-	}
-	
 	public void setConfigurationMananger(final ConfigurationManager configurationManager)
 	{
 		this.configurationManager = configurationManager;
@@ -546,11 +549,6 @@ public class ControlPanelController extends AnchorPane implements Initializable
 	{
 		this.mainController = mainController;
 	}
-
-//	public void setEventManager(EventManager<FormattedMqttMessage> eventManager)
-//	{
-//		this.eventManager = eventManager;		
-//	}
 
 	public void setConnectionManager(final ConnectionManager connectionManager)
 	{

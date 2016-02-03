@@ -20,24 +20,8 @@
 
 package pl.baczkowicz.mqttspy.ui.events;
 
-import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
-import pl.baczkowicz.spy.eventbus.FilterableEvent;
 
-public class SubscriptionStatusChangeEvent extends FilterableEvent
+public class ConnectionsChangedEvent
 {
-	private final MqttSubscription changedSubscription;
-
-	public SubscriptionStatusChangeEvent(final MqttSubscription changedSubscription)
-	{
-		this.setFilter(changedSubscription);
-		this.changedSubscription = changedSubscription;
-	}
-
-	/**
-	 * @return the changedSubscription
-	 */
-	public MqttSubscription getChangedSubscription()
-	{
-		return changedSubscription;
-	}
+	// Empty
 }
