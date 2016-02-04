@@ -29,7 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.spy.common.generated.FormatterDetails;
-import pl.baczkowicz.spy.messages.IBaseMessage;
+import pl.baczkowicz.spy.messages.FormattedMessage;
 import pl.baczkowicz.spy.scripts.BaseScriptManager;
 import pl.baczkowicz.spy.scripts.Script;
 import pl.baczkowicz.spy.utils.ConversionUtils;
@@ -98,7 +98,7 @@ public class ScriptBasedFormatter
 		logger.debug("Adding formatter {} took {} ms", formatter.getName(), (end - start));
 	}
 	
-	public String formatMessage(final FormatterDetails formatter, final IBaseMessage message)
+	public String formatMessage(final FormatterDetails formatter, final FormattedMessage message)
 	{
 		try
 		{
@@ -116,6 +116,7 @@ public class ScriptBasedFormatter
 		}
 		catch (NoSuchMethodException | ScriptException e)
 		{
+			logger.trace("Cannot parse the message", e);
 			return message.getPayload();
 		}	
 	}
