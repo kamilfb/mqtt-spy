@@ -112,6 +112,7 @@ public class ViewManager
 		eventBus.subscribe(this, this::loadConfigurationFile, LoadConfigurationFileEvent.class, new SimpleRunLaterExecutor());
 		eventBus.subscribe(this, this::showEditConnectionsWindow, ShowEditConnectionsWindowEvent.class);
 		eventBus.subscribe(this, this::onNewSelectedPerspective, NewPerspectiveSelectedEvent.class);
+		eventBus.subscribe(this, this::openMessageLog, ShowMessageLogEvent.class);
 	}
 
 	private void initialiseAboutWindow(final Window parentWindow)
