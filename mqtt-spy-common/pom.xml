@@ -22,6 +22,11 @@
 			<id>Eclipse Paho Repo</id>
 			<url>https://repo.eclipse.org/content/repositories/paho-releases/</url>
 		</repository>
+		
+		<repository>
+			<id>Eclipse Kura Repo</id>
+			<url>https://repo.eclipse.org/content/repositories/kura-releases/</url>
+		</repository>
 
 		<repository>
 			<id>bintray</id>
@@ -48,6 +53,30 @@
 			<groupId>org.eclipse.paho</groupId>
 			<artifactId>org.eclipse.paho.client.mqttv3</artifactId>
 			<version>1.0.3-20151116.050526-315</version>
+		</dependency> 
+		
+		<dependency>
+			<groupId>com.google.protobuf</groupId>
+			<artifactId>protobuf-java</artifactId>
+			<version>2.6.1</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.eclipse.kura</groupId>
+			<artifactId>org.eclipse.kura.core.cloud</artifactId>
+			<version>1.0.6</version>	
+		</dependency> 
+		
+		<dependency>
+			<groupId>org.eclipse.kura</groupId>
+			<artifactId>org.eclipse.kura.core</artifactId>
+			<version>1.0.6</version>	
+		</dependency> 
+		
+		<dependency>
+			<groupId>org.eclipse.kura</groupId>
+			<artifactId>org.eclipse.kura.api</artifactId>
+			<version>1.0.6</version>	
 		</dependency> 
 				
 		<dependency>
