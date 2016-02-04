@@ -217,7 +217,7 @@ public class FormattersController implements Initializable
 		}
 		else
 		{
-			sampleOutput.setText(scriptBasedFormatter.formatMessage(newFormatter, 
+			sampleOutput.setText(scriptBasedFormatter.formatMessage(formatter, 
 				new FormattedMqttMessage(0, "", new MqttMessage(sampleInput.getText().getBytes()), connection)));
 			formatterDetails.getStyleClass().add("valid");
 		}
