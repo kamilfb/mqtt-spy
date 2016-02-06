@@ -170,13 +170,13 @@ public class NewSubscriptionController implements Initializable, TitledPaneContr
 	{
 		if (detailedView)
 		{
-			AnchorPane.setRightAnchor(subscriptionTopicText, 327.0);
+			AnchorPane.setRightAnchor(subscriptionTopicText, 262.0);
 			subscriptionQosChoice.setVisible(true);
 			subscriptionQosLabel.setVisible(true);
 		}
 		else
 		{
-			AnchorPane.setRightAnchor(subscriptionTopicText, 244.0);
+			AnchorPane.setRightAnchor(subscriptionTopicText, 179.0);
 			subscriptionQosChoice.setVisible(false);
 			subscriptionQosLabel.setVisible(false);
 		}
