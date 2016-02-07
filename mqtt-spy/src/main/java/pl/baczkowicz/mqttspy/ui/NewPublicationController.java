@@ -156,6 +156,8 @@ public class NewPublicationController implements Initializable, TitledPaneContro
 	private boolean detailedView;
 	
 	private InteractiveScriptManager scriptManager;
+	
+	private Label titleLabel;
 
 	// private EventManager<FormattedMqttMessage> eventManager;
 	
@@ -401,14 +403,17 @@ public class NewPublicationController implements Initializable, TitledPaneContro
 		return button;
 	}
 	
-	public static MenuButton createTitleButtons(final TitledPane pane, final AnchorPane paneTitle, final ConnectionController connectionController)	
+	public static MenuButton createTitleButtons(final TitledPaneController controller, //final TitledPane pane, 
+			final AnchorPane paneTitle, final ConnectionController connectionController)	
 	{
+		final TitledPane pane = controller.getTitledPane();
+		
 		final MenuButton settingsButton = createTitleButton("Pane settings", "settings", -5, connectionController, pane);
 			      
 		HBox titleBox = new HBox();
 		titleBox.setPadding(new Insets(0, 0, 0, 0));	
-		logger.info(pane + ", " + paneTitle + ", " + connectionController);
-		titleBox.getChildren().addAll(new Label(pane.getText()));
+		logger.trace(pane + ", " + paneTitle + ", " + connectionController);
+		titleBox.getChildren().addAll(controller.getTitleLabel());
 		titleBox.prefWidth(Double.MAX_VALUE);		
 		
 		paneTitle.setPadding(new Insets(0, 0, 0, 0));
@@ -424,12 +429,14 @@ public class NewPublicationController implements Initializable, TitledPaneContro
 
 	public void init()
 	{
+		titleLabel = new Label(pane.getText());
+		
 		eventBus.subscribe(this, this::onScriptListChange, ScriptListChangeEvent.class, new SimpleRunLaterExecutor(), connection);
 		// TODO: replaced with event bus; remove
 		// eventManager.registerScriptListChangeObserver(this, connection);		
 		
 		paneTitle = new AnchorPane();
-		settingsButton = createTitleButtons(pane, paneTitle, connectionController);
+		settingsButton = createTitleButtons(this, paneTitle, connectionController);
 	}
 
 	public void onScriptListChange(final ScriptListChangeEvent event)
@@ -992,5 +999,11 @@ public class NewPublicationController implements Initializable, TitledPaneContro
 	public void setEventBus(final IKBus eventBus)
 	{
 		this.eventBus = eventBus;
+	}
+
+	@Override
+	public Label getTitleLabel()
+	{
+		return titleLabel;
 	}
 }

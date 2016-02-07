@@ -29,9 +29,16 @@ import org.slf4j.LoggerFactory;
 
 import javafx.application.Application;
 import javafx.collections.ObservableList;
+import javafx.event.Event;
+import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
+import javafx.scene.control.Tab;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
@@ -48,6 +55,7 @@ import pl.baczkowicz.mqttspy.ui.connections.ConnectionManager;
 import pl.baczkowicz.mqttspy.ui.events.ConfigurationLoadedEvent;
 import pl.baczkowicz.mqttspy.ui.events.ConnectionStatusChangeEvent;
 import pl.baczkowicz.mqttspy.ui.events.ConnectionsChangedEvent;
+import pl.baczkowicz.mqttspy.ui.events.ShowNewSubscriptionWindowEvent;
 import pl.baczkowicz.mqttspy.ui.events.LoadConfigurationFileEvent;
 import pl.baczkowicz.mqttspy.ui.events.NewPerspectiveSelectedEvent;
 import pl.baczkowicz.mqttspy.ui.events.ShowAboutWindowEvent;
@@ -64,6 +72,7 @@ import pl.baczkowicz.spy.exceptions.ConfigurationException;
 import pl.baczkowicz.spy.ui.configuration.UiProperties;
 import pl.baczkowicz.spy.ui.panes.PaneVisibilityStatus;
 import pl.baczkowicz.spy.ui.panes.SpyPerspective;
+import pl.baczkowicz.spy.ui.panes.TitledPaneStatus;
 import pl.baczkowicz.spy.ui.threading.SimpleRunLaterExecutor;
 import pl.baczkowicz.spy.ui.utils.FxmlUtils;
 import pl.baczkowicz.spy.ui.utils.ImageUtils;
@@ -113,6 +122,7 @@ public class ViewManager
 		eventBus.subscribe(this, this::showEditConnectionsWindow, ShowEditConnectionsWindowEvent.class);
 		eventBus.subscribe(this, this::onNewSelectedPerspective, NewPerspectiveSelectedEvent.class);
 		eventBus.subscribe(this, this::openMessageLog, ShowMessageLogEvent.class);
+		eventBus.subscribe(this, this::showNewSubscriptionWindow, ShowNewSubscriptionWindowEvent.class);
 	}
 
 	private void initialiseAboutWindow(final Window parentWindow)
@@ -199,6 +209,7 @@ public class ViewManager
 		editConnectionsStage.setScene(scene);
 	}
 	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public Scene createMainWindow(final Stage primaryStage) throws IOException
 	{
 		final FXMLLoader loader = FxmlUtils.createFxmlLoaderForProjectFile("MainWindow.fxml");
@@ -240,8 +251,56 @@ public class ViewManager
 		mainController.init();
 		
 	    primaryStage.getIcons().add(ImageUtils.createIcon("mqtt-spy-logo").getImage());
+	    
+	    // Set up key shortcuts
+		final KeyCombination newConnection = new KeyCodeCombination(KeyCode.N, KeyCombination.CONTROL_DOWN);
+		final KeyCombination editConnections = new KeyCodeCombination(KeyCode.M, KeyCombination.CONTROL_DOWN);		
+		final KeyCombination newSubscription = new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN);
+		
+		scene.addEventHandler(KeyEvent.KEY_RELEASED, new EventHandler()
+		{
+			@Override
+			public void handle(Event event)
+			{
+				if (newConnection.match((KeyEvent) event))
+				{
+					mainController.createNewConnection();
+				}				
+				else if (editConnections.match((KeyEvent) event))
+				{
+					mainController.editConnections();
+				}
+				else if (newSubscription.match((KeyEvent) event))
+				{
+					final Tab selectedTab = mainController.getConnectionTabs().getSelectionModel().getSelectedItem();
+					final ConnectionController controller = connectionManager.getControllerForTab(selectedTab);
+					
+					if (controller != null)
+					{
+						eventBus.publish(new ShowNewSubscriptionWindowEvent(controller, PaneVisibilityStatus.DETACHED));
+					}
+				}
+			}
+		});
+		
+		mainController.getNewConnectionMenu().setAccelerator(newConnection);
+		mainController.getEditConnectionsMenu().setAccelerator(editConnections);
 		
 		return scene;
+	}
+	
+	public void showNewSubscriptionWindow(final ShowNewSubscriptionWindowEvent event)
+	{
+		final ConnectionController connectionController = event.getConnectionController();
+		final TitledPaneStatus paneStatus = connectionController.getNewSubscriptionPaneStatus();
+		
+		connectionController.setPaneVisiblity(paneStatus, event.getStatus());
+		
+		if (event.getStatus().equals(PaneVisibilityStatus.DETACHED))
+		{
+			paneStatus.getParentWhenDetached().setWidth(600);
+			connectionController.getNewSubscriptionPaneController().requestFocus();
+		}
 	}
 	
 	public void showAbout(final ShowAboutWindowEvent event)
@@ -321,20 +380,24 @@ public class ViewManager
 	{
 		switch (selectedPerspective)
 		{
+			case BASIC:
+				connectionController.showPanes(PaneVisibilityStatus.ATTACHED, PaneVisibilityStatus.NOT_VISIBLE, PaneVisibilityStatus.ATTACHED, PaneVisibilityStatus.ATTACHED);
+				connectionController.setDetailedViewVisibility(true);
+				break;
 			case DETAILED:
-				connectionController.showPanes(PaneVisibilityStatus.ATTACHED, PaneVisibilityStatus.ATTACHED, PaneVisibilityStatus.ATTACHED, PaneVisibilityStatus.ATTACHED);
+				connectionController.showPanes(PaneVisibilityStatus.ATTACHED, PaneVisibilityStatus.ATTACHED, PaneVisibilityStatus.NOT_VISIBLE, PaneVisibilityStatus.ATTACHED);
 				connectionController.setDetailedViewVisibility(true);
 				break;
 			case SPY:
-				connectionController.showPanes(PaneVisibilityStatus.NOT_VISIBLE, PaneVisibilityStatus.NOT_VISIBLE, PaneVisibilityStatus.ATTACHED, PaneVisibilityStatus.ATTACHED);		
+				connectionController.showPanes(PaneVisibilityStatus.NOT_VISIBLE, PaneVisibilityStatus.NOT_VISIBLE, PaneVisibilityStatus.NOT_VISIBLE, PaneVisibilityStatus.ATTACHED);		
 				connectionController.setDetailedViewVisibility(false);
 				break;
 			case SUPER_SPY:
-				connectionController.showPanes(PaneVisibilityStatus.NOT_VISIBLE, PaneVisibilityStatus.NOT_VISIBLE, PaneVisibilityStatus.ATTACHED, PaneVisibilityStatus.ATTACHED);
+				connectionController.showPanes(PaneVisibilityStatus.NOT_VISIBLE, PaneVisibilityStatus.NOT_VISIBLE, PaneVisibilityStatus.NOT_VISIBLE, PaneVisibilityStatus.ATTACHED);
 				connectionController.setDetailedViewVisibility(true);
 				break;
 			default:
-				connectionController.showPanes(PaneVisibilityStatus.ATTACHED, PaneVisibilityStatus.ATTACHED, PaneVisibilityStatus.ATTACHED, PaneVisibilityStatus.ATTACHED);
+				connectionController.showPanes(PaneVisibilityStatus.ATTACHED, PaneVisibilityStatus.ATTACHED, PaneVisibilityStatus.NOT_VISIBLE, PaneVisibilityStatus.ATTACHED);
 				connectionController.setDetailedViewVisibility(false);
 				break;		
 		}

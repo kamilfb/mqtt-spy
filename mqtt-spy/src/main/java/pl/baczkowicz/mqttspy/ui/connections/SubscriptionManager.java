@@ -65,6 +65,9 @@ public class SubscriptionManager
 	/** Title for the 'all subscriptions' tab. */
 	public static String ALL_SUBSCRIPTIONS_TAB_TITLE = "All";
 	
+	/** Index for the 'all subscriptions' tab. */
+	public static int ALL_SUBSCRIPTIONS_TAB_INDEX = 1;
+	
 	/** Diagnostic logger. */
 	private final static Logger logger = LoggerFactory.getLogger(SubscriptionManager.class);
 		
@@ -140,6 +143,7 @@ public class SubscriptionManager
 		final TabPane subscriptionTabs = connectionController.getSubscriptionTabs();
 		
 		subscriptionTabs.getTabs().add(subscriptionController.getTab());
+		subscriptionTabs.getTabs().get(ALL_SUBSCRIPTIONS_TAB_INDEX).setDisable(false);
 		
 		if (subscribe)
 		{

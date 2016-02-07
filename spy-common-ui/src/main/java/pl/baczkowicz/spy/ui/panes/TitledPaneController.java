@@ -19,6 +19,7 @@
  */
 package pl.baczkowicz.spy.ui.panes;
 
+import javafx.scene.control.Label;
 import javafx.scene.control.TitledPane;
 
 public interface TitledPaneController
@@ -28,4 +29,8 @@ public interface TitledPaneController
 	void setTitledPane(TitledPane pane);
 	
 	void updatePane(PaneVisibilityStatus attached);
+	
+	Label getTitleLabel();
+	
+	//void setTitle(final String title);
 }

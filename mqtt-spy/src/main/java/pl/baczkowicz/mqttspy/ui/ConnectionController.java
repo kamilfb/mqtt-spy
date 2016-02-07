@@ -26,6 +26,7 @@ import java.util.ResourceBundle;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -40,6 +41,10 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TitledPane;
 import javafx.scene.control.Tooltip;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
@@ -164,8 +169,6 @@ public class ConnectionController implements Initializable, TabController
 
 	private ConnectionManager connectionManager;
 
-	// private EventManager<FormattedMqttMessage> eventManager;
-	
 	private IKBus eventBus;
 	
 	private Map<TitledPane, TitledPaneStatus> paneToStatus = new HashMap<>();
@@ -232,7 +235,6 @@ public class ConnectionController implements Initializable, TabController
 			
 			newPublicationPaneController.setConnection(connection);
 			newPublicationPaneController.setScriptManager(connection.getScriptManager());
-			// newPublicationPaneController.setEventManager(eventManager);
 			newPublicationPaneController.setEventBus(eventBus);
 			newPublicationPaneController.setConnectionController(this);
 			newPublicationPaneController.setTitledPane(publishMessageTitledPane);
@@ -240,6 +242,7 @@ public class ConnectionController implements Initializable, TabController
 			
 			newSubscriptionPaneController.setConnection(connection);
 			newSubscriptionPaneController.setConnectionController(this);
+			newSubscriptionPaneController.setEventBus(eventBus);
 			newSubscriptionPaneController.setConnectionManager(connectionManager);
 			newSubscriptionPaneController.setTitledPane(newSubscriptionTitledPane);
 			newSubscriptionPaneController.init();
@@ -264,6 +267,8 @@ public class ConnectionController implements Initializable, TabController
 			splitPane.getItems().remove(testCasesTitledPane);
 		}
 		
+		updateVisiblePanes();
+		//updateMenus();
 		updateMinHeights();
 		// connectionPane.setMaxWidth(500);
 		// subscriptionsTitledPane.setMaxWidth(500);

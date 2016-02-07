@@ -31,6 +31,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
 import javafx.scene.control.ContextMenu;
+import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuButton;
 import javafx.scene.control.MenuItem;
@@ -108,6 +109,8 @@ public class PublicationScriptsController implements Initializable, TitledPaneCo
 	private MenuButton settingsButton;
 
 	private ConnectionController connectionController;
+
+	private Label titleLabel;
 
 	public void initialize(URL location, ResourceBundle resources)
 	{
@@ -310,6 +313,8 @@ public class PublicationScriptsController implements Initializable, TitledPaneCo
 	
 	public void init()
 	{
+		titleLabel = new Label(pane.getText());
+		
 		scriptManager = connection.getScriptManager();
 		eventBus.subscribe(this, this::onScriptStateChange, ScriptStateChangeEvent.class, new SimpleRunLaterExecutor());
 		// TODO: replaced with event bus; to be deleted
@@ -325,7 +330,7 @@ public class PublicationScriptsController implements Initializable, TitledPaneCo
 		scriptTable.setContextMenu(new ContextMenu(createRefreshListMenuItem()));
 		
 		paneTitle = new AnchorPane();
-		settingsButton = NewPublicationController.createTitleButtons(pane, paneTitle, connectionController);
+		settingsButton = NewPublicationController.createTitleButtons(this, paneTitle, connectionController);
 	}
 	
 	private void refreshList()
@@ -525,5 +530,11 @@ public class PublicationScriptsController implements Initializable, TitledPaneCo
 	public void setEventBus(final IKBus eventBus)
 	{
 		this.eventBus = eventBus;
+	}
+
+	@Override
+	public Label getTitleLabel()
+	{
+		return titleLabel;
 	}
 }

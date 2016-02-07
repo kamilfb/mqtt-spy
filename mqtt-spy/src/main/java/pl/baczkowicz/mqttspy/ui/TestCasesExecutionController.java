@@ -151,6 +151,8 @@ public class TestCasesExecutionController extends AnchorPane implements Initiali
 	private MenuButton settingsButton;
 
 	private ConnectionController connectionController;
+
+	private Label titleLabel;
 	
 	public void initialize(URL location, ResourceBundle resources)
 	{			
@@ -341,6 +343,8 @@ public class TestCasesExecutionController extends AnchorPane implements Initiali
 
 	public void init()
 	{
+		titleLabel = new Label(pane.getText());
+		
 		scriptManager = new InteractiveScriptManager(eventBus, connection);
 		testCaseManager = new InteractiveTestCaseManager(scriptManager, this, testCaseExecutionPaneController);
 		
@@ -349,7 +353,7 @@ public class TestCasesExecutionController extends AnchorPane implements Initiali
 		if (connectionController != null)
 		{
 			paneTitle = new AnchorPane();
-			settingsButton = NewPublicationController.createTitleButtons(pane, paneTitle, connectionController);
+			settingsButton = NewPublicationController.createTitleButtons(this, paneTitle, connectionController);
 		}
 	}	
 	
@@ -471,5 +475,11 @@ public class TestCasesExecutionController extends AnchorPane implements Initiali
 		{
 			settingsButton.setVisible(false);
 		}
+	}
+
+	@Override
+	public Label getTitleLabel()
+	{
+		return titleLabel;
 	}
 }

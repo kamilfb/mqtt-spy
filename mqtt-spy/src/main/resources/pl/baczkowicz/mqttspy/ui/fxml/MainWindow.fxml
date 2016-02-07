@@ -31,7 +31,7 @@
 			<menus>
 				<Menu mnemonicParsing="false" text="File">
 					<items>									
-	            		<MenuItem mnemonicParsing="false" onAction="#exit" text="Exit" />
+	            		<MenuItem mnemonicParsing="false" onAction="#exit" text="Exit"/>
 					</items>
 				</Menu>
 				
@@ -45,8 +45,8 @@
 				
 				<Menu mnemonicParsing="false" text="Connections">
 					<items>
-						<MenuItem mnemonicParsing="false" onAction="#createNewConnection" text="New connection" />
-						<MenuItem mnemonicParsing="false" onAction="#editConnections" text="Manage connections" />
+						<MenuItem fx:id="newConnectionMenu" mnemonicParsing="false" onAction="#createNewConnection" text="New connection" />
+						<MenuItem fx:id="editConnectionsMenu" mnemonicParsing="false" onAction="#editConnections" text="Manage connections" />
 					</items>
 				</Menu>
 			

@@ -29,9 +29,14 @@ import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import javafx.application.Platform;
+import javafx.event.Event;
+import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
 import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.scene.control.Tab;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 
@@ -40,7 +45,6 @@ import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.common.generated.MessageLog;
 import pl.baczkowicz.mqttspy.common.generated.MessageLogEnum;
-import pl.baczkowicz.spy.common.generated.UserCredentials;
 import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
 import pl.baczkowicz.mqttspy.configuration.ConfiguredConnectionDetails;
 import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnectionDetails;
@@ -63,6 +67,7 @@ import pl.baczkowicz.mqttspy.ui.MainController;
 import pl.baczkowicz.mqttspy.ui.SubscriptionController;
 import pl.baczkowicz.mqttspy.ui.ViewManager;
 import pl.baczkowicz.mqttspy.ui.events.ConnectionStatusChangeEvent;
+import pl.baczkowicz.mqttspy.ui.events.ShowNewSubscriptionWindowEvent;
 import pl.baczkowicz.mqttspy.ui.events.queuable.UIEventHandler;
 import pl.baczkowicz.mqttspy.ui.events.queuable.connectivity.MqttConnectionAttemptFailureEvent;
 import pl.baczkowicz.mqttspy.ui.events.queuable.connectivity.MqttDisconnectionAttemptFailureEvent;
@@ -70,6 +75,7 @@ import pl.baczkowicz.mqttspy.ui.scripts.InteractiveScriptManager;
 import pl.baczkowicz.mqttspy.ui.utils.ConnectivityUtils;
 import pl.baczkowicz.mqttspy.ui.utils.ContextMenuUtils;
 import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
+import pl.baczkowicz.spy.common.generated.UserCredentials;
 import pl.baczkowicz.spy.eventbus.IKBus;
 import pl.baczkowicz.spy.exceptions.ConfigurationException;
 import pl.baczkowicz.spy.exceptions.SpyException;
@@ -82,6 +88,7 @@ import pl.baczkowicz.spy.ui.storage.ManagedMessageStoreWithFiltering;
 import pl.baczkowicz.spy.ui.threading.SimpleRunLaterExecutor;
 import pl.baczkowicz.spy.ui.utils.DialogFactory;
 import pl.baczkowicz.spy.ui.utils.FxmlUtils;
+import pl.baczkowicz.spy.ui.utils.ImageUtils;
 import pl.baczkowicz.spy.ui.utils.TabUtils;
 
 /**
@@ -226,7 +233,6 @@ public class ConnectionManager
 		final ConnectionController connectionController = (ConnectionController) loader.getController();
 		connectionController.setConnection(connection);
 		connectionController.setConnectionManager(this);
-		// connectionController.setEventManager(eventManager);
 		connectionController.setEventBus(eventBus);
 		connectionController.setStatisticsManager(statisticsManager);
 		connectionController.setTabStatus(new TabStatus());
@@ -262,8 +268,7 @@ public class ConnectionManager
 						connection, eventBus, subscriptionManager, configurationManager, subscriptionController));
 				
 				eventBus.subscribe(connectionController, connectionController::onConnectionStatusChanged, ConnectionStatusChangeEvent.class, new SimpleRunLaterExecutor(), connection);
-				// eventManager.registerConnectionStatusObserver(connectionController, connection);
-				// connection.addObserver(connectionController);											
+											
 				connection.setOpening(false);
 				connection.setOpened(true);
 				
@@ -278,8 +283,29 @@ public class ConnectionManager
 				}	
 				
 				// Add "All" subscription tab
-				connectionController.getSubscriptionTabs().getTabs().clear();
+				//connectionController.getSubscriptionTabs().getTabs().clear();
+				
+				
+				final Tab newSubTab = connectionController.getSubscriptionTabs().getTabs().get(0);
+				final Button newSubButton = new Button("New", ImageUtils.createIcon("tab-new", 24));
+				newSubButton.setStyle("-fx-background-color: transparent;");
+				newSubButton.setFocusTraversable(false);
+				newSubButton.setPadding(new Insets(0, 0, 0, 0));
+				newSubButton.setTooltip(new Tooltip("Create new subscription [Ctrl+S]"));				
+				newSubButton.setOnMouseClicked(new EventHandler<Event>()
+				{
+					@Override
+					public void handle(Event event)
+					{
+						eventBus.publish(new ShowNewSubscriptionWindowEvent(connectionController, PaneVisibilityStatus.DETACHED));				
+					}				
+				});
+				newSubTab.setGraphic(newSubButton);
+				newSubTab.setDisable(true);				
+				newSubButton.setDisable(false);
+				
 				connectionController.getSubscriptionTabs().getTabs().add(subscriptionController.getTab());
+				subscriptionController.getTab().setDisable(true);
 				
 				connectionControllers.put(connection, connectionController);
 				connectionTabs.put(connection, connectionTab);
@@ -459,7 +485,20 @@ public class ConnectionManager
 		tab.setContent(content);		
 
 		return tab;
-	}	
+	}
+	
+	public ConnectionController getControllerForTab(final Tab tab)	
+	{
+		for (final ConnectionController controller : getConnectionControllers())
+		{
+			if (controller.getTab().equals(tab))
+			{
+				return controller;
+			}
+		}
+		
+		return null;
+	}
 
 	public MqttAsyncConnection createConnection(final RuntimeConnectionProperties connectionProperties, final EventQueueManager<FormattedMqttMessage> uiEventQueue)
 	{

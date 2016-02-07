@@ -29,6 +29,8 @@
 <?import javafx.collections.*?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.ContextMenu?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.image.ImageView?>
 
 <AnchorPane fx:id="connectionPane" prefHeight="640.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.baczkowicz.mqttspy.ui.ConnectionController">
 	<children>
@@ -68,7 +70,13 @@
                  <AnchorPane minHeight="250.0" prefHeight="1000.0">
                      <padding><Insets top="6" right="6" bottom="3" left="6" /></padding>
                      <children> 
-   						<TabPane fx:id="subscriptionTabs" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+   						<TabPane fx:id="subscriptionTabs" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+   							<tabs>
+   								<Tab fx:id="newSubTab" text="" disable="true">   									
+   								</Tab>
+   							</tabs>
+   							
+   						</TabPane>   							
                      </children>
                   </AnchorPane>
               </content>

@@ -94,6 +94,11 @@
 	-fx-font-weight: normal;
 }
 
+#newSubTab:disabled, #newSubTab:disabled > * 
+{
+  -fx-opacity: 1.0;
+}
+
 #connectionList .list-cell:filled:selected 
 {
    -fx-background-color: -fx-focus-color;   

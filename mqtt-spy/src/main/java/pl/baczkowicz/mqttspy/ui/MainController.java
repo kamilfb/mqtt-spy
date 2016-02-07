@@ -87,6 +87,12 @@ public class MainController
 	private MenuItem openConfigFileMenu;
 	
 	@FXML
+	private MenuItem newConnectionMenu;
+	
+	@FXML
+	private MenuItem editConnectionsMenu;
+	
+	@FXML
 	private RadioMenuItem defaultPerspective;
 	
 	@FXML
@@ -490,5 +496,37 @@ public class MainController
 	public void setVersionManager(final VersionManager versionManager)
 	{
 		this.versionManager = versionManager;		
+	}
+
+	/**
+	 * @return the newConnectionMenu
+	 */
+	public MenuItem getNewConnectionMenu()
+	{
+		return newConnectionMenu;
+	}
+
+	/**
+	 * @param newConnectionMenu the newConnectionMenu to set
+	 */
+	public void setNewConnectionMenu(MenuItem newConnectionMenu)
+	{
+		this.newConnectionMenu = newConnectionMenu;
+	}
+
+	/**
+	 * @return the editConnectionsMenu
+	 */
+	public MenuItem getEditConnectionsMenu()
+	{
+		return editConnectionsMenu;
+	}
+
+	/**
+	 * @param editConnectionsMenu the editConnectionsMenu to set
+	 */
+	public void setEditConnectionsMenu(MenuItem editConnectionsMenu)
+	{
+		this.editConnectionsMenu = editConnectionsMenu;
 	}
 }

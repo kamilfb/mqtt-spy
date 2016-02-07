@@ -213,7 +213,7 @@ public class ScriptRunner implements Runnable
 	public static void changeState(final IKBus eventBus, final String scriptName, 
 			final ScriptRunningState newState, final Script script, final Executor executor)
 	{		
-		logger.debug("Changing [{}] script's state to [{}]", scriptName, newState);
+		logger.trace("Changing [{}] script's state to [{}]", scriptName, newState);
 		script.setStatus(newState);
 				
 		if (eventBus != null && executor != null)
@@ -224,14 +224,14 @@ public class ScriptRunner implements Runnable
 				{
 					script.nofityChange();
 					eventBus.publish(new ScriptStateChangeEvent(scriptName, newState));
-					logger.debug("Notified [{}] script's state to [{}]", scriptName, newState);
+					logger.trace("Notified [{}] script's state to [{}]", scriptName, newState);
 				}
 			});
 		}
 		else
 		{
 			script.nofityChange();
-			logger.debug("Notified [{}] script's state to [{}]", scriptName, newState);
+			logger.trace("Notified [{}] script's state to [{}]", scriptName, newState);
 		}
 	}
 	
