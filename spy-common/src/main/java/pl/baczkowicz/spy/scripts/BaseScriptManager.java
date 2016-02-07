@@ -300,7 +300,7 @@ public abstract class BaseScriptManager
 			if (scriptEngine != null)
 			{
 				script.setName(scriptName);			
-				script.setStatus(ScriptRunningState.NOT_STARTED);
+				script.setStatusAndNotify(ScriptRunningState.NOT_STARTED);
 				script.setScriptEngine(scriptEngine);		
 				
 				populateEngineVariables(script);

@@ -123,7 +123,7 @@ public class Script extends BasicScriptProperties
 	/**
 	 * Notifies an observer a change has occurred.
 	 */
-	protected void nofityChange()
+	public void nofityChange()
 	{
 		if (observer != null)
 		{
@@ -157,6 +157,12 @@ public class Script extends BasicScriptProperties
 	public void setStatus(final ScriptRunningState status)
 	{
 		this.status = status;
+	}
+	
+	// TODO: replace the notifyChange with the EventBus
+	public void setStatusAndNotify(final ScriptRunningState status)
+	{
+		setStatus(status);
 		nofityChange();
 	}
 	

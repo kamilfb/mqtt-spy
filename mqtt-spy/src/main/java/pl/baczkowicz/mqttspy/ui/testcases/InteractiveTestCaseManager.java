@@ -100,7 +100,7 @@ public class InteractiveTestCaseManager extends TestCaseManager
 		final TestCase testCase = selectedTestCase.getScript();
 		
 		// Run
-		testCase.setStatus(ScriptRunningState.RUNNING);
+		testCase.setStatusAndNotify(ScriptRunningState.RUNNING);
 		testCase.setTestCaseStatus(TestCaseStatus.IN_PROGRESS);
 		
 		// Clear last run for this test case

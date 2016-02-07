@@ -86,8 +86,12 @@ public class ScriptRunner implements Runnable
 		
 		boolean firstRun = true;
 
-		while (firstRun || script.isRepeat())
+		// Either a first run or repeat is on but not stopped by user
+		while (firstRun || (script.isRepeat() && !ScriptRunningState.STOPPED.equals(script.getStatus())))
 		{
+			logger.debug("Running [{}] script: first run = {}, repeat = {}, state = {}", 
+					script.getName(), firstRun, script.isRepeat(), script.getStatus());
+			
 			firstRun = false;
 			
 			changeState(ScriptRunningState.RUNNING);
@@ -209,7 +213,8 @@ public class ScriptRunner implements Runnable
 	public static void changeState(final IKBus eventBus, final String scriptName, 
 			final ScriptRunningState newState, final Script script, final Executor executor)
 	{		
-		logger.trace("Changing [{}] script's state to [{}]", scriptName, newState);
+		logger.debug("Changing [{}] script's state to [{}]", scriptName, newState);
+		script.setStatus(newState);
 				
 		if (eventBus != null && executor != null)
 		{
@@ -217,15 +222,16 @@ public class ScriptRunner implements Runnable
 			{			
 				public void run()
 				{
-					script.setStatus(newState);
+					script.nofityChange();
 					eventBus.publish(new ScriptStateChangeEvent(scriptName, newState));
+					logger.debug("Notified [{}] script's state to [{}]", scriptName, newState);
 				}
 			});
 		}
 		else
 		{
-			script.setStatus(newState);
-			logger.debug("Changed [{}] script's state to [{}]", scriptName, newState);
+			script.nofityChange();
+			logger.debug("Notified [{}] script's state to [{}]", scriptName, newState);
 		}
 	}
 	
