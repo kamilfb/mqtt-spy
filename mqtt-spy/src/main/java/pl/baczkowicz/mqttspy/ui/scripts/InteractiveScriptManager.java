@@ -85,6 +85,18 @@ public class InteractiveScriptManager extends MqttScriptManager
 		}	
 	}
 	
+	public void addScripts(final String directory, final boolean includeSubdirectories, final ScriptTypeEnum type)
+	{
+		final List<File> files = new ArrayList<File>(); 
+		
+		files.addAll(FileUtils.getFileNamesForDirectory(
+				getScriptDirectoryForConnection(directory), 
+				includeSubdirectories, 
+				SCRIPT_EXTENSION));	
+		
+		populateScriptsFromFileList(directory, files, type);
+	}
+	
 	public void addScripts(final String directory, final ScriptTypeEnum type)
 	{
 		final List<File> files = new ArrayList<File>(); 
@@ -92,7 +104,7 @@ public class InteractiveScriptManager extends MqttScriptManager
 		files.addAll(FileUtils.getFileNamesForDirectory(
 				getScriptDirectoryForConnection(directory), SCRIPT_EXTENSION));	
 		
-		populateScriptsFromFileList(files, type);
+		populateScriptsFromFileList(directory, files, type);
 	}
 	
 	public void addSubscriptionScripts(final List<TabbedSubscriptionDetails> list)
@@ -110,12 +122,13 @@ public class InteractiveScriptManager extends MqttScriptManager
 		addScripts(scripts, ScriptTypeEnum.SUBSCRIPTION);
 	}
 	
-	public void populateScriptsFromFileList(final List<File> files, final ScriptTypeEnum type)
+	public void populateScriptsFromFileList(final String rootDirectory, final List<File> files, final ScriptTypeEnum type)
 	{
 		final List<Script> addedScripts = populateScriptsFromFileList(files);
 		
 		for (final Script script : addedScripts)
 		{
+			script.setRootDirectory(rootDirectory);
 			final PublicationScriptProperties properties = new PublicationScriptProperties(script);
 			properties.typeProperty().setValue(type);
 			script.setObserver(properties);

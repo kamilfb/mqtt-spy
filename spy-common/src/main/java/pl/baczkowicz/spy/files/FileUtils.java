@@ -71,8 +71,8 @@ public class FileUtils
 		
 		return files;
 	}
-	
-	public static List<File> getFileNamesForDirectory(final String directory, final String extension)
+
+	public static List<File> getFileNamesForDirectory(final String directory, final boolean recursive, final String extension)
 	{
 		final List<File> files = new ArrayList<File>();
 		
@@ -90,14 +90,24 @@ public class FileUtils
 						files.add(listOfFiles[i]);
 					}
 				}
+				else if (recursive)
+				{
+					files.addAll(getFileNamesForDirectory(listOfFiles[i].getAbsolutePath(), recursive, extension));
+				}
 			}
 		}
-		else
+		
+		if (files.isEmpty())
 		{
 			logger.error("No files in {}", directory);
 		}
 		
 		return files;
+	}
+	
+	public static List<File> getFileNamesForDirectory(final String directory, final String extension)
+	{
+		return getFileNamesForDirectory(directory, false, extension);
 	}
 	
 	public static void writeToFile(final File file, final String value)

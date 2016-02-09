@@ -80,12 +80,10 @@ public class TestCaseManager
 		final ScriptDetails scriptDetails = new ScriptDetails();					
 		scriptDetails.setFile(scriptFile.getAbsolutePath());
 		scriptDetails.setRepeat(false);
-							
-		final String scriptName = BaseScriptManager.getScriptName(scriptFile);
 		
 		final TestCase testCase = new TestCase();
 				
-		scriptManager.createFileBasedScript(testCase, scriptName, scriptFile, scriptDetails);
+		scriptManager.createFileBasedScript(testCase, scriptFile, scriptDetails);
 		
 		try
 		{	

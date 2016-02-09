@@ -255,7 +255,7 @@ public class ViewManager
 	    // Set up key shortcuts
 		final KeyCombination newConnection = new KeyCodeCombination(KeyCode.N, KeyCombination.CONTROL_DOWN);
 		final KeyCombination editConnections = new KeyCodeCombination(KeyCode.M, KeyCombination.CONTROL_DOWN);		
-		final KeyCombination newSubscription = new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN);
+		final KeyCombination newSubscription = new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN);
 		
 		scene.addEventHandler(KeyEvent.KEY_RELEASED, new EventHandler()
 		{
