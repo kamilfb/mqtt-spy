@@ -342,7 +342,10 @@ public class PublicationScriptsController implements Initializable, TitledPaneCo
 		settingsButton = NewPublicationController.createTitleButtons(this, paneTitle, connectionController);
 		
 		publicationScriptsDirectory = InteractiveScriptManager.getScriptDirectoryForConnection(
-				connection.getProperties().getConfiguredProperties().getPublicationScripts());
+				connection.getProperties().getConfiguredProperties().getPublicationScripts());		
+
+		scriptTable.getSortOrder().clear();
+		scriptTable.getSortOrder().add(nameColumn);
 	}
 
 	private void refreshList()
@@ -539,6 +542,9 @@ public class PublicationScriptsController implements Initializable, TitledPaneCo
 		scriptTable.getItems().clear();
 				
 		refreshList();
+		
+		scriptTable.getSortOrder().clear();
+		scriptTable.getSortOrder().add(nameColumn);
 	}
 	
 	private MenuItem createIncludeSubdirectoriesMenuItem()
