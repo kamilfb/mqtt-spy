@@ -303,7 +303,7 @@ public class NewSubscriptionController implements Initializable, TitledPaneContr
 		else
 		{			
 			settingsButton.setVisible(false);
-			titleLabel.setText("After typing the value, hit Enter or click Subscribe; hold Control to keep window");
+			titleLabel.setText("After typing the value, hit Enter or click Subscribe; hold Control to keep the window");
 			
 		}
 	}
