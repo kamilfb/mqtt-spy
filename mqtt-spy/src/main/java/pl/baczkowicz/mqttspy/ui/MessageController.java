@@ -211,11 +211,13 @@ public class MessageController implements Initializable
 		qosFieldLabel.setVisible(detailedView);
 		retainedFieldLabel.setVisible(detailedView);
 		lengthLabel.setVisible(detailedView);
+		
+		// TODO: basic perspective
 	}
 	
-	public void setDetailedViewVisibility(final boolean visible)
+	public void setViewVisibility(final boolean detailedView)
 	{
-		detailedView = visible;
+		this.detailedView = detailedView;
 		updateVisibility();
 	}
 	
@@ -371,14 +373,15 @@ public class MessageController implements Initializable
 				{
 					final int max = UiProperties.getLargeMessageSubstring(configurationManager.getUiPropertyFile()); 
 					formattingManager.formatMessage(message, store.getFormatter());
-					textToDisplay = message.getFormattedPayload().substring(0, max) 
+					textToDisplay = message.getPrettyPayload().substring(0, max) 
 							+ "... [message truncated to " + max + " characters - double click on 'Data' to display]";
 				}
 			}
 			else
 			{
+				// logger.debug("Formatting browsed message using {}", store.getFormatter().getName());
 				formattingManager.formatMessage(message, store.getFormatter());
-				textToDisplay = message.getFormattedPayload();
+				textToDisplay = message.getPrettyPayload();
 			}
 			
 			displayNewText(textToDisplay);

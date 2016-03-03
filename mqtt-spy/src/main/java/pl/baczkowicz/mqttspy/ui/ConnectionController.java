@@ -560,15 +560,15 @@ public class ConnectionController implements Initializable, TabController
 		return detailedView;
 	}
 	
-	public void setDetailedViewVisibility(final boolean visible)
+	public void setViewVisibility(final boolean detailedView, final boolean basicView)
 	{
-		detailedView = visible;
-		newSubscriptionPaneController.setDetailedViewVisibility(visible);
-		getNewPublicationPaneController().setDetailedViewVisibility(visible);
+		this.detailedView = detailedView;
+		newSubscriptionPaneController.setViewVisibility(detailedView);
+		getNewPublicationPaneController().setViewVisibility(detailedView);
 		
 		for (final SubscriptionController subscriptionController : connectionManager.getSubscriptionManager(this).getSubscriptionControllers())
 		{
-			subscriptionController.setDetailedViewVisibility(visible);
+			subscriptionController.setViewVisibility(detailedView, basicView);
 		}
 	}
 	
@@ -816,11 +816,6 @@ public class ConnectionController implements Initializable, TabController
 	{
 		return testCasesTitledStatus;
 	}
-	
-//	public void setEventManager(final EventManager<FormattedMqttMessage> eventManager)
-//	{
-//		this.eventManager = eventManager;
-//	}
 	
 	public void setEventBus(final IKBus eventBus)
 	{

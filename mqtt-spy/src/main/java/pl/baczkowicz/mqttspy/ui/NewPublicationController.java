@@ -598,11 +598,13 @@ public class NewPublicationController implements Initializable, TitledPaneContro
 		retainedBox.setVisible(detailedView);
 		retainedLabel.setVisible(detailedView);
 		lengthLabel.setVisible(detailedView);
+		
+		// TODO: basic perspective
 	}
 	
-	public void setDetailedViewVisibility(final boolean visible)
+	public void setViewVisibility(final boolean detailedView)
 	{
-		detailedView = visible;
+		this.detailedView = detailedView;
 		updateVisibility();
 	}
 	

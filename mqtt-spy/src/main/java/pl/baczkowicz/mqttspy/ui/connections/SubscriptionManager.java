@@ -44,6 +44,7 @@ import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.scripts.MqttScriptManager;
 import pl.baczkowicz.mqttspy.ui.ConnectionController;
 import pl.baczkowicz.mqttspy.ui.SubscriptionController;
+import pl.baczkowicz.mqttspy.ui.ViewManager;
 import pl.baczkowicz.mqttspy.ui.events.SubscriptionStatusChangeEvent;
 import pl.baczkowicz.mqttspy.ui.utils.ContextMenuUtils;
 import pl.baczkowicz.mqttspy.ui.utils.StylingUtils;
@@ -52,6 +53,7 @@ import pl.baczkowicz.spy.formatting.FormattingManager;
 import pl.baczkowicz.spy.ui.configuration.UiProperties;
 import pl.baczkowicz.spy.ui.events.queuable.EventQueueManager;
 import pl.baczkowicz.spy.ui.panes.PaneVisibilityStatus;
+import pl.baczkowicz.spy.ui.panes.SpyPerspective;
 import pl.baczkowicz.spy.ui.panes.TabStatus;
 import pl.baczkowicz.spy.ui.storage.ManagedMessageStoreWithFiltering;
 import pl.baczkowicz.spy.ui.utils.FxmlUtils;
@@ -79,6 +81,8 @@ public class SubscriptionManager
 
 	/** Configuration manager. */
 	private ConfigurationManager configurationManager;
+	
+	private ViewManager viewManager;
 
 	private IKBus eventBus;
 
@@ -88,12 +92,15 @@ public class SubscriptionManager
 	 * @param eventManager The global event manager
 	 * @param eventBus The global event bus
 	 * @param configurationManager The configuration manager
+	 * @param viewManager 
 	 * @param uiEventQueue The UI event queue to be used
 	 */
-	public SubscriptionManager(final IKBus eventBus, final ConfigurationManager configurationManager, final EventQueueManager<FormattedMqttMessage> uiEventQueue)
+	public SubscriptionManager(final IKBus eventBus, final ConfigurationManager configurationManager, 
+			final ViewManager viewManager, final EventQueueManager<FormattedMqttMessage> uiEventQueue)
 	{
 		this.eventBus = eventBus;
 		this.configurationManager = configurationManager;
+		this.viewManager = viewManager;
 		this.uiEventQueue = uiEventQueue;
 	}
 	
@@ -136,7 +143,8 @@ public class SubscriptionManager
 		subscriptionController.onSubscriptionStatusChanged(new SubscriptionStatusChangeEvent(subscription));
 		
 		subscription.setSubscriptionController(subscriptionController);
-		subscriptionController.setDetailedViewVisibility(connectionController.getDetailedViewVisibility());
+		final SpyPerspective perspective = viewManager.getPerspective();
+		subscriptionController.setViewVisibility(ViewManager.getDetailedViewStatus(perspective), ViewManager.getBasicViewStatus(perspective));
 		subscriptionController.getTabStatus().setVisibility(PaneVisibilityStatus.ATTACHED);
 		subscriptionController.getTabStatus().setParent(connectionController.getSubscriptionTabs());
 		
@@ -239,6 +247,7 @@ public class SubscriptionManager
 			final MqttSubscription subscription = subscriptionControllers.get(topic).getSubscription();
 			subscription.getConnection().unsubscribeAndRemove(subscription);
 			subscription.getStore().cleanUp();
+			subscriptionControllers.get(topic).onClose();
 			TabUtils.requestClose(subscriptionControllers.get(topic).getTab());
 			subscriptionControllers.remove(topic);
 		}

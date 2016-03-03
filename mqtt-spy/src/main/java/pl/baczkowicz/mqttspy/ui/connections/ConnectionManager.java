@@ -241,7 +241,7 @@ public class ConnectionManager
 		
 		final Tab connectionTab = createConnectionTab(connection.getProperties().getName(), connectionPane, connectionController);
 		
-		final SubscriptionManager subscriptionManager = new SubscriptionManager(eventBus, configurationManager, uiEventQueue);			
+		final SubscriptionManager subscriptionManager = new SubscriptionManager(eventBus, configurationManager, viewManager, uiEventQueue);			
 		
 		final SubscriptionController subscriptionController = subscriptionManager.createSubscriptionTab(
 				true, connection.getStore(), null, connection, connectionController);
@@ -262,7 +262,7 @@ public class ConnectionManager
 				connectionController.getTabStatus().setVisibility(PaneVisibilityStatus.ATTACHED);
 				connectionController.getTabStatus().setParent(connectionTab.getTabPane());
 				
-				connectionTab.setContextMenu(ContextMenuUtils.createConnectionMenu(connection, connectionController, connectionManager));
+				connectionTab.setContextMenu(ContextMenuUtils.createConnectionMenu(connection, eventBus, connectionController, connectionManager));
 				
 				subscriptionController.getTab().setContextMenu(ContextMenuUtils.createAllSubscriptionsTabContextMenu(
 						connection, eventBus, subscriptionManager, configurationManager, subscriptionController));
@@ -282,22 +282,22 @@ public class ConnectionManager
 					connection.setConnectionStatus(MqttConnectionStatus.NOT_CONNECTED);
 				}	
 				
-				// Add "All" subscription tab
-				//connectionController.getSubscriptionTabs().getTabs().clear();
-				
-				
+				// Add "New" and "All" tabs
 				final Tab newSubTab = connectionController.getSubscriptionTabs().getTabs().get(0);
 				final Button newSubButton = new Button("New", ImageUtils.createIcon("tab-new", 24));
 				newSubButton.setStyle("-fx-background-color: transparent;");
 				newSubButton.setFocusTraversable(false);
 				newSubButton.setPadding(new Insets(0, 0, 0, 0));
-				newSubButton.setTooltip(new Tooltip("Create new subscription [Ctrl+S]"));				
+				
+				newSubButton.setTooltip(new Tooltip("Create new subscription [" + ViewManager.newSubscription.getDisplayText() + "]"));				
 				newSubButton.setOnMouseClicked(new EventHandler<Event>()
 				{
 					@Override
 					public void handle(Event event)
 					{
-						eventBus.publish(new ShowNewSubscriptionWindowEvent(connectionController, PaneVisibilityStatus.DETACHED));				
+						eventBus.publish(new ShowNewSubscriptionWindowEvent(connectionController, 
+								PaneVisibilityStatus.DETACHED,
+								connectionController.getNewSubscriptionPaneStatus().getVisibility()));				
 					}				
 				});
 				newSubTab.setGraphic(newSubButton);
@@ -347,7 +347,7 @@ public class ConnectionManager
 		connectionController.getResizeMessageContentMenu().setSelected(mainController.getResizeMessagePaneMenu().isSelected());
 		
 		final Tab replayTab = createConnectionTab(name, connectionPane, connectionController);
-		final SubscriptionManager subscriptionManager = new SubscriptionManager(eventBus, configurationManager, uiEventQueue);			
+		final SubscriptionManager subscriptionManager = new SubscriptionManager(eventBus, configurationManager, viewManager, uiEventQueue);			
 		
         final ManagedMessageStoreWithFiltering<FormattedMqttMessage> store = new ManagedMessageStoreWithFiltering<FormattedMqttMessage>(
         		name, 0, list.size(), list.size(), uiEventQueue, //eventManager, 

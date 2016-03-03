@@ -41,9 +41,11 @@ import pl.baczkowicz.mqttspy.configuration.ConfiguredConnectionDetails;
 import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnectionDetails;
 import pl.baczkowicz.mqttspy.ui.EditConnectionController;
 import pl.baczkowicz.mqttspy.ui.FormattersController;
+import pl.baczkowicz.mqttspy.ui.events.FormattersChangedEvent;
 import pl.baczkowicz.mqttspy.ui.events.ShowFormattersWindowEvent;
 import pl.baczkowicz.spy.common.generated.FormatterDetails;
 import pl.baczkowicz.spy.eventbus.IKBus;
+import pl.baczkowicz.spy.formatting.FormattingManager;
 import pl.baczkowicz.spy.formatting.FormattingUtils;
 import pl.baczkowicz.spy.ui.keyboard.KeyboardUtils;
 
@@ -99,7 +101,7 @@ public class EditConnectionOtherController extends AnchorPane implements Initial
 	// ===============================
 
 	public void initialize(URL location, ResourceBundle resources)
-	{				
+	{		
 		// UI
 		autoConnect.selectedProperty().addListener(basicOnChangeListener);
 		autoOpen.selectedProperty().addListener(basicOnChangeListener);
@@ -160,14 +162,26 @@ public class EditConnectionOtherController extends AnchorPane implements Initial
 
 	public void init()
 	{
-		formatter.getItems().clear();		
-		formatter.getItems().addAll(FormattingUtils.createBaseFormatters());
-
+		eventBus.subscribe(this, this::handleFormattersChange, FormattersChangedEvent.class);
+				
+		refreshFormattersList();
+		
 		// Populate those from the configuration file
 		FormattersController.addFormattersToList(
 				configurationManager.getConfiguration().getFormatting().getFormatter(), formatter.getItems());		
 	}
 	
+	public void handleFormattersChange(final FormattersChangedEvent event)	
+	{
+		refreshFormattersList();
+	}
+	
+	public void refreshFormattersList()
+	{
+		formatter.getItems().clear();		
+		formatter.getItems().addAll(FormattingUtils.createBaseFormatters());
+		formatter.getItems().addAll(FormattingManager.createDefaultScriptFormatters());		
+	}
 
 	// ===============================
 	// === Logic =====================
@@ -176,9 +190,6 @@ public class EditConnectionOtherController extends AnchorPane implements Initial
 	@FXML
 	private void editFormatters()
 	{
-		
-		// parent.getMainController().getEditConnectionsStage().getScene().getWindow()
-		//parent.getMainController().showFormatters(true, this.getScene().getWindow());
 		eventBus.publish(new ShowFormattersWindowEvent(this.getScene().getWindow(), true));
 		
 		// In case there was a change

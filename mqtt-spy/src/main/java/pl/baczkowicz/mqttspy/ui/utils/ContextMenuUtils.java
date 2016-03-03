@@ -21,6 +21,9 @@ package pl.baczkowicz.mqttspy.ui.utils;
 
 import java.util.Arrays;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
@@ -44,6 +47,7 @@ import pl.baczkowicz.mqttspy.ui.charts.ChartFactory;
 import pl.baczkowicz.mqttspy.ui.charts.ChartMode;
 import pl.baczkowicz.mqttspy.ui.connections.ConnectionManager;
 import pl.baczkowicz.mqttspy.ui.connections.SubscriptionManager;
+import pl.baczkowicz.mqttspy.ui.events.ShowEditConnectionsWindowEvent;
 import pl.baczkowicz.spy.eventbus.IKBus;
 import pl.baczkowicz.spy.ui.events.ClearTabEvent;
 import pl.baczkowicz.spy.ui.panes.PaneVisibilityStatus;
@@ -57,7 +61,7 @@ import pl.baczkowicz.spy.ui.utils.UiUtils;
  */
 public class ContextMenuUtils
 {	
-	// private final static Logger logger = LoggerFactory.getLogger(ContextMenuUtils.class);
+	private final static Logger logger = LoggerFactory.getLogger(ContextMenuUtils.class);
 	
 	/**
 	 * Create context menu for the subscription tab.
@@ -431,7 +435,7 @@ public class ContextMenuUtils
 	 * 
 	 * @return Created context menu
 	 */
-	public static ContextMenu createConnectionMenu(final MqttAsyncConnection connection, 
+	public static ContextMenu createConnectionMenu(final MqttAsyncConnection connection, final IKBus eventBus,
 			final ConnectionController connectionController, final ConnectionManager connectionManager)
 	{
 		// Context menu
@@ -527,6 +531,21 @@ public class ContextMenuUtils
 			}
 		});
 		view.getItems().add(panes);
+		
+		// Separator
+		contextMenu.getItems().add(new SeparatorMenuItem());
+		
+		MenuItem editItem = new MenuItem("Edit...");
+		editItem.setOnAction(new EventHandler<ActionEvent>()
+		{			
+			@Override
+			public void handle(ActionEvent event)
+			{
+				eventBus.publish(new ShowEditConnectionsWindowEvent(
+						connectionController.getTab().getTabPane().getScene().getWindow(), false, connection));
+			}
+		});		
+		contextMenu.getItems().add(editItem);
 		
 		return contextMenu;
 	}

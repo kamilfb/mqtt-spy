@@ -27,12 +27,16 @@ public class ShowNewSubscriptionWindowEvent
 {
 	private final ConnectionController controller;
 	
-	private final PaneVisibilityStatus status;
+	private final PaneVisibilityStatus newStatus;
+	
+	private final PaneVisibilityStatus previousStatus;
 
-	public ShowNewSubscriptionWindowEvent(final ConnectionController controller, final PaneVisibilityStatus status)
+	public ShowNewSubscriptionWindowEvent(final ConnectionController controller, 
+			final PaneVisibilityStatus newStatus, final PaneVisibilityStatus previousStatus)
 	{
 		this.controller = controller;
-		this.status = status;
+		this.newStatus = newStatus;
+		this.previousStatus = previousStatus;
 	}
 
 	/**
@@ -46,8 +50,16 @@ public class ShowNewSubscriptionWindowEvent
 	/**
 	 * @return the status
 	 */
-	public PaneVisibilityStatus getStatus()
+	public PaneVisibilityStatus getNewStatus()
 	{
-		return status;
+		return newStatus;
+	}
+	
+	/**
+	 * @return the status
+	 */
+	public PaneVisibilityStatus getPreviousStatus()
+	{
+		return previousStatus;
 	}
 }

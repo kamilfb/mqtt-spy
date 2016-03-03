@@ -562,9 +562,9 @@ public class MessageNavigationController implements Initializable
 		return uniqueOnlyMenu;
 	}
 
-	public void setDetailedViewVisibility(final boolean detailed)
+	public void setViewVisibility(final boolean detailedView)
 	{
-		filterButton.setVisible(detailed);
+		filterButton.setVisible(detailedView);
 	}
 
 	public void toggleDetaileledViewVisibility()
@@ -576,9 +576,4 @@ public class MessageNavigationController implements Initializable
 	{
 		this.eventBus = eventBus;
 	}
-
-//	public MenuButton getFilterButton()
-//	{
-//		return filterButton;		
-//	}
 }

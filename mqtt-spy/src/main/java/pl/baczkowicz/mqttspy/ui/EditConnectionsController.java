@@ -834,11 +834,6 @@ public class EditConnectionsController extends AnchorPane implements Initializab
 		this.configurationManager = configurationManager;
 	}	
 
-//	public void setEventManager(final EventManager eventManager)
-//	{
-//		this.eventManager = eventManager;		
-//	}
-
 	public void onConnectionStatusChanged(final ConnectionStatusChangeEvent event)
 	{
 		if (getSelectedItem() != null)

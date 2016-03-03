@@ -96,6 +96,9 @@ public class MainController
 	private RadioMenuItem defaultPerspective;
 	
 	@FXML
+	private RadioMenuItem basicPerspective;
+	
+	@FXML 
 	private RadioMenuItem detailedPerspective;
 	
 	@FXML
@@ -187,13 +190,13 @@ public class MainController
 	public void createNewConnection()
 	{
 		logger.trace("Creating new connection...");
-		eventBus.publish(new ShowEditConnectionsWindowEvent(getParentWindow(), true));
+		eventBus.publish(new ShowEditConnectionsWindowEvent(getParentWindow(), true, null));
 	}
 
 	@FXML
 	public void editConnections()
 	{
-		eventBus.publish(new ShowEditConnectionsWindowEvent(getParentWindow(), false));
+		eventBus.publish(new ShowEditConnectionsWindowEvent(getParentWindow(), false, null));
 	}
 
 	@FXML
@@ -236,10 +239,11 @@ public class MainController
 	 */
 	public void updateSelectedPerspective(final SpyPerspective selectedPerspective)
 	{
-		// this.selectedPerspective = selectedPerspective;
-		
 		switch (selectedPerspective)
 		{
+			case BASIC:
+				basicPerspective.setSelected(true);
+				break;
 			case DETAILED:
 				detailedPerspective.setSelected(true);
 				break;
@@ -253,6 +257,8 @@ public class MainController
 				defaultPerspective.setSelected(true);
 				break;		
 		}
+		
+		eventBus.publish(new NewPerspectiveSelectedEvent(selectedPerspective));
 	}
 
 	public TabPane getConnectionTabs()
@@ -324,6 +330,10 @@ public class MainController
 		else if (detailedPerspective.isSelected())
 		{
 			selectedPerspective = SpyPerspective.DETAILED;
+		}
+		else if (basicPerspective.isSelected())
+		{
+			selectedPerspective = SpyPerspective.BASIC;
 		}
 		else
 		{

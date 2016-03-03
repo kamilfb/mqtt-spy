@@ -38,6 +38,8 @@ import pl.baczkowicz.spy.utils.TimeUtils;
 public class ScriptBasedFormatter
 {
 	public static final String FORMAT_FUNCTION_NAME = "format";
+	
+	public static final String PRETTY_FUNCTION_NAME = "pretty";
 
 	final static Logger logger = LoggerFactory.getLogger(ScriptBasedFormatter.class);	
 	
@@ -98,7 +100,7 @@ public class ScriptBasedFormatter
 		logger.debug("Adding formatter {} took {} ms", formatter.getName(), (end - start));
 	}
 	
-	public String formatMessage(final FormatterDetails formatter, final FormattedMessage message)
+	public String formatMessage(final FormatterDetails formatter, final FormattedMessage message, final boolean pretty)
 	{
 		try
 		{
@@ -112,7 +114,8 @@ public class ScriptBasedFormatter
 			
 			scriptManager.setVariable(script, BaseScriptManager.RECEIVED_MESSAGE_PARAMETER, message);		
 		
-			return (String) scriptManager.invokeFunction(script, FORMAT_FUNCTION_NAME);
+			final String functionName = pretty ? PRETTY_FUNCTION_NAME : FORMAT_FUNCTION_NAME;
+			return (String) scriptManager.invokeFunction(script, functionName);
 		}
 		catch (NoSuchMethodException | ScriptException e)
 		{

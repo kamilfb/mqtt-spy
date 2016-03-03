@@ -54,11 +54,12 @@
 					<items>
 						<Menu mnemonicParsing="false" text="Change perspective">
 							<items>
-								<RadioMenuItem fx:id="defaultPerspective" mnemonicParsing="false" onAction="#showPerspective" selected="true" text="Default (simplified publications and subscriptions)">
-		                           <toggleGroup>
+								<RadioMenuItem fx:id="basicPerspective" mnemonicParsing="false" onAction="#showPerspective" text="Basic (absolute minimum)" toggleGroup="$perspective">
+									<toggleGroup>
 		                              <ToggleGroup fx:id="perspective" />
 		                           </toggleGroup>
-		                         </RadioMenuItem>
+								</RadioMenuItem>
+								<RadioMenuItem fx:id="defaultPerspective" mnemonicParsing="false" onAction="#showPerspective" text="Default (simplified publications and subscriptions)" toggleGroup="$perspective" />
 		                        <RadioMenuItem fx:id="detailedPerspective" mnemonicParsing="false" onAction="#showPerspective" text="Detailed (publications and subscriptions)" toggleGroup="$perspective" />
 								<RadioMenuItem fx:id="spyPerspective" mnemonicParsing="false" onAction="#showPerspective" text="Baby Spy (simplified subscriptions only)" toggleGroup="$perspective" />
 								<RadioMenuItem fx:id="superSpyPerspective" mnemonicParsing="false" onAction="#showPerspective" text="Super Spy (subscriptions only)" toggleGroup="$perspective" />

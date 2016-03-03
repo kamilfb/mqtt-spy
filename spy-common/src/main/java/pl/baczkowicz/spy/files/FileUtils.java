@@ -33,10 +33,12 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.spy.exceptions.SpyException;
+import pl.baczkowicz.spy.utils.ConversionUtils;
 
 /** 
  * File-related utilities.
@@ -151,6 +153,27 @@ public class FileUtils
 			if (url != null)
 			{
 				return url.openStream();
+			}
+			logger.debug("File {} not found on classpath", filename);
+			return null;
+		}
+	}
+	
+	public static String loadFileByNameBase64Encoded(final String filename) throws IOException
+	{
+		final File file = new java.io.File(filename);
+		if (file.isFile())
+		{
+			logger.debug("Trying to read {} from filesystem", filename);
+			return ConversionUtils.stringToBase64(IOUtils.toString(new FileInputStream(file)));
+		}
+		else
+		{
+			logger.debug("Trying to read {} from classpath", filename);
+			final URL url = FileUtils.class.getResource(filename); 
+			if (url != null)
+			{
+				return ConversionUtils.stringToBase64(IOUtils.toString(url.openStream()));
 			}
 			logger.debug("File {} not found on classpath", filename);
 			return null;

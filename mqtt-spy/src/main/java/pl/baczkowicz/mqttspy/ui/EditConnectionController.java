@@ -231,10 +231,6 @@ public class EditConnectionController extends AnchorPane implements Initializabl
 
 	public void init()
 	{
-//		perspectiveCombo.getItems().add("Minimalistic - the bare minimum");
-//		perspectiveCombo.getItems().add("Simplified - key configuration parameters only");
-//		perspectiveCombo.getItems().add("Detailed - all configuration parameters");
-//		
 		for (SpyPerspective sp : SpyPerspective.values())
 		{
 			perspectiveCombo.getItems().add(sp);

@@ -81,6 +81,8 @@ public class ViewManager
 {
 	private final static Logger logger = LoggerFactory.getLogger(ViewManager.class);
 	
+	public final static KeyCombination newSubscription = new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN);
+	
 	private ConfigurationManager configurationManager;
 
 	private VersionManager versionManager;
@@ -170,6 +172,7 @@ public class ViewManager
 		
 		final FormattersController formattersController = ((FormattersController) loader.getController());
 		formattersController.setConfigurationManager(configurationManager);	
+		formattersController.setEventBus(eventBus);
 		formattersController.init();
 		
 		Scene scene = new Scene(formattersWindow);
@@ -255,7 +258,7 @@ public class ViewManager
 	    // Set up key shortcuts
 		final KeyCombination newConnection = new KeyCodeCombination(KeyCode.N, KeyCombination.CONTROL_DOWN);
 		final KeyCombination editConnections = new KeyCodeCombination(KeyCode.M, KeyCombination.CONTROL_DOWN);		
-		final KeyCombination newSubscription = new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN);
+		
 		
 		scene.addEventHandler(KeyEvent.KEY_RELEASED, new EventHandler()
 		{
@@ -277,7 +280,10 @@ public class ViewManager
 					
 					if (controller != null)
 					{
-						eventBus.publish(new ShowNewSubscriptionWindowEvent(controller, PaneVisibilityStatus.DETACHED));
+						eventBus.publish(new ShowNewSubscriptionWindowEvent(
+								controller, 
+								PaneVisibilityStatus.DETACHED,
+								controller.getNewSubscriptionPaneStatus().getVisibility()));
 					}
 				}
 			}
@@ -292,14 +298,23 @@ public class ViewManager
 	public void showNewSubscriptionWindow(final ShowNewSubscriptionWindowEvent event)
 	{
 		final ConnectionController connectionController = event.getConnectionController();
-		final TitledPaneStatus paneStatus = connectionController.getNewSubscriptionPaneStatus();
 		
-		connectionController.setPaneVisiblity(paneStatus, event.getStatus());
-		
-		if (event.getStatus().equals(PaneVisibilityStatus.DETACHED))
+		if (event.getPreviousStatus().equals(PaneVisibilityStatus.ATTACHED))
 		{
-			paneStatus.getParentWhenDetached().setWidth(600);
 			connectionController.getNewSubscriptionPaneController().requestFocus();
+		}
+		else
+		{		
+			final TitledPaneStatus paneStatus = connectionController.getNewSubscriptionPaneStatus();
+			
+			connectionController.setPaneVisiblity(paneStatus, event.getNewStatus());
+			
+			if (event.getNewStatus().equals(PaneVisibilityStatus.DETACHED))
+			{
+				connectionController.getNewSubscriptionPaneController().setPreviousStatus(event.getPreviousStatus());
+				paneStatus.getParentWhenDetached().setWidth(600);
+				connectionController.getNewSubscriptionPaneController().requestFocus();
+			}
 		}
 	}
 	
@@ -348,7 +363,8 @@ public class ViewManager
 	
 	public void showEditConnectionsWindow(final ShowEditConnectionsWindowEvent event)
 	{
-		if (editConnectionsController  == null)
+		logger.debug("showEditConnectionsWindow()");
+		if (editConnectionsController == null)
 		{
 			initialiseEditConnectionsWindow(event.getParent());
 		}
@@ -358,6 +374,7 @@ public class ViewManager
 			editConnectionsController.newMqttConnection();
 		}
 
+		editConnectionsController.selectConnection(event.getConnection().getProperties().getConfiguredProperties());
 		editConnectionsController.updateUIForSelectedItem();
 		editConnectionsController.setPerspective(selectedPerspective);
 		editConnectionsStage.showAndWait();		
@@ -381,25 +398,56 @@ public class ViewManager
 		switch (selectedPerspective)
 		{
 			case BASIC:
-				connectionController.showPanes(PaneVisibilityStatus.ATTACHED, PaneVisibilityStatus.NOT_VISIBLE, PaneVisibilityStatus.ATTACHED, PaneVisibilityStatus.ATTACHED);
-				connectionController.setDetailedViewVisibility(true);
+				connectionController.showPanes(PaneVisibilityStatus.ATTACHED, PaneVisibilityStatus.NOT_VISIBLE, PaneVisibilityStatus.ATTACHED, PaneVisibilityStatus.ATTACHED);				
 				break;
 			case DETAILED:
 				connectionController.showPanes(PaneVisibilityStatus.ATTACHED, PaneVisibilityStatus.ATTACHED, PaneVisibilityStatus.NOT_VISIBLE, PaneVisibilityStatus.ATTACHED);
-				connectionController.setDetailedViewVisibility(true);
 				break;
 			case SPY:
 				connectionController.showPanes(PaneVisibilityStatus.NOT_VISIBLE, PaneVisibilityStatus.NOT_VISIBLE, PaneVisibilityStatus.NOT_VISIBLE, PaneVisibilityStatus.ATTACHED);		
-				connectionController.setDetailedViewVisibility(false);
 				break;
 			case SUPER_SPY:
 				connectionController.showPanes(PaneVisibilityStatus.NOT_VISIBLE, PaneVisibilityStatus.NOT_VISIBLE, PaneVisibilityStatus.NOT_VISIBLE, PaneVisibilityStatus.ATTACHED);
-				connectionController.setDetailedViewVisibility(true);
 				break;
 			default:
 				connectionController.showPanes(PaneVisibilityStatus.ATTACHED, PaneVisibilityStatus.ATTACHED, PaneVisibilityStatus.NOT_VISIBLE, PaneVisibilityStatus.ATTACHED);
-				connectionController.setDetailedViewVisibility(false);
 				break;		
+		}
+		
+		connectionController.setViewVisibility(getDetailedViewStatus(selectedPerspective), getBasicViewStatus(selectedPerspective));
+	}
+	
+	public static boolean getDetailedViewStatus(final SpyPerspective perspective)
+	{
+		switch (perspective)
+		{
+			case BASIC:
+				return false;
+			case DETAILED:
+				return true;
+			case SPY:
+				return false;
+			case SUPER_SPY:
+				return true;
+			default:
+				return false;	
+		}
+	}
+	
+	public static boolean getBasicViewStatus(final SpyPerspective perspective)
+	{
+		switch (perspective)
+		{
+			case BASIC:
+				return true;
+			case DETAILED:
+				return false;
+			case SPY:
+				return false;
+			case SUPER_SPY:
+				return false;
+			default:
+				return false;	
 		}
 	}
 	
@@ -461,8 +509,7 @@ public class ViewManager
 			}			
 		}
 		
-		eventBus.publish(new ConfigurationLoadedEvent());
-		//controlPanelPaneController.refreshConfigurationFileStatus();		
+		eventBus.publish(new ConfigurationLoadedEvent());	
 	}	
 	
 	public void loadDefaultConfigurationFile()
@@ -474,7 +521,6 @@ public class ViewManager
 		if (defaultConfigurationFile.exists())
 		{
 			eventBus.publish(new LoadConfigurationFileEvent(defaultConfigurationFile));
-			// loadConfigurationFileOnRunLater(defaultConfigurationFile);
 		}
 		else
 		{
@@ -508,11 +554,6 @@ public class ViewManager
 	{
 		this.eventBus = eventBus;
 	}
-
-//	public void setStylesheets(final ObservableList<String> stylesheets)
-//	{
-//		this.stylesheets = stylesheets;		
-//	}
 
 	public void setVersionManager(final VersionManager versionManager)
 	{

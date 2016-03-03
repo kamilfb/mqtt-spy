@@ -20,6 +20,7 @@
 
 package pl.baczkowicz.mqttspy.ui.events;
 
+import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import javafx.stage.Window;
 
 public class ShowEditConnectionsWindowEvent
@@ -28,10 +29,13 @@ public class ShowEditConnectionsWindowEvent
 	
 	private final boolean createNew;
 
-	public ShowEditConnectionsWindowEvent(final Window parent, final boolean createNew)
+	private final MqttAsyncConnection connection;
+
+	public ShowEditConnectionsWindowEvent(final Window parent, final boolean createNew, final MqttAsyncConnection connection)
 	{
 		this.parent = parent;
 		this.createNew = createNew;
+		this.connection = connection;
 	}
 
 	/**
@@ -48,5 +52,13 @@ public class ShowEditConnectionsWindowEvent
 	public boolean isCreateNew()
 	{
 		return createNew;
+	}
+
+	/**
+	 * @return the connection
+	 */
+	public MqttAsyncConnection getConnection()
+	{
+		return connection;
 	}
 }
