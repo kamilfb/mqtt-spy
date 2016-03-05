@@ -24,6 +24,7 @@ import java.io.File;
 import javax.script.ScriptException;
 
 import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
@@ -43,6 +44,7 @@ public class FormattingPerformanceTest
 {
 	private FormatterDetails defaultFormatter = FormattingUtils.createBasicFormatter("default", "Plain", null, ConversionMethod.PLAIN);
 	
+	@Ignore
 	@Test
 	public void compareFormattingMethods() throws NoSuchMethodException, ScriptException
 	{
