@@ -374,7 +374,11 @@ public class ViewManager
 			editConnectionsController.newMqttConnection();
 		}
 
-		editConnectionsController.selectConnection(event.getConnection().getProperties().getConfiguredProperties());
+		if (event.getConnection() != null)
+		{
+			editConnectionsController.selectConnection(event.getConnection().getProperties().getConfiguredProperties());
+		}
+		
 		editConnectionsController.updateUIForSelectedItem();
 		editConnectionsController.setPerspective(selectedPerspective);
 		editConnectionsStage.showAndWait();		
