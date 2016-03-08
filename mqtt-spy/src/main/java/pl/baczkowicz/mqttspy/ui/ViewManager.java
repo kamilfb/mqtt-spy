@@ -83,6 +83,8 @@ public class ViewManager
 	
 	public final static KeyCombination newSubscription = new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN);
 	
+	public final static KeyCombination newPublication = new KeyCodeCombination(KeyCode.P, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN);
+	
 	private ConfigurationManager configurationManager;
 
 	private VersionManager versionManager;
@@ -209,6 +211,7 @@ public class ViewManager
 		editConnectionsStage.setTitle("Connection list");		
 		editConnectionsStage.initModality(Modality.WINDOW_MODAL);
 		editConnectionsStage.initOwner(parentWindow);
+		editConnectionsStage.setMinWidth(950);
 		editConnectionsStage.setScene(scene);
 	}
 	
@@ -284,6 +287,16 @@ public class ViewManager
 								controller, 
 								PaneVisibilityStatus.DETACHED,
 								controller.getNewSubscriptionPaneStatus().getVisibility()));
+					}
+				}
+				else if (newPublication.match((KeyEvent) event))
+				{
+					final Tab selectedTab = mainController.getConnectionTabs().getSelectionModel().getSelectedItem();
+					final ConnectionController controller = connectionManager.getControllerForTab(selectedTab);
+					
+					if (controller != null)
+					{
+						controller.getNewPublicationPaneController().publish();
 					}
 				}
 			}

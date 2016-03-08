@@ -22,24 +22,20 @@
  */
 -->
 
-<?import javafx.geometry.*?>
-<?import javafx.scene.image.*?>
-<?import javafx.scene.paint.*?>
-<?import javafx.scene.text.*?>
-<?import javafx.scene.control.*?>
-<?import java.lang.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.baczkowicz.mqttspy.ui.controllers.edit.EditConnectionMessageLogController" >
+<AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="536.0" xmlns="http://javafx.com/javafx/8.0.66" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.baczkowicz.mqttspy.ui.controllers.edit.EditConnectionMessageLogController">
 	<children>
 	
 		<Label layoutX="23.0" layoutY="60.0" text="Message audit log location" />
 
-      	<TextField fx:id="messageLogLocation" layoutX="279.0" layoutY="55.0" prefHeight="25.0" prefWidth="296.0" AnchorPane.rightAnchor="14.0" />
+      	<TextField fx:id="messageLogLocation" layoutX="279.0" layoutY="55.0" prefHeight="25.0" prefWidth="296.0" AnchorPane.leftAnchor="226.0" AnchorPane.rightAnchor="14.0" />
 
       	<Label layoutX="23.0" layoutY="20.0" text="Message audit logging mode" />
-      	<ComboBox fx:id="loggingMode" layoutX="279.0" layoutY="15" prefHeight="25.0" prefWidth="296.0" AnchorPane.rightAnchor="14.0" />
+      	<ComboBox fx:id="loggingMode" layoutX="279.0" layoutY="15" prefHeight="25.0" prefWidth="296.0" AnchorPane.leftAnchor="226.0" AnchorPane.rightAnchor="14.0" />
                               
 	</children>
 </AnchorPane>

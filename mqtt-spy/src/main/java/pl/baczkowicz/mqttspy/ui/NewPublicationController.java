@@ -159,8 +159,6 @@ public class NewPublicationController implements Initializable, TitledPaneContro
 	
 	private Label titleLabel;
 
-	// private EventManager<FormattedMqttMessage> eventManager;
-	
 	private IKBus eventBus;
 	
 	private List<BaseMqttMessage> recentMessages = new ArrayList<>();
@@ -328,6 +326,8 @@ public class NewPublicationController implements Initializable, TitledPaneContro
 				}
 			}			
 		});
+		
+		publishButton.setTooltip(new Tooltip("Publish message [" + ViewManager.newPublication.getDisplayText() + "]"));
 	}		
 	
 	public static ChangeListener<Number> createPaneTitleWidthListener(final TitledPane pane, final AnchorPane paneTitle)
@@ -432,9 +432,7 @@ public class NewPublicationController implements Initializable, TitledPaneContro
 		titleLabel = new Label(pane.getText());
 		
 		eventBus.subscribe(this, this::onScriptListChange, ScriptListChangeEvent.class, new SimpleRunLaterExecutor(), connection);
-		// TODO: replaced with event bus; remove
-		// eventManager.registerScriptListChangeObserver(this, connection);		
-		
+
 		paneTitle = new AnchorPane();
 		settingsButton = createTitleButtons(this, paneTitle, connectionController);
 	}
@@ -891,8 +889,6 @@ public class NewPublicationController implements Initializable, TitledPaneContro
 
 			// TODO: move this to script manager?
 			eventBus.publish(new ScriptListChangeEvent(connection));
-			// TODO: replaced with event bus; remove
-			// eventManager.notifyScriptListChange(connection);
 		}
 		catch (URISyntaxException | IOException e)
 		{
@@ -962,11 +958,6 @@ public class NewPublicationController implements Initializable, TitledPaneContro
 	{
 		this.scriptManager = scriptManager;
 	}
-	
-//	public void setEventManager(final EventManager<FormattedMqttMessage> eventManager)
-//	{
-//		this.eventManager = eventManager;
-//	}
 
 	public void hidePublishButton()
 	{
