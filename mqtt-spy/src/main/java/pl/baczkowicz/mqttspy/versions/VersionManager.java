@@ -29,6 +29,7 @@ import pl.baczkowicz.mqttspy.ui.controlpanel.ItemStatus;
 import pl.baczkowicz.mqttspy.ui.properties.VersionInfoProperties;
 import pl.baczkowicz.mqttspy.versions.generated.MqttSpyVersions;
 import pl.baczkowicz.mqttspy.versions.generated.ReleaseStatus;
+import pl.baczkowicz.spy.configuration.BasePropertyNames;
 import pl.baczkowicz.spy.configuration.PropertyFileLoader;
 import pl.baczkowicz.spy.exceptions.XMLException;
 import pl.baczkowicz.spy.xml.XMLParser;
@@ -80,13 +81,13 @@ public class VersionManager extends XMLParser
 		
 		try
 		{
-			final URL url = new URL(propertyLoader.getProperty(ConfigurationManager.VERSION_INFO_URL));
+			final URL url = new URL(propertyLoader.getProperty(BasePropertyNames.VERSION_INFO_URL));
 
 			versions = (MqttSpyVersions) loadFromInputStream(url.openStream());			
 		}
 		catch (IOException | NullPointerException e)
 		{
-			throw new XMLException("Cannot read version info from " + propertyLoader.getProperty(ConfigurationManager.VERSION_INFO_URL), e);
+			throw new XMLException("Cannot read version info from " + propertyLoader.getProperty(BasePropertyNames.VERSION_INFO_URL), e);
 		}
 		
 		setLoading(false);

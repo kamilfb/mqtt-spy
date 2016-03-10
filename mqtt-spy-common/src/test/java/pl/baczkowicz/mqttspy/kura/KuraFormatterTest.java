@@ -18,13 +18,8 @@ public class KuraFormatterTest
 	@Test
 	public void testKuraPayloadFormatting() throws KuraInvalidMessageException, IOException
 	{
-		// final Path path = Paths.get("src/test/resources/kura/sample-kura-message-dump");
-		final Path path = Paths.get("src/test/resources/kura/birth2");
+		final Path path = Paths.get("src/test/resources/kura/kura.birth");
 		byte[] data = Files.readAllBytes(path);
-		
-		//final CloudPayloadProtoBufDecoderImpl decoder = new CloudPayloadProtoBufDecoderImpl(data);		
-		//final KuraPayload kuraPayload = decoder.buildFromByteArray(); 
-		//logger.info(KuraPayloadFormatter.payloadToString(kuraPayload));
 		
 		logger.info(KuraPayloadFormatter.format(data));
 	}

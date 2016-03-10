@@ -276,15 +276,16 @@ public class SubscriptionController implements Initializable, TabController
 					@Override
 					public void run()
 					{
+						//logger.debug("pane W={}, title X={}, W={}", summaryTitledPane.getWidth(), paneTitle.getLayoutX(), paneTitle.getWidth());
+						
 						final double absoluteSearchBoxX = searchBox.getLayoutX() + topicFilterBox.getLayoutX() + titleBox.getLayoutX();
-						final double titledPaneWidth = updateTitleWidth(summaryTitledPane, paneTitle, 40);
+						final double titledPaneWidth = ViewManager.updateTitleWidth(summaryTitledPane, paneTitle, ViewManager.TITLE_MARGIN);
 						
-						if (logger.isTraceEnabled())
-						{
-							logger.trace("New width = " + titledPaneWidth);
-						}
-						
+						//logger.trace("New width = {}", titledPaneWidth);
+												
 						searchBox.setPrefWidth(titledPaneWidth - absoluteSearchBoxX - statsLabel.getWidth() - 100);
+						
+						//logger.debug("pane W={}, title X={}, W={}", summaryTitledPane.getWidth(), paneTitle.getLayoutX(), paneTitle.getWidth());
 					}
 				});
 			}
@@ -355,8 +356,8 @@ public class SubscriptionController implements Initializable, TabController
 			}
 		});
 		
-		paneTitle = new AnchorPane();
-		paneTitle.setPadding(new Insets(0, 0, 0, 0));
+		//paneTitle = new AnchorPane();
+		//paneTitle.setPadding(new Insets(0, 0, 0, 0));
 		
 		topicFilterBox.getChildren().addAll(new Label(" [search topics: "), searchBox, new Label("] "));
 		titleBox = new HBox();
@@ -368,6 +369,7 @@ public class SubscriptionController implements Initializable, TabController
 		statsLabel.widthProperty().addListener(createPaneTitleWidthListener());
 		
 		paneTitle.getChildren().addAll(titleBox, statsLabel);
+		// paneTitle.getChildren().addAll(titleBox);
 		
 		summaryTitledPane.setText(null);
 		summaryTitledPane.setGraphic(paneTitle);
@@ -530,23 +532,6 @@ public class SubscriptionController implements Initializable, TabController
 			summaryTitledPane.setMinHeight(MIN_COLLAPSED_SUMMARY_PANE_HEIGHT);
 			splitPane.setDividerPosition(0, 0.95);
 		}
-	}
-	
-	public static double updateTitleWidth(final TitledPane titledPane, final AnchorPane paneTitle, final int margin)
-	{
-		double titledPaneWidth = titledPane.getWidth();
-		
-		if (titledPane.getScene() != null)			
-		{
-			if (titledPane.getScene().getWidth() < titledPaneWidth)
-			{
-				titledPaneWidth = titledPane.getScene().getWidth();
-			}
-		}
-		paneTitle.setPrefWidth(titledPaneWidth - margin);				
-		paneTitle.setMaxWidth(titledPaneWidth - margin);
-		
-		return titledPaneWidth;
 	}
 
 	public void setStore(final ManagedMessageStoreWithFiltering<FormattedMqttMessage> store)

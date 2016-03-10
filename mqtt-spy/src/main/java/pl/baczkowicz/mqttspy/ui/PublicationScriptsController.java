@@ -339,7 +339,7 @@ public class PublicationScriptsController implements Initializable, TitledPaneCo
 		scriptTable.setContextMenu(createScriptTableContextMenu());
 		
 		paneTitle = new AnchorPane();
-		settingsButton = NewPublicationController.createTitleButtons(this, paneTitle, connectionController);
+		settingsButton = ViewManager.createTitleButtons(this, paneTitle, connectionController);
 		
 		publicationScriptsDirectory = InteractiveScriptManager.getScriptDirectoryForConnection(
 				connection.getProperties().getConfiguredProperties().getPublicationScripts());		

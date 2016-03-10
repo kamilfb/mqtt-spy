@@ -77,7 +77,7 @@ public class FormattingManager
 			if (FormattingUtils.isScriptBased(formatter))
 			{
 				// logger.debug("Formatting using {}", formatter.getName());
-				message.setFormattedPayload(scriptFormatter.formatMessage(formatter, message, false));
+				message.setFormattedPayload(scriptFormatter.formatMessage(formatter, message));
 				message.setPrettyPayload(scriptFormatter.formatMessage(formatter, message, true));
 			}
 			else

@@ -46,6 +46,8 @@ public class ScriptBasedFormatter
 	private BaseScriptManager scriptManager;
 	
 	private Map<FormatterDetails, Script> formattingScripts = new HashMap<>();
+	
+	private Map<FormatterDetails, Boolean> prettyFormattingAvailable = new HashMap<>();
 		
 	public ScriptBasedFormatter(final BaseScriptManager scriptManager)
 	{
@@ -100,7 +102,7 @@ public class ScriptBasedFormatter
 		logger.debug("Adding formatter {} took {} ms", formatter.getName(), (end - start));
 	}
 	
-	public String formatMessage(final FormatterDetails formatter, final FormattedMessage message, final boolean pretty)
+	public String formatMessage(final FormatterDetails formatter, final FormattedMessage message)
 	{
 		try
 		{
@@ -114,7 +116,7 @@ public class ScriptBasedFormatter
 			
 			scriptManager.setVariable(script, BaseScriptManager.RECEIVED_MESSAGE_PARAMETER, message);		
 		
-			final String functionName = pretty ? PRETTY_FUNCTION_NAME : FORMAT_FUNCTION_NAME;
+			final String functionName = FORMAT_FUNCTION_NAME;
 			return (String) scriptManager.invokeFunction(script, functionName);
 		}
 		catch (NoSuchMethodException | ScriptException e)
@@ -122,5 +124,41 @@ public class ScriptBasedFormatter
 			logger.trace("Cannot parse the message", e);
 			return message.getPayload();
 		}	
+	}
+	
+	public String formatMessage(final FormatterDetails formatter, final FormattedMessage message, final boolean pretty)
+	{
+		if (pretty && !Boolean.FALSE.equals(prettyFormattingAvailable.get(formatter)))
+		{
+			try
+			{
+				Script script = formattingScripts.get(formatter);
+				
+				if (script == null)
+				{
+					addFormatter(formatter);
+					script = formattingScripts.get(formatter);
+				}
+				
+				scriptManager.setVariable(script, BaseScriptManager.RECEIVED_MESSAGE_PARAMETER, message);		
+			
+				final String functionName = PRETTY_FUNCTION_NAME;
+				return (String) scriptManager.invokeFunction(script, functionName);
+			}
+			catch (NoSuchMethodException e)
+			{
+				prettyFormattingAvailable.put(formatter, Boolean.FALSE);
+				return formatMessage(formatter, message);
+			}
+			catch (ScriptException e)
+			{				
+				logger.trace("Cannot parse the message", e);
+				return message.getPayload();
+			}	
+		}
+		else
+		{
+			return formatMessage(formatter, message);
+		}		
 	}
 }

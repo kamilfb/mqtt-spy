@@ -27,7 +27,6 @@ import java.util.ResourceBundle;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
-import javafx.event.EventType;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
@@ -39,10 +38,8 @@ import javafx.scene.control.MenuButton;
 import javafx.scene.control.TitledPane;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
-import javafx.stage.Stage;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -207,7 +204,7 @@ public class NewSubscriptionController implements Initializable, TitledPaneContr
 	{
 		titleLabel = new Label(pane.getText());
 		paneTitle = new AnchorPane();
-		settingsButton = NewPublicationController.createTitleButtons(this, paneTitle, connectionController);
+		settingsButton = ViewManager.createTitleButtons(this, paneTitle, connectionController);
 	}
 	
 	private void updateVisibility()

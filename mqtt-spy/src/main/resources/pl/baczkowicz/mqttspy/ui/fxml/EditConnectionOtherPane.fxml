@@ -49,7 +49,7 @@
          <ComboBox fx:id="formatter" layoutX="235.0" layoutY="206.0" prefHeight="25.0" prefWidth="294.0" AnchorPane.leftAnchor="235.0" AnchorPane.rightAnchor="54.0" />
          
          <Label layoutX="23.0" layoutY="172.0" text="Min messages per topic" />
-         <Label layoutX="35.0" layoutY="185.0" text="[min messages to keep per topic]" textFill="#5e5e5e">
+         <Label layoutX="35.0" layoutY="189.0" text="[min messages to keep per topic]" textFill="#5e5e5e">
             <font>
                <Font size="10.0" />
             </font>

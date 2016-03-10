@@ -28,18 +28,30 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javafx.application.Application;
+import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
+import javafx.scene.control.MenuButton;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.Tab;
+import javafx.scene.control.TitledPane;
+import javafx.scene.control.Tooltip;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.text.TextAlignment;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Screen;
@@ -67,11 +79,13 @@ import pl.baczkowicz.mqttspy.ui.events.ShowTestCasesWindowEvent;
 import pl.baczkowicz.mqttspy.ui.messagelog.LogReaderTask;
 import pl.baczkowicz.mqttspy.ui.messagelog.TaskWithProgressUpdater;
 import pl.baczkowicz.mqttspy.versions.VersionManager;
+import pl.baczkowicz.spy.configuration.BaseConfigurationUtils;
 import pl.baczkowicz.spy.eventbus.IKBus;
 import pl.baczkowicz.spy.exceptions.ConfigurationException;
 import pl.baczkowicz.spy.ui.configuration.UiProperties;
 import pl.baczkowicz.spy.ui.panes.PaneVisibilityStatus;
 import pl.baczkowicz.spy.ui.panes.SpyPerspective;
+import pl.baczkowicz.spy.ui.panes.TitledPaneController;
 import pl.baczkowicz.spy.ui.panes.TitledPaneStatus;
 import pl.baczkowicz.spy.ui.threading.SimpleRunLaterExecutor;
 import pl.baczkowicz.spy.ui.utils.FxmlUtils;
@@ -84,6 +98,8 @@ public class ViewManager
 	public final static KeyCombination newSubscription = new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN);
 	
 	public final static KeyCombination newPublication = new KeyCodeCombination(KeyCode.P, KeyCombination.CONTROL_DOWN, KeyCombination.SHIFT_DOWN);
+	
+	public static int TITLE_MARGIN = 13;
 	
 	private ConfigurationManager configurationManager;
 
@@ -127,6 +143,9 @@ public class ViewManager
 		eventBus.subscribe(this, this::onNewSelectedPerspective, NewPerspectiveSelectedEvent.class);
 		eventBus.subscribe(this, this::openMessageLog, ShowMessageLogEvent.class);
 		eventBus.subscribe(this, this::showNewSubscriptionWindow, ShowNewSubscriptionWindowEvent.class);
+		
+		TITLE_MARGIN = BaseConfigurationUtils.getIntegerProperty("ui.titlepane.margin", TITLE_MARGIN, configurationManager.getUiPropertyFile());
+		logger.debug("Property TITLE_MARGIN = {}", TITLE_MARGIN);
 	}
 
 	private void initialiseAboutWindow(final Window parentWindow)
@@ -342,7 +361,6 @@ public class ViewManager
 		aboutStage.show();		
 	}
 	
-	
 	public void showFormatters(final ShowFormattersWindowEvent event)
 	{
 		if (formattersStage == null || !event.getParent().equals(formattersStage.getScene().getWindow()))
@@ -548,6 +566,123 @@ public class ViewManager
 	public void showExternalWebPage(final ShowExternalWebPageEvent event)
 	{
 		application.getHostServices().showDocument(event.getWebpage());
+	}
+	
+	public static ChangeListener<Number> createPaneTitleWidthListener(final TitledPane pane, final AnchorPane paneTitle)
+	{
+		return new ChangeListener<Number>()
+		{
+			@Override
+			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue)
+			{				 										
+				Platform.runLater(new Runnable()
+				{										
+					@Override
+					public void run()
+					{
+						ViewManager.updateTitleWidth(pane, paneTitle, TITLE_MARGIN);
+					}
+				});
+			}
+		};
+	}
+	
+	public static MenuButton createTitleButton(final String title, final String iconLocation, final double offset, 
+			final ConnectionController connectionController, final TitledPane pane)
+	{
+		final MenuButton button = new MenuButton();
+		button.setId("pane-settings-button");
+		button.setTooltip(new Tooltip(title));
+		button.setPadding(Insets.EMPTY);
+		button.setLineSpacing(0);
+		button.setBorder(null);
+		button.setGraphicTextGap(0);
+		button.setFocusTraversable(false);		
+		button.setGraphic(ImageUtils.createIcon(iconLocation, 14));
+		button.setStyle("-fx-background-color: transparent;");
+		
+		// TODO: actions
+		final MenuItem detach = new MenuItem("Detach to a separate window", ImageUtils.createIcon("tab-detach", 14, "pane-settings-menu-graphic"));
+		detach.setOnAction(new EventHandler<ActionEvent>()
+		{
+			@Override
+			public void handle(ActionEvent event)
+			{				
+				connectionController.setPaneVisiblity(
+						connectionController.getPaneToStatusMapping().get(pane), 
+						PaneVisibilityStatus.DETACHED);				
+			}
+		});
+		final MenuItem hide = new MenuItem("Hide this pane", ImageUtils.createIcon("tab-close", 14, "pane-settings-menu-graphic"));
+		hide.setOnAction(new EventHandler<ActionEvent>()
+		{
+			@Override
+			public void handle(ActionEvent event)
+			{				
+				connectionController.setPaneVisiblity(
+						connectionController.getPaneToStatusMapping().get(pane), 
+						PaneVisibilityStatus.NOT_VISIBLE);				
+			}
+		});
+		button.getItems().add(detach);
+		button.getItems().add(hide);
+		
+		for (MenuItem item : button.getItems())
+		{
+			item.getStyleClass().add("pane-settings-menu-item");
+		}
+		
+		button.setTextAlignment(TextAlignment.RIGHT);
+		button.setAlignment(Pos.CENTER_RIGHT);
+		AnchorPane.setRightAnchor(button, offset);
+		
+		return button;
+	}
+	
+	public static MenuButton createTitleButtons(final TitledPaneController controller, //final TitledPane pane, 
+			final AnchorPane paneTitle, final ConnectionController connectionController)	
+	{
+		final TitledPane pane = controller.getTitledPane();
+		
+		final MenuButton settingsButton = createTitleButton("Pane settings", "settings", -5, connectionController, pane);
+			      
+		HBox titleBox = new HBox();
+		titleBox.setPadding(new Insets(0, 0, 0, 0));	
+		logger.trace(pane + ", " + paneTitle + ", " + connectionController);
+		titleBox.getChildren().addAll(controller.getTitleLabel());
+		titleBox.prefWidth(Double.MAX_VALUE);		
+		
+		paneTitle.setPadding(new Insets(0, 0, 0, 0));
+		paneTitle.getChildren().addAll(titleBox, settingsButton);
+		paneTitle.setMaxWidth(Double.MAX_VALUE);
+		
+		pane.setText(null);
+		pane.setGraphic(paneTitle);
+		pane.widthProperty().addListener(createPaneTitleWidthListener(pane, paneTitle));
+		
+		return settingsButton;
+	}
+	
+	public static double updateTitleWidth(final TitledPane titledPane, final AnchorPane paneTitle, final double margin)
+	{
+		final double marginWithPositionOfset = margin + paneTitle.getLayoutX();
+				
+		double titledPaneWidth = titledPane.getWidth();
+		//logger.debug("{} titledPane.getWidth() = {}", titledPane, titledPaneWidth);
+		
+		if (titledPane.getScene() != null)			
+		{
+			if (titledPane.getScene().getWidth() < titledPaneWidth)
+			{
+				titledPaneWidth = titledPane.getScene().getWidth();
+				//logger.debug("{} titledPane.getScene().getWidth() = {}", titledPane, titledPaneWidth);				
+			}
+		}
+		
+		paneTitle.setPrefWidth(titledPaneWidth - marginWithPositionOfset);				
+		paneTitle.setMaxWidth(titledPaneWidth - marginWithPositionOfset);
+		
+		return titledPaneWidth;
 	}
 	
 	// ************

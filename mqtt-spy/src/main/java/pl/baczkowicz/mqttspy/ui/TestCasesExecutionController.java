@@ -353,7 +353,7 @@ public class TestCasesExecutionController extends AnchorPane implements Initiali
 		if (connectionController != null)
 		{
 			paneTitle = new AnchorPane();
-			settingsButton = NewPublicationController.createTitleButtons(this, paneTitle, connectionController);
+			settingsButton = ViewManager.createTitleButtons(this, paneTitle, connectionController);
 		}
 	}	
 	

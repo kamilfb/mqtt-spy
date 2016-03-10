@@ -51,7 +51,7 @@ public class SubscriptionsController implements TitledPaneController
 		titleLabel = new Label(pane.getText());
 		
 		paneTitle = new AnchorPane();
-		settingsButton = NewPublicationController.createTitleButtons(this, paneTitle, connectionController);		
+		settingsButton = ViewManager.createTitleButtons(this, paneTitle, connectionController);		
 	}
 	
 

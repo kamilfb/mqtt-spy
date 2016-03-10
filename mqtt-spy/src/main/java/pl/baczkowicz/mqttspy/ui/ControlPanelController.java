@@ -64,7 +64,7 @@ import pl.baczkowicz.mqttspy.versions.VersionManager;
 import pl.baczkowicz.mqttspy.versions.events.VersionInfoErrorEvent;
 import pl.baczkowicz.mqttspy.versions.events.VersionInfoReceivedEvent;
 import pl.baczkowicz.mqttspy.versions.generated.MqttSpyVersions;
-import pl.baczkowicz.spy.configuration.PropertyFileLoader;
+import pl.baczkowicz.spy.configuration.BasePropertyNames;
 import pl.baczkowicz.spy.eventbus.IKBus;
 import pl.baczkowicz.spy.exceptions.ConfigurationException;
 import pl.baczkowicz.spy.exceptions.XMLException;
@@ -450,8 +450,7 @@ public class ControlPanelController extends AnchorPane implements Initializable
 			@Override
 			public void handle(ActionEvent event)
 			{				
-				eventBus.publish(new ShowExternalWebPageEvent(configurationManager.getDefaultPropertyFile().getProperty(PropertyFileLoader.DOWNLOAD_URL)));
-				// application.getHostServices().showDocument(configurationManager.getDefaultPropertyFile().getProperty(PropertyFileLoader.DOWNLOAD_URL));			
+				eventBus.publish(new ShowExternalWebPageEvent(configurationManager.getDefaultPropertyFile().getProperty(BasePropertyNames.DOWNLOAD_URL)));			
 			}
 		});
 		
