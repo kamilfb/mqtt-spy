@@ -50,6 +50,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import javafx.stage.Window;
 import javafx.util.Pair;
 import pl.baczkowicz.spy.exceptions.ExceptionUtils;
@@ -219,7 +220,7 @@ public class DialogFactory
 	public static Stage createWindowWithPane(final Node pane, final Scene parentScene, 
 			final String title, final double margin)
 	{
-		final Stage stage = new Stage();
+		final Stage stage = new Stage(StageStyle.UTILITY);
 		final AnchorPane content = new AnchorPane();
 		
 		content.getChildren().add(pane);
@@ -230,6 +231,7 @@ public class DialogFactory
 		
 		final Scene scene = new Scene(content);
 		scene.getStylesheets().addAll(parentScene.getStylesheets());
+		stage.initOwner(parentScene.getWindow());
 		stage.setTitle(title);
 		stage.setScene(scene);
 		

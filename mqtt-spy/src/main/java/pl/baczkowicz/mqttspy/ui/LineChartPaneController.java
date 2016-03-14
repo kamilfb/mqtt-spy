@@ -445,7 +445,7 @@ public class LineChartPaneController<T extends FormattedMessage> implements Init
 		}
 		else if (ChartMode.USER_DRIVEN_MSG_SIZE.equals(chartMode))
 		{
-			final Integer value = Integer .valueOf(message.getPayload().length());
+			final Integer value = Integer.valueOf(message.getPayload().length());
 			return new XYChart.Data<Number, Number>(message.getDate().getTime(), value);	
 		}
 		else
