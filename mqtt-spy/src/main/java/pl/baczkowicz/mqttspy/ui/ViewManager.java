@@ -333,6 +333,10 @@ public class ViewManager
 		
 		if (event.getPreviousStatus().equals(PaneVisibilityStatus.ATTACHED))
 		{
+			if (!connectionController.getNewSubscriptionPaneController().getTitledPane().isExpanded())
+			{
+				connectionController.getNewSubscriptionPaneController().getTitledPane().setExpanded(true);
+			}
 			connectionController.getNewSubscriptionPaneController().requestFocus();
 		}
 		else

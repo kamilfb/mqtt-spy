@@ -1,3 +1,13 @@
+.small-font
+{
+	-fx-font-size: 11px;
+}
+
+.normal-font
+{
+	-fx-font-size: 13px;
+}
+
 .tab:selected
 {
 	-fx-font-weight: bold;

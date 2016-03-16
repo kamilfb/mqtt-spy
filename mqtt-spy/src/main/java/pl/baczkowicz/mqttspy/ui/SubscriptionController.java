@@ -344,7 +344,8 @@ public class SubscriptionController implements Initializable, TabController
 		paneTitle.setMaxWidth(Double.MAX_VALUE);
 				
 		searchBox = new TextField();
-		searchBox.setFont(new Font("System", 11));
+		//searchBox.setFont(new Font("System", 11));
+		searchBox.getStyleClass().add("small-font");
 		searchBox.setPadding(new Insets(2, 5, 2, 5));
 		searchBox.setMaxWidth(400);
 		searchBox.textProperty().addListener(new ChangeListener<String>()

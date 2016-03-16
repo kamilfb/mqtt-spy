@@ -27,7 +27,7 @@
 
 <AnchorPane fx:id="mainPane" prefHeight="550.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.baczkowicz.mqttspy.ui.MainController">
 	<children>
-		<MenuBar AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+		<MenuBar styleClass="normal-font" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
 			<menus>
 				<Menu mnemonicParsing="false" text="File">
 					<items>									
@@ -115,7 +115,7 @@
 				</Menu>
 			</menus>
 		</MenuBar>
-		<TabPane fx:id="connectionTabs" layoutY="29.0" prefHeight="350.0" prefWidth="554.0" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="29.0">
+		<TabPane styleClass="normal-font" fx:id="connectionTabs" layoutY="29.0" prefHeight="350.0" prefWidth="554.0" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="29.0">
 			<tabs>
 				<Tab fx:id="firstTab" text="Control panel">
 					<content>

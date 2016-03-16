@@ -78,7 +78,7 @@ public class ConnectionController implements Initializable, TabController
 {
 	private static final int MIN_COLLAPSED_PANE_HEIGHT = 26;
 	
-	private static final int SUBSCRIPTION_PANE_MIN_EXPANDED_HEIGHT = 64;
+	private static final int SUBSCRIPTION_PANE_MIN_EXPANDED_HEIGHT = 66;
 	
 	private static final int TEST_CASES_PANE_MIN_EXPANDED_HEIGHT = 190;
 	
@@ -655,6 +655,7 @@ public class ConnectionController implements Initializable, TabController
 		splitPane.getItems().add(insertIndex, status.getController().getTitledPane());
 	}
 	
+	// TODO: this should be moved out to the ViewManager
 	private void updateVisiblePanes()
 	{	
 		for (final TitledPaneStatus status : paneToStatus.values())
@@ -711,6 +712,8 @@ public class ConnectionController implements Initializable, TabController
 				
 				status.getController().getTitledPane().setExpanded(true);
 				status.getController().getTitledPane().setCollapsible(false);
+				
+				stage.setMinHeight(status.getController().getTitledPane().getMinHeight());
 				stage.show();
 			}
 			// If set to be shown
