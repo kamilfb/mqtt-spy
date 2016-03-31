@@ -177,7 +177,7 @@ public class MessageController implements Initializable
 				if (event.getClickCount() == 2)
 				{
 					formattingManager.formatMessage(message, store.getFormatter());
-					final String textToDisplay = message.getFormattedPayload();				
+					final String textToDisplay = message.getPrettyPayload();				
 					displayNewText(textToDisplay);
 				}				
 			}
