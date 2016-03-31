@@ -55,12 +55,14 @@ import pl.baczkowicz.mqttspy.ui.events.ShowEditConnectionsWindowEvent;
 import pl.baczkowicz.mqttspy.ui.events.ShowExternalWebPageEvent;
 import pl.baczkowicz.mqttspy.ui.events.ShowFormattersWindowEvent;
 import pl.baczkowicz.mqttspy.ui.events.ShowMessageLogEvent;
+import pl.baczkowicz.mqttspy.ui.events.ShowNewSubscriptionWindowEvent;
 import pl.baczkowicz.mqttspy.ui.events.ShowTestCasesWindowEvent;
 import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
 import pl.baczkowicz.mqttspy.versions.VersionManager;
 import pl.baczkowicz.spy.eventbus.IKBus;
 import pl.baczkowicz.spy.exceptions.SpyUncaughtExceptionHandler;
 import pl.baczkowicz.spy.exceptions.XMLException;
+import pl.baczkowicz.spy.ui.panes.PaneVisibilityStatus;
 import pl.baczkowicz.spy.ui.panes.SpyPerspective;
 
 /**
@@ -88,6 +90,9 @@ public class MainController
 	
 	@FXML
 	private MenuItem newConnectionMenu;
+
+	@FXML
+	private MenuItem newSubscriptionMenu;
 	
 	@FXML
 	private MenuItem editConnectionsMenu;
@@ -131,6 +136,7 @@ public class MainController
 	private VersionManager versionManager;
 
 	private ViewManager viewManager;
+
 	
 	public MainController() throws XMLException
 	{
@@ -197,6 +203,21 @@ public class MainController
 	public void editConnections()
 	{
 		eventBus.publish(new ShowEditConnectionsWindowEvent(getParentWindow(), false, null));
+	}
+	
+	@FXML
+	public void newSubscription()
+	{
+		final Tab selectedTab = this.getConnectionTabs().getSelectionModel().getSelectedItem();
+		final ConnectionController controller = connectionManager.getControllerForTab(selectedTab);
+		
+		if (controller != null)
+		{
+			eventBus.publish(new ShowNewSubscriptionWindowEvent(
+					controller, 
+					PaneVisibilityStatus.DETACHED,
+					controller.getNewSubscriptionPaneStatus().getVisibility()));
+		}
 	}
 
 	@FXML
@@ -538,5 +559,10 @@ public class MainController
 	public void setEditConnectionsMenu(MenuItem editConnectionsMenu)
 	{
 		this.editConnectionsMenu = editConnectionsMenu;
+	}
+
+	public MenuItem getNewSubuscriptionMenu()
+	{
+		return newSubscriptionMenu;
 	}
 }

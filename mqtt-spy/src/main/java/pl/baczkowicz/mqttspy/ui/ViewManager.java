@@ -279,8 +279,7 @@ public class ViewManager
 	    
 	    // Set up key shortcuts
 		final KeyCombination newConnection = new KeyCodeCombination(KeyCode.N, KeyCombination.CONTROL_DOWN);
-		final KeyCombination editConnections = new KeyCodeCombination(KeyCode.M, KeyCombination.CONTROL_DOWN);		
-		
+		final KeyCombination editConnections = new KeyCodeCombination(KeyCode.M, KeyCombination.CONTROL_DOWN);				
 		
 		scene.addEventHandler(KeyEvent.KEY_RELEASED, new EventHandler()
 		{
@@ -323,6 +322,7 @@ public class ViewManager
 		
 		mainController.getNewConnectionMenu().setAccelerator(newConnection);
 		mainController.getEditConnectionsMenu().setAccelerator(editConnections);
+		mainController.getNewSubuscriptionMenu().setAccelerator(newSubscription);
 		
 		return scene;
 	}

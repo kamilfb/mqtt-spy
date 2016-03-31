@@ -47,6 +47,8 @@
 					<items>
 						<MenuItem fx:id="newConnectionMenu" mnemonicParsing="false" onAction="#createNewConnection" text="New connection" />
 						<MenuItem fx:id="editConnectionsMenu" mnemonicParsing="false" onAction="#editConnections" text="Manage connections" />
+						<SeparatorMenuItem mnemonicParsing="false" />
+						<MenuItem fx:id="newSubscriptionMenu" mnemonicParsing="false" onAction="#newSubscription" text="New subscription" />
 					</items>
 				</Menu>
 			

@@ -29,14 +29,19 @@ import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.Tab;
 import javafx.scene.control.Tooltip;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 
@@ -289,21 +294,46 @@ public class ConnectionManager
 				newSubButton.setFocusTraversable(false);
 				newSubButton.setPadding(new Insets(0, 0, 0, 0));
 				
-				newSubButton.setTooltip(new Tooltip("Create new subscription [" + ViewManager.newSubscription.getDisplayText() + "]"));				
-				newSubButton.setOnMouseClicked(new EventHandler<Event>()
+				newSubButton.setTooltip(new Tooltip("Create new subscription [" + ViewManager.newSubscription.getDisplayText() + "]"));
+				final MenuItem attach = new MenuItem("Show attached");
+				//final MenuItem detach = new MenuItem("Show detached");
+				attach.setOnAction(new EventHandler<ActionEvent>()
+				{					
+					@Override
+					public void handle(ActionEvent event)
+					{
+						showNewSubscription(PaneVisibilityStatus.ATTACHED, connectionController);				
+					}
+				});
+//				detach.setOnAction(new EventHandler<ActionEvent>()
+//				{					
+//					@Override
+//					public void handle(ActionEvent event)
+//					{
+//						showNewSubscription(PaneVisibilityStatus.DETACHED, connectionController);						
+//					}
+//				});
+				
+				newSubButton.setContextMenu(new ContextMenu(attach));
+				newSubButton.setOnMouseClicked(new EventHandler<MouseEvent>()
 				{
 					@Override
-					public void handle(Event event)
+					public void handle(MouseEvent event)
 					{
-						eventBus.publish(new ShowNewSubscriptionWindowEvent(connectionController, 
-								PaneVisibilityStatus.DETACHED,
-								connectionController.getNewSubscriptionPaneStatus().getVisibility()));				
+						if (MouseButton.PRIMARY.equals(event.getButton()))
+						{
+							showNewSubscription(PaneVisibilityStatus.DETACHED, connectionController);
+						}
+						else
+						{
+							// newSubButton.getContextMenu().show(newSubButton.getScene().getWindow());
+						}
 					}				
 				});
 				newSubTab.setGraphic(newSubButton);
 				newSubTab.setDisable(true);				
 				newSubButton.setDisable(false);
-				
+								
 				connectionController.getSubscriptionTabs().getTabs().add(subscriptionController.getTab());
 				subscriptionController.getTab().setDisable(true);
 				
@@ -318,6 +348,13 @@ public class ConnectionManager
 				viewManager.showPerspective(connectionController);
 			}
 		});		
+	}
+	
+	private void showNewSubscription(final PaneVisibilityStatus status, final ConnectionController connectionController)
+	{
+		eventBus.publish(new ShowNewSubscriptionWindowEvent(connectionController, 
+				status,
+				connectionController.getNewSubscriptionPaneStatus().getVisibility()));
 	}
 	
 	/**
@@ -336,9 +373,7 @@ public class ConnectionManager
 		
 		final ConnectionController connectionController = (ConnectionController) loader.getController();
 		
-		//connectionController.setConnection(connection);
 		connectionController.setConnectionManager(this);
-		// connectionController.setEventManager(eventManager);
 		connectionController.setEventBus(eventBus);
 		connectionController.setStatisticsManager(statisticsManager);
 		connectionController.setReplayMode(true);

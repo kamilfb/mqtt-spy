@@ -40,11 +40,11 @@
 
 		<Label layoutX="14.0" layoutY="9.0" styleClass="normal-font" text="Topic filter" AnchorPane.topAnchor="5.0" />	    	
 		
-		<ComboBox fx:id="subscriptionTopicText" editable="true" layoutX="53.0" layoutY="13.0" maxHeight="28.0" prefHeight="28.0" styleClass="normal-font" AnchorPane.leftAnchor="85.0" AnchorPane.rightAnchor="262.0" AnchorPane.topAnchor="0.0" />		
+		<ComboBox fx:id="subscriptionTopicText" editable="true" layoutX="53.0" layoutY="13.0" prefHeight="28.0" styleClass="normal-font" AnchorPane.leftAnchor="85.0" AnchorPane.rightAnchor="262.0" AnchorPane.topAnchor="0.0" />		
 		
 		<Label fx:id="subscriptionQosLabel" layoutX="472.0" layoutY="5.0" styleClass="normal-font" text="QoS" AnchorPane.rightAnchor="226.0" AnchorPane.topAnchor="5.0" />
 										
-		<ChoiceBox fx:id="subscriptionQosChoice" layoutX="498.0" layoutY="13.0" maxHeight="28.0" prefHeight="28.0" prefWidth="14.0" styleClass="normal-font" value="0" AnchorPane.rightAnchor="179.0" AnchorPane.topAnchor="0.0">
+		<ChoiceBox fx:id="subscriptionQosChoice" layoutX="498.0" layoutY="13.0" prefHeight="28.0" prefWidth="14.0" styleClass="normal-font" value="0" AnchorPane.rightAnchor="179.0" AnchorPane.topAnchor="0.0">
 			<items>
 				<FXCollections fx:factory="observableArrayList">
 					<String fx:value="0" />
@@ -54,7 +54,7 @@
 			</items>
 		</ChoiceBox>
 		
-		<ColorPicker fx:id="subscriptionColorPicker" maxHeight="28.0" prefHeight="28.0" prefWidth="45.0" style="-fx-color-label-visible: false;" styleClass="normal-font" AnchorPane.rightAnchor="128.0" AnchorPane.topAnchor="0.0" />
+		<ColorPicker fx:id="subscriptionColorPicker" prefHeight="28.0" prefWidth="45.0" style="-fx-color-label-visible: false;" styleClass="normal-font" AnchorPane.rightAnchor="128.0" AnchorPane.topAnchor="0.0" />
 				
 		<Button fx:id="subscribeButton" disable="true" layoutX="549.0" layoutY="13.0" mnemonicParsing="false" onAction="#onSubscribe" prefHeight="28.0" prefWidth="120" styleClass="normal-font" text="Subscribe" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">		    
 			<padding><Insets bottom="2.0" left="2.0" right="2.0" top="2.0" /></padding>
