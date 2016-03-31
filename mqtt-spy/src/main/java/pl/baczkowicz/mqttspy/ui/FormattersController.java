@@ -19,7 +19,6 @@
  */
 package pl.baczkowicz.mqttspy.ui;
 
-import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 import java.util.Optional;
@@ -57,11 +56,9 @@ import pl.baczkowicz.spy.common.generated.FormatterDetails;
 import pl.baczkowicz.spy.common.generated.FormatterFunction;
 import pl.baczkowicz.spy.common.generated.ScriptExecutionDetails;
 import pl.baczkowicz.spy.eventbus.IKBus;
-import pl.baczkowicz.spy.files.FileUtils;
 import pl.baczkowicz.spy.formatting.FormattingManager;
 import pl.baczkowicz.spy.formatting.FormattingUtils;
 import pl.baczkowicz.spy.formatting.ScriptBasedFormatter;
-import pl.baczkowicz.spy.messages.FormattedMessage;
 import pl.baczkowicz.spy.scripts.Script;
 import pl.baczkowicz.spy.ui.utils.DialogFactory;
 import pl.baczkowicz.spy.ui.utils.TooltipFactory;
@@ -143,15 +140,9 @@ public class FormattersController implements Initializable
 			@Override
 			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue)
 			{
-				if (newFormatter != null)
-				{
-					sampleOutput.setText(scriptBasedFormatter.formatMessage(newFormatter, 
-							new FormattedMqttMessage(0, "", new MqttMessage(sampleInput.getText().getBytes()), connection), true));
-				}
-				else
-				{
-					sampleOutput.setText(FormattingUtils.formatText(selectedFormatter, sampleInput.getText(), sampleInput.getText().getBytes()));
-				}
+				final FormattedMqttMessage message = new FormattedMqttMessage(0, "", new MqttMessage(sampleInput.getText().getBytes()), connection);							
+				
+				formatInput(message);
 			}
 		});						
 		
@@ -442,7 +433,7 @@ public class FormattersController implements Initializable
 		}
 	}
 	
-	private void formatSampleInput(final FormattedMqttMessage message)
+	private void formatInput(final FormattedMqttMessage message)
 	{		
 		if (FormattingUtils.isScriptBased(selectedFormatter))
 		{
@@ -525,7 +516,7 @@ public class FormattersController implements Initializable
 					message = new FormattedMqttMessage(0, "", new MqttMessage(ConversionUtils.base64ToArray(base64encoded)), connection);
 				}
 				
-				formatSampleInput(message);
+				formatInput(message);
 			}
 			else if (selectedFormatter.getID().startsWith(FormattingUtils.SCRIPT_PREFIX))
 			{
@@ -550,7 +541,7 @@ public class FormattersController implements Initializable
 					logger.error("Script error", e);
 				}
 								
-				formatSampleInput(new FormattedMqttMessage(0, "", new MqttMessage(sampleInput.getText().getBytes()), connection));		
+				formatInput(new FormattedMqttMessage(0, "", new MqttMessage(sampleInput.getText().getBytes()), connection));		
 			} 
 			else
 			{
