@@ -21,7 +21,6 @@ package pl.baczkowicz.mqttspy.ui;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -774,8 +773,9 @@ public class NewPublicationController implements Initializable, TitledPaneContro
 		
 		try
 		{
-			final File orig = new File(NewPublicationController.class.getResource("/samples/template-script.js").toURI());
-			final String template = org.apache.commons.io.FileUtils.readFileToString(orig);
+			final String templateFilename = "/samples/template-script.js";
+			final String template = FileUtils.loadFileByNameAsString(templateFilename);
+					
 			final String script = template.replace(
 					"mqttspy.publish(\"topic\", \"payload\");", 
 					scriptText.toString());
@@ -787,7 +787,7 @@ public class NewPublicationController implements Initializable, TitledPaneContro
 			// TODO: move this to script manager?
 			eventBus.publish(new ScriptListChangeEvent(connection));
 		}
-		catch (URISyntaxException | IOException e)
+		catch (IOException e)
 		{
 			logger.error("Cannot create the script file at " + scriptFile.getAbsolutePath(), e);
 		} 			

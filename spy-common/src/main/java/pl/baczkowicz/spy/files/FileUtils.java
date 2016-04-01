@@ -159,25 +159,28 @@ public class FileUtils
 		}
 	}
 	
+	public static String loadFileByNameAsString(final String filename) throws IOException
+	{
+		final InputStream is = loadFileByName(filename);
+		
+		if (is != null)
+		{
+			return IOUtils.toString(is);
+		}
+		
+		return null;
+	}
+	
 	public static String loadFileByNameBase64Encoded(final String filename) throws IOException
 	{
-		final File file = new java.io.File(filename);
-		if (file.isFile())
+		final String fileContent = loadFileByNameAsString(filename);
+		
+		if (fileContent != null)
 		{
-			logger.debug("Trying to read {} from filesystem", filename);
-			return ConversionUtils.stringToBase64(IOUtils.toString(new FileInputStream(file)));
+			return ConversionUtils.stringToBase64(fileContent);
 		}
-		else
-		{
-			logger.debug("Trying to read {} from classpath", filename);
-			final URL url = FileUtils.class.getResource(filename); 
-			if (url != null)
-			{
-				return ConversionUtils.stringToBase64(IOUtils.toString(url.openStream()));
-			}
-			logger.debug("File {} not found on classpath", filename);
-			return null;
-		}
+		
+		return null;
 	}
 	
 	/**
