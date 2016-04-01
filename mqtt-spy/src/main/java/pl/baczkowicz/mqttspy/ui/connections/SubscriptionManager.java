@@ -68,7 +68,7 @@ public class SubscriptionManager
 	public static String ALL_SUBSCRIPTIONS_TAB_TITLE = "All";
 	
 	/** Index for the 'all subscriptions' tab. */
-	public static int ALL_SUBSCRIPTIONS_TAB_INDEX = 1;
+	public static int ALL_SUBSCRIPTIONS_TAB_INDEX = 0;
 	
 	/** Diagnostic logger. */
 	private final static Logger logger = LoggerFactory.getLogger(SubscriptionManager.class);

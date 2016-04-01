@@ -29,19 +29,9 @@ import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import javafx.application.Platform;
-import javafx.event.ActionEvent;
-import javafx.event.Event;
-import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Insets;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.MenuItem;
 import javafx.scene.control.Tab;
-import javafx.scene.control.Tooltip;
-import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 
@@ -72,7 +62,6 @@ import pl.baczkowicz.mqttspy.ui.MainController;
 import pl.baczkowicz.mqttspy.ui.SubscriptionController;
 import pl.baczkowicz.mqttspy.ui.ViewManager;
 import pl.baczkowicz.mqttspy.ui.events.ConnectionStatusChangeEvent;
-import pl.baczkowicz.mqttspy.ui.events.ShowNewSubscriptionWindowEvent;
 import pl.baczkowicz.mqttspy.ui.events.queuable.UIEventHandler;
 import pl.baczkowicz.mqttspy.ui.events.queuable.connectivity.MqttConnectionAttemptFailureEvent;
 import pl.baczkowicz.mqttspy.ui.events.queuable.connectivity.MqttDisconnectionAttemptFailureEvent;
@@ -93,7 +82,6 @@ import pl.baczkowicz.spy.ui.storage.ManagedMessageStoreWithFiltering;
 import pl.baczkowicz.spy.ui.threading.SimpleRunLaterExecutor;
 import pl.baczkowicz.spy.ui.utils.DialogFactory;
 import pl.baczkowicz.spy.ui.utils.FxmlUtils;
-import pl.baczkowicz.spy.ui.utils.ImageUtils;
 import pl.baczkowicz.spy.ui.utils.TabUtils;
 
 /**
@@ -287,53 +275,7 @@ public class ConnectionManager
 					connection.setConnectionStatus(MqttConnectionStatus.NOT_CONNECTED);
 				}	
 				
-				// Add "New" and "All" tabs
-				final Tab newSubTab = connectionController.getSubscriptionTabs().getTabs().get(0);
-				final Button newSubButton = new Button("New", ImageUtils.createIcon("tab-new", 24));
-				newSubButton.setStyle("-fx-background-color: transparent;");
-				newSubButton.setFocusTraversable(false);
-				newSubButton.setPadding(new Insets(0, 0, 0, 0));
-				
-				newSubButton.setTooltip(new Tooltip("Create new subscription [" + ViewManager.newSubscription.getDisplayText() + "]"));
-				final MenuItem attach = new MenuItem("Show attached");
-				//final MenuItem detach = new MenuItem("Show detached");
-				attach.setOnAction(new EventHandler<ActionEvent>()
-				{					
-					@Override
-					public void handle(ActionEvent event)
-					{
-						showNewSubscription(PaneVisibilityStatus.ATTACHED, connectionController);				
-					}
-				});
-//				detach.setOnAction(new EventHandler<ActionEvent>()
-//				{					
-//					@Override
-//					public void handle(ActionEvent event)
-//					{
-//						showNewSubscription(PaneVisibilityStatus.DETACHED, connectionController);						
-//					}
-//				});
-				
-				newSubButton.setContextMenu(new ContextMenu(attach));
-				newSubButton.setOnMouseClicked(new EventHandler<MouseEvent>()
-				{
-					@Override
-					public void handle(MouseEvent event)
-					{
-						if (MouseButton.PRIMARY.equals(event.getButton()))
-						{
-							showNewSubscription(PaneVisibilityStatus.DETACHED, connectionController);
-						}
-						else
-						{
-							// newSubButton.getContextMenu().show(newSubButton.getScene().getWindow());
-						}
-					}				
-				});
-				newSubTab.setGraphic(newSubButton);
-				newSubTab.setDisable(true);				
-				newSubButton.setDisable(false);
-								
+				// Add "All" tab								
 				connectionController.getSubscriptionTabs().getTabs().add(subscriptionController.getTab());
 				subscriptionController.getTab().setDisable(true);
 				
@@ -348,13 +290,6 @@ public class ConnectionManager
 				viewManager.showPerspective(connectionController);
 			}
 		});		
-	}
-	
-	private void showNewSubscription(final PaneVisibilityStatus status, final ConnectionController connectionController)
-	{
-		eventBus.publish(new ShowNewSubscriptionWindowEvent(connectionController, 
-				status,
-				connectionController.getNewSubscriptionPaneStatus().getVisibility()));
 	}
 	
 	/**
