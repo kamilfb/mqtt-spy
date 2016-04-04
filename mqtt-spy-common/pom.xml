@@ -85,10 +85,10 @@
 		</dependency> 
 				
 		<dependency>
-			<groupId>org.eclipse.moquette</groupId>
+			<groupId>io.moquette</groupId>
 			<artifactId>moquette-broker</artifactId>
+			<version>0.8</version>
 			<scope>compile</scope>
-			<version>0.7</version>
 			<exclusions>
 				<exclusion>
 					<groupId>org.slf4j</groupId>
@@ -139,12 +139,20 @@
 					<groupId>org.apache.felix</groupId>
 				</exclusion>
 				<exclusion>
-					<artifactId>disruptor</artifactId>
 					<groupId>com.googlecode.disruptor</groupId>
+					<artifactId>disruptor</artifactId>					
 				</exclusion>
 				<exclusion>
+					<groupId>io.moquette</groupId>
 					<artifactId>moquette-netty-parser</artifactId>
-					<groupId>org.eclipse.moquette</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>HdrHistogram</artifactId>
+					<groupId>org.hdrhistogram</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>netty-codec-http</artifactId>
+					<groupId>io.netty</groupId>
 				</exclusion>
 			</exclusions>
 		</dependency>
