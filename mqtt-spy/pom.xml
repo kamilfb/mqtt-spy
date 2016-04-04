@@ -4,7 +4,7 @@
 
 	<groupId>pl.baczkowicz.mqttspy</groupId>
 	<artifactId>mqtt-spy</artifactId>
-	<version>0.5.0</version>
+	<version>0.6.0-beta</version>
 	<packaging>jar</packaging>
 
 	<name>mqtt-spy</name>
@@ -38,7 +38,7 @@
 		<dependency>
 			<groupId>pl.baczkowicz.spy</groupId>
 			<artifactId>spy-common</artifactId>
-			<version>0.2.0</version>
+			<version>0.3.0</version>
 			<exclusions>
 				<exclusion>
 					<artifactId>maven-jaxb2-plugin</artifactId>
@@ -62,7 +62,7 @@
 		<dependency>
 			<groupId>pl.baczkowicz.mqttspy</groupId>
 			<artifactId>mqtt-spy-common</artifactId>
-			<version>0.1.0</version>			 
+			<version>0.2.0</version>			 
 			<exclusions>
 				<exclusion>
 					<artifactId>maven-jaxb2-plugin</artifactId>
@@ -367,7 +367,7 @@
 	               </execution>
 	           </executions>
 	           <configuration>
-	           		<basedir>src/main/java</basedir>
+	           		<basedir>${basedir}/src/main/java</basedir>
                     <includes>
 						<include>pl/baczkowicz/mqttspy/configuration/generated/**/*.java</include>
 						<include>pl/baczkowicz/mqttspy/stats/generated/**/*.java</include>

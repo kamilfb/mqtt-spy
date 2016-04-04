@@ -3,7 +3,7 @@
 	
 	<groupId>pl.baczkowicz.mqttspy</groupId>
 	<artifactId>mqtt-spy-common</artifactId>
-	<version>0.1.0</version>
+	<version>0.2.0</version>
 	
 	<name>mqtt-spy-common</name>
 	<url>http://kamilfb.github.io/mqtt-spy/</url>
@@ -21,6 +21,11 @@
 		<repository>
 			<id>Eclipse Paho Repo</id>
 			<url>https://repo.eclipse.org/content/repositories/paho-releases/</url>
+		</repository>
+		
+		<repository>
+			<id>Eclipse Paho Repo Snapshots</id>
+			<url>https://repo.eclipse.org/content/repositories/paho-snapshots/</url>
 		</repository>
 		
 		<repository>
@@ -46,13 +51,13 @@
 		<dependency>
 			<groupId>pl.baczkowicz.spy</groupId>
 			<artifactId>spy-common</artifactId>
-			<version>0.2.0</version>
+			<version>0.3.0</version>
 		</dependency>		
 		
 		<dependency>
 			<groupId>org.eclipse.paho</groupId>
 			<artifactId>org.eclipse.paho.client.mqttv3</artifactId>
-			<version>1.0.3-20151116.050526-315</version>
+			<version>1.0.3-SNAPSHOT</version>
 		</dependency> 
 		
 		<dependency>
@@ -300,7 +305,7 @@
 	               </execution>
 	           </executions>
 	           <configuration>
-	           		<basedir>src/main/java</basedir>
+	           		<basedir>${basedir}/src/main/java</basedir>
                     <includes>
 						<include>pl/baczkowicz/mqttspy/common/generated/**/*.java</include>
                     </includes>
