@@ -53,9 +53,6 @@ public class Script extends BasicScriptProperties
 	
 	/** Script engine instance. */
 	private ScriptEngine scriptEngine;
-
-	/** The publication script IO. */
-	//private ScriptIO scriptIO;
 	
 	/** The script runner - dedicated runnable for that script. */
 	private ScriptRunner scriptRunner;
@@ -70,6 +67,8 @@ public class Script extends BasicScriptProperties
 
 	private boolean asynchronous;
 
+	private String rootDirectory;
+
 	/**
 	 * Creates a script.
 	 */
@@ -78,6 +77,15 @@ public class Script extends BasicScriptProperties
 		// Default
 	}
 	
+	public String getNameWithSubdirectory()
+	{
+		if (rootDirectory != null)
+		{
+			return BaseScriptManager.getScriptNameWithSubdirectory(getScriptFile(), rootDirectory);
+		}
+		
+		return getName();
+	}
 	
 	/**
 	 * Stops any running tasks (threads).
@@ -123,7 +131,7 @@ public class Script extends BasicScriptProperties
 	/**
 	 * Notifies an observer a change has occurred.
 	 */
-	protected void nofityChange()
+	public void nofityChange()
 	{
 		if (observer != null)
 		{
@@ -131,8 +139,6 @@ public class Script extends BasicScriptProperties
 		}
 	}
 	
-	
-
 	public void addTask(final StoppableTask task)
 	{
 		backgroundTasks.add(task);
@@ -157,6 +163,12 @@ public class Script extends BasicScriptProperties
 	public void setStatus(final ScriptRunningState status)
 	{
 		this.status = status;
+	}
+	
+	// TODO: replace the notifyChange with the EventBus
+	public void setStatusAndNotify(final ScriptRunningState status)
+	{
+		setStatus(status);
 		nofityChange();
 	}
 	
@@ -184,16 +196,6 @@ public class Script extends BasicScriptProperties
 	{
 		return status;
 	}
-
-//	public void setScriptIO(final ScriptIO scriptIO)
-//	{
-//		this.scriptIO = scriptIO;
-//	}
-//	
-//	public ScriptIO getScriptIO()
-//	{
-//		return scriptIO;
-//	}
 
 	public void setScriptEngine(final ScriptEngine scriptEngine)
 	{
@@ -263,5 +265,11 @@ public class Script extends BasicScriptProperties
 	public boolean isAsynchronous()
 	{
 		return this.asynchronous;
+	}
+
+
+	public void setRootDirectory(final String rootDirectory)
+	{
+		this.rootDirectory = rootDirectory;		
 	}
 }

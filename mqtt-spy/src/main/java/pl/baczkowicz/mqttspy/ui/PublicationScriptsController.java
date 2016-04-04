@@ -30,7 +30,9 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
+import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.ContextMenu;
+import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuButton;
 import javafx.scene.control.MenuItem;
@@ -43,6 +45,7 @@ import javafx.scene.control.TitledPane;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
+import javafx.stage.DirectoryChooser;
 import javafx.util.Callback;
 
 import org.slf4j.Logger;
@@ -108,6 +111,12 @@ public class PublicationScriptsController implements Initializable, TitledPaneCo
 	private MenuButton settingsButton;
 
 	private ConnectionController connectionController;
+
+	private Label titleLabel;
+
+	private String publicationScriptsDirectory;
+
+	private boolean includeSubdirectories;
 
 	public void initialize(URL location, ResourceBundle resources)
 	{
@@ -306,10 +315,15 @@ public class PublicationScriptsController implements Initializable, TitledPaneCo
 					return row;
 				}
 			});		
+		
+		scriptTable.setPlaceholder(new Label("No scripts found - edit your connection settings or use the context menu to set script directory."));
 	}
 	
 	public void init()
 	{
+		titleLabel = new Label(pane.getText());
+		includeSubdirectories = true;
+		
 		scriptManager = connection.getScriptManager();
 		eventBus.subscribe(this, this::onScriptStateChange, ScriptStateChangeEvent.class, new SimpleRunLaterExecutor());
 		// TODO: replaced with event bus; to be deleted
@@ -322,22 +336,31 @@ public class PublicationScriptsController implements Initializable, TitledPaneCo
 		contextMenus.put(ScriptTypeEnum.BACKGROUND, createDirectoryTypeScriptTableContextMenu(ScriptTypeEnum.BACKGROUND));
 		contextMenus.put(ScriptTypeEnum.SUBSCRIPTION, createDirectoryTypeScriptTableContextMenu(ScriptTypeEnum.SUBSCRIPTION));
 		
-		scriptTable.setContextMenu(new ContextMenu(createRefreshListMenuItem()));
+		scriptTable.setContextMenu(createScriptTableContextMenu());
 		
 		paneTitle = new AnchorPane();
-		settingsButton = NewPublicationController.createTitleButtons(pane, paneTitle, connectionController);
+		settingsButton = ViewManager.createTitleButtons(this, paneTitle, connectionController);
+		
+		publicationScriptsDirectory = InteractiveScriptManager.getScriptDirectoryForConnection(
+				connection.getProperties().getConfiguredProperties().getPublicationScripts());		
+
+		scriptTable.getSortOrder().clear();
+		scriptTable.getSortOrder().add(nameColumn);
 	}
-	
+
 	private void refreshList()
 	{
+		// Directory-driven
+		scriptManager.addScripts(publicationScriptsDirectory, includeSubdirectories, ScriptTypeEnum.PUBLICATION);
+		
+		// As defined
 		scriptManager.addScripts(connection.getProperties().getConfiguredProperties().getBackgroundScript(), ScriptTypeEnum.BACKGROUND);		
-		scriptManager.addScripts(connection.getProperties().getConfiguredProperties().getPublicationScripts(), ScriptTypeEnum.PUBLICATION);		
+		
+		// Subscription-based
 		scriptManager.addSubscriptionScripts(connection.getProperties().getConfiguredProperties().getSubscription());
 		
 		// TODO: move this to script manager?
 		eventBus.publish(new ScriptListChangeEvent(connection));
-		// TODO: replaced with event bus; remove
-		// eventManager.notifyScriptListChange(connection);
 	}
 
 	public void setConnection(MqttAsyncConnection connection)
@@ -364,6 +387,15 @@ public class PublicationScriptsController implements Initializable, TitledPaneCo
 		{
 			startScript(item);
 		}
+	}
+	
+	private ContextMenu createScriptTableContextMenu()
+	{
+		return new ContextMenu(
+				createSetScriptDirectoryMenuItem(),
+				createIncludeSubdirectoriesMenuItem(),
+				new SeparatorMenuItem(),
+				createRefreshListMenuItem());
 	}
 	
 	public ContextMenu createDirectoryTypeScriptTableContextMenu(final ScriptTypeEnum type)
@@ -467,9 +499,69 @@ public class PublicationScriptsController implements Initializable, TitledPaneCo
 			contextMenu.getItems().add(new SeparatorMenuItem());
 		}
 
-		contextMenu.getItems().add(createRefreshListMenuItem());
-		
+		contextMenu.getItems().addAll(	createSetScriptDirectoryMenuItem(),
+										createIncludeSubdirectoriesMenuItem(),
+										new SeparatorMenuItem(),
+										createRefreshListMenuItem());		
 		return contextMenu;
+	}
+	
+	private MenuItem createSetScriptDirectoryMenuItem()
+	{
+		// Set directory
+		final MenuItem setDirectoryItem = new MenuItem("Set script directory...");
+		setDirectoryItem.setOnAction(new EventHandler<ActionEvent>()
+		{
+			public void handle(ActionEvent e)
+			{
+				final File initialDirectory = new File(publicationScriptsDirectory);
+				
+				final DirectoryChooser chooser = new DirectoryChooser();
+				chooser.setTitle("Select the script directory");
+				chooser.setInitialDirectory(initialDirectory);
+
+				final File selectedDirectory = chooser.showDialog(scriptTable.getScene().getWindow());
+
+				if (selectedDirectory != null)
+				{			
+					publicationScriptsDirectory = selectedDirectory.getAbsolutePath();
+					clearAndRefesh();	
+				}
+				
+			}
+		});
+		
+		return setDirectoryItem;
+	}
+	
+	private void clearAndRefesh()
+	{
+		// Clear current scripts
+		scriptManager.getObservableScriptList().clear();
+		scriptManager.getScriptsMap().clear();
+		scriptTable.getItems().clear();
+				
+		refreshList();
+		
+		scriptTable.getSortOrder().clear();
+		scriptTable.getSortOrder().add(nameColumn);
+	}
+	
+	private MenuItem createIncludeSubdirectoriesMenuItem()
+	{
+		// Refresh list
+		final CheckMenuItem includeSubdirectoriesItem = new CheckMenuItem("Include subdirectories (recursive)");
+		includeSubdirectoriesItem.setSelected(includeSubdirectories);
+		includeSubdirectoriesItem.setOnAction(new EventHandler<ActionEvent>()
+		{
+			public void handle(ActionEvent e)
+			{
+				includeSubdirectories = !includeSubdirectories;
+				clearAndRefesh();
+			}
+		});
+		
+		return includeSubdirectoriesItem;
 	}
 	
 	private MenuItem createRefreshListMenuItem()
@@ -525,5 +617,11 @@ public class PublicationScriptsController implements Initializable, TitledPaneCo
 	public void setEventBus(final IKBus eventBus)
 	{
 		this.eventBus = eventBus;
+	}
+
+	@Override
+	public Label getTitleLabel()
+	{
+		return titleLabel;
 	}
 }

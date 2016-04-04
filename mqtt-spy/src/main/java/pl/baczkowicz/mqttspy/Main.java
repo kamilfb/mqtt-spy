@@ -22,22 +22,19 @@ package pl.baczkowicz.mqttspy;
 import java.io.File;
 
 import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
-import javafx.geometry.Rectangle2D;
-import javafx.scene.Scene;
-import javafx.scene.layout.AnchorPane;
-import javafx.stage.Screen;
 import javafx.stage.Stage;
 
 import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
-import pl.baczkowicz.mqttspy.ui.MainController;
+import pl.baczkowicz.mqttspy.stats.StatisticsManager;
+import pl.baczkowicz.mqttspy.ui.ViewManager;
+import pl.baczkowicz.mqttspy.ui.connections.ConnectionManager;
+import pl.baczkowicz.mqttspy.ui.events.LoadConfigurationFileEvent;
+import pl.baczkowicz.mqttspy.versions.VersionManager;
 import pl.baczkowicz.spy.eventbus.IKBus;
 import pl.baczkowicz.spy.eventbus.KBus;
-import pl.baczkowicz.spy.ui.configuration.UiProperties;
 import pl.baczkowicz.spy.ui.utils.FxmlUtils;
-import pl.baczkowicz.spy.ui.utils.ImageUtils;
 
 /** 
  * The main class, loading the app.
@@ -62,40 +59,24 @@ public class Main extends Application
 		{
 			final ConfigurationManager configurationManager = new ConfigurationManager();			
 			
-			// Load the main window
-			FxmlUtils.setParentClass(getClass());
-			final FXMLLoader loader = FxmlUtils.createFxmlLoaderForProjectFile("MainWindow.fxml");
-
-			// Get the associated pane
-			AnchorPane pane = (AnchorPane) loader.load();
+			FxmlUtils.setParentClass(getClass());									
 			
-			final Rectangle2D primaryScreenBounds = Screen.getPrimary().getVisualBounds();
+			final StatisticsManager statisticsManager = new StatisticsManager();
+			final ViewManager viewManager = new ViewManager();
+			final VersionManager versionManager = new VersionManager(configurationManager.getDefaultPropertyFile());	
+			final ConnectionManager connectionManager = new ConnectionManager(eventBus, statisticsManager, configurationManager);							
 			
-			// Set scene width, height and style
-			final double height = Math.min(UiProperties.getApplicationHeight(configurationManager.getUiPropertyFile()), primaryScreenBounds.getHeight());			
-			final double width = Math.min(UiProperties.getApplicationWidth(configurationManager.getUiPropertyFile()), primaryScreenBounds.getWidth());
+			connectionManager.setViewManager(viewManager);
 			
-			final Scene scene = new Scene(pane, width, height);			
-			scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+			viewManager.setEventBus(eventBus);
+			viewManager.setConfigurationManager(configurationManager);
+			viewManager.setConnectionManager(connectionManager);
+			viewManager.setStatisticsManager(statisticsManager);
+			viewManager.setVersionManager(versionManager);
+			viewManager.setApplication(this);
+			viewManager.init();
 			
-			// Get the associated controller
-			final MainController mainController = (MainController) loader.getController();
-			mainController.setEventBus(eventBus);
-			mainController.setConfigurationManager(configurationManager);
-			mainController.setSelectedPerspective(UiProperties.getApplicationPerspective(configurationManager.getUiPropertyFile()));
-			mainController.getResizeMessagePaneMenu().setSelected(UiProperties.getResizeMessagePane(configurationManager.getUiPropertyFile()));
-
-			// Set the stage's properties
-			primaryStage.setScene(scene);	
-			primaryStage.setMaximized(UiProperties.getApplicationMaximized(configurationManager.getUiPropertyFile()));
-			
-			// Initialise resources in the main controller			
-			mainController.setApplication(this);
-			mainController.setStage(primaryStage);
-			mainController.setLastHeight(height);
-			mainController.setLastWidth(width);
-			mainController.init();
-		    primaryStage.getIcons().add(ImageUtils.createIcon("mqtt-spy-logo").getImage());
+			viewManager.createMainWindow(primaryStage);
 			
 			// Show the main window
 			primaryStage.show();
@@ -110,12 +91,12 @@ public class Main extends Application
 			}
 			else if (configurationFileLocation != null)
 			{
-				mainController.loadConfigurationFileAndShowErrorWhenApplicable(new File(configurationFileLocation));				
+				eventBus.publish(new LoadConfigurationFileEvent(new File(configurationFileLocation)));				
 			}
 			else
 			{
 				// If no configuration parameter is specified, use the user's home directory and the default configuration file name
-				mainController.loadDefaultConfigurationFile();						
+				viewManager.loadDefaultConfigurationFile();						
 			}
 		}
 		catch (Exception e)

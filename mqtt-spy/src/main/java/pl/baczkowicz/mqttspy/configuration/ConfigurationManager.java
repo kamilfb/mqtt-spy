@@ -64,8 +64,6 @@ public class ConfigurationManager
 {
 	final static Logger logger = LoggerFactory.getLogger(ConfigurationManager.class);
 	
-	public static final String VERSION_INFO_URL = "application.update.url";
-	
 	public static final String PACKAGE = "pl.baczkowicz.mqttspy.configuration.generated";
 	
 	public static final String SCHEMA = "/mqtt-spy-configuration.xsd";

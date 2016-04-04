@@ -65,7 +65,8 @@ public class GettingInvolvedTooltip extends Tooltip
 				+ "See http://github.com/kamilfb/mqtt-spy/wiki/Getting-involved" + System.lineSeparator()
 				+ "for more information on how to get involved." + System.lineSeparator()
 				);		
-		text.setFont(new Font("System", 11));
+		// text.setFont(new Font("System", 11));
+		text.getStyleClass().add("small-font");
 		tooltipContent.getChildren().addAll(ImageUtils.createIcon("mqtt-spy-logo", 70), text);
 		tooltipContent.setSpacing(20);
 		tooltipContent.setPadding(new Insets(0, 10, 0, 0));

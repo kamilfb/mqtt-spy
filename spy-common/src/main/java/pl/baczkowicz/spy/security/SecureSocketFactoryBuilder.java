@@ -51,6 +51,8 @@ public class SecureSocketFactoryBuilder
 	{
 		try
 		{
+			Security.addProvider(new BouncyCastleProvider());
+			
 			final TrustManager[] tm = SecureSocketUtils.getTrustManagerFactory(caCertificateFile).getTrustManagers();
 			
 			return getSocketFactory(protocolVersion, null, tm, null);
@@ -69,6 +71,8 @@ public class SecureSocketFactoryBuilder
 	{
 		try
 		{
+			Security.addProvider(new BouncyCastleProvider());
+			
 			final TrustManager[] tm = SecureSocketUtils.getTrustManagerFactory(
 					caKeyStoreFile, caKeyStorePassword, SecureSocketUtils.getTypeFromFilename(caKeyStoreFile))
 					.getTrustManagers();
@@ -90,6 +94,8 @@ public class SecureSocketFactoryBuilder
 	{
 		try
 		{
+			Security.addProvider(new BouncyCastleProvider());
+			
 			final KeyManager[] km = SecureSocketUtils.getKeyManagerFactory(clientCrtFile, clientKeyFile, clientKeyPassword, pemFormat).getKeyManagers();
 			final TrustManager[] tm = SecureSocketUtils.getTrustManagerFactory(serverCrtFile).getTrustManagers();
 			
@@ -111,6 +117,8 @@ public class SecureSocketFactoryBuilder
 	{
 		try
 		{
+			Security.addProvider(new BouncyCastleProvider());
+			
 			final KeyManager[] km = SecureSocketUtils.getKeyManagerFactory(
 					clientKeyStoreFile, clientKeyStorePassword, clientKeyPassword, SecureSocketUtils.getTypeFromFilename(clientKeyStoreFile))
 					.getKeyManagers();

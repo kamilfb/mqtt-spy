@@ -1,3 +1,13 @@
+.small-font
+{
+	-fx-font-size: 11px;
+}
+
+.normal-font
+{
+	-fx-font-size: 13px;
+}
+
 .tab:selected
 {
 	-fx-font-weight: bold;
@@ -71,6 +81,11 @@
 	-fx-background-color: white; 
 }
 
+#subscriptionTabs .tab-header-area 
+{
+    -fx-padding: 5 0 0 88;
+}
+
 /* Rich text area */
 
 .styled-text-area
@@ -92,6 +107,11 @@
 	-fx-font: 		11px "System";
 	-fx-fill: 	red;
 	-fx-font-weight: normal;
+}
+
+#newSubTab:disabled, #newSubTab:disabled > * 
+{
+  -fx-opacity: 1.0;
 }
 
 #connectionList .list-cell:filled:selected 
@@ -156,11 +176,13 @@
 	-fx-padding: 5;
 }
 
-.pane-settings-menu-graphic {
+.pane-settings-menu-graphic 
+{
 	-fx-padding: 5;
 }
  
-#pane-settings-button {
+#pane-settings-button 
+{
 	/* This is a workaround for the MenuButton which forces you having padding - seems to be based on default font size. */
 	-fx-font: 1px "System";
 }

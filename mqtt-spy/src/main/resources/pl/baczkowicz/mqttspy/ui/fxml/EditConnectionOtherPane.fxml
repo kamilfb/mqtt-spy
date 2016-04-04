@@ -22,14 +22,13 @@
  */
 -->
 
-<?import javafx.geometry.*?>
-<?import javafx.scene.image.*?>
-<?import javafx.scene.paint.*?>
-<?import javafx.scene.text.*?>
-<?import javafx.scene.control.*?>
-<?import java.lang.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
 
 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="248.0" prefWidth="583.0" xmlns="http://javafx.com/javafx/8.0.66" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.baczkowicz.mqttspy.ui.controllers.edit.EditConnectionOtherController">
    	<children>
@@ -47,10 +46,10 @@
          <TextField fx:id="maxMessagesStored" layoutX="235.0" layoutY="127.0" prefHeight="25.0" prefWidth="102.0" />
          
          <Label layoutX="23.0" layoutY="211.0" text="Message content formatter" />
-         <ComboBox fx:id="formatter" layoutX="235.0" layoutY="206.0" prefHeight="25.0" prefWidth="294.0" />
+         <ComboBox fx:id="formatter" layoutX="235.0" layoutY="206.0" prefHeight="25.0" prefWidth="294.0" AnchorPane.leftAnchor="235.0" AnchorPane.rightAnchor="54.0" />
          
          <Label layoutX="23.0" layoutY="172.0" text="Min messages per topic" />
-         <Label layoutX="35.0" layoutY="185.0" text="[min messages to keep per topic]" textFill="#5e5e5e">
+         <Label layoutX="35.0" layoutY="189.0" text="[min messages to keep per topic]" textFill="#5e5e5e">
             <font>
                <Font size="10.0" />
             </font>

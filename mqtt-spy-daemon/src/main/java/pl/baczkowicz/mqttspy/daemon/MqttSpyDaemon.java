@@ -32,7 +32,7 @@ import pl.baczkowicz.mqttspy.daemon.connectivity.MqttCallbackHandler;
 import pl.baczkowicz.mqttspy.daemon.connectivity.SimpleMqttConnectionRunnable;
 import pl.baczkowicz.mqttspy.scripts.MqttScriptIO;
 import pl.baczkowicz.mqttspy.scripts.MqttScriptManager;
-import pl.baczkowicz.spy.configuration.PropertyFileLoader;
+import pl.baczkowicz.spy.configuration.BasePropertyNames;
 import pl.baczkowicz.spy.daemon.BaseDaemon;
 import pl.baczkowicz.spy.eventbus.IKBus;
 import pl.baczkowicz.spy.eventbus.KBus;
@@ -73,7 +73,7 @@ public class MqttSpyDaemon extends BaseDaemon
 	{
 		logger.info("#######################################################");
 		logger.info("### Starting mqtt-spy-daemon v{}", loader.getFullVersionName());
-		logger.info("### If you find it useful, see how you can help at {}", loader.getProperty(PropertyFileLoader.DOWNLOAD_URL));
+		logger.info("### If you find it useful, see how you can help at {}", loader.getProperty(BasePropertyNames.DOWNLOAD_URL));
 		logger.info("### To get release updates follow @mqtt_spy on Twitter ");
 		logger.info("#######################################################");
 	}

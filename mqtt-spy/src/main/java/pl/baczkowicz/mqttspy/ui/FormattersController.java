@@ -50,10 +50,13 @@ import pl.baczkowicz.mqttspy.configuration.ConfiguredConnectionDetails;
 import pl.baczkowicz.mqttspy.connectivity.BaseMqttConnection;
 import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.scripts.MqttScriptManager;
+import pl.baczkowicz.mqttspy.ui.events.FormattersChangedEvent;
 import pl.baczkowicz.spy.common.generated.ConversionMethod;
 import pl.baczkowicz.spy.common.generated.FormatterDetails;
 import pl.baczkowicz.spy.common.generated.FormatterFunction;
 import pl.baczkowicz.spy.common.generated.ScriptExecutionDetails;
+import pl.baczkowicz.spy.eventbus.IKBus;
+import pl.baczkowicz.spy.formatting.FormattingManager;
 import pl.baczkowicz.spy.formatting.FormattingUtils;
 import pl.baczkowicz.spy.formatting.ScriptBasedFormatter;
 import pl.baczkowicz.spy.scripts.Script;
@@ -100,7 +103,7 @@ public class FormattersController implements Initializable
 	@FXML
 	private Button deleteButton;
 	
-	private FormatterDetails selectedFormatter = FormattingUtils.createBasicFormatter("default", "Plain", ConversionMethod.PLAIN);
+	private FormatterDetails selectedFormatter = FormattingUtils.createBasicFormatter("default", "Plain", "", ConversionMethod.PLAIN);
 
 	private ConfigurationManager configurationManager;
 	
@@ -120,6 +123,8 @@ public class FormattersController implements Initializable
 	private FormatterDetails newFormatter;
 
 	private boolean ignoreChanges;
+	
+	private IKBus eventBus;
 
 	@FXML
 	private AnchorPane formattersWindow;
@@ -135,15 +140,9 @@ public class FormattersController implements Initializable
 			@Override
 			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue)
 			{
-				if (newFormatter != null)
-				{
-					sampleOutput.setText(scriptBasedFormatter.formatMessage(newFormatter, 
-							new FormattedMqttMessage(0, "", new MqttMessage(sampleInput.getText().getBytes()), connection)));
-				}
-				else
-				{
-					sampleOutput.setText(FormattingUtils.formatText(selectedFormatter, sampleInput.getText(), sampleInput.getText().getBytes()));
-				}
+				final FormattedMqttMessage message = new FormattedMqttMessage(0, "", new MqttMessage(sampleInput.getText().getBytes()), connection);							
+				
+				formatInput(message);
 			}
 		});						
 		
@@ -188,9 +187,14 @@ public class FormattersController implements Initializable
 		
 		formattersList.getItems().clear();
 		
-		final List<FormatterDetails> baseFormatters = FormattingUtils.createBaseFormatters();	
-		formattersList.getItems().addAll(baseFormatters);
+		final List<FormatterDetails> defaultFormatters = FormattingUtils.createBaseFormatters();
+		defaultFormatters.addAll(FormattingManager.createDefaultScriptFormatters());
+		
+		formattersList.getItems().addAll(defaultFormatters);
 		addFormattersToList(configurationManager.getConfiguration().getFormatting().getFormatter(), formattersList.getItems());
+		
+		// Select first on the list
+		formattersList.getSelectionModel().select(0);
 	}
 	
 	private void readValues(final FormatterDetails formatter)
@@ -217,8 +221,8 @@ public class FormattersController implements Initializable
 		}
 		else
 		{
-			sampleOutput.setText(scriptBasedFormatter.formatMessage(newFormatter, 
-				new FormattedMqttMessage(0, "", new MqttMessage(sampleInput.getText().getBytes()), connection)));
+			sampleOutput.setText(scriptBasedFormatter.formatMessage(formatter, 
+				new FormattedMqttMessage(0, "", new MqttMessage(sampleInput.getText().getBytes()), connection), true));
 			formatterDetails.getStyleClass().add("valid");
 		}
 	}
@@ -336,6 +340,8 @@ public class FormattersController implements Initializable
 				TooltipFactory.createTooltip(deleteButton, "Formatter deleted. Changes saved.");
 				init();
 				formattersList.getSelectionModel().selectFirst();
+				
+				eventBus.publish(new FormattersChangedEvent());
 			}
 		}		
 	}
@@ -382,6 +388,7 @@ public class FormattersController implements Initializable
 			formattersList.getItems().add(newFormatter);
 			formattersList.getSelectionModel().select(newFormatter);
 						
+			// TODO: load a proper script here with FileUtils.loadFileByNameBase64Encoded
 			final ScriptExecutionDetails scriptExecution = new ScriptExecutionDetails("ZnVuY3Rpb24gZm9ybWF0KCkKewkKCXJldHVybiByZWNlaXZlZE1lc3NhZ2UuZ2V0UGF5bG9hZCgpICsgIi0gbW9kaWZpZWQhIjsKfQ==");
 			newFormatter.getFunction().add(new FormatterFunction(null, null, null, null, null, scriptExecution));
 					
@@ -391,11 +398,14 @@ public class FormattersController implements Initializable
 			scriptBasedFormatter.addFormatter(newFormatter);
 			formatterDetails.setText(scriptBasedFormatter.getScript(newFormatter).getScriptContent());
 			sampleOutput.setText(scriptBasedFormatter.formatMessage(newFormatter, 
-					new FormattedMqttMessage(0, "", new MqttMessage(sampleInput.getText().getBytes()), connection)));
+					new FormattedMqttMessage(0, "", new MqttMessage(sampleInput.getText().getBytes()), connection), 
+					true));
 			
 			newButton.setDisable(true);	
 			applyChangesButton.setDisable(false);
 			deleteButton.setDisable(true);		
+			
+			eventBus.publish(new FormattersChangedEvent());
 		}
 		ignoreChanges = false;
 	}
@@ -418,7 +428,27 @@ public class FormattersController implements Initializable
 			TooltipFactory.createTooltip(newButton, "Formatter added. Changes saved.");
 			init();
 			formattersList.getSelectionModel().selectFirst();
+			
+			eventBus.publish(new FormattersChangedEvent());
 		}
+	}
+	
+	private void formatInput(final FormattedMqttMessage message)
+	{		
+		if (FormattingUtils.isScriptBased(selectedFormatter))
+		{
+			// logger.debug("Formatting using {}", formatter.getName());
+			message.setFormattedPayload(scriptBasedFormatter.formatMessage(selectedFormatter, message, false));
+			message.setPrettyPayload(scriptBasedFormatter.formatMessage(selectedFormatter, message, true));
+		}
+		else
+		{
+			// Use the raw payload to make sure any formatting/encoding that is applied is correct
+			message.setFormattedPayload(FormattingUtils.checkAndFormatText(selectedFormatter, message.getRawBinaryPayload()));
+			message.setPrettyPayload(message.getFormattedPayload());
+		}
+		
+		sampleOutput.setText(message.getPrettyPayload());
 	}
 	
 	private void showFormatterInfo()	
@@ -442,12 +472,51 @@ public class FormattersController implements Initializable
 			detailsLabel.setText("Details");
 			
 			formatterName.setText(selectedFormatter.getName());
-			if (selectedFormatter.getID().startsWith(FormattingUtils.DEFAULT_PREFIX))
+			if (FormattingUtils.isDefault(selectedFormatter))
 			{
 				formatterType.setText("Built-in");
-				formatterDetails.setText("N/A");
+				formatterDetails.setText(selectedFormatter.getDescription());
 				deleteButton.setDisable(true);
-				sampleOutput.setText(FormattingUtils.formatText(selectedFormatter, sampleInput.getText(), sampleInput.getText().getBytes()));
+				
+				if (selectedFormatter.getName().startsWith("Plain"))
+				{
+					sampleInput.setText("hello from mqtt-spy!");
+				}
+				else if (selectedFormatter.getName().contains("JSON"))
+				{
+					sampleInput.setText("{hello: {from: \"mqtt-spy\", message: \"welcome!\"}}");
+				}
+				else if (selectedFormatter.getName().contains("XML"))
+				{
+					sampleInput.setText("<hello><from>mqtt-spy</from><message>welcome!</message></hello>");
+				}
+				else if (selectedFormatter.getName().startsWith("Base64 decoder"))
+				{
+					sampleInput.setText(ConversionUtils.stringToBase64("hello from mqtt-spy!"));
+				}
+				else if (selectedFormatter.getName().startsWith("Base64 encoder"))
+				{
+					sampleInput.setText("hello from mqtt-spy!");
+				}
+				else if (selectedFormatter.getName().startsWith("HEX decoder"))
+				{
+					sampleInput.setText(ConversionUtils.stringToHex("hello from mqtt-spy!"));
+				}
+				else if (selectedFormatter.getName().startsWith("HEX encoder"))
+				{
+					sampleInput.setText("hello from mqtt-spy!");
+				}				
+				
+				FormattedMqttMessage message = new FormattedMqttMessage(0, "", new MqttMessage(sampleInput.getText().getBytes()), connection);
+				
+				if (selectedFormatter.getName().startsWith("Eclipse Kura"))
+				{
+					final String base64encoded = "H4sIAAAAAAAAAHWR227TQBCGoSU9bB0aSkFNA8JIXLSAjZ0DQeKqpEGINk6V0qJeWZv1Jiz1HrQ+tOHJuObJmHUSkSDwjUf7zcw/889ObfPO7HswD6rz4NfPlX1UJlIISlImRchUpfRh/SI4CfpfA6AHaON7zkOBOQWw/xnn2P4k03Ml04MvvUO7EzMqUvuyB7lltCITyCqdMpHdwoODtrFSMSN42jsydK/TDz46l/7rTu/Y/I67Z6f9K4ig4D3aMmpKyxGLjeBLI1gInXftQSZSxqndFTnTUnAj7LvvXM8Z+o06lFcRkkmYU52AHFRvNl3fbTt5+xXACloHiDX5BmQVa14UbGNCqEpDKoiMmBgDuzf+wRTAZ6icUM1wHIqMD6kGZA1woiDUE+eMFd5tcBnRGFb7B62iyohpfoM1XRhqNXhzBHAHWRFLVIwnc3PNMR4ha8iWdpilv5g68+f9Yb1lFm97Nme3NLLNHEWDtUwZl8z6vve23va9lgfgOdpdPLNIqR5hQpevXUO74DeL8TCm5gqEJonU5mp3m0WPxzIZs3CkYeIbqa8X5imB064R2kNWKlNwjVMu9QTQWr3VaDYNe4LQ1K/Zyn879hRtKazT/xteQ/eXJzDzd0nMVEKL/tZ1pvHCWOjkYnAU+m7D9X4DdrXTyAkDAAA=";
+					sampleInput.setText(ConversionUtils.base64ToString(base64encoded));					
+					message = new FormattedMqttMessage(0, "", new MqttMessage(ConversionUtils.base64ToArray(base64encoded)), connection);
+				}
+				
+				formatInput(message);
 			}
 			else if (selectedFormatter.getID().startsWith(FormattingUtils.SCRIPT_PREFIX))
 			{
@@ -471,12 +540,12 @@ public class FormattersController implements Initializable
 				{
 					logger.error("Script error", e);
 				}
-				
-				sampleOutput.setText(scriptBasedFormatter.formatMessage(selectedFormatter, 
-						new FormattedMqttMessage(0, "", new MqttMessage(sampleInput.getText().getBytes()), connection)));
+								
+				formatInput(new FormattedMqttMessage(0, "", new MqttMessage(sampleInput.getText().getBytes()), connection));		
 			} 
 			else
 			{
+				logger.debug("Formatter = {} {}", selectedFormatter.getID(), selectedFormatter.getName());
 				formatterType.setText("Function-based");
 				formatterDetails.setText("(this formatter type has been deprecated)");
 				sampleOutput.setText(FormattingUtils.formatText(selectedFormatter, sampleInput.getText(), sampleInput.getText().getBytes()));
@@ -501,5 +570,15 @@ public class FormattersController implements Initializable
 	public void setConnection(final BaseMqttConnection connection)
 	{
 		this.connection = connection;
+	}
+	
+	/**
+	 * Sets the event bus.
+	 *  
+	 * @param eventBus the eventBus to set
+	 */
+	public void setEventBus(final IKBus eventBus)
+	{
+		this.eventBus = eventBus;
 	}
 }

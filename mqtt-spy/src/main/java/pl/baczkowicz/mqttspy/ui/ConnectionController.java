@@ -26,20 +26,26 @@ import java.util.ResourceBundle;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.scene.control.CheckMenuItem;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TitledPane;
 import javafx.scene.control.Tooltip;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
@@ -55,6 +61,7 @@ import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
 import pl.baczkowicz.mqttspy.stats.StatisticsManager;
 import pl.baczkowicz.mqttspy.ui.connections.ConnectionManager;
 import pl.baczkowicz.mqttspy.ui.events.ConnectionStatusChangeEvent;
+import pl.baczkowicz.mqttspy.ui.events.ShowNewSubscriptionWindowEvent;
 import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
 import pl.baczkowicz.mqttspy.ui.utils.StylingUtils;
 import pl.baczkowicz.spy.eventbus.IKBus;
@@ -73,7 +80,7 @@ public class ConnectionController implements Initializable, TabController
 {
 	private static final int MIN_COLLAPSED_PANE_HEIGHT = 26;
 	
-	private static final int SUBSCRIPTION_PANE_MIN_EXPANDED_HEIGHT = 64;
+	private static final int SUBSCRIPTION_PANE_MIN_EXPANDED_HEIGHT = 66;
 	
 	private static final int TEST_CASES_PANE_MIN_EXPANDED_HEIGHT = 190;
 	
@@ -126,6 +133,9 @@ public class ConnectionController implements Initializable, TabController
 	/** For convenience, this represents a controller for the subscriptions titled pane. */
 	private SubscriptionsController subscriptionsController = new SubscriptionsController();
 
+	@FXML 
+	private Button newSubButton;
+	
 	@FXML
 	private TitledPane publishMessageTitledPane;
 	
@@ -164,8 +174,6 @@ public class ConnectionController implements Initializable, TabController
 
 	private ConnectionManager connectionManager;
 
-	// private EventManager<FormattedMqttMessage> eventManager;
-	
 	private IKBus eventBus;
 	
 	private Map<TitledPane, TitledPaneStatus> paneToStatus = new HashMap<>();
@@ -192,8 +200,58 @@ public class ConnectionController implements Initializable, TabController
 	
 	public void initialize(URL location, ResourceBundle resources)
 	{		
-		// Nothing to do here for now...
-	}	
+		newSubButton.setTooltip(new Tooltip("Create new subscription [" + ViewManager.newSubscription.getDisplayText() + "]"));
+		final MenuItem attach = new MenuItem("Show attached");
+		final ConnectionController controller = this;
+		attach.setOnAction(new EventHandler<ActionEvent>()
+		{					
+			@Override
+			public void handle(ActionEvent event)
+			{
+				showNewSubscription(PaneVisibilityStatus.ATTACHED, controller);				
+			}
+		});
+		newSubButton.setOnMouseClicked(new EventHandler<MouseEvent>()
+		{
+			@Override
+			public void handle(MouseEvent event)
+			{
+				if (MouseButton.PRIMARY.equals(event.getButton()))
+				{
+					showNewSubscription(PaneVisibilityStatus.DETACHED, controller);
+				}
+				else
+				{
+					newSubButton.getContextMenu().show(newSubButton.getScene().getWindow());
+				}
+			}				
+		});
+		
+		newSubButton.setContextMenu(new ContextMenu(attach));	
+		newSubButton.setDisable(false);
+	}
+		
+	private void showNewSubscription(final PaneVisibilityStatus status, final ConnectionController connectionController)
+	{
+		eventBus.publish(new ShowNewSubscriptionWindowEvent(connectionController, 
+				status,
+				connectionController.getNewSubscriptionPaneStatus().getVisibility()));
+	}
+	
+	@FXML
+	public void newSubscription()
+	{
+		final Tab selectedTab = connectionTab;
+		final ConnectionController controller = connectionManager.getControllerForTab(selectedTab);
+		
+		if (controller != null)
+		{
+			eventBus.publish(new ShowNewSubscriptionWindowEvent(
+					controller, 
+					PaneVisibilityStatus.DETACHED,
+					controller.getNewSubscriptionPaneStatus().getVisibility()));
+		}
+	}
 	
 	public void init()
 	{
@@ -232,7 +290,6 @@ public class ConnectionController implements Initializable, TabController
 			
 			newPublicationPaneController.setConnection(connection);
 			newPublicationPaneController.setScriptManager(connection.getScriptManager());
-			// newPublicationPaneController.setEventManager(eventManager);
 			newPublicationPaneController.setEventBus(eventBus);
 			newPublicationPaneController.setConnectionController(this);
 			newPublicationPaneController.setTitledPane(publishMessageTitledPane);
@@ -240,6 +297,7 @@ public class ConnectionController implements Initializable, TabController
 			
 			newSubscriptionPaneController.setConnection(connection);
 			newSubscriptionPaneController.setConnectionController(this);
+			newSubscriptionPaneController.setEventBus(eventBus);
 			newSubscriptionPaneController.setConnectionManager(connectionManager);
 			newSubscriptionPaneController.setTitledPane(newSubscriptionTitledPane);
 			newSubscriptionPaneController.init();
@@ -264,6 +322,8 @@ public class ConnectionController implements Initializable, TabController
 			splitPane.getItems().remove(testCasesTitledPane);
 		}
 		
+		updateVisiblePanes();
+		//updateMenus();
 		updateMinHeights();
 		// connectionPane.setMaxWidth(500);
 		// subscriptionsTitledPane.setMaxWidth(500);
@@ -555,15 +615,15 @@ public class ConnectionController implements Initializable, TabController
 		return detailedView;
 	}
 	
-	public void setDetailedViewVisibility(final boolean visible)
+	public void setViewVisibility(final boolean detailedView, final boolean basicView)
 	{
-		detailedView = visible;
-		newSubscriptionPaneController.setDetailedViewVisibility(visible);
-		getNewPublicationPaneController().setDetailedViewVisibility(visible);
+		this.detailedView = detailedView;
+		newSubscriptionPaneController.setViewVisibility(detailedView);
+		getNewPublicationPaneController().setViewVisibility(detailedView);
 		
 		for (final SubscriptionController subscriptionController : connectionManager.getSubscriptionManager(this).getSubscriptionControllers())
 		{
-			subscriptionController.setDetailedViewVisibility(visible);
+			subscriptionController.setViewVisibility(detailedView, basicView);
 		}
 	}
 	
@@ -650,6 +710,7 @@ public class ConnectionController implements Initializable, TabController
 		splitPane.getItems().add(insertIndex, status.getController().getTitledPane());
 	}
 	
+	// TODO: this should be moved out to the ViewManager
 	private void updateVisiblePanes()
 	{	
 		for (final TitledPaneStatus status : paneToStatus.values())
@@ -706,7 +767,11 @@ public class ConnectionController implements Initializable, TabController
 				
 				status.getController().getTitledPane().setExpanded(true);
 				status.getController().getTitledPane().setCollapsible(false);
-				stage.show();
+				updateMinHeights();
+				
+				stage.setMinHeight(status.getController().getTitledPane().getMinHeight());
+				stage.setMinWidth(300);
+				stage.show();								
 			}
 			// If set to be shown
 			else if (status.getVisibility().equals(PaneVisibilityStatus.ATTACHED))
@@ -811,11 +876,6 @@ public class ConnectionController implements Initializable, TabController
 	{
 		return testCasesTitledStatus;
 	}
-	
-//	public void setEventManager(final EventManager<FormattedMqttMessage> eventManager)
-//	{
-//		this.eventManager = eventManager;
-//	}
 	
 	public void setEventBus(final IKBus eventBus)
 	{

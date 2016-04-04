@@ -21,14 +21,12 @@ package pl.baczkowicz.mqttspy.ui;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
-import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -38,8 +36,6 @@ import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
@@ -56,8 +52,6 @@ import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.text.TextAlignment;
 
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.fxmisc.richtext.StyleClassedTextArea;
@@ -83,7 +77,6 @@ import pl.baczkowicz.spy.ui.scripts.ScriptTypeEnum;
 import pl.baczkowicz.spy.ui.scripts.events.ScriptListChangeEvent;
 import pl.baczkowicz.spy.ui.threading.SimpleRunLaterExecutor;
 import pl.baczkowicz.spy.ui.utils.DialogFactory;
-import pl.baczkowicz.spy.ui.utils.ImageUtils;
 import pl.baczkowicz.spy.utils.ConversionUtils;
 import pl.baczkowicz.spy.utils.TimeUtils;
 
@@ -156,9 +149,9 @@ public class NewPublicationController implements Initializable, TitledPaneContro
 	private boolean detailedView;
 	
 	private InteractiveScriptManager scriptManager;
-
-	// private EventManager<FormattedMqttMessage> eventManager;
 	
+	private Label titleLabel;
+
 	private IKBus eventBus;
 	
 	private List<BaseMqttMessage> recentMessages = new ArrayList<>();
@@ -326,110 +319,18 @@ public class NewPublicationController implements Initializable, TitledPaneContro
 				}
 			}			
 		});
+		
+		publishButton.setTooltip(new Tooltip("Publish message [" + ViewManager.newPublication.getDisplayText() + "]"));
 	}		
 	
-	public static ChangeListener<Number> createPaneTitleWidthListener(final TitledPane pane, final AnchorPane paneTitle)
-	{
-		return new ChangeListener<Number>()
-		{
-			@Override
-			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue)
-			{				 										
-				Platform.runLater(new Runnable()
-				{										
-					@Override
-					public void run()
-					{
-						SubscriptionController.updateTitleWidth(pane, paneTitle, 40);
-					}
-				});
-			}
-		};
-	}
-	
-	public static MenuButton createTitleButton(final String title, final String iconLocation, final double offset, 
-			final ConnectionController connectionController, final TitledPane pane)
-	{
-		final MenuButton button = new MenuButton();
-		button.setId("pane-settings-button");
-		button.setTooltip(new Tooltip(title));
-		// button.setPadding(new Insets(0, 0, 0, 0));
-		button.setPadding(Insets.EMPTY);
-		button.setLineSpacing(0);
-		button.setBorder(null);
-		button.setGraphicTextGap(0);
-		button.setFocusTraversable(false);
-		// button.setMaxHeight(16);
-		
-		button.setGraphic(ImageUtils.createIcon(iconLocation, 14));
-		
-		// TODO: actions
-		final MenuItem detach = new MenuItem("Detach to a separate window", ImageUtils.createIcon("tab-detach", 14, "pane-settings-menu-graphic"));
-		detach.setOnAction(new EventHandler<ActionEvent>()
-		{
-			@Override
-			public void handle(ActionEvent event)
-			{				
-				connectionController.setPaneVisiblity(
-						connectionController.getPaneToStatusMapping().get(pane), 
-						PaneVisibilityStatus.DETACHED);				
-			}
-		});
-		final MenuItem hide = new MenuItem("Hide this pane", ImageUtils.createIcon("tab-close", 14, "pane-settings-menu-graphic"));
-		hide.setOnAction(new EventHandler<ActionEvent>()
-		{
-			@Override
-			public void handle(ActionEvent event)
-			{				
-				connectionController.setPaneVisiblity(
-						connectionController.getPaneToStatusMapping().get(pane), 
-						PaneVisibilityStatus.NOT_VISIBLE);				
-			}
-		});
-		button.getItems().add(detach);
-		button.getItems().add(hide);
-		
-		for (MenuItem item : button.getItems())
-		{
-			item.getStyleClass().add("pane-settings-menu-item");
-		}
-		
-		button.setTextAlignment(TextAlignment.RIGHT);
-		button.setAlignment(Pos.CENTER_RIGHT);
-		AnchorPane.setRightAnchor(button, offset);
-		
-		return button;
-	}
-	
-	public static MenuButton createTitleButtons(final TitledPane pane, final AnchorPane paneTitle, final ConnectionController connectionController)	
-	{
-		final MenuButton settingsButton = createTitleButton("Pane settings", "settings", -5, connectionController, pane);
-			      
-		HBox titleBox = new HBox();
-		titleBox.setPadding(new Insets(0, 0, 0, 0));	
-		logger.info(pane + ", " + paneTitle + ", " + connectionController);
-		titleBox.getChildren().addAll(new Label(pane.getText()));
-		titleBox.prefWidth(Double.MAX_VALUE);		
-		
-		paneTitle.setPadding(new Insets(0, 0, 0, 0));
-		paneTitle.getChildren().addAll(titleBox, settingsButton);
-		paneTitle.setMaxWidth(Double.MAX_VALUE);
-		
-		pane.setText(null);
-		pane.setGraphic(paneTitle);
-		pane.widthProperty().addListener(createPaneTitleWidthListener(pane, paneTitle));
-		
-		return settingsButton;
-	}
-
 	public void init()
 	{
-		eventBus.subscribe(this, this::onScriptListChange, ScriptListChangeEvent.class, new SimpleRunLaterExecutor(), connection);
-		// TODO: replaced with event bus; remove
-		// eventManager.registerScriptListChangeObserver(this, connection);		
+		titleLabel = new Label(pane.getText());
 		
+		eventBus.subscribe(this, this::onScriptListChange, ScriptListChangeEvent.class, new SimpleRunLaterExecutor(), connection);
+
 		paneTitle = new AnchorPane();
-		settingsButton = createTitleButtons(pane, paneTitle, connectionController);
+		settingsButton = ViewManager.createTitleButtons(this, paneTitle, connectionController);
 	}
 
 	public void onScriptListChange(final ScriptListChangeEvent event)
@@ -591,11 +492,13 @@ public class NewPublicationController implements Initializable, TitledPaneContro
 		retainedBox.setVisible(detailedView);
 		retainedLabel.setVisible(detailedView);
 		lengthLabel.setVisible(detailedView);
+		
+		// TODO: basic perspective
 	}
 	
-	public void setDetailedViewVisibility(final boolean visible)
+	public void setViewVisibility(final boolean detailedView)
 	{
-		detailedView = visible;
+		this.detailedView = detailedView;
 		updateVisibility();
 	}
 	
@@ -870,8 +773,9 @@ public class NewPublicationController implements Initializable, TitledPaneContro
 		
 		try
 		{
-			final File orig = new File(NewPublicationController.class.getResource("/samples/template-script.js").toURI());
-			final String template = org.apache.commons.io.FileUtils.readFileToString(orig);
+			final String templateFilename = "/samples/template-script.js";
+			final String template = FileUtils.loadFileByNameAsString(templateFilename);
+					
 			final String script = template.replace(
 					"mqttspy.publish(\"topic\", \"payload\");", 
 					scriptText.toString());
@@ -882,10 +786,8 @@ public class NewPublicationController implements Initializable, TitledPaneContro
 
 			// TODO: move this to script manager?
 			eventBus.publish(new ScriptListChangeEvent(connection));
-			// TODO: replaced with event bus; remove
-			// eventManager.notifyScriptListChange(connection);
 		}
-		catch (URISyntaxException | IOException e)
+		catch (IOException e)
 		{
 			logger.error("Cannot create the script file at " + scriptFile.getAbsolutePath(), e);
 		} 			
@@ -953,11 +855,6 @@ public class NewPublicationController implements Initializable, TitledPaneContro
 	{
 		this.scriptManager = scriptManager;
 	}
-	
-//	public void setEventManager(final EventManager<FormattedMqttMessage> eventManager)
-//	{
-//		this.eventManager = eventManager;
-//	}
 
 	public void hidePublishButton()
 	{
@@ -992,5 +889,11 @@ public class NewPublicationController implements Initializable, TitledPaneContro
 	public void setEventBus(final IKBus eventBus)
 	{
 		this.eventBus = eventBus;
+	}
+
+	@Override
+	public Label getTitleLabel()
+	{
+		return titleLabel;
 	}
 }

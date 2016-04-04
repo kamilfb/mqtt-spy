@@ -236,6 +236,7 @@ public class EditConnectionsController extends AnchorPane implements Initializab
 		editConnectionGroupPaneController.init();
 
 		editConnectionPaneController.setConfigurationManager(configurationManager);
+		editConnectionPaneController.setEventBus(eventBus);
 		editConnectionPaneController.setConnectionManager(connectionManager);
 		editConnectionPaneController.setMainController(mainController);
 		editConnectionPaneController.setEditConnectionsController(this);
@@ -832,11 +833,6 @@ public class EditConnectionsController extends AnchorPane implements Initializab
 	{
 		this.configurationManager = configurationManager;
 	}	
-
-//	public void setEventManager(final EventManager eventManager)
-//	{
-//		this.eventManager = eventManager;		
-//	}
 
 	public void onConnectionStatusChanged(final ConnectionStatusChangeEvent event)
 	{

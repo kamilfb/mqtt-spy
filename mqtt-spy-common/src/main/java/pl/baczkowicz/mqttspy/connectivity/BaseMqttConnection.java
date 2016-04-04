@@ -34,7 +34,6 @@ import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.connectivity.topicmatching.TopicMatcher;
 import pl.baczkowicz.mqttspy.utils.ConnectionUtils;
-import pl.baczkowicz.spy.common.generated.ProtocolEnum;
 import pl.baczkowicz.spy.common.generated.ScriptDetails;
 import pl.baczkowicz.spy.exceptions.ExceptionUtils;
 import pl.baczkowicz.spy.exceptions.SpyException;
@@ -563,10 +562,5 @@ public abstract class BaseMqttConnection implements IMqttConnection
 	public BaseMqttSubscription getMqttSubscriptionForTopic(final String topic)
 	{
 		return subscriptions.get(topic);
-	}
-	
-	public ProtocolEnum getProtocol()	
-	{
-		return ProtocolEnum.MQTT;
 	}
 }

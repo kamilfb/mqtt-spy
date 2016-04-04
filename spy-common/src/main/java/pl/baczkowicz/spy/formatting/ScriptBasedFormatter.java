@@ -29,7 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.spy.common.generated.FormatterDetails;
-import pl.baczkowicz.spy.messages.IBaseMessage;
+import pl.baczkowicz.spy.messages.FormattedMessage;
 import pl.baczkowicz.spy.scripts.BaseScriptManager;
 import pl.baczkowicz.spy.scripts.Script;
 import pl.baczkowicz.spy.utils.ConversionUtils;
@@ -38,12 +38,16 @@ import pl.baczkowicz.spy.utils.TimeUtils;
 public class ScriptBasedFormatter
 {
 	public static final String FORMAT_FUNCTION_NAME = "format";
+	
+	public static final String PRETTY_FUNCTION_NAME = "pretty";
 
 	final static Logger logger = LoggerFactory.getLogger(ScriptBasedFormatter.class);	
 	
 	private BaseScriptManager scriptManager;
 	
 	private Map<FormatterDetails, Script> formattingScripts = new HashMap<>();
+	
+	private Map<FormatterDetails, Boolean> prettyFormattingAvailable = new HashMap<>();
 		
 	public ScriptBasedFormatter(final BaseScriptManager scriptManager)
 	{
@@ -98,7 +102,7 @@ public class ScriptBasedFormatter
 		logger.debug("Adding formatter {} took {} ms", formatter.getName(), (end - start));
 	}
 	
-	public String formatMessage(final FormatterDetails formatter, final IBaseMessage message)
+	public String formatMessage(final FormatterDetails formatter, final FormattedMessage message)
 	{
 		try
 		{
@@ -112,11 +116,49 @@ public class ScriptBasedFormatter
 			
 			scriptManager.setVariable(script, BaseScriptManager.RECEIVED_MESSAGE_PARAMETER, message);		
 		
-			return (String) scriptManager.invokeFunction(script, FORMAT_FUNCTION_NAME);
+			final String functionName = FORMAT_FUNCTION_NAME;
+			return (String) scriptManager.invokeFunction(script, functionName);
 		}
 		catch (NoSuchMethodException | ScriptException e)
 		{
+			logger.trace("Cannot parse the message", e);
 			return message.getPayload();
 		}	
+	}
+	
+	public String formatMessage(final FormatterDetails formatter, final FormattedMessage message, final boolean pretty)
+	{
+		if (pretty && !Boolean.FALSE.equals(prettyFormattingAvailable.get(formatter)))
+		{
+			try
+			{
+				Script script = formattingScripts.get(formatter);
+				
+				if (script == null)
+				{
+					addFormatter(formatter);
+					script = formattingScripts.get(formatter);
+				}
+				
+				scriptManager.setVariable(script, BaseScriptManager.RECEIVED_MESSAGE_PARAMETER, message);		
+			
+				final String functionName = PRETTY_FUNCTION_NAME;
+				return (String) scriptManager.invokeFunction(script, functionName);
+			}
+			catch (NoSuchMethodException e)
+			{
+				prettyFormattingAvailable.put(formatter, Boolean.FALSE);
+				return formatMessage(formatter, message);
+			}
+			catch (ScriptException e)
+			{				
+				logger.trace("Cannot parse the message", e);
+				return message.getPayload();
+			}	
+		}
+		else
+		{
+			return formatMessage(formatter, message);
+		}		
 	}
 }

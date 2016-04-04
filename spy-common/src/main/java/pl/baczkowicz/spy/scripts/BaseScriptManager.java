@@ -75,6 +75,8 @@ public abstract class BaseScriptManager
 
 	/** Executor for tasks. */
 	protected Executor executor;
+
+	private Map<String, Object> customParameters;
 	
 	/**
 	 * Creates the script manager.
@@ -102,6 +104,22 @@ public abstract class BaseScriptManager
 	}
 	
 	/**
+	 * Gets the file (script) name for the given file object, including the subdirectory it's in.
+	 * 
+	 * @param file The file from which to get the filename
+	 * 
+	 * @return The name of the script file, including the subdirectory
+	 */
+	public static String getScriptNameWithSubdirectory(final File file, final String rootDirectory)
+	{
+		final String filePathSeparator = System.getProperty("file.separator");
+		
+		final String valueToReplace = rootDirectory.endsWith(filePathSeparator) ? rootDirectory : rootDirectory + filePathSeparator;
+		
+		return file.getAbsolutePath().replace(valueToReplace, "").replace(file.getName(), getScriptName(file));
+	}
+	
+	/**
 	 * Creates and records a script with the given details.
 	 * 
 	 * @param scriptDetails The script details
@@ -112,13 +130,11 @@ public abstract class BaseScriptManager
 	{
 		final File scriptFile = new File(scriptDetails.getFile());
 		
-		final String scriptName = getScriptName(scriptFile);
-		
 		final Script script = new Script();
 				
-		createFileBasedScript(script, scriptName, scriptFile, scriptDetails);
+		createFileBasedScript(script, scriptFile, scriptDetails);
 		
-		logger.info("Adding script {} at {}", scriptName, scriptFile.getAbsolutePath());
+		logger.info("Adding script {} at {}", script.getName(), scriptFile.getAbsolutePath());
 		scripts.put(scriptFile.getAbsolutePath(), script);
 		
 		return script;
@@ -206,11 +222,10 @@ public abstract class BaseScriptManager
 			Script script = scripts.get(Script.getScriptIdFromFile(scriptFile));
 			
 			if (script == null)					
-			{
-				final String scriptName = getScriptName(scriptFile);				
+			{			
 				script = new Script();
 				
-				createFileBasedScript(script, scriptName, scriptFile, new ScriptDetails(true, false, scriptFile.getName())); 			
+				createFileBasedScript(script, scriptFile, new ScriptDetails(true, false, scriptFile.getName())); 			
 				
 				addedScripts.add(script);
 				addScript(script);
@@ -247,10 +262,9 @@ public abstract class BaseScriptManager
 				
 				if (script == null)					
 				{
-					final String scriptName = getScriptName(scriptFile);
 					script = new Script();
 					
-					createFileBasedScript(script, scriptName, scriptFile, details); 			
+					createFileBasedScript(script, scriptFile, details); 			
 					
 					addedScripts.add(script);
 					addScript(script);
@@ -265,14 +279,14 @@ public abstract class BaseScriptManager
 	 * Populates the script object with the necessary values and references.
 	 * 
 	 * @param script The script object to be populated
-	 * @param scriptName The name of the script
 	 * @param scriptFile The script's file name 
 	 * @param connection The connection for which this script will be running
 	 * @param scriptDetails Script details
 	 */
-	public void createFileBasedScript(final Script script,
-			final String scriptName, final File scriptFile, final ScriptDetails scriptDetails)
+	public void createFileBasedScript(final Script script, final File scriptFile, final ScriptDetails scriptDetails)
 	{
+		final String scriptName = BaseScriptManager.getScriptName(scriptFile);
+		
 		createScript(script, scriptName);
 		script.setScriptFile(scriptFile);
 		script.setScriptDetails(scriptDetails);
@@ -298,7 +312,7 @@ public abstract class BaseScriptManager
 			if (scriptEngine != null)
 			{
 				script.setName(scriptName);			
-				script.setStatus(ScriptRunningState.NOT_STARTED);
+				script.setStatusAndNotify(ScriptRunningState.NOT_STARTED);
 				script.setScriptEngine(scriptEngine);		
 				
 				populateEngineVariables(script);
@@ -382,11 +396,18 @@ public abstract class BaseScriptManager
 		{
 			script.createScriptRunner(eventBus, executor);
 			script.setAsynchronous(asynchronous);
-			// Set test case args
+			
+			final Map<String, Object> scriptArgs = new HashMap<>();			
 			if (args != null)
+			{				
+				scriptArgs.putAll(args);
+			}			
+			if (customParameters != null)
 			{
-				setVariable(script, "args", args);
-			}
+				scriptArgs.putAll(customParameters);		
+			}			
+			setVariable(script, "args", scriptArgs);
+
 			
 			if (asynchronous)
 			{
@@ -620,5 +641,10 @@ public abstract class BaseScriptManager
 	public boolean containsScript(final Script script)
 	{
 		return scripts.containsKey(script.getScriptId());
+	}
+
+	public void addCustomParameters(final Map<String, Object> parameters)
+	{
+		this.customParameters = parameters;
 	}
 }

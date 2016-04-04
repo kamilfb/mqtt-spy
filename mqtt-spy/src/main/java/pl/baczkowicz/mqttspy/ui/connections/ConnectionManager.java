@@ -40,7 +40,6 @@ import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.common.generated.MessageLog;
 import pl.baczkowicz.mqttspy.common.generated.MessageLogEnum;
-import pl.baczkowicz.spy.common.generated.UserCredentials;
 import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
 import pl.baczkowicz.mqttspy.configuration.ConfiguredConnectionDetails;
 import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnectionDetails;
@@ -61,6 +60,7 @@ import pl.baczkowicz.mqttspy.stats.StatisticsManager;
 import pl.baczkowicz.mqttspy.ui.ConnectionController;
 import pl.baczkowicz.mqttspy.ui.MainController;
 import pl.baczkowicz.mqttspy.ui.SubscriptionController;
+import pl.baczkowicz.mqttspy.ui.ViewManager;
 import pl.baczkowicz.mqttspy.ui.events.ConnectionStatusChangeEvent;
 import pl.baczkowicz.mqttspy.ui.events.queuable.UIEventHandler;
 import pl.baczkowicz.mqttspy.ui.events.queuable.connectivity.MqttConnectionAttemptFailureEvent;
@@ -69,6 +69,7 @@ import pl.baczkowicz.mqttspy.ui.scripts.InteractiveScriptManager;
 import pl.baczkowicz.mqttspy.ui.utils.ConnectivityUtils;
 import pl.baczkowicz.mqttspy.ui.utils.ContextMenuUtils;
 import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
+import pl.baczkowicz.spy.common.generated.UserCredentials;
 import pl.baczkowicz.spy.eventbus.IKBus;
 import pl.baczkowicz.spy.exceptions.ConfigurationException;
 import pl.baczkowicz.spy.exceptions.SpyException;
@@ -115,6 +116,8 @@ public class ConnectionManager
 	
 	/** UI event queue. */
 	private final EventQueueManager<FormattedMqttMessage> uiEventQueue;
+	
+	private ViewManager viewManager;
 
 	/** Reconnection manager. */
 	private ReconnectionManager reconnectionManager;
@@ -223,7 +226,6 @@ public class ConnectionManager
 		final ConnectionController connectionController = (ConnectionController) loader.getController();
 		connectionController.setConnection(connection);
 		connectionController.setConnectionManager(this);
-		// connectionController.setEventManager(eventManager);
 		connectionController.setEventBus(eventBus);
 		connectionController.setStatisticsManager(statisticsManager);
 		connectionController.setTabStatus(new TabStatus());
@@ -232,7 +234,7 @@ public class ConnectionManager
 		
 		final Tab connectionTab = createConnectionTab(connection.getProperties().getName(), connectionPane, connectionController);
 		
-		final SubscriptionManager subscriptionManager = new SubscriptionManager(eventBus, configurationManager, uiEventQueue);			
+		final SubscriptionManager subscriptionManager = new SubscriptionManager(eventBus, configurationManager, viewManager, uiEventQueue);			
 		
 		final SubscriptionController subscriptionController = subscriptionManager.createSubscriptionTab(
 				true, connection.getStore(), null, connection, connectionController);
@@ -253,14 +255,13 @@ public class ConnectionManager
 				connectionController.getTabStatus().setVisibility(PaneVisibilityStatus.ATTACHED);
 				connectionController.getTabStatus().setParent(connectionTab.getTabPane());
 				
-				connectionTab.setContextMenu(ContextMenuUtils.createConnectionMenu(connection, connectionController, connectionManager));
+				connectionTab.setContextMenu(ContextMenuUtils.createConnectionMenu(connection, eventBus, connectionController, connectionManager));
 				
 				subscriptionController.getTab().setContextMenu(ContextMenuUtils.createAllSubscriptionsTabContextMenu(
 						connection, eventBus, subscriptionManager, configurationManager, subscriptionController));
 				
 				eventBus.subscribe(connectionController, connectionController::onConnectionStatusChanged, ConnectionStatusChangeEvent.class, new SimpleRunLaterExecutor(), connection);
-				// eventManager.registerConnectionStatusObserver(connectionController, connection);
-				// connection.addObserver(connectionController);											
+											
 				connection.setOpening(false);
 				connection.setOpened(true);
 				
@@ -274,9 +275,9 @@ public class ConnectionManager
 					connection.setConnectionStatus(MqttConnectionStatus.NOT_CONNECTED);
 				}	
 				
-				// Add "All" subscription tab
-				connectionController.getSubscriptionTabs().getTabs().clear();
+				// Add "All" tab								
 				connectionController.getSubscriptionTabs().getTabs().add(subscriptionController.getTab());
+				subscriptionController.getTab().setDisable(true);
 				
 				connectionControllers.put(connection, connectionController);
 				connectionTabs.put(connection, connectionTab);
@@ -286,7 +287,7 @@ public class ConnectionManager
 				mainController.populateConnectionPanes(connectionProperties.getConfiguredProperties(), connectionController);	
 				
 				// Apply perspective
-				mainController.showPerspective(connectionController);
+				viewManager.showPerspective(connectionController);
 			}
 		});		
 	}
@@ -307,9 +308,7 @@ public class ConnectionManager
 		
 		final ConnectionController connectionController = (ConnectionController) loader.getController();
 		
-		//connectionController.setConnection(connection);
 		connectionController.setConnectionManager(this);
-		// connectionController.setEventManager(eventManager);
 		connectionController.setEventBus(eventBus);
 		connectionController.setStatisticsManager(statisticsManager);
 		connectionController.setReplayMode(true);
@@ -318,7 +317,7 @@ public class ConnectionManager
 		connectionController.getResizeMessageContentMenu().setSelected(mainController.getResizeMessagePaneMenu().isSelected());
 		
 		final Tab replayTab = createConnectionTab(name, connectionPane, connectionController);
-		final SubscriptionManager subscriptionManager = new SubscriptionManager(eventBus, configurationManager, uiEventQueue);			
+		final SubscriptionManager subscriptionManager = new SubscriptionManager(eventBus, configurationManager, viewManager, uiEventQueue);			
 		
         final ManagedMessageStoreWithFiltering<FormattedMqttMessage> store = new ManagedMessageStoreWithFiltering<FormattedMqttMessage>(
         		name, 0, list.size(), list.size(), uiEventQueue, //eventManager, 
@@ -456,7 +455,20 @@ public class ConnectionManager
 		tab.setContent(content);		
 
 		return tab;
-	}	
+	}
+	
+	public ConnectionController getControllerForTab(final Tab tab)	
+	{
+		for (final ConnectionController controller : getConnectionControllers())
+		{
+			if (controller.getTab().equals(tab))
+			{
+				return controller;
+			}
+		}
+		
+		return null;
+	}
 
 	public MqttAsyncConnection createConnection(final RuntimeConnectionProperties connectionProperties, final EventQueueManager<FormattedMqttMessage> uiEventQueue)
 	{
@@ -584,5 +596,10 @@ public class ConnectionManager
 	public SubscriptionManager getSubscriptionManager(final ConnectionController connectionController)
 	{
 		return subscriptionManagers.get(connectionController);
+	}
+	
+	public void setViewManager(final ViewManager viewManager)
+	{
+		this.viewManager = viewManager;		
 	}
 }

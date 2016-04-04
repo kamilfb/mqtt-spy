@@ -66,6 +66,8 @@ import pl.baczkowicz.mqttspy.connectivity.RuntimeConnectionProperties;
 import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.stats.StatisticsManager;
 import pl.baczkowicz.mqttspy.ui.connections.SubscriptionManager;
+import pl.baczkowicz.mqttspy.ui.events.FormattersChangedEvent;
+import pl.baczkowicz.mqttspy.ui.events.ShowFormattersWindowEvent;
 import pl.baczkowicz.mqttspy.ui.events.SubscriptionStatusChangeEvent;
 import pl.baczkowicz.mqttspy.ui.messagelog.MessageLogUtils;
 import pl.baczkowicz.spy.common.generated.FormatterDetails;
@@ -151,14 +153,14 @@ public class SubscriptionController implements Initializable, TabController
 	@FXML
 	private MenuButton formattingMenuButton;
 
-	@FXML
-	private Menu formatterMenu;
+//	@FXML
+//	private Menu formatterMenu;
 	
 	@FXML
 	private Menu customFormatterMenu;
 
-	@FXML
-	private ToggleGroup selectionFormat;
+//	@FXML
+//	private ToggleGroup selectionFormat;
 	
 	@FXML
 	private ToggleButton searchButton;
@@ -209,10 +211,12 @@ public class SubscriptionController implements Initializable, TabController
 		topicFilterBox = new HBox();
 		topicFilterBox.setPadding(new Insets(0, 0, 0, 0));
 		
-		final List<FormatterDetails> baseFormatters = FormattingUtils.createBaseFormatters();
-		for (int i = 0; i < 5; i++)
+		final List<FormatterDetails> formatters = FormattingUtils.createBaseFormatters();
+		formatters.addAll(FormattingManager.createDefaultScriptFormatters());
+		
+		for (int i = 0; i < formatters.size(); i++)
 		{
-			wholeMessageFormat.getToggles().get(i).setUserData(baseFormatters.get(i));
+			wholeMessageFormat.getToggles().get(i).setUserData(formatters.get(i));
 		}
 
 		wholeMessageFormat.selectedToggleProperty().addListener(new ChangeListener<Toggle>()
@@ -228,24 +232,24 @@ public class SubscriptionController implements Initializable, TabController
 			}
 		});
 		
-		selectionFormat.getToggles().get(0).setUserData(null);		
-		for (int i = 0; i < 5; i++)
-		{
-			selectionFormat.getToggles().get(i+1).setUserData(baseFormatters.get(i));
-		}		
-		
-		selectionFormat.selectedToggleProperty().addListener(new ChangeListener<Toggle>()
-		{
-			@Override
-			public void changed(ObservableValue<? extends Toggle> observable, Toggle oldValue,
-					Toggle newValue)
-			{
-				if (selectionFormat.getSelectedToggle() != null)
-				{
-					formatSelection();
-				}
-			}
-		});
+//		selectionFormat.getToggles().get(0).setUserData(null);		
+//		for (int i = 0; i < 5; i++)
+//		{
+//			selectionFormat.getToggles().get(i+1).setUserData(baseFormatters.get(i));
+//		}		
+//		
+//		selectionFormat.selectedToggleProperty().addListener(new ChangeListener<Toggle>()
+//		{
+//			@Override
+//			public void changed(ObservableValue<? extends Toggle> observable, Toggle oldValue,
+//					Toggle newValue)
+//			{
+//				if (selectionFormat.getSelectedToggle() != null)
+//				{
+//					formatSelection();
+//				}
+//			}
+//		});
 
 		summaryTitledPane.expandedProperty().addListener(new ChangeListener<Boolean>()
 		{
@@ -272,15 +276,16 @@ public class SubscriptionController implements Initializable, TabController
 					@Override
 					public void run()
 					{
+						//logger.debug("pane W={}, title X={}, W={}", summaryTitledPane.getWidth(), paneTitle.getLayoutX(), paneTitle.getWidth());
+						
 						final double absoluteSearchBoxX = searchBox.getLayoutX() + topicFilterBox.getLayoutX() + titleBox.getLayoutX();
-						final double titledPaneWidth = updateTitleWidth(summaryTitledPane, paneTitle, 40);
+						final double titledPaneWidth = ViewManager.updateTitleWidth(summaryTitledPane, paneTitle, ViewManager.TITLE_MARGIN);
 						
-						if (logger.isTraceEnabled())
-						{
-							logger.trace("New width = " + titledPaneWidth);
-						}
-						
+						//logger.trace("New width = {}", titledPaneWidth);
+												
 						searchBox.setPrefWidth(titledPaneWidth - absoluteSearchBoxX - statsLabel.getWidth() - 100);
+						
+						//logger.debug("pane W={}, title X={}, W={}", summaryTitledPane.getWidth(), paneTitle.getLayoutX(), paneTitle.getWidth());
 					}
 				});
 			}
@@ -299,7 +304,6 @@ public class SubscriptionController implements Initializable, TabController
 				0, formattingManager);
 		
 		eventBus.subscribeWithFilterOnly(this, this::onClearTab, ClearTabEvent.class, store);
-		// eventManager.registerClearTabObserver(this, store);
 		
 		getSummaryTablePaneController().setStore(store);
 		getSummaryTablePaneController().setConnectionController(connectionController);
@@ -314,10 +318,8 @@ public class SubscriptionController implements Initializable, TabController
 		// The search pane's message browser wants to know about changing indices and format
 		eventBus.subscribe(messagePaneController, messagePaneController::onMessageIndexChange, 
 				MessageIndexChangeEvent.class, new SimpleRunLaterExecutor(), store);
-		// eventManager.registerChangeMessageIndexObserver(messagePaneController, store);
 		eventBus.subscribe(messagePaneController, messagePaneController::onFormatChange, MessageFormatChangeEvent.class, 
 				new SimpleRunLaterExecutor(), store);
-		// eventManager.registerFormatChangeObserver(messagePaneController, store);
 		
 		messageNavigationPaneController.setStore(store);
 		messageNavigationPaneController.setEventBus(eventBus);
@@ -326,51 +328,24 @@ public class SubscriptionController implements Initializable, TabController
 		// The subscription pane's message browser wants to know about show first, index change and update index events 
 		eventBus.subscribe(messageNavigationPaneController, messageNavigationPaneController::onMessageIndexChange, 
 				MessageIndexChangeEvent.class, new SimpleRunLaterExecutor(), store);
-		// eventManager.registerChangeMessageIndexObserver(messageNavigationPaneController, store);
 		eventBus.subscribe(messageNavigationPaneController, messageNavigationPaneController::onNavigateToFirst, 
 				MessageIndexToFirstEvent.class, new SimpleRunLaterExecutor(), store);
-		// eventManager.registerChangeMessageIndexFirstObserver(messageNavigationPaneController, store);		
 		eventBus.subscribe(messageNavigationPaneController, messageNavigationPaneController::onMessageIndexIncrement, 
 				MessageIndexIncrementEvent.class, new SimpleRunLaterExecutor(), store);
-		// eventManager.registerIncrementMessageIndexObserver(messageNavigationPaneController, store);
+		eventBus.subscribe(this, this::handleFormattersChange, FormattersChangedEvent.class);
 		
 		eventBus.subscribeWithFilterOnly(messageNavigationPaneController, messageNavigationPaneController::onMessageAdded, MessageAddedEvent.class, store.getMessageList());		
 		eventBus.subscribeWithFilterOnly(messageNavigationPaneController, messageNavigationPaneController::onMessageRemoved, MessageRemovedEvent.class, store.getMessageList());
-		// eventManager.registerMessageAddedObserver(messageNavigationPaneController, store.getMessageList());
-		// eventManager.registerMessageRemovedObserver(messageNavigationPaneController, store.getMessageList());
 		
-		if (formatting.getFormatter().size() > 0)
-		{
-			customFormatterMenu.setDisable(false);
-		}
-					
-		for (final FormatterDetails formatter : formatting.getFormatter())
-		{
-			// Check if this is really a custom one
-			if (FormattingUtils.isDefault(formatter))
-			{
-				continue;
-			}
-			
-			final RadioMenuItem customFormatterMenuItem = new RadioMenuItem(formatter.getName());
-			customFormatterMenuItem.setToggleGroup(wholeMessageFormat);						
-			customFormatterMenuItem.setUserData(formatter);			
-			customFormatterMenu.getItems().add(customFormatterMenuItem);
-			
-			if (connectionProperties != null && formatter.equals(connectionProperties.getFormatter()))
-			{
-				customFormatterMenuItem.setSelected(true);
-			}
-		}
-		
-		store.setFormatter((FormatterDetails) wholeMessageFormat.getSelectedToggle().getUserData());	
+		populateFormatters();
 		
 		paneTitle = new AnchorPane();
 		paneTitle.setPadding(new Insets(0, 0, 0, 0));
 		paneTitle.setMaxWidth(Double.MAX_VALUE);
 				
 		searchBox = new TextField();
-		searchBox.setFont(new Font("System", 11));
+		//searchBox.setFont(new Font("System", 11));
+		searchBox.getStyleClass().add("small-font");
 		searchBox.setPadding(new Insets(2, 5, 2, 5));
 		searchBox.setMaxWidth(400);
 		searchBox.textProperty().addListener(new ChangeListener<String>()
@@ -382,8 +357,8 @@ public class SubscriptionController implements Initializable, TabController
 			}
 		});
 		
-		paneTitle = new AnchorPane();
-		paneTitle.setPadding(new Insets(0, 0, 0, 0));
+		//paneTitle = new AnchorPane();
+		//paneTitle.setPadding(new Insets(0, 0, 0, 0));
 		
 		topicFilterBox.getChildren().addAll(new Label(" [search topics: "), searchBox, new Label("] "));
 		titleBox = new HBox();
@@ -395,6 +370,7 @@ public class SubscriptionController implements Initializable, TabController
 		statsLabel.widthProperty().addListener(createPaneTitleWidthListener());
 		
 		paneTitle.getChildren().addAll(titleBox, statsLabel);
+		// paneTitle.getChildren().addAll(titleBox);
 		
 		summaryTitledPane.setText(null);
 		summaryTitledPane.setGraphic(paneTitle);
@@ -427,11 +403,49 @@ public class SubscriptionController implements Initializable, TabController
 				uniqueContentOnlyFilter.setUniqueContentOnly(messageNavigationPaneController.getUniqueOnlyMenu().isSelected());
 				store.getFilteredMessageStore().runFilter(uniqueContentOnlyFilter);
 				eventBus.publish(new MessageListChangedEvent(store.getMessageList()));
-				// eventManager.notifyMessageListChanged(store.getMessageList());
 				eventBus.publish(new MessageIndexToFirstEvent(store));
-				// eventManager.navigateToFirst(store);
 			}
 		});	
+	}
+	
+	public void onClose()
+	{
+		eventBus.unsubscribeConsumer(this, FormattersChangedEvent.class);
+	}
+	
+	public void handleFormattersChange(final FormattersChangedEvent event)	
+	{
+		populateFormatters();
+	}
+	
+	public void populateFormatters()
+	{
+		if (formatting.getFormatter().size() > 0)
+		{
+			customFormatterMenu.setDisable(false);
+		}
+					
+		customFormatterMenu.getItems().clear();
+		for (final FormatterDetails formatter : formatting.getFormatter())
+		{
+			// Check if this is really a custom one
+			if (FormattingUtils.isDefault(formatter))
+			{
+				continue;
+			}
+			
+			final RadioMenuItem customFormatterMenuItem = new RadioMenuItem(formatter.getName());
+			customFormatterMenuItem.setToggleGroup(wholeMessageFormat);						
+			customFormatterMenuItem.setUserData(formatter);			
+			customFormatterMenu.getItems().add(customFormatterMenuItem);
+			
+			if (connectionProperties != null && formatter.equals(connectionProperties.getFormatter()))
+			{
+				customFormatterMenuItem.setSelected(true);
+			}
+		}
+		
+		store.setFormatter((FormatterDetails) wholeMessageFormat.getSelectedToggle().getUserData());	
 	}
 
 	public void setReplayMode(final boolean value)
@@ -444,10 +458,19 @@ public class SubscriptionController implements Initializable, TabController
 		this.formatting = formatting;
 	}
 	
-	public void setDetailedViewVisibility(final boolean visible)
+	public void setViewVisibility(final boolean detailedView, final boolean basicView)
 	{
-		messagePaneController.setDetailedViewVisibility(visible);
-		messageNavigationPaneController.setDetailedViewVisibility(visible);
+		messagePaneController.setViewVisibility(detailedView);
+		messageNavigationPaneController.setViewVisibility(detailedView);
+		
+		if (basicView && splitPane.getItems().contains(summaryTitledPane))
+		{
+			splitPane.getItems().remove(summaryTitledPane);			
+		}
+		else if (!basicView && !splitPane.getItems().contains(summaryTitledPane))
+		{
+			splitPane.getItems().add(summaryTitledPane);
+		}
 	}
 	
 	public void toggleDetailedViewVisibility()
@@ -476,16 +499,25 @@ public class SubscriptionController implements Initializable, TabController
 	{
 		store.setFormatter((FormatterDetails) wholeMessageFormat.getSelectedToggle().getUserData());
 	
+		logger.debug("Format changed to {}", store.getFormatter().getName());
 		eventBus.publish(new MessageFormatChangeEvent(store));
 		// eventManager.notifyFormatChanged(store);
 	}
 	
+//	@FXML
+//	public void formatSelection()
+//	{
+//		final FormatterDetails messageFormat = (FormatterDetails) selectionFormat.getSelectedToggle().getUserData();
+//		
+//		messagePaneController.formatSelection(messageFormat);
+//	}
+	
 	@FXML
-	public void formatSelection()
+	public void editFormatters()
 	{
-		final FormatterDetails messageFormat = (FormatterDetails) selectionFormat.getSelectedToggle().getUserData();
+		eventBus.publish(new ShowFormattersWindowEvent(getParentWindow(), true));
 		
-		messagePaneController.formatSelection(messageFormat);
+		// TODO: update formatters
 	}
 
 	public void updateMinHeights()
@@ -501,23 +533,6 @@ public class SubscriptionController implements Initializable, TabController
 			summaryTitledPane.setMinHeight(MIN_COLLAPSED_SUMMARY_PANE_HEIGHT);
 			splitPane.setDividerPosition(0, 0.95);
 		}
-	}
-	
-	public static double updateTitleWidth(final TitledPane titledPane, final AnchorPane paneTitle, final int margin)
-	{
-		double titledPaneWidth = titledPane.getWidth();
-		
-		if (titledPane.getScene() != null)			
-		{
-			if (titledPane.getScene().getWidth() < titledPaneWidth)
-			{
-				titledPaneWidth = titledPane.getScene().getWidth();
-			}
-		}
-		paneTitle.setPrefWidth(titledPaneWidth - margin);				
-		paneTitle.setMaxWidth(titledPaneWidth - margin);
-		
-		return titledPaneWidth;
 	}
 
 	public void setStore(final ManagedMessageStoreWithFiltering<FormattedMqttMessage> store)
@@ -559,7 +574,6 @@ public class SubscriptionController implements Initializable, TabController
 		}
 	}
 	
-
 	private Window getParentWindow()
 	{
 		return tab.getTabPane().getScene().getWindow();
@@ -585,10 +599,7 @@ public class SubscriptionController implements Initializable, TabController
 			
 			eventBus.subscribeWithFilterOnly(searchWindowController, searchWindowController::onMessageAdded, MessageAddedEvent.class, store.getMessageList());		
 			eventBus.subscribeWithFilterOnly(searchWindowController, searchWindowController::onMessageRemoved, MessageRemovedEvent.class, store.getMessageList());
-			//eventManager.registerMessageAddedObserver(searchWindowController, store.getMessageList());
-			//eventManager.registerMessageRemovedObserver(searchWindowController, store.getMessageList());
 			eventBus.subscribeWithFilterOnly(searchWindowController, searchWindowController::onMessageListChanged, MessageListChangedEvent.class, store.getMessageList());
-			// eventManager.registerMessageListChangedObserver(searchWindowController, store.getMessageList());
 					
 			// Set scene width, height and style
 			final Scene scene = new Scene(searchWindow, SearchWindowController.WIDTH, SearchWindowController.HEIGHT);

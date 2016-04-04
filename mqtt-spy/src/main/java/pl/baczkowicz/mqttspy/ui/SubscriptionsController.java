@@ -19,6 +19,7 @@
  */
 package pl.baczkowicz.mqttspy.ui;
 
+import javafx.scene.control.Label;
 import javafx.scene.control.MenuButton;
 import javafx.scene.control.TitledPane;
 import javafx.scene.layout.AnchorPane;
@@ -31,6 +32,7 @@ public class SubscriptionsController implements TitledPaneController
 	private AnchorPane paneTitle;
 	private MenuButton settingsButton;
 	private ConnectionController connectionController;
+	private Label titleLabel;
 	
 	@Override
 	public TitledPane getTitledPane()
@@ -46,8 +48,10 @@ public class SubscriptionsController implements TitledPaneController
 
 	public void init()
 	{
+		titleLabel = new Label(pane.getText());
+		
 		paneTitle = new AnchorPane();
-		settingsButton = NewPublicationController.createTitleButtons(pane, paneTitle, connectionController);		
+		settingsButton = ViewManager.createTitleButtons(this, paneTitle, connectionController);		
 	}
 	
 
@@ -68,5 +72,11 @@ public class SubscriptionsController implements TitledPaneController
 		{
 			settingsButton.setVisible(false);
 		}
+	}
+
+	@Override
+	public Label getTitleLabel()
+	{
+		return titleLabel;
 	}
 }

@@ -25,7 +25,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
-import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -35,6 +34,8 @@ import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import pl.baczkowicz.mqttspy.stats.StatisticsManager;
 import pl.baczkowicz.mqttspy.ui.ControlPanelItemController;
+import pl.baczkowicz.mqttspy.ui.events.ShowExternalWebPageEvent;
+import pl.baczkowicz.spy.eventbus.IKBus;
 import pl.baczkowicz.spy.formatting.FormattingUtils;
 import pl.baczkowicz.spy.utils.ThreadingUtils;
 import pl.baczkowicz.spy.utils.TimeUtils;
@@ -77,8 +78,8 @@ public class ControlPanelStatsUpdater implements Runnable
 	/** The controller of the stats control panel item. */
 	private final ControlPanelItemController controlPanelItemController;
 
-	/** Reference to the application itself. */
-	private Application application;
+	/** Reference to the event bus. */
+	private IKBus eventBus;
 
 	/** The button on which stats are displayed. */
 	private final Button bigButton;
@@ -89,11 +90,11 @@ public class ControlPanelStatsUpdater implements Runnable
 	/** The index of the current statistics message. */
 	private int statMessageIndex;
 
-	public ControlPanelStatsUpdater(final ControlPanelItemController controlPanelItemController, final Button bigButton, final Application application)
+	public ControlPanelStatsUpdater(final ControlPanelItemController controlPanelItemController, final Button bigButton, final IKBus eventBus)
 	{
 		this.controlPanelItemController = controlPanelItemController;
 		this.bigButton = bigButton;
-		this.application = application;
+		this.eventBus = eventBus;
 	}	
 	
 	/**
@@ -128,7 +129,7 @@ public class ControlPanelStatsUpdater implements Runnable
 			@Override
 			public void handle(ActionEvent event)
 			{
-				application.getHostServices().showDocument("http://github.com/kamilfb/mqtt-spy/wiki/Getting-involved");
+				eventBus.publish(new ShowExternalWebPageEvent("http://github.com/kamilfb/mqtt-spy/wiki/Getting-involved"));
 			}
 		});
 		items.add(getInvolved);

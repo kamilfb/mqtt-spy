@@ -35,15 +35,6 @@ import pl.baczkowicz.spy.exceptions.ConfigurationException;
  */
 public class PropertyFileLoader
 {	
-	/** Name of the 'version' property. */
-	public static final String VERSION_PROPERTY = "application.version";
-	
-	/** Name of the 'build number' property. */
-	public static final String BUILD_PROPERTY = "application.build";
-	
-	/** Name of the 'download URL' property. */
-	public static final String DOWNLOAD_URL = "application.download.url";	
-	
 	/** Properties read from the provided file. */
 	private Properties properties;	
 	
@@ -177,7 +168,7 @@ public class PropertyFileLoader
 	 */
 	public String getBuildNumber()
 	{
-		return getProperty(PropertyFileLoader.BUILD_PROPERTY);
+		return getProperty(BasePropertyNames.BUILD_PROPERTY);
 	}
 	
 	/**
@@ -187,7 +178,7 @@ public class PropertyFileLoader
 	 */
 	public String getFullVersionNumber()
 	{
-		return getProperty(PropertyFileLoader.VERSION_PROPERTY) + "-" + getBuildNumber();
+		return getProperty(BasePropertyNames.VERSION_PROPERTY) + "-" + getBuildNumber();
 	}
 	
 	/**
@@ -196,6 +187,6 @@ public class PropertyFileLoader
 	 */
 	public String getFullVersionName()
 	{
-		return getProperty(PropertyFileLoader.VERSION_PROPERTY).replace("-", " ") + " (build " + getBuildNumber() + ")";
+		return getProperty(BasePropertyNames.VERSION_PROPERTY).replace("-", " ") + " (build " + getBuildNumber() + ")";
 	}
 }

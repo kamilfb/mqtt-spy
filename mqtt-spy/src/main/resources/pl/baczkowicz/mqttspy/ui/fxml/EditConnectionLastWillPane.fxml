@@ -37,6 +37,7 @@
       <CheckBox fx:id="lastWillAndTestament" layoutX="279.0" layoutY="18.0" mnemonicParsing="false" />
       <AnchorPane layoutX="8.0" layoutY="64.0" minWidth="700" prefHeight="134.0" prefWidth="700">
    		<children>   
+   		<!--  -->
       		<fx:include fx:id="lastWillAndTestamentMessage" source="NewPublicationPane.fxml" />                        	
       	</children>
      	</AnchorPane>			

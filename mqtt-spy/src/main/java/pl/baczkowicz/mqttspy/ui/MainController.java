@@ -20,15 +20,11 @@
 package pl.baczkowicz.mqttspy.ui;
 
 import java.io.File;
-import java.util.List;
 
-import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.MenuItem;
@@ -38,7 +34,6 @@ import javafx.scene.control.TabPane;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import javafx.stage.WindowEvent;
@@ -48,25 +43,27 @@ import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.common.generated.PublicationDetails;
 import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
-import pl.baczkowicz.mqttspy.configuration.ConfiguredConnectionDetails;
 import pl.baczkowicz.mqttspy.configuration.generated.TabbedSubscriptionDetails;
 import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnectionDetails;
-import pl.baczkowicz.mqttspy.messages.BaseMqttMessage;
 import pl.baczkowicz.mqttspy.stats.ConnectionStatsUpdater;
 import pl.baczkowicz.mqttspy.stats.StatisticsManager;
 import pl.baczkowicz.mqttspy.ui.connections.ConnectionManager;
-import pl.baczkowicz.mqttspy.ui.events.ConnectionStatusChangeEvent;
-import pl.baczkowicz.mqttspy.ui.messagelog.LogReaderTask;
-import pl.baczkowicz.mqttspy.ui.messagelog.TaskWithProgressUpdater;
+import pl.baczkowicz.mqttspy.ui.events.LoadConfigurationFileEvent;
+import pl.baczkowicz.mqttspy.ui.events.NewPerspectiveSelectedEvent;
+import pl.baczkowicz.mqttspy.ui.events.ShowAboutWindowEvent;
+import pl.baczkowicz.mqttspy.ui.events.ShowEditConnectionsWindowEvent;
+import pl.baczkowicz.mqttspy.ui.events.ShowExternalWebPageEvent;
+import pl.baczkowicz.mqttspy.ui.events.ShowFormattersWindowEvent;
+import pl.baczkowicz.mqttspy.ui.events.ShowMessageLogEvent;
+import pl.baczkowicz.mqttspy.ui.events.ShowNewSubscriptionWindowEvent;
+import pl.baczkowicz.mqttspy.ui.events.ShowTestCasesWindowEvent;
 import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
 import pl.baczkowicz.mqttspy.versions.VersionManager;
 import pl.baczkowicz.spy.eventbus.IKBus;
-import pl.baczkowicz.spy.exceptions.ConfigurationException;
 import pl.baczkowicz.spy.exceptions.SpyUncaughtExceptionHandler;
 import pl.baczkowicz.spy.exceptions.XMLException;
 import pl.baczkowicz.spy.ui.panes.PaneVisibilityStatus;
 import pl.baczkowicz.spy.ui.panes.SpyPerspective;
-import pl.baczkowicz.spy.ui.utils.FxmlUtils;
 
 /**
  * Controller for the main window.
@@ -92,9 +89,21 @@ public class MainController
 	private MenuItem openConfigFileMenu;
 	
 	@FXML
+	private MenuItem newConnectionMenu;
+
+	@FXML
+	private MenuItem newSubscriptionMenu;
+	
+	@FXML
+	private MenuItem editConnectionsMenu;
+	
+	@FXML
 	private RadioMenuItem defaultPerspective;
 	
 	@FXML
+	private RadioMenuItem basicPerspective;
+	
+	@FXML 
 	private RadioMenuItem detailedPerspective;
 	
 	@FXML
@@ -105,12 +114,6 @@ public class MainController
 	
 	@FXML
 	private CheckMenuItem resizeMessagePaneMenu;
-
-	private EditConnectionsController editConnectionsController;
-	
-	private Stage editConnectionsStage; 	
-
-	private Application application;
 
 	private ConfigurationManager configurationManager;
 
@@ -124,13 +127,7 @@ public class MainController
 
 	private ConnectionManager connectionManager;
 
-	private Stage formattersStage;
-	
-	private Stage testCasesStage;
-	
-	private Stage aboutStage;
-
-	private SpyPerspective selectedPerspective = SpyPerspective.DEFAULT;
+	// private SpyPerspective selectedPerspective = SpyPerspective.DEFAULT;
 	
 	private double lastWidth;
 	
@@ -138,19 +135,16 @@ public class MainController
 
 	private VersionManager versionManager;
 
-	private AboutController aboutController;
+	private ViewManager viewManager;
+
 	
 	public MainController() throws XMLException
 	{
-		Thread.setDefaultUncaughtExceptionHandler(new SpyUncaughtExceptionHandler());
-		 
-		this.statisticsManager = new StatisticsManager();		
+		Thread.setDefaultUncaughtExceptionHandler(new SpyUncaughtExceptionHandler());		
 	}	
 	
 	public void init()
-	{		
-		this.connectionManager = new ConnectionManager(eventBus, statisticsManager, configurationManager);	
-				
+	{							
 		statisticsManager.loadStats();
 		
 		// Set up scene
@@ -188,19 +182,8 @@ public class MainController
 		// Clear any test tabs
 		stage.setTitle("mqtt-spy");
 		
-		try
-		{
-			this.versionManager = new VersionManager(configurationManager.getDefaultPropertyFile());
-		}
-		catch (XMLException e)
-		{
-			e.printStackTrace();
-		}
-		
 		controlPanelPaneController.setMainController(this);
 		controlPanelPaneController.setConfigurationMananger(configurationManager);
-		controlPanelPaneController.setApplication(application);
-		// controlPanelPaneController.setEventManager(eventManager);
 		controlPanelPaneController.setEventBus(eventBus);
 		controlPanelPaneController.setConnectionManager(connectionManager);
 		controlPanelPaneController.setVersionManager(versionManager);
@@ -213,178 +196,46 @@ public class MainController
 	public void createNewConnection()
 	{
 		logger.trace("Creating new connection...");
-
-		showEditConnectionsWindow(true);
+		eventBus.publish(new ShowEditConnectionsWindowEvent(getParentWindow(), true, null));
 	}
 
 	@FXML
 	public void editConnections()
 	{
-		showEditConnectionsWindow(false);
+		eventBus.publish(new ShowEditConnectionsWindowEvent(getParentWindow(), false, null));
+	}
+	
+	@FXML
+	public void newSubscription()
+	{
+		final Tab selectedTab = this.getConnectionTabs().getSelectionModel().getSelectedItem();
+		final ConnectionController controller = connectionManager.getControllerForTab(selectedTab);
+		
+		if (controller != null)
+		{
+			eventBus.publish(new ShowNewSubscriptionWindowEvent(
+					controller, 
+					PaneVisibilityStatus.DETACHED,
+					controller.getNewSubscriptionPaneStatus().getVisibility()));
+		}
 	}
 
 	@FXML
 	private void showFormatters()
 	{
-		if (formattersStage == null)
-		{
-			initialiseFormattersWindow();
-		}
-		
-		formattersStage.show();
-	}
-	
-	public void showFormatters(final boolean showAndWait, final Stage stage)
-	{
-		initialiseFormattersWindow();		
-		
-		if (showAndWait)
-		{
-			formattersStage.initOwner(stage.getScene().getWindow());
-			formattersStage.showAndWait();
-			
-			formattersStage = null;
-		}
-		else
-		{
-			showFormatters();
-		}
+		eventBus.publish(new ShowFormattersWindowEvent(getParentWindow(), false));
 	}
 	
 	@FXML
 	public void showTestCases()
 	{
-		if (testCasesStage == null)
-		{
-			initialiseTestCasesWindow();
-		}
-		
-		testCasesStage.show();
+		eventBus.publish(new ShowTestCasesWindowEvent(getParentWindow()));
 	}
 	
 	@FXML
 	public void openMessageLog()
 	{
-		final FileChooser fileChooser = new FileChooser();
-		fileChooser.setTitle("Select message audit log file to open");
-		String extensions = "messages";
-		fileChooser.setSelectedExtensionFilter(new ExtensionFilter("Message audit log file", extensions));
-
-		final File selectedFile = fileChooser.showOpenDialog(getParentWindow());
-
-		if (selectedFile != null)
-		{			
-			final TaskWithProgressUpdater<List<BaseMqttMessage>> readAndProcess = new LogReaderTask(selectedFile, connectionManager, this);
-			
-			pl.baczkowicz.spy.ui.utils.DialogFactory.createWorkerDialog(readAndProcess);
-			
-			new Thread(readAndProcess).start();			
-		}
-	}
-	
-	private void initialiseEditConnectionsWindow()
-	{
-		// This is a dirty way to reload connection settings :) possibly could be removed if all connections are closed before loading a new config file
-		if (editConnectionsController != null)
-		{
-			eventBus.unsubscribeConsumer(editConnectionsController, ConnectionStatusChangeEvent.class);
-			// eventManager.deregisterConnectionStatusObserver(editConnectionsController);
-		}
-		
-		final FXMLLoader loader = FxmlUtils.createFxmlLoaderForProjectFile("EditConnectionsWindow.fxml");
-		final AnchorPane connectionWindow = FxmlUtils.loadAnchorPane(loader);
-		editConnectionsController = ((EditConnectionsController) loader.getController());		
-		editConnectionsController.setMainController(this);
-		// editConnectionsController.setEventManager(eventManager);
-		editConnectionsController.setEventBus(eventBus);
-		editConnectionsController.setConnectionManager(connectionManager);
-		editConnectionsController.setConfigurationManager(configurationManager);
-		editConnectionsController.init();
-		
-		Scene scene = new Scene(connectionWindow);
-		scene.getStylesheets().addAll(mainPane.getScene().getStylesheets());		
-
-		editConnectionsStage = new Stage();
-		editConnectionsStage.setTitle("Connection list");		
-		editConnectionsStage.initModality(Modality.WINDOW_MODAL);
-		editConnectionsStage.initOwner(getParentWindow());
-		editConnectionsStage.setScene(scene);
-	}
-
-	private void initialiseFormattersWindow()
-	{
-		final FXMLLoader loader = FxmlUtils.createFxmlLoaderForProjectFile("FormattersWindow.fxml");
-		final AnchorPane formattersWindow = FxmlUtils.loadAnchorPane(loader);
-		
-		final FormattersController formattersController = ((FormattersController) loader.getController());
-		formattersController.setConfigurationManager(configurationManager);	
-		formattersController.init();
-		
-		Scene scene = new Scene(formattersWindow);
-		scene.getStylesheets().addAll(mainPane.getScene().getStylesheets());		
-
-		formattersStage = new Stage();
-		formattersStage.setTitle("Formatters");		
-		formattersStage.initModality(Modality.WINDOW_MODAL);
-		formattersStage.initOwner(getParentWindow());
-		formattersStage.setScene(scene);
-	}
-	
-	private void initialiseAboutWindow()
-	{
-		final FXMLLoader loader = FxmlUtils.createFxmlLoaderForProjectFile("AboutWindow.fxml");
-		final AnchorPane window = FxmlUtils.loadAnchorPane(loader);
-		
-		aboutController = ((AboutController) loader.getController());
-		aboutController.setApplication(application);
-		aboutController.setConfigurationManager(configurationManager);
-		aboutController.setVersionManager(versionManager);
-		// aboutController.setEventManager(eventManager);
-		aboutController.setEventBus(eventBus);
-		
-		aboutController.init();
-		
-		Scene scene = new Scene(window);
-		scene.getStylesheets().addAll(mainPane.getScene().getStylesheets());		
-
-		aboutStage = new Stage();
-		aboutStage.setTitle("About mqtt-spy");		
-		aboutStage.initModality(Modality.WINDOW_MODAL);
-		aboutStage.initOwner(getParentWindow());
-		aboutStage.setScene(scene);
-	}
-	
-	private void initialiseTestCasesWindow()
-	{
-		final FXMLLoader loader = FxmlUtils.createFxmlLoaderForProjectFile("TestCasesExecutionPane.fxml");
-		final AnchorPane testCasesWindow = FxmlUtils.loadAnchorPane(loader);
-		
-		Scene scene = new Scene(testCasesWindow);
-		scene.getStylesheets().addAll(mainPane.getScene().getStylesheets());		
-
-		testCasesStage = new Stage();
-		testCasesStage.setTitle("Test cases");		
-		testCasesStage.initOwner(getParentWindow());
-		testCasesStage.setScene(scene);
-		((TestCasesExecutionController) loader.getController()).init();
-	}
-	
-	private void showEditConnectionsWindow(final boolean createNew)
-	{
-		if (editConnectionsController  == null)
-		{
-			initialiseEditConnectionsWindow();
-		}
-		
-		if (createNew)
-		{
-			editConnectionsController.newMqttConnection();
-		}
-
-		editConnectionsController.updateUIForSelectedItem();
-		editConnectionsController.setPerspective(selectedPerspective);
-		editConnectionsStage.showAndWait();		
-		controlPanelPaneController.refreshConnectionsStatus();
+		eventBus.publish(new ShowMessageLogEvent(getParentWindow()));
 	}
 	
 	@FXML
@@ -397,7 +248,7 @@ public class MainController
 		
 		configurationManager.saveUiProperties(
 				getLastWidth(), getLastHeight(), stage.isMaximized(), 
-				selectedPerspective, resizeMessagePaneMenu.isSelected());
+				viewManager.getPerspective(), resizeMessagePaneMenu.isSelected());
 		
 		System.exit(0);
 	}
@@ -407,12 +258,13 @@ public class MainController
 	 * 
 	 * @param selectedPerspective the selectedPerspective to set
 	 */
-	public void setSelectedPerspective(final SpyPerspective selectedPerspective)
+	public void updateSelectedPerspective(final SpyPerspective selectedPerspective)
 	{
-		this.selectedPerspective = selectedPerspective;
-		
 		switch (selectedPerspective)
 		{
+			case BASIC:
+				basicPerspective.setSelected(true);
+				break;
 			case DETAILED:
 				detailedPerspective.setSelected(true);
 				break;
@@ -426,6 +278,8 @@ public class MainController
 				defaultPerspective.setSelected(true);
 				break;		
 		}
+		
+		eventBus.publish(new NewPerspectiveSelectedEvent(selectedPerspective));
 	}
 
 	public TabPane getConnectionTabs()
@@ -455,64 +309,10 @@ public class MainController
 
 		if (selectedFile != null)
 		{
-			loadConfigurationFileAndShowErrorWhenApplicable(selectedFile);
+			eventBus.publish(new LoadConfigurationFileEvent(selectedFile));
+			// loadConfigurationFileOnRunLater(selectedFile);
 		}
 	}
-	
-	public void loadConfigurationFileAndShowErrorWhenApplicable(final File selectedFile)
-	{
-		Platform.runLater(new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				loadConfigurationFile(selectedFile);				
-			}
-			
-		});		
-	}
-	
-	
-	private void clear()
-	{
-		connectionManager.disconnectAndCloseAll();
-		
-		// Only re-initialise if it has been initialised already
-		if (editConnectionsController  != null)
-		{
-			initialiseEditConnectionsWindow();
-		}	
-	}
-	
-	private void loadConfigurationFile(final File selectedFile)
-	{
-		logger.info("Loading configuration file from " + selectedFile.getAbsolutePath());
-		
-		if (configurationManager.loadConfiguration(selectedFile))
-		{
-			clear();
-			controlPanelPaneController.refreshConnectionsStatus();
-			
-			// Process the connection settings		
-			for (final ConfiguredConnectionDetails connection : configurationManager.getConnections())
-			{
-				if (connection.isAutoOpen() != null && connection.isAutoOpen())
-				{					
-					try
-					{
-						connectionManager.openConnection(connection, this);
-					}
-					catch (ConfigurationException e)
-					{
-						// TODO: show warning dialog for invalid
-						logger.error("Cannot open conection {}", connection.getName(), e);
-					}
-				}
-			}			
-		}
-		
-		controlPanelPaneController.refreshConfigurationFileStatus();		
-	}		
 	
 	public void populateConnectionPanes(final UserInterfaceMqttConnectionDetails connectionDetails, final ConnectionController connectionController)
 	{
@@ -534,26 +334,12 @@ public class MainController
 			connectionController.getNewSubscriptionPaneController().recordSubscriptionTopic(subscriptionDetails.getTopic());
 		}
 	}
-
-	public void loadDefaultConfigurationFile()
-	{		
-		final File defaultConfigurationFile = ConfigurationManager.getDefaultConfigurationFile();
-		
-		logger.info("Default configuration file present (" + defaultConfigurationFile.getAbsolutePath() + ") = " + defaultConfigurationFile.exists());
-		
-		if (defaultConfigurationFile.exists())
-		{
-			loadConfigurationFileAndShowErrorWhenApplicable(defaultConfigurationFile);
-		}
-		else
-		{
-			configurationManager.initialiseConfiguration();
-		}
-	}
 	
 	@FXML
 	private void showPerspective()
 	{
+		final SpyPerspective selectedPerspective;
+		
 		if (spyPerspective.isSelected())
 		{
 			selectedPerspective = SpyPerspective.SPY;
@@ -566,41 +352,18 @@ public class MainController
 		{
 			selectedPerspective = SpyPerspective.DETAILED;
 		}
+		else if (basicPerspective.isSelected())
+		{
+			selectedPerspective = SpyPerspective.BASIC;
+		}
 		else
 		{
 			selectedPerspective = SpyPerspective.DEFAULT;
 		}
 		
-		for (final ConnectionController connectionController : connectionManager.getConnectionControllers())
-		{
-			showPerspective(connectionController);
-		}
-		
-		logger.debug("Selected perspective = " + selectedPerspective.toString());
+		eventBus.publish(new NewPerspectiveSelectedEvent(selectedPerspective));		
 	}
 	
-	public void showPerspective(final ConnectionController connectionController)
-	{
-		switch (selectedPerspective)
-		{
-			case DETAILED:
-				connectionController.showPanes(PaneVisibilityStatus.ATTACHED, PaneVisibilityStatus.ATTACHED, PaneVisibilityStatus.ATTACHED, PaneVisibilityStatus.ATTACHED);
-				connectionController.setDetailedViewVisibility(true);
-				break;
-			case SPY:
-				connectionController.showPanes(PaneVisibilityStatus.NOT_VISIBLE, PaneVisibilityStatus.NOT_VISIBLE, PaneVisibilityStatus.ATTACHED, PaneVisibilityStatus.ATTACHED);		
-				connectionController.setDetailedViewVisibility(false);
-				break;
-			case SUPER_SPY:
-				connectionController.showPanes(PaneVisibilityStatus.NOT_VISIBLE, PaneVisibilityStatus.NOT_VISIBLE, PaneVisibilityStatus.ATTACHED, PaneVisibilityStatus.ATTACHED);
-				connectionController.setDetailedViewVisibility(true);
-				break;
-			default:
-				connectionController.showPanes(PaneVisibilityStatus.ATTACHED, PaneVisibilityStatus.ATTACHED, PaneVisibilityStatus.ATTACHED, PaneVisibilityStatus.ATTACHED);
-				connectionController.setDetailedViewVisibility(false);
-				break;		
-		}
-	}
 	
 	@FXML
 	private void resizeMessagePane()
@@ -622,62 +385,54 @@ public class MainController
 	{
 		if (DialogUtils.showDefaultConfigurationFileMissingChoice("Restore defaults", mainPane.getScene().getWindow()))
 		{
-			loadConfigurationFileAndShowErrorWhenApplicable(ConfigurationManager.getDefaultConfigurationFile());			
+			eventBus.publish(new LoadConfigurationFileEvent(ConfigurationManager.getDefaultConfigurationFile()));
+			// loadConfigurationFileOnRunLater(ConfigurationManager.getDefaultConfigurationFile());			
 		}
 	}
 	
 	@FXML
 	private void showAbout()
 	{
-		if (aboutStage == null)
-		{
-			initialiseAboutWindow();
-		}
-		
-		aboutController.reloadVersionInfo();
-		aboutStage.show();		
+		eventBus.publish(new ShowAboutWindowEvent(getParentWindow()));					
 	}
 	
 	@FXML
 	private void openGettingInvolved()
 	{
-		application.getHostServices().showDocument("https://github.com/kamilfb/mqtt-spy/wiki/Getting-involved");
+		eventBus.publish(new ShowExternalWebPageEvent("https://github.com/kamilfb/mqtt-spy/wiki/Getting-involved"));
 	}
 
 	@FXML
 	private void overviewWiki()
 	{
-		application.getHostServices().showDocument("https://github.com/kamilfb/mqtt-spy/wiki/Overview");		
+		eventBus.publish(new ShowExternalWebPageEvent("https://github.com/kamilfb/mqtt-spy/wiki/Overview"));		
 	}
 	
 	@FXML
 	private void changelogWiki()
 	{
-		application.getHostServices().showDocument("https://github.com/kamilfb/mqtt-spy/wiki/Changelog");
+		eventBus.publish(new ShowExternalWebPageEvent("https://github.com/kamilfb/mqtt-spy/wiki/Changelog"));
 	}
 	
 	@FXML
 	private void scriptingWiki()
 	{
-		application.getHostServices().showDocument("https://github.com/kamilfb/mqtt-spy/wiki/Scripting");
+		eventBus.publish(new ShowExternalWebPageEvent("https://github.com/kamilfb/mqtt-spy/wiki/Scripting"));
 	}
 	
 	@FXML
 	private void messageSearchWiki()
 	{
-		application.getHostServices().showDocument("https://github.com/kamilfb/mqtt-spy/wiki/MessageSearch");
+		eventBus.publish(new ShowExternalWebPageEvent("https://github.com/kamilfb/mqtt-spy/wiki/MessageSearch"));
 	}
 	
 	@FXML
 	private void loggingWiki()
 	{
-		application.getHostServices().showDocument("https://github.com/kamilfb/mqtt-spy/wiki/Logging");
+		eventBus.publish(new ShowExternalWebPageEvent("https://github.com/kamilfb/mqtt-spy/wiki/Logging"));
 	}
 
-	public void setApplication(Application application)
-	{
-		this.application = application;
-	}
+	// *********************
 
 	public void setStage(Stage primaryStage)
 	{
@@ -707,6 +462,16 @@ public class MainController
 	public void setEventBus(final IKBus eventBus)
 	{
 		this.eventBus = eventBus;
+	}
+	
+	public void setConnectionManager(final ConnectionManager connectionManager)
+	{
+		this.connectionManager = connectionManager;		
+	}
+
+	public void setStatisticsManager(final StatisticsManager statisticsManager)
+	{
+		this.statisticsManager = statisticsManager;		
 	}
 
 	/**
@@ -754,8 +519,50 @@ public class MainController
 		return resizeMessagePaneMenu;
 	}
 
-	public Stage getEditConnectionsStage()
+	public void setViewManager(final ViewManager viewManager)
 	{
-		return editConnectionsStage;
+		this.viewManager = viewManager;		
+	}
+
+	public void setVersionManager(final VersionManager versionManager)
+	{
+		this.versionManager = versionManager;		
+	}
+
+	/**
+	 * @return the newConnectionMenu
+	 */
+	public MenuItem getNewConnectionMenu()
+	{
+		return newConnectionMenu;
+	}
+
+	/**
+	 * @param newConnectionMenu the newConnectionMenu to set
+	 */
+	public void setNewConnectionMenu(MenuItem newConnectionMenu)
+	{
+		this.newConnectionMenu = newConnectionMenu;
+	}
+
+	/**
+	 * @return the editConnectionsMenu
+	 */
+	public MenuItem getEditConnectionsMenu()
+	{
+		return editConnectionsMenu;
+	}
+
+	/**
+	 * @param editConnectionsMenu the editConnectionsMenu to set
+	 */
+	public void setEditConnectionsMenu(MenuItem editConnectionsMenu)
+	{
+		this.editConnectionsMenu = editConnectionsMenu;
+	}
+
+	public MenuItem getNewSubuscriptionMenu()
+	{
+		return newSubscriptionMenu;
 	}
 }

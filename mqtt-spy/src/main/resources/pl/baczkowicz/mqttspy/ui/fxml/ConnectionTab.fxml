@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <!--
 /***********************************************************************************
  * 
@@ -20,20 +21,21 @@
  *    
  */
 -->
-<?import javafx.scene.shape.*?>
-<?import javafx.geometry.*?>
-<?import javafx.scene.text.*?>
-<?import javafx.scene.control.*?>
-<?import java.lang.*?>
-<?import javafx.scene.layout.*?>
-<?import javafx.collections.*?>
-<?import javafx.scene.control.ComboBox?>
-<?import javafx.scene.control.ContextMenu?>
 
-<AnchorPane fx:id="connectionPane" prefHeight="640.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.baczkowicz.mqttspy.ui.ConnectionController">
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.image.*?>
+
+<AnchorPane fx:id="connectionPane" prefHeight="640.0" xmlns="http://javafx.com/javafx/8.0.66" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.baczkowicz.mqttspy.ui.ConnectionController">
 	<children>
-      <SplitPane fx:id="splitPane" dividerPositions="0.5, 0.5" orientation="VERTICAL" prefHeight="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <SplitPane fx:id="splitPane" dividerPositions="0.5" orientation="VERTICAL" prefHeight="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <items>
+
             <TitledPane fx:id="publishMessageTitledPane" alignment="TOP_LEFT" animated="false" text="Publish message" SplitPane.resizableWithParent="false">
                <content>
 					<fx:include fx:id="newPublicationPane" source="NewPublicationPane.fxml" />			
@@ -48,7 +50,7 @@
                     <fx:include fx:id="publicationScriptsPane" source="PublicationScriptsPane.fxml" />		
                </content>
             </TitledPane>
-            
+          
             <!--  
             <TitledPane fx:id="testCasesTitledPane" alignment="TOP_LEFT" animated="false" text="Test cases" SplitPane.resizableWithParent="false">
                <content>               
@@ -66,9 +68,26 @@
             <TitledPane fx:id="subscriptionsTitledPane" alignment="TOP_LEFT" animated="false" text="Subscriptions and received messages">
               <content>
                  <AnchorPane minHeight="250.0" prefHeight="1000.0">
-                     <padding><Insets top="6" right="6" bottom="3" left="6" /></padding>
+                     <padding><Insets bottom="3" left="6" right="6" top="6" /></padding>
                      <children> 
-   						<TabPane fx:id="subscriptionTabs" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+   						<TabPane fx:id="subscriptionTabs" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+   							<tabs>
+   							<!-- 
+   								<Tab fx:id="newSubTab" disable="true" text="">   									
+   								</Tab>
+   								 -->
+   							</tabs>
+   							
+   						</TabPane>
+                        <Button fx:id="newSubButton" focusTraversable="false" maxHeight="27" maxWidth="80" minHeight="27" minWidth="80" mnemonicParsing="false" prefHeight="27" prefWidth="80" text="New" AnchorPane.leftAnchor="5.0" AnchorPane.topAnchor="5.0">
+                        	<graphic>
+					      		<ImageView fitHeight="24.0" fitWidth="24.0" pickOnBounds="true">
+							         <image>
+							            <Image url="/images/tab-new.png"/>
+							         </image>
+							      </ImageView>
+					      	</graphic>					      	
+                        </Button>   							
                      </children>
                   </AnchorPane>
               </content>

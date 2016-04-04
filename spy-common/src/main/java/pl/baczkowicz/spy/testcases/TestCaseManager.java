@@ -80,12 +80,10 @@ public class TestCaseManager
 		final ScriptDetails scriptDetails = new ScriptDetails();					
 		scriptDetails.setFile(scriptFile.getAbsolutePath());
 		scriptDetails.setRepeat(false);
-							
-		final String scriptName = BaseScriptManager.getScriptName(scriptFile);
 		
 		final TestCase testCase = new TestCase();
 				
-		scriptManager.createFileBasedScript(testCase, scriptName, scriptFile, scriptDetails);
+		scriptManager.createFileBasedScript(testCase, scriptFile, scriptDetails);
 		
 		try
 		{	
@@ -198,7 +196,7 @@ public class TestCaseManager
 		// Before
 		if (!scriptManager.invokeBefore(testCase))
 		{
-			testCase.setStatus(ScriptRunningState.FAILED);					
+			testCase.setStatusAndNotify(ScriptRunningState.FAILED);					
 		}
 		
 		// Test steps
@@ -207,7 +205,7 @@ public class TestCaseManager
 		// After
 		if (!scriptManager.invokeAfter(testCase))
 		{
-			testCase.setStatus(ScriptRunningState.FAILED);					
+			testCase.setStatusAndNotify(ScriptRunningState.FAILED);					
 		}
 		
 		final TestCaseStepResult testCaseStatus = lastResult;
@@ -219,7 +217,7 @@ public class TestCaseManager
 		else
 		{
 			testCase.setTestCaseStatus(testCaseStatus.getStatus());
-			testCase.setStatus(ScriptRunningState.FINISHED);
+			testCase.setStatusAndNotify(ScriptRunningState.FINISHED);
 		}
 		
 		testCase.getTestCaseResult().setInfo(testCase.getInfo());
@@ -239,7 +237,7 @@ public class TestCaseManager
 	
 	public void runTestCase(final TestCase testCase, final Map<String, Object> args)
 	{				
-		testCase.setStatus(ScriptRunningState.RUNNING);
+		testCase.setStatusAndNotify(ScriptRunningState.RUNNING);
 		testCase.setTestCaseStatus(TestCaseStatus.IN_PROGRESS);
 		
 		// Set test case args
@@ -290,7 +288,7 @@ public class TestCaseManager
 
 	public void stopTestCase(final TestCase testCase)
 	{
-		testCase.setStatus(ScriptRunningState.STOPPED);		
+		testCase.setStatusAndNotify(ScriptRunningState.STOPPED);		
 		
 		final TestCaseStep step = testCase.getSteps().get(testCase.getCurrentStep());
 		

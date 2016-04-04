@@ -28,6 +28,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.collections.*?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.control.SeparatorMenuItem?>
 
 <AnchorPane prefHeight="282.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.baczkowicz.mqttspy.ui.SubscriptionController">
 	<children>
@@ -55,20 +56,33 @@
 				      </ImageView>
 		      	</graphic>
         		<items>
+        			<!-- 
         			<Menu fx:id="formatterMenu" mnemonicParsing="false" text="Convert whole message">
 		               <items>
+		                -->
 		                  <RadioMenuItem mnemonicParsing="false" selected="true" text="Plain">
 		                     <toggleGroup>
 		                        <ToggleGroup fx:id="wholeMessageFormat" />
 		                     </toggleGroup>
 		                  </RadioMenuItem>
+		                  <SeparatorMenuItem />
 		                  <RadioMenuItem mnemonicParsing="false" text="Hex decoder" toggleGroup="$wholeMessageFormat" />
 		                  <RadioMenuItem mnemonicParsing="false" text="Hex encoder" toggleGroup="$wholeMessageFormat" />
 		                  <RadioMenuItem mnemonicParsing="false" text="Base64 decoder" toggleGroup="$wholeMessageFormat" />
 		                  <RadioMenuItem mnemonicParsing="false" text="Base64 encoder" toggleGroup="$wholeMessageFormat" />
-		                  <Menu fx:id="customFormatterMenu" disable="true" mnemonicParsing="false" text="Custom" /> 
+		                  <SeparatorMenuItem />
+		                  <RadioMenuItem mnemonicParsing="false" text="Pretty JSON" toggleGroup="$wholeMessageFormat" />
+		                  <RadioMenuItem mnemonicParsing="false" text="Pretty XML" toggleGroup="$wholeMessageFormat" />
+		                  <SeparatorMenuItem />
+		                  <RadioMenuItem mnemonicParsing="false" text="Eclipse Kura" toggleGroup="$wholeMessageFormat" />
+		                  <SeparatorMenuItem />
+		                  <Menu fx:id="customFormatterMenu" disable="true" mnemonicParsing="false" text="Custom" />
+		                  <MenuItem mnemonicParsing="false" text="Formatters..." onAction="#editFormatters" />
+		                  <!--  
 		               </items>
 		            </Menu>
+		             -->
+		            <!-- 
 		            <Menu mnemonicParsing="false" text="Convert selection only">
 		               <items>
 		                  <RadioMenuItem mnemonicParsing="false" selected="true" text="Off">
@@ -84,7 +98,8 @@
 		                  <RadioMenuItem mnemonicParsing="false" text="Base64 encoder" toggleGroup="$selectionFormat" />
 		                  <Menu fx:id="customFormatterMenu1" disable="true" mnemonicParsing="false" text="Custom" />
 		               </items>
-		            </Menu>		            
+		            </Menu>
+		             -->		            
         		</items>
         	</Menu>        
         	
@@ -170,10 +185,7 @@
       <!-- dividerPositions="0.5, 0.5"  -->
       <SplitPane fx:id="splitPane" layoutX="11.0" layoutY="45.0" orientation="VERTICAL" prefHeight="229.0" AnchorPane.bottomAnchor="-1.0" AnchorPane.leftAnchor="-1.0" AnchorPane.rightAnchor="-1.0" AnchorPane.topAnchor="40.0">
          <items>
-         <!-- -->
-         <!-- prefHeight="1000.0" --> 
          	<fx:include fx:id="messagePane" prefHeight="85" source="MessagePane.fxml" />
-         	 <!-- maxHeight="1000.0" prefHeight="1000.0" SplitPane.resizableWithParent="false" -->
             <TitledPane fx:id="summaryTitledPane"  prefHeight="800.0" alignment="TOP_LEFT" animated="false" minHeight="26.0" text="Received messages summary">
               <content>
               		<!-- prefHeight="100"  -->

@@ -35,6 +35,8 @@ public abstract class FormattedMessage extends BaseMessage
 	
 	private String formattedPayload;
 
+	private String prettyPayload;
+
 	public FormattedMessage(final long id, final String topic)
 	{
 		super(id, topic);
@@ -76,4 +78,14 @@ public abstract class FormattedMessage extends BaseMessage
 	}
 	
 	public abstract byte[] getRawBinaryPayload();
+
+	public void setPrettyPayload(final String prettyPayload)
+	{
+		this.prettyPayload = prettyPayload;		
+	}
+	
+	public String getPrettyPayload()
+	{
+		return prettyPayload;
+	}
 }

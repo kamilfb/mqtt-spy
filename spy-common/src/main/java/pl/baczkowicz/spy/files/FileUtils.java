@@ -33,10 +33,12 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.spy.exceptions.SpyException;
+import pl.baczkowicz.spy.utils.ConversionUtils;
 
 /** 
  * File-related utilities.
@@ -71,8 +73,8 @@ public class FileUtils
 		
 		return files;
 	}
-	
-	public static List<File> getFileNamesForDirectory(final String directory, final String extension)
+
+	public static List<File> getFileNamesForDirectory(final String directory, final boolean recursive, final String extension)
 	{
 		final List<File> files = new ArrayList<File>();
 		
@@ -90,14 +92,24 @@ public class FileUtils
 						files.add(listOfFiles[i]);
 					}
 				}
+				else if (recursive)
+				{
+					files.addAll(getFileNamesForDirectory(listOfFiles[i].getAbsolutePath(), recursive, extension));
+				}
 			}
 		}
-		else
+		
+		if (files.isEmpty())
 		{
 			logger.error("No files in {}", directory);
 		}
 		
 		return files;
+	}
+	
+	public static List<File> getFileNamesForDirectory(final String directory, final String extension)
+	{
+		return getFileNamesForDirectory(directory, false, extension);
 	}
 	
 	public static void writeToFile(final File file, final String value)
@@ -145,6 +157,30 @@ public class FileUtils
 			logger.debug("File {} not found on classpath", filename);
 			return null;
 		}
+	}
+	
+	public static String loadFileByNameAsString(final String filename) throws IOException
+	{
+		final InputStream is = loadFileByName(filename);
+		
+		if (is != null)
+		{
+			return IOUtils.toString(is);
+		}
+		
+		return null;
+	}
+	
+	public static String loadFileByNameBase64Encoded(final String filename) throws IOException
+	{
+		final String fileContent = loadFileByNameAsString(filename);
+		
+		if (fileContent != null)
+		{
+			return ConversionUtils.stringToBase64(fileContent);
+		}
+		
+		return null;
 	}
 	
 	/**

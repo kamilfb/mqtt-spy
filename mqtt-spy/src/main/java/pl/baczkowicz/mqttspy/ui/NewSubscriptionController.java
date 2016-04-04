@@ -36,6 +36,7 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuButton;
 import javafx.scene.control.TitledPane;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
@@ -46,12 +47,14 @@ import org.slf4j.LoggerFactory;
 import pl.baczkowicz.mqttspy.configuration.generated.TabbedSubscriptionDetails;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.ui.connections.ConnectionManager;
+import pl.baczkowicz.mqttspy.ui.events.ShowNewSubscriptionWindowEvent;
+import pl.baczkowicz.mqttspy.utils.MqttUtils;
+import pl.baczkowicz.spy.eventbus.IKBus;
+import pl.baczkowicz.spy.exceptions.SpyException;
 import pl.baczkowicz.spy.ui.keyboard.TimeBasedKeyEventFilter;
 import pl.baczkowicz.spy.ui.panes.PaneVisibilityStatus;
 import pl.baczkowicz.spy.ui.panes.TitledPaneController;
 import pl.baczkowicz.spy.ui.utils.DialogFactory;
-import pl.baczkowicz.mqttspy.utils.MqttUtils;
-import pl.baczkowicz.spy.exceptions.SpyException;
 
 /**
  * Controller for creating new subscriptions.
@@ -97,6 +100,14 @@ public class NewSubscriptionController implements Initializable, TitledPaneContr
 
 	private MenuButton settingsButton;
 
+	private PaneVisibilityStatus status;
+	
+	private PaneVisibilityStatus previousStatus;
+	
+	private IKBus eventBus;
+
+	private Label titleLabel;
+
 	public NewSubscriptionController()
 	{
 		// TODO: subscription colors - move that to a property file
@@ -131,16 +142,16 @@ public class NewSubscriptionController implements Initializable, TitledPaneContr
 		subscriptionTopicText.addEventFilter(KeyEvent.KEY_RELEASED, new EventHandler<KeyEvent>() 
 		{
 	        @Override
-	        public void handle(KeyEvent keyEvent) 
+	        public void handle(KeyEvent event) 
 	        {
-	        	switch (keyEvent.getCode())
+	        	switch (event.getCode())
 	        	{
 		        	case ENTER:
 		        	{
-		        		if (connected && timeBasedFilter.processEvent(keyEvent))
+		        		if (connected && timeBasedFilter.processEvent(event))
 			        	{
-		        			subscribe();
-		    	        	keyEvent.consume();
+		        			onSubscribe(event.isControlDown());		        			
+		    	        	event.consume();
 		        		}
 		        		break;
 		        	}		        	
@@ -150,41 +161,73 @@ public class NewSubscriptionController implements Initializable, TitledPaneContr
 	        }
 	    });	
 		
-		// Workaround for bug in JRE 8 Update 60-66 (https://bugs.openjdk.java.net/browse/JDK-8136838)
-		subscriptionTopicText.getEditor().focusedProperty().addListener((obs, old, isFocused) -> 
-		{ 
-            if (!isFocused) 
-            { 
-            	//subscriptionTopicText.setValue(subscriptionTopicText.getConverter().fromString(subscriptionTopicText.getEditor().getText())); 
-            } 
-        }); 
+//		subscribeButton.setOnMouseClicked(new EventHandler<MouseEvent>()
+//		{
+//			@Override
+//			public void handle(final MouseEvent event)
+//			{
+//				if (connected && timeBasedFilter.processEvent(event))
+//				{
+//					onSubscribe(event.isControlDown());	
+//					event.consume();
+//				}
+//			}
+//		});
+	}
+	
+	@FXML
+	private void onSubscribe()
+	{
+		onSubscribe(false);
+	}
+	
+	private void onSubscribe(final boolean controlDown)
+	{
+		logger.debug("onSubscribe() {} {}", controlDown, status);
+		
+		if (PaneVisibilityStatus.DETACHED.equals(status))
+		{
+			subscribe();
+			
+			if (!controlDown)
+			{
+				eventBus.publish(new ShowNewSubscriptionWindowEvent(connectionController, previousStatus, PaneVisibilityStatus.DETACHED));
+			}
+		}
+		else
+		{
+			subscribe();
+		}
 	}
 	
 	public void init()
 	{
+		titleLabel = new Label(pane.getText());
 		paneTitle = new AnchorPane();
-		settingsButton = NewPublicationController.createTitleButtons(pane, paneTitle, connectionController);
+		settingsButton = ViewManager.createTitleButtons(this, paneTitle, connectionController);
 	}
 	
 	private void updateVisibility()
 	{
 		if (detailedView)
 		{
-			AnchorPane.setRightAnchor(subscriptionTopicText, 327.0);
+			AnchorPane.setRightAnchor(subscriptionTopicText, 262.0);
 			subscriptionQosChoice.setVisible(true);
 			subscriptionQosLabel.setVisible(true);
 		}
 		else
 		{
-			AnchorPane.setRightAnchor(subscriptionTopicText, 244.0);
+			AnchorPane.setRightAnchor(subscriptionTopicText, 179.0);
 			subscriptionQosChoice.setVisible(false);
 			subscriptionQosLabel.setVisible(false);
 		}
+		
+		// TODO: basic perspective
 	}
 	
-	public void setDetailedViewVisibility(final boolean visible)
+	public void setViewVisibility(final boolean detailedView)
 	{
-		detailedView = visible;
+		this.detailedView = detailedView;
 		updateVisibility();
 	}
 	
@@ -208,12 +251,13 @@ public class NewSubscriptionController implements Initializable, TitledPaneContr
 	
 	@FXML
 	public void subscribe()
-	{
+	{		
 		// Note: here using the editor, as the value stored directly in the ComboBox might
 		// not be committed yet, whereas the editor (TextField) has got the current text in it
 		
-		// Note: this is also a workaround for bug in JRE 8 Update 60-66 (https://bugs.openjdk.java.net/browse/JDK-8136838)
+		// Note: this is also a workaround for bug in JRE 8 Update 60-66 (https://bugs.openjdk.java.net/browse/JDK-8136838)		
 		final String subscriptionTopic = subscriptionTopicText.getEditor().getText();
+		logger.debug("subscribe() to {}", subscriptionTopic);
 		
 		if (subscriptionTopic != null)
 		{			
@@ -256,6 +300,37 @@ public class NewSubscriptionController implements Initializable, TitledPaneContr
 			DialogFactory.createErrorDialog("Duplicate topic", "You already have a subscription tab with " + subscriptionDetails.getTopic() + " topic.");
 		}
 	}
+
+	@Override
+	public void updatePane(final PaneVisibilityStatus status)
+	{
+		this.status = status;
+		if (PaneVisibilityStatus.ATTACHED.equals(status))
+		{
+			settingsButton.setVisible(true);
+			titleLabel.setText("Define new subscription"); 
+		}		
+		else
+		{			
+			settingsButton.setVisible(false);
+			titleLabel.setText("After typing the value, hit Enter or click Subscribe; hold Control to keep the window");			
+		}
+	}
+	
+	public void requestFocus()
+	{
+		// Bring to front
+		if (status.equals(PaneVisibilityStatus.DETACHED))
+		{
+			connectionController.getPaneToStatusMapping().get(pane).getParentWhenDetached().toFront();
+		}
+		
+		pane.requestFocus();
+		subscriptionTopicText.requestFocus();
+		
+		// Select all text, so it's easier to edit
+		subscriptionTopicText.fireEvent(new KeyEvent(this, subscriptionTopicText, KeyEvent.KEY_PRESSED, "", "", KeyCode.A, false, true, false, false));
+	}
 	
 	public void setConnectionManager(final ConnectionManager connectionManager)
 	{
@@ -284,16 +359,24 @@ public class NewSubscriptionController implements Initializable, TitledPaneContr
 		this.pane = pane;
 	}
 	
-	@Override
-	public void updatePane(PaneVisibilityStatus status)
+	/**
+	 * Sets the event bus.
+	 *  
+	 * @param eventBus the eventBus to set
+	 */
+	public void setEventBus(final IKBus eventBus)
 	{
-		if (PaneVisibilityStatus.ATTACHED.equals(status))
-		{
-			settingsButton.setVisible(true);
-		}		
-		else
-		{
-			settingsButton.setVisible(false);
-		}
+		this.eventBus = eventBus;
+	}
+
+	@Override
+	public Label getTitleLabel()
+	{
+		return titleLabel;
+	}
+
+	public void setPreviousStatus(PaneVisibilityStatus previousStatus)
+	{
+		this.previousStatus = previousStatus;		
 	}
 }

@@ -63,14 +63,6 @@
 		</xs:sequence>
 	</xs:complexType>	
 	
-	<xs:simpleType name="ProtocolEnum">
-		<xs:restriction base="xs:string">
-			<xs:enumeration value="MQTT" />
-			<xs:enumeration value="JMS" />
-			<xs:enumeration value="STOMP" />
-		</xs:restriction>
-	</xs:simpleType>	
-	
 	<xs:simpleType name="SecureSocketModeEnum">
 		<xs:restriction base="xs:string">
 			<xs:enumeration value="DISABLED" />
@@ -157,6 +149,7 @@
 		<xs:sequence>
 			<xs:element name="Name" type="xs:string" />
 			<xs:element name="ID" type="xs:ID" />
+			<xs:element name="Description" type="xs:string" minOccurs="0" />
 			
 			<!-- Functions are executed in the order they are defined, so it is possible to perform multiple formatting functions -->
 			<xs:element name="Function" type="spycommon:FormatterFunction" minOccurs="1" maxOccurs="unbounded" />		
