@@ -543,7 +543,7 @@ public class NewPublicationController implements Initializable, TitledPaneContro
 		}
 	}
 	
-	public BaseMqttMessage readMessage(final boolean verify, final boolean ignoreErrors)
+	public BaseMqttMessage readMessage(final boolean verify, final boolean ignoreConversionErrors)
 	{
 		// Note: here using the editor, as the value stored directly in the ComboBox might
 		// not be committed yet, whereas the editor (TextField) has got the current text in it
@@ -585,7 +585,7 @@ public class NewPublicationController implements Initializable, TitledPaneContro
 		}
 		catch (ConversionException e)
 		{
-			if (!ignoreErrors)
+			if (!ignoreConversionErrors)
 			{
 				showAndLogHexError();
 			}
@@ -596,17 +596,18 @@ public class NewPublicationController implements Initializable, TitledPaneContro
 	@FXML
 	public void publish()
 	{						
-		final BaseMqttMessage message = readMessage(true, false);
+		final Script script = (Script) publishScript.getSelectedToggle().getUserData();
 		
+		final boolean defaultPublication = (script == null); 
+		
+		final BaseMqttMessage message = readMessage(defaultPublication, false);
 		if (message != null)
-		{
+		{				
 			recordMessage(message);
 			
-			final Script script = (Script) publishScript.getSelectedToggle().getUserData();
-					
-			if (script == null)
+			if (defaultPublication)
 			{			
-				logger.debug("Publishing with no script");
+				logger.debug("Publishing (no script)");
 				// This requires a proper byte[] to be passed, to be sure the encoding/format is not broken
 				connection.publish(message.getTopic(), message.getRawMessage().getPayload(), message.getQoS(), message.isRetained());
 			
