@@ -169,7 +169,7 @@ public class ViewManager
 		aboutStage.initModality(Modality.WINDOW_MODAL);
 		aboutStage.initOwner(parentWindow);
 		aboutStage.setScene(scene);
-	}	
+	}
 
 	private void initialiseTestCasesWindow(final Window parentWindow)
 	{

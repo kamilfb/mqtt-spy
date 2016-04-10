@@ -36,8 +36,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
-import javax.imageio.ImageIO;
-
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -47,6 +45,7 @@ import javafx.embed.swing.SwingFXUtils;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Pos;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
@@ -62,8 +61,15 @@ import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuButton;
+import javafx.scene.control.TableCell;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableColumn.CellEditEvent;
+import javafx.scene.control.TableView;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.Tooltip;
+import javafx.scene.control.cell.CheckBoxTableCell;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
@@ -72,20 +78,29 @@ import javafx.stage.FileChooser;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
 
+import javax.imageio.ImageIO;
+
 import org.gillius.jfxutils.chart.ChartPanManager;
 import org.gillius.jfxutils.chart.JFXChartUtil;
 import org.gillius.jfxutils.chart.StableTicksAxis;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.jayway.jsonpath.JsonPath;
 
 import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
 import pl.baczkowicz.mqttspy.ui.charts.ChartMode;
 import pl.baczkowicz.mqttspy.ui.utils.StylingUtils;
 import pl.baczkowicz.spy.eventbus.IKBus;
 import pl.baczkowicz.spy.messages.FormattedMessage;
+import pl.baczkowicz.spy.ui.charts.ChartSeriesTypeEnum;
 import pl.baczkowicz.spy.ui.events.MessageAddedEvent;
 import pl.baczkowicz.spy.ui.events.queuable.ui.BrowseReceivedMessageEvent;
+import pl.baczkowicz.spy.ui.properties.ChartSeriesProperties;
 import pl.baczkowicz.spy.ui.properties.MessageLimitProperties;
+import pl.baczkowicz.spy.ui.properties.SubscriptionTopicSummaryProperties;
 import pl.baczkowicz.spy.ui.storage.BasicMessageStoreWithSummary;
 import pl.baczkowicz.spy.ui.utils.DialogFactory;
 import pl.baczkowicz.spy.utils.TimeUtils;
@@ -138,6 +153,30 @@ public class LineChartPaneController<T extends FormattedMessage> implements Init
 	@FXML
 	private Menu autoImageExport;
 	
+	@FXML
+	private Button addSeriesButton;
+	
+	@FXML
+	private Button removeSeriesButton;
+	
+	@FXML
+	private TableView<ChartSeriesProperties> seriesTable;
+	
+	@FXML
+	private TableColumn<ChartSeriesProperties, String> nameColumn;
+	
+	@FXML
+	private TableColumn<ChartSeriesProperties, String> topicColumn;
+	
+	@FXML
+	private TableColumn<ChartSeriesProperties, ChartSeriesTypeEnum> typeColumn;
+	
+	@FXML
+	private TableColumn<ChartSeriesProperties, String> expressionColumn;	
+	
+	@FXML
+	private TableColumn<ChartSeriesProperties, Boolean> visibleColumn;
+	
 	private BasicMessageStoreWithSummary<T> store;
 	
 	private IKBus eventBus;
@@ -169,6 +208,8 @@ public class LineChartPaneController<T extends FormattedMessage> implements Init
 	private Integer exportInterval;
 
 	private boolean addTimestampOnAutoExport;
+
+	private Map<String, ChartSeriesProperties> seriesList = new HashMap<>();
 	
 	/**
 	 * @param seriesValueName the seriesValueName to set
@@ -234,6 +275,120 @@ public class LineChartPaneController<T extends FormattedMessage> implements Init
 		});
         yAxis.setForceZeroInRange(false);
 		lineChart = new LineChart<>(xAxis, yAxis);
+		
+		// Set up table
+		nameColumn.setCellValueFactory(new PropertyValueFactory<ChartSeriesProperties, String>("name"));
+		nameColumn.setCellFactory(TextFieldTableCell.<ChartSeriesProperties>forTableColumn());
+		nameColumn.setOnEditCommit(new EventHandler<TableColumn.CellEditEvent<ChartSeriesProperties, String>>()
+		{
+			@Override
+			public void handle(CellEditEvent<ChartSeriesProperties, String> event)
+			{
+				final ChartSeriesProperties item = event.getRowValue();
+				final String newValue = event.getNewValue();
+				
+				item.nameProperty().set(newValue);
+				
+				refresh();
+			}		
+		});
+		
+		topicColumn.setCellValueFactory(new PropertyValueFactory<ChartSeriesProperties, String>("topic"));
+		topicColumn.setCellFactory(new Callback<TableColumn<ChartSeriesProperties, String>, TableCell<ChartSeriesProperties, String>>()
+		{
+			public TableCell<ChartSeriesProperties, String> call(
+					TableColumn<ChartSeriesProperties, String> p)
+			{
+				final TableCell<ChartSeriesProperties, String> cell = new TableCell<ChartSeriesProperties, String>()
+				{
+					@Override
+					public void updateItem(final String item, boolean empty)
+					{
+						super.updateItem(item, empty);	
+						
+						if (item != null)
+						{
+							this.setText(item.toString());
+						}
+						else
+						{
+							this.setText(null);
+						}
+					}
+				};
+				//cell.setAlignment(Pos.CENTER);
+				return cell;
+			}
+		});
+
+		typeColumn.setCellValueFactory(new PropertyValueFactory<ChartSeriesProperties, ChartSeriesTypeEnum>("type"));
+		typeColumn.setCellFactory(new Callback<TableColumn<ChartSeriesProperties, ChartSeriesTypeEnum>, TableCell<ChartSeriesProperties, ChartSeriesTypeEnum>>()
+		{
+			public TableCell<ChartSeriesProperties, ChartSeriesTypeEnum> call(
+					TableColumn<ChartSeriesProperties, ChartSeriesTypeEnum> p)
+			{
+				final TableCell<ChartSeriesProperties, ChartSeriesTypeEnum> cell = new TableCell<ChartSeriesProperties, ChartSeriesTypeEnum>()
+				{
+					@Override
+					public void updateItem(final ChartSeriesTypeEnum item, boolean empty)
+					{
+						super.updateItem(item, empty);			
+						
+						if (item != null)
+						{
+							this.setText(item.toString());
+						}
+						else
+						{
+							this.setText(null);
+						}
+					}
+				};
+				cell.setAlignment(Pos.CENTER);
+				return cell;
+			}
+		});
+		
+		expressionColumn.setCellValueFactory(new PropertyValueFactory<ChartSeriesProperties, String>("valueExpression"));
+		expressionColumn.setCellFactory(TextFieldTableCell.<ChartSeriesProperties>forTableColumn());
+		expressionColumn.setOnEditCommit(new EventHandler<TableColumn.CellEditEvent<ChartSeriesProperties, String>>()
+				{
+					@Override
+					public void handle(CellEditEvent<ChartSeriesProperties, String> event)
+					{						
+			            final String newValue = event.getNewValue();
+			            			            
+						// TODO	
+					}		
+				});
+		
+		visibleColumn.setCellValueFactory(new PropertyValueFactory<ChartSeriesProperties, Boolean>("visible"));
+		visibleColumn.setCellFactory(new Callback<TableColumn<ChartSeriesProperties, Boolean>, TableCell<ChartSeriesProperties, Boolean>>()
+		{
+			public TableCell<ChartSeriesProperties, Boolean> call(
+					TableColumn<ChartSeriesProperties, Boolean> param)
+			{
+				final CheckBoxTableCell<ChartSeriesProperties, Boolean> cell = new CheckBoxTableCell<ChartSeriesProperties, Boolean>()
+				{
+					@Override
+					public void updateItem(final Boolean checked, boolean empty)
+					{
+						super.updateItem(checked, empty);
+						if (!isEmpty() && checked != null && this.getTableRow() != null && this.getTableRow().getItem() != null && store != null)
+						{
+							final ChartSeriesProperties item = (ChartSeriesProperties) this.getTableRow().getItem();
+							item.visibleProperty().set(checked);
+
+							refresh();
+						}									
+					}
+				};
+				cell.setAlignment(Pos.TOP_CENTER);
+				
+				return cell;
+			}
+		});
+		
 	}		
 
 	public void init()
@@ -436,14 +591,33 @@ public class LineChartPaneController<T extends FormattedMessage> implements Init
 		lineChart.setAnimated(true);
 	}
 	
+	@FXML
+	private void removeSeries()
+	{
+		
+	}
+	
+	@FXML
+	private void addSeries()
+	{
+		
+	}
+	
 	private XYChart.Data<Number, Number> createDataObject(final FormattedMessage message)
 	{
-		if (ChartMode.USER_DRIVEN_MSG_PAYLOAD.equals(chartMode))
+		final ChartSeriesProperties seriesProperties = seriesList.get(message.getTopic()); 
+
+		if (ChartSeriesTypeEnum.PAYLOAD_PLAIN.equals(seriesProperties.typeProperty().get()))			
 		{
 			final Double value = Double.valueOf(message.getFormattedPayload());
 			return new XYChart.Data<Number, Number>(message.getDate().getTime(), value);	
 		}
-		else if (ChartMode.USER_DRIVEN_MSG_SIZE.equals(chartMode))
+		else if (ChartSeriesTypeEnum.PAYLOAD_JSON.equals(seriesProperties.typeProperty().get()))			
+		{			
+			final Double value = JsonPath.read(message.getFormattedPayload(), seriesProperties.valueExpressionProperty().get());							
+			return new XYChart.Data<Number, Number>(message.getDate().getTime(), value);	
+		}
+		else if (ChartSeriesTypeEnum.SIZE.equals(seriesProperties.typeProperty().get()))
 		{
 			final Integer value = Integer.valueOf(message.getPayload().length());
 			return new XYChart.Data<Number, Number>(message.getDate().getTime(), value);	
@@ -617,15 +791,20 @@ public class LineChartPaneController<T extends FormattedMessage> implements Init
 			lineChart.setCreateSymbols(lastDisplaySymbols);
 			topicToSeries.clear();
 			
-			for (final String topic : topics)
+			for (final ChartSeriesProperties seriesProperties : seriesList.values())
 			{
+				if (!seriesProperties.visibleProperty().get())
+				{
+					continue;
+				}
+					
 				final List<FormattedMessage> extractedMessages = new ArrayList<>();
 				final Series<Number, Number> series = new XYChart.Series<>();
-				topicToSeries.put(topic, series);
-		        series.setName(topic);
+				topicToSeries.put(seriesProperties.getTopic(), series);
+		        series.setName(seriesProperties.getName());
 		        
 		        final MessageLimitProperties limit = showRangeBox.getValue();
-		        final int itemsAvailable = chartData.get(topic).size();
+		        final int itemsAvailable = chartData.get(seriesProperties.getTopic()).size();
 		        
 		        // Limit by number
 		        int startIndex = 0;	        
@@ -639,7 +818,7 @@ public class LineChartPaneController<T extends FormattedMessage> implements Init
 		        
 		        for (int i = startIndex; i < itemsAvailable; i++)
 		        {
-		        	final FormattedMessage message = chartData.get(topic).get(chartData.get(topic).size() - i - 1);
+		        	final FormattedMessage message = chartData.get(seriesProperties.getTopic()).get(chartData.get(seriesProperties.getTopic()).size() - i - 1);
 		        	
 		        	if (limit.getTimeLimit() > 0 && (message.getDate().getTime() + limit.getTimeLimit() < now.getTime()))
 		        	{
@@ -652,7 +831,7 @@ public class LineChartPaneController<T extends FormattedMessage> implements Init
 		        // logger.info("Populated = {}=?{}/{}", chartData.get(topic).size(), topicToSeries.get(topic).getData().size(), limit.getMessageLimit());
 				
 		        // For further processing, take only messages put on chart
-		        chartData.put(topic, extractedMessages);
+		        chartData.put(seriesProperties.getTopic(), extractedMessages);
 		        lineChart.getData().add(series);
 		        
 		        populateTooltips(lineChart);
@@ -797,9 +976,26 @@ public class LineChartPaneController<T extends FormattedMessage> implements Init
 	// === Setters and getters =======
 	// ===============================
 
-	public void setTopics(final Collection<String> topics)
+	public void initialiseSeries(final Collection<String> topics)
 	{
 		this.topics = topics;
+		
+		for (final String topic : topics)
+		{
+			ChartSeriesProperties series;
+			
+			if (ChartMode.USER_DRIVEN_MSG_PAYLOAD.equals(chartMode))
+			{
+				series = new ChartSeriesProperties(topic, topic, ChartSeriesTypeEnum.PAYLOAD_PLAIN, "");				
+			}
+			else
+			{
+				series = new ChartSeriesProperties(topic, topic, ChartSeriesTypeEnum.SIZE, "");				
+			}
+			
+			this.seriesTable.getItems().add(series);
+			seriesList.put(topic, series);
+		}		
 	}
 	
 	public void setSubscription(MqttSubscription subscription)

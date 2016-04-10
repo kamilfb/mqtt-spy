@@ -63,6 +63,14 @@
 			<version>1.7.7</version>
 		</dependency>
 		
+		<!--=== JSONPath === -->
+		
+		<dependency>
+		    <groupId>com.jayway.jsonpath</groupId>
+		    <artifactId>json-path</artifactId>
+		    <version>2.2.0</version>
+		</dependency>
+		
 		<!--=== SCHEMAS/JAXB === -->
 		
 	    <dependency>

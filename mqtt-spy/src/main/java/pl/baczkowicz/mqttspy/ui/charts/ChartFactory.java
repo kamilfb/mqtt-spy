@@ -52,8 +52,8 @@ public class ChartFactory<T extends FormattedMessage>
 		statsPaneController.setEventBus(eventBus);
 		statsPaneController.setStore(store);
 		statsPaneController.setSeriesTypeName(seriesType);
-		statsPaneController.setTopics(topics);
 		statsPaneController.setChartMode(mode);
+		statsPaneController.initialiseSeries(topics);
 		statsPaneController.setSeriesValueName(seriesValueName);
 		statsPaneController.setSeriesUnit(seriesUnit);
 		statsPaneController.init();
@@ -62,13 +62,13 @@ public class ChartFactory<T extends FormattedMessage>
 		scene.getStylesheets().addAll(parentScene.getStylesheets());		
 
 		final Stage statsPaneStage = new Stage();
-		statsPaneStage.setWidth(600);
-		statsPaneStage.setHeight(470);
+		statsPaneStage.setWidth(800);
+		statsPaneStage.setHeight(600);
 		statsPaneStage.setScene(scene);			       
 		statsPaneStage.setTitle(title);
 		statsPaneStage.show();
 		// Resize to get axis right
-		statsPaneStage.setHeight(480);
+		statsPaneStage.setHeight(610);
 		statsPaneStage.setOnCloseRequest(new EventHandler<WindowEvent>()
 		{
 			@Override

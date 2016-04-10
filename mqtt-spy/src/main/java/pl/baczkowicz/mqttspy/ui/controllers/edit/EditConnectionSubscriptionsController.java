@@ -19,6 +19,7 @@
  */
 package pl.baczkowicz.mqttspy.ui.controllers.edit;
 
+import java.io.File;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -53,6 +54,7 @@ import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnection
 import pl.baczkowicz.mqttspy.ui.EditConnectionController;
 import pl.baczkowicz.spy.ui.properties.BaseTopicProperty;
 import pl.baczkowicz.spy.ui.properties.SubscriptionTopicProperties;
+import pl.baczkowicz.spy.ui.utils.DialogFactory;
 
 /**
  * Controller for editing a single connection - subscriptions tab.
@@ -173,12 +175,28 @@ public class EditConnectionSubscriptionsController extends AnchorPane implements
 				{
 					@Override
 					public void handle(CellEditEvent<SubscriptionTopicProperties, String> event)
-					{
-						SubscriptionTopicProperties p = event.getRowValue();
-			            String newValue = event.getNewValue();
-			            p.scriptProperty().set(newValue);            
-						logger.debug("New value = {}", subscriptionsTable.getSelectionModel().getSelectedItem().scriptProperty().getValue());
-						onChange();
+					{						
+			            final String newValue = event.getNewValue();
+			            			            
+						final File scriptFile = new File(newValue);
+						
+						if (!newValue.isEmpty() && !scriptFile.exists())
+						{
+							// TODO: display path correctly
+							DialogFactory.createWarningDialog("File does not exist", "File " + scriptFile.getName() + " does not exist in " + scriptFile.getAbsolutePath() + "!");							
+							event.consume();
+							
+							// TODO: clear the content
+							subscriptionsTable.getSelectionModel().getSelectedItem().scriptProperty().setValue("");
+						}						
+						else
+						{
+							SubscriptionTopicProperties p = event.getRowValue();
+				            p.scriptProperty().set(newValue);            
+							logger.debug("New value = {}", subscriptionsTable.getSelectionModel().getSelectedItem().scriptProperty().getValue());
+						
+							onChange();
+						}						
 					}		
 				});
 		

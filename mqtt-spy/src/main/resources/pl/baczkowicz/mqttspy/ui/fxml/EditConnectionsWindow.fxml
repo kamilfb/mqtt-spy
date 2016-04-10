@@ -38,7 +38,7 @@
 <AnchorPane fx:id="editConnectionsWindow" minWidth="850.0" prefHeight="420" prefWidth="945.0" xmlns="http://javafx.com/javafx/8.0.66" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.baczkowicz.mqttspy.ui.EditConnectionsController">
    <children>
    	
-   	  <SplitPane dividerPositions="0.2" prefHeight="160.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+   	  <SplitPane styleClass="normal-font" dividerPositions="0.2" prefHeight="160.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <items>
 			<AnchorPane minWidth="340.0">
 			
@@ -141,12 +141,6 @@
       		</AnchorPane>
         </items>
       </SplitPane>   
-      
 
-   <!-- 
-      <Separator layoutX="340.0" layoutY="269.0" orientation="VERTICAL" prefHeight="90.0" prefWidth="5.0" AnchorPane.bottomAnchor="15.0" AnchorPane.rightAnchor="592.0" />
-       -->
-      
-      
    </children>
 </AnchorPane>
