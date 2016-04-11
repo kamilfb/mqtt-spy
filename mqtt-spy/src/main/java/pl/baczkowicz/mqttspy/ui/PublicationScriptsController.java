@@ -283,8 +283,7 @@ public class PublicationScriptsController implements Initializable, TitledPaneCo
 			}
 		});
 		
-		scriptTable
-			.setRowFactory(new Callback<TableView<PublicationScriptProperties>, TableRow<PublicationScriptProperties>>()
+		scriptTable.setRowFactory(new Callback<TableView<PublicationScriptProperties>, TableRow<PublicationScriptProperties>>()
 			{
 				public TableRow<PublicationScriptProperties> call(
 						TableView<PublicationScriptProperties> tableView)

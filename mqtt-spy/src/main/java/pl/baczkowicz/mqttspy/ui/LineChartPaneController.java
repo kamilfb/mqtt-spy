@@ -42,6 +42,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.embed.swing.SwingFXUtils;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -56,13 +57,16 @@ import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuButton;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableRow;
 import javafx.scene.control.TableColumn.CellEditEvent;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextInputDialog;
@@ -79,7 +83,12 @@ import javafx.util.Callback;
 import javafx.util.StringConverter;
 
 import javax.imageio.ImageIO;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 
+import org.apache.commons.io.IOUtils;
 import org.gillius.jfxutils.chart.ChartPanManager;
 import org.gillius.jfxutils.chart.JFXChartUtil;
 import org.gillius.jfxutils.chart.StableTicksAxis;
@@ -92,6 +101,8 @@ import com.jayway.jsonpath.JsonPath;
 
 import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
 import pl.baczkowicz.mqttspy.ui.charts.ChartMode;
+import pl.baczkowicz.mqttspy.ui.events.SaveChartSeriesEvent;
+import pl.baczkowicz.mqttspy.ui.events.ShowEditChartSeriesWindowEvent;
 import pl.baczkowicz.mqttspy.ui.utils.StylingUtils;
 import pl.baczkowicz.spy.eventbus.IKBus;
 import pl.baczkowicz.spy.messages.FormattedMessage;
@@ -100,6 +111,7 @@ import pl.baczkowicz.spy.ui.events.MessageAddedEvent;
 import pl.baczkowicz.spy.ui.events.queuable.ui.BrowseReceivedMessageEvent;
 import pl.baczkowicz.spy.ui.properties.ChartSeriesProperties;
 import pl.baczkowicz.spy.ui.properties.MessageLimitProperties;
+import pl.baczkowicz.spy.ui.properties.PublicationScriptProperties;
 import pl.baczkowicz.spy.ui.properties.SubscriptionTopicSummaryProperties;
 import pl.baczkowicz.spy.ui.storage.BasicMessageStoreWithSummary;
 import pl.baczkowicz.spy.ui.utils.DialogFactory;
@@ -116,6 +128,8 @@ public class LineChartPaneController<T extends FormattedMessage> implements Init
 	private static boolean lastAutoRefresh = true;
 	
 	private static boolean lastDisplaySymbols = true;
+	
+	private int lastSeriesId = 0;
 	
 	private static MessageLimitProperties lastMessageLimit 
 		= new MessageLimitProperties("50 messages", 50, 0);
@@ -336,7 +350,7 @@ public class LineChartPaneController<T extends FormattedMessage> implements Init
 						
 						if (item != null)
 						{
-							this.setText(item.toString());
+							this.setText(item.value());
 						}
 						else
 						{
@@ -389,6 +403,45 @@ public class LineChartPaneController<T extends FormattedMessage> implements Init
 			}
 		});
 		
+		seriesTable.setRowFactory(new Callback<TableView<ChartSeriesProperties>, TableRow<ChartSeriesProperties>>()
+		{
+			public TableRow<ChartSeriesProperties> call(
+					TableView<ChartSeriesProperties> tableView)
+			{
+				final TableRow<ChartSeriesProperties> row = new TableRow<ChartSeriesProperties>()					
+				{
+					@Override
+					protected void updateItem(final ChartSeriesProperties item, final boolean empty)
+					{
+						super.updateItem(item, empty);
+						if (!isEmpty() && item != null)
+						{
+							final MenuItem editMenu = new MenuItem("Edit..."); 
+							editMenu.setOnAction(new EventHandler<ActionEvent>()
+							{										
+								@Override
+								public void handle(ActionEvent event)
+								{
+									eventBus.publish(new ShowEditChartSeriesWindowEvent(chartPane.getScene().getWindow(), item));									
+								}
+							});
+
+							this.setContextMenu(new ContextMenu(editMenu));
+						}
+					}
+				};
+				
+				row.setOnMouseClicked(event -> 
+				{
+			        if (event.getClickCount() == 2 && !row.isEmpty()) 
+			        {
+			        	eventBus.publish(new ShowEditChartSeriesWindowEvent(chartPane.getScene().getWindow(), row.getItem()));
+			        }
+			    });
+
+				return row;
+			}
+		});				
 	}		
 
 	public void init()
@@ -488,6 +541,22 @@ public class LineChartPaneController<T extends FormattedMessage> implements Init
 		// eventManager.registerMessageAddedObserver(this, store.getMessageList());
 		
 		setupPanAndZoom();
+		
+		eventBus.subscribe(this, this::onSeriesEdited, SaveChartSeriesEvent.class);
+	}
+	
+	private void onSeriesEdited(final SaveChartSeriesEvent event)
+	{
+		if (event.isNew())
+		{
+			event.getEditedProperties().setId(lastSeriesId++);
+			
+			addNewSeries(event.getEditedProperties());
+		}		
+		
+		warningShown = false;
+		
+		refresh();
 	}
 	
 	/**
@@ -594,16 +663,16 @@ public class LineChartPaneController<T extends FormattedMessage> implements Init
 	@FXML
 	private void removeSeries()
 	{
-		
+		// TODO:
 	}
 	
 	@FXML
 	private void addSeries()
 	{
-		
+		eventBus.publish(new ShowEditChartSeriesWindowEvent(chartPane.getScene().getWindow(), null));
 	}
 	
-	private XYChart.Data<Number, Number> createDataObject(final FormattedMessage message)
+	private XYChart.Data<Number, Number> createDataObject(final FormattedMessage message) throws XPathExpressionException, IOException
 	{
 		final ChartSeriesProperties seriesProperties = seriesList.get(message.getTopic()); 
 
@@ -614,9 +683,25 @@ public class LineChartPaneController<T extends FormattedMessage> implements Init
 		}
 		else if (ChartSeriesTypeEnum.PAYLOAD_JSON.equals(seriesProperties.typeProperty().get()))			
 		{			
-			final Double value = JsonPath.read(message.getFormattedPayload(), seriesProperties.valueExpressionProperty().get());							
+			final String jsonValue = String.valueOf(JsonPath.read(message.getFormattedPayload(), seriesProperties.valueExpressionProperty().get())); 
+			logger.debug("JSON path value = {}", jsonValue);
+			
+			final Double value = Double.valueOf(jsonValue);							
 			return new XYChart.Data<Number, Number>(message.getDate().getTime(), value);	
 		}
+//		else if (ChartSeriesTypeEnum.PAYLOAD_XML.equals(seriesProperties.typeProperty().get()))
+//		{
+//			final XPath xpath = XPathFactory.newInstance().newXPath();
+//			
+//			final String xpathValue = String.valueOf(
+//					xpath.evaluate(seriesProperties.valueExpressionProperty().get(), 
+//							IOUtils.toInputStream(message.getFormattedPayload(), "UTF-8"), XPathConstants.NUMBER));
+//			
+//			logger.debug("XPath value = {}", xpathValue);
+//			
+//			final Double value = Double.valueOf(xpathValue);							
+//			return new XYChart.Data<Number, Number>(message.getDate().getTime(), value);				
+//		}
 		else if (ChartSeriesTypeEnum.SIZE.equals(seriesProperties.typeProperty().get()))
 		{
 			final Integer value = Integer.valueOf(message.getPayload().length());
@@ -636,23 +721,25 @@ public class LineChartPaneController<T extends FormattedMessage> implements Init
     	{
     		series.getData().add(createDataObject(message));
     	}
-    	catch (NumberFormatException e)
+    	catch (Exception e)
     	{
     		if (!warningShown && ChartMode.USER_DRIVEN_MSG_PAYLOAD.equals(chartMode))
     		{
+    			logger.error("Invalid payload", e);
+    			warningShown = true;
+    			
     			String payload = message.getFormattedPayload();
     			if (payload.length() > 25)
     			{
     				payload = payload.substring(0, 25) + "...";
     			}
     			
+    			// TODO: replace with longer dialog
     			DialogFactory.createWarningDialog(
     					"Invalid content",
     					"Payload \"" + payload 
     					+ "\" on \"" + message.getTopic() 
-    					+ "\" cannot be converted to a number - ignoring all invalid values.");
-    					
-    			warningShown = true;
+    					+ "\" cannot be converted to a number - ignoring all invalid values.");    			
     		}
     	}
 	}
@@ -899,7 +986,11 @@ public class LineChartPaneController<T extends FormattedMessage> implements Init
 				{
 					//logger.info("Deleting = {}=?{}/{}", chartData.get(topic).size(), topicToSeries.get(topic).getData().size(), limit.getMessageLimit());
 					chartData.get(topic).remove(0);
-					topicToSeries.get(topic).getData().remove(0);
+					
+					if (topicToSeries.get(topic).getData().size() > 0)
+					{
+						topicToSeries.get(topic).getData().remove(0);
+					}
 				}
 				
 				// Apply time limit
@@ -986,16 +1077,21 @@ public class LineChartPaneController<T extends FormattedMessage> implements Init
 			
 			if (ChartMode.USER_DRIVEN_MSG_PAYLOAD.equals(chartMode))
 			{
-				series = new ChartSeriesProperties(topic, topic, ChartSeriesTypeEnum.PAYLOAD_PLAIN, "");				
+				series = new ChartSeriesProperties(lastSeriesId++, topic, topic, ChartSeriesTypeEnum.PAYLOAD_PLAIN, "");				
 			}
 			else
 			{
-				series = new ChartSeriesProperties(topic, topic, ChartSeriesTypeEnum.SIZE, "");				
+				series = new ChartSeriesProperties(lastSeriesId++, topic, topic, ChartSeriesTypeEnum.SIZE, "");				
 			}
 			
-			this.seriesTable.getItems().add(series);
-			seriesList.put(topic, series);
+			addNewSeries(series);			
 		}		
+	}
+	
+	private void addNewSeries(final ChartSeriesProperties series)
+	{
+		this.seriesTable.getItems().add(series);
+		seriesList.put(series.getTopic(), series);
 	}
 	
 	public void setSubscription(MqttSubscription subscription)

@@ -64,9 +64,11 @@ import pl.baczkowicz.mqttspy.configuration.ConfiguredConnectionDetails;
 import pl.baczkowicz.mqttspy.messages.BaseMqttMessage;
 import pl.baczkowicz.mqttspy.stats.StatisticsManager;
 import pl.baczkowicz.mqttspy.ui.connections.ConnectionManager;
+import pl.baczkowicz.mqttspy.ui.controllers.edit.EditChartSeriesController;
 import pl.baczkowicz.mqttspy.ui.events.ConfigurationLoadedEvent;
 import pl.baczkowicz.mqttspy.ui.events.ConnectionStatusChangeEvent;
 import pl.baczkowicz.mqttspy.ui.events.ConnectionsChangedEvent;
+import pl.baczkowicz.mqttspy.ui.events.ShowEditChartSeriesWindowEvent;
 import pl.baczkowicz.mqttspy.ui.events.ShowNewSubscriptionWindowEvent;
 import pl.baczkowicz.mqttspy.ui.events.LoadConfigurationFileEvent;
 import pl.baczkowicz.mqttspy.ui.events.NewPerspectiveSelectedEvent;
@@ -132,6 +134,10 @@ public class ViewManager
 	private EditConnectionsController editConnectionsController;
 
 	private MainController mainController;
+
+	private Stage chartSeriesStage;
+
+	private EditChartSeriesController editChartSeriesController;
 	
 	public void init()
 	{
@@ -143,9 +149,10 @@ public class ViewManager
 		eventBus.subscribe(this, this::onNewSelectedPerspective, NewPerspectiveSelectedEvent.class);
 		eventBus.subscribe(this, this::openMessageLog, ShowMessageLogEvent.class);
 		eventBus.subscribe(this, this::showNewSubscriptionWindow, ShowNewSubscriptionWindowEvent.class);
+		eventBus.subscribe(this, this::showEditChartSeries, ShowEditChartSeriesWindowEvent.class);
 		
 		TITLE_MARGIN = BaseConfigurationUtils.getIntegerProperty("ui.titlepane.margin", TITLE_MARGIN, configurationManager.getUiPropertyFile());
-		logger.debug("Property TITLE_MARGIN = {}", TITLE_MARGIN);
+		logger.trace("Property TITLE_MARGIN = {}", TITLE_MARGIN);
 	}
 
 	private void initialiseAboutWindow(final Window parentWindow)
@@ -171,10 +178,28 @@ public class ViewManager
 		aboutStage.setScene(scene);
 	}
 
+	private void initialiseEditChartSeriesWindow(final Window parentWindow)
+	{
+		final FXMLLoader loader = FxmlUtils.createFxmlLoaderForProjectFile("EditChartSeries.fxml");
+		final AnchorPane editChartSeriesWindow = FxmlUtils.loadAnchorPane(loader);
+		
+		editChartSeriesController = ((EditChartSeriesController) loader.getController());
+		editChartSeriesController.setEventBus(eventBus);
+		
+		Scene scene = new Scene(editChartSeriesWindow);
+		scene.getStylesheets().addAll(stylesheets);		
+
+		chartSeriesStage = new Stage();
+		chartSeriesStage.setTitle("Chart series editor");		
+		chartSeriesStage.initOwner(parentWindow);
+		chartSeriesStage.setScene(scene);
+		((EditChartSeriesController) loader.getController()).init();
+	}
+	
 	private void initialiseTestCasesWindow(final Window parentWindow)
 	{
 		final FXMLLoader loader = FxmlUtils.createFxmlLoaderForProjectFile("TestCasesExecutionPane.fxml");
-		final AnchorPane testCasesWindow = FxmlUtils.loadAnchorPane(loader);
+		final AnchorPane testCasesWindow = FxmlUtils.loadAnchorPane(loader);		
 		
 		Scene scene = new Scene(testCasesWindow);
 		scene.getStylesheets().addAll(stylesheets);		
@@ -363,6 +388,18 @@ public class ViewManager
 		
 		aboutController.reloadVersionInfo();
 		aboutStage.show();		
+	}
+	
+	public void showEditChartSeries(final ShowEditChartSeriesWindowEvent event)
+	{
+		if (chartSeriesStage == null)
+		{
+			initialiseEditChartSeriesWindow(event.getParent());
+		}
+		
+		editChartSeriesController.populateValues(event.getEditedProperties());
+		
+		chartSeriesStage.show();		
 	}
 	
 	public void showFormatters(final ShowFormattersWindowEvent event)

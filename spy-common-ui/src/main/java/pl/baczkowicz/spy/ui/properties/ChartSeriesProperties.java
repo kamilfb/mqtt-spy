@@ -29,6 +29,8 @@ import pl.baczkowicz.spy.ui.charts.ChartSeriesTypeEnum;
  */
 public class ChartSeriesProperties
 {
+	private int id;
+	
 	private SimpleStringProperty nameProperty;
 	
 	private SimpleStringProperty topicProperty;
@@ -39,8 +41,9 @@ public class ChartSeriesProperties
 	
 	private SimpleBooleanProperty visibleProperty;
 	
-	public ChartSeriesProperties(final String name, final String topic, final ChartSeriesTypeEnum type, final String valueExpression)
+	public ChartSeriesProperties(final int id, final String name, final String topic, final ChartSeriesTypeEnum type, final String valueExpression)
 	{
+		this.setId(id);
 		this.nameProperty = new SimpleStringProperty(name);
 		this.topicProperty = new SimpleStringProperty(topic);		
 		this.typeProperty = new SimpleObjectProperty<ChartSeriesTypeEnum>(type);
@@ -81,5 +84,21 @@ public class ChartSeriesProperties
 	public String getName()
 	{
 		return nameProperty.get();
+	}
+
+	/**
+	 * @return the id
+	 */
+	public int getId()
+	{
+		return id;
+	}
+
+	/**
+	 * @param id the id to set
+	 */
+	public void setId(int id)
+	{
+		this.id = id;
 	}
 }
