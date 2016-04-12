@@ -22,6 +22,7 @@ package pl.baczkowicz.spy.ui.properties;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
+import pl.baczkowicz.spy.ui.charts.ChartSeriesStatusEnum;
 import pl.baczkowicz.spy.ui.charts.ChartSeriesTypeEnum;
 
 /**
@@ -30,6 +31,8 @@ import pl.baczkowicz.spy.ui.charts.ChartSeriesTypeEnum;
 public class ChartSeriesProperties
 {
 	private int id;
+	
+	private SimpleObjectProperty<ChartSeriesStatusEnum> statusProperty;
 	
 	private SimpleStringProperty nameProperty;
 	
@@ -40,6 +43,8 @@ public class ChartSeriesProperties
 	private SimpleStringProperty valueExpressionProperty;	
 	
 	private SimpleBooleanProperty visibleProperty;
+
+	private String errorMessage;
 	
 	public ChartSeriesProperties(final int id, final String name, final String topic, final ChartSeriesTypeEnum type, final String valueExpression)
 	{
@@ -47,6 +52,7 @@ public class ChartSeriesProperties
 		this.nameProperty = new SimpleStringProperty(name);
 		this.topicProperty = new SimpleStringProperty(topic);		
 		this.typeProperty = new SimpleObjectProperty<ChartSeriesTypeEnum>(type);
+		this.statusProperty = new SimpleObjectProperty<ChartSeriesStatusEnum>(ChartSeriesStatusEnum.NO_MESSAGES);
 		this.valueExpressionProperty = new SimpleStringProperty(valueExpression);
 		this.visibleProperty = new SimpleBooleanProperty(true);
 	}
@@ -59,6 +65,11 @@ public class ChartSeriesProperties
 	public SimpleObjectProperty<ChartSeriesTypeEnum> typeProperty()
 	{
 		return this.typeProperty;
+	}
+	
+	public SimpleObjectProperty<ChartSeriesStatusEnum> statusProperty()
+	{
+		return this.statusProperty;
 	}
 	
 	public SimpleStringProperty topicProperty()
@@ -100,5 +111,15 @@ public class ChartSeriesProperties
 	public void setId(int id)
 	{
 		this.id = id;
+	}
+
+	public void setErrorMessage(final String message)
+	{
+		this.errorMessage = message;
+	}
+	
+	public String getErrorMessage()
+	{
+		return errorMessage;
 	}
 }

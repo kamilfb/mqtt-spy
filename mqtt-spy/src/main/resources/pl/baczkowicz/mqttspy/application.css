@@ -139,6 +139,21 @@
 	-fx-background-color: -fx-focus-color;
 }
 
+.seriesNoMessages
+{
+	-fx-background-color: white;
+}
+
+.seriesError
+{
+	-fx-background-color: red;
+}
+
+.seriesOK
+{
+	-fx-background-color: lightgreen;
+}
+
 /* Connections */
 
 .connection-connected

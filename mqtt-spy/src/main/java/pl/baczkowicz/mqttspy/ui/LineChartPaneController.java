@@ -105,7 +105,9 @@ import pl.baczkowicz.mqttspy.ui.events.SaveChartSeriesEvent;
 import pl.baczkowicz.mqttspy.ui.events.ShowEditChartSeriesWindowEvent;
 import pl.baczkowicz.mqttspy.ui.utils.StylingUtils;
 import pl.baczkowicz.spy.eventbus.IKBus;
+import pl.baczkowicz.spy.exceptions.ExceptionUtils;
 import pl.baczkowicz.spy.messages.FormattedMessage;
+import pl.baczkowicz.spy.ui.charts.ChartSeriesStatusEnum;
 import pl.baczkowicz.spy.ui.charts.ChartSeriesTypeEnum;
 import pl.baczkowicz.spy.ui.events.MessageAddedEvent;
 import pl.baczkowicz.spy.ui.events.queuable.ui.BrowseReceivedMessageEvent;
@@ -184,6 +186,9 @@ public class LineChartPaneController<T extends FormattedMessage> implements Init
 	
 	@FXML
 	private TableColumn<ChartSeriesProperties, ChartSeriesTypeEnum> typeColumn;
+	
+	@FXML
+	private TableColumn<ChartSeriesProperties, ChartSeriesStatusEnum> statusColumn;
 	
 	@FXML
 	private TableColumn<ChartSeriesProperties, String> expressionColumn;	
@@ -358,6 +363,59 @@ public class LineChartPaneController<T extends FormattedMessage> implements Init
 						}
 					}
 				};
+				cell.setAlignment(Pos.CENTER);
+				return cell;
+			}
+		});
+		
+		statusColumn.setCellValueFactory(new PropertyValueFactory<ChartSeriesProperties, ChartSeriesStatusEnum>("status"));
+		statusColumn.setCellFactory(new Callback<TableColumn<ChartSeriesProperties, ChartSeriesStatusEnum>, TableCell<ChartSeriesProperties, ChartSeriesStatusEnum>>()
+		{
+			public TableCell<ChartSeriesProperties, ChartSeriesStatusEnum> call(
+					TableColumn<ChartSeriesProperties, ChartSeriesStatusEnum> p)
+			{
+				final TableCell<ChartSeriesProperties, ChartSeriesStatusEnum> cell = new TableCell<ChartSeriesProperties, ChartSeriesStatusEnum>()
+				{
+					@Override
+					public void updateItem(final ChartSeriesStatusEnum item, boolean empty)
+					{
+						super.updateItem(item, empty);			
+						
+						if (item != null)
+						{
+							this.setText(item.value());
+						}
+						else
+						{
+							this.setText(null);
+						}
+						
+						final TableRow<ChartSeriesProperties> currentRow = getTableRow();
+
+		                if (!isEmpty()) 
+		                {
+		                	currentRow.getStyleClass().clear();
+		                	currentRow.setTooltip(null);
+		                	
+		                    if(ChartSeriesStatusEnum.NO_MESSAGES.equals(item))
+		                    {
+		                        currentRow.getStyleClass().add("seriesNoMessages");
+		                    }
+		                    else if(ChartSeriesStatusEnum.OK.equals(item))
+		                    {
+		                    	currentRow.getStyleClass().add("seriesOK");
+		                    }
+		                    else
+		                    {
+		                    	currentRow.getStyleClass().add("seriesError");
+		                    	final ChartSeriesProperties properties = (ChartSeriesProperties) this.getTableRow().getItem();
+		                    	currentRow.setTooltip(new Tooltip(properties.getErrorMessage()));
+		                    }
+		                }
+		                
+					}
+				};
+								
 				cell.setAlignment(Pos.CENTER);
 				return cell;
 			}
@@ -672,10 +730,10 @@ public class LineChartPaneController<T extends FormattedMessage> implements Init
 		eventBus.publish(new ShowEditChartSeriesWindowEvent(chartPane.getScene().getWindow(), null));
 	}
 	
-	private XYChart.Data<Number, Number> createDataObject(final FormattedMessage message) throws XPathExpressionException, IOException
+	private XYChart.Data<Number, Number> createDataObject(
+			final ChartSeriesProperties seriesProperties, 
+			final FormattedMessage message) throws XPathExpressionException, IOException
 	{
-		final ChartSeriesProperties seriesProperties = seriesList.get(message.getTopic()); 
-
 		if (ChartSeriesTypeEnum.PAYLOAD_PLAIN.equals(seriesProperties.typeProperty().get()))			
 		{
 			final Double value = Double.valueOf(message.getFormattedPayload());
@@ -717,29 +775,34 @@ public class LineChartPaneController<T extends FormattedMessage> implements Init
 	
 	private void addMessageToSeries(final Series<Number, Number> series, final FormattedMessage message)
 	{
+		final ChartSeriesProperties seriesProperties = seriesList.get(message.getTopic()); 
+		
 		try
     	{
-    		series.getData().add(createDataObject(message));
+    		series.getData().add(createDataObject(seriesProperties, message));
+    		seriesProperties.statusProperty().set(ChartSeriesStatusEnum.OK);
     	}
     	catch (Exception e)
     	{
     		if (!warningShown && ChartMode.USER_DRIVEN_MSG_PAYLOAD.equals(chartMode))
     		{
+    			seriesProperties.setErrorMessage(e.getLocalizedMessage());
+    			seriesProperties.statusProperty().set(ChartSeriesStatusEnum.ERROR);
     			logger.error("Invalid payload", e);
     			warningShown = true;
-    			
-    			String payload = message.getFormattedPayload();
-    			if (payload.length() > 25)
-    			{
-    				payload = payload.substring(0, 25) + "...";
-    			}
-    			
-    			// TODO: replace with longer dialog
-    			DialogFactory.createWarningDialog(
-    					"Invalid content",
-    					"Payload \"" + payload 
-    					+ "\" on \"" + message.getTopic() 
-    					+ "\" cannot be converted to a number - ignoring all invalid values.");    			
+//    			
+//    			String payload = message.getFormattedPayload();
+//    			if (payload.length() > 25)
+//    			{
+//    				payload = payload.substring(0, 25) + "...";
+//    			}
+//    			
+//    			// TODO: replace with longer dialog
+//    			DialogFactory.createWarningDialog(
+//    					"Invalid content",
+//    					"Payload \"" + payload 
+//    					+ "\" on \"" + message.getTopic() 
+//    					+ "\" cannot be converted to a number - ignoring all invalid values.");    			
     		}
     	}
 	}
