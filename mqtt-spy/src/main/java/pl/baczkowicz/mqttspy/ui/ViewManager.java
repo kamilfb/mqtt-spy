@@ -150,6 +150,7 @@ public class ViewManager
 		eventBus.subscribe(this, this::openMessageLog, ShowMessageLogEvent.class);
 		eventBus.subscribe(this, this::showNewSubscriptionWindow, ShowNewSubscriptionWindowEvent.class);
 		eventBus.subscribe(this, this::showEditChartSeries, ShowEditChartSeriesWindowEvent.class);
+		eventBus.subscribe(this, this::showExternalWebPage, ShowExternalWebPageEvent.class);
 		
 		TITLE_MARGIN = BaseConfigurationUtils.getIntegerProperty("ui.titlepane.margin", TITLE_MARGIN, configurationManager.getUiPropertyFile());
 		logger.trace("Property TITLE_MARGIN = {}", TITLE_MARGIN);
