@@ -99,13 +99,13 @@
                               <TableColumn fx:id="typeColumn" editable="false" maxWidth="200.0" minWidth="100.0" prefWidth="100.0" text="Type" />
                               <TableColumn fx:id="expressionColumn" editable="false" minWidth="100.0" prefWidth="260.0" text="Value expression" />
                               <TableColumn fx:id="visibleColumn" maxWidth="200.0" minWidth="100.0" prefWidth="100.0" text="Visible" />
-                              <TableColumn fx:id="statusColumn" maxWidth="200.0" minWidth="100.0" prefWidth="100.0" text="Status" />
+                              <TableColumn fx:id="statusColumn" maxWidth="200.0" minWidth="150.0" prefWidth="150.0" text="Last updated" />
                           </columns>
                            <columnResizePolicy>
                               <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
                            </columnResizePolicy>
                         </TableView>
-                        <Button fx:id="removeSeriesButton" disable="true" focusTraversable="false" mnemonicParsing="false" onAction="#removeSeries" prefHeight="25.0" prefWidth="145" text="Remove series" AnchorPane.bottomAnchor="7.0" AnchorPane.rightAnchor="7.0">
+                        <Button fx:id="removeSeriesButton" disable="true" focusTraversable="false" mnemonicParsing="false" onAction="#removeSeries" prefHeight="25.0" prefWidth="145" text="Remove" AnchorPane.bottomAnchor="7.0" AnchorPane.rightAnchor="7.0">
                            <padding>
                               <Insets bottom="1.0" left="1.0" right="1.0" top="1.0" />
                            </padding>
@@ -117,7 +117,19 @@
                               </ImageView>
                            </graphic>
                         </Button>
-                        <Button fx:id="addSeriesButton" focusTraversable="false" mnemonicParsing="false" onAction="#addSeries" prefHeight="25.0" prefWidth="145" text="Add series" AnchorPane.bottomAnchor="7.0" AnchorPane.rightAnchor="171.0">
+                        <Button fx:id="duplicateSeriesButton" focusTraversable="false" mnemonicParsing="false" onAction="#duplicateSeries" prefHeight="25.0" prefWidth="145" text="Duplicate" AnchorPane.bottomAnchor="7.0" AnchorPane.rightAnchor="159.0">
+                           <padding>
+                              <Insets bottom="1.0" left="1.0" right="1.0" top="1.0" />
+                           </padding>
+                           <graphic>
+                              <ImageView fitHeight="16" fitWidth="16" pickOnBounds="true">
+                                 <image>
+                                    <Image url="/images/button-copy.png" />
+                                 </image>
+                              </ImageView>
+                           </graphic>
+                        </Button>
+                        <Button fx:id="addSeriesButton" focusTraversable="false" layoutX="494.0" layoutY="159.0" mnemonicParsing="false" onAction="#addSeries" prefHeight="25.0" prefWidth="145" text="Add" AnchorPane.bottomAnchor="7.0" AnchorPane.rightAnchor="311.0">
                            <padding>
                               <Insets bottom="1.0" left="1.0" right="1.0" top="1.0" />
                            </padding>

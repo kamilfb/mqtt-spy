@@ -19,11 +19,14 @@
  */
 package pl.baczkowicz.spy.ui.properties;
 
+import java.util.Date;
+
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import pl.baczkowicz.spy.ui.charts.ChartSeriesStatusEnum;
 import pl.baczkowicz.spy.ui.charts.ChartSeriesTypeEnum;
+import pl.baczkowicz.spy.utils.TimeUtils;
 
 /**
  * This represents a single row displayed in the chart series table.
@@ -32,7 +35,9 @@ public class ChartSeriesProperties
 {
 	private int id;
 	
-	private SimpleObjectProperty<ChartSeriesStatusEnum> statusProperty;
+	private SimpleStringProperty statusProperty;
+	
+	private ChartSeriesStatusEnum seriesStatus = ChartSeriesStatusEnum.NO_MESSAGES;
 	
 	private SimpleStringProperty nameProperty;
 	
@@ -46,15 +51,18 @@ public class ChartSeriesProperties
 
 	private String errorMessage;
 	
+	private Date lastUpdated;
+	
 	public ChartSeriesProperties(final int id, final String name, final String topic, final ChartSeriesTypeEnum type, final String valueExpression)
 	{
 		this.setId(id);
 		this.nameProperty = new SimpleStringProperty(name);
 		this.topicProperty = new SimpleStringProperty(topic);		
 		this.typeProperty = new SimpleObjectProperty<ChartSeriesTypeEnum>(type);
-		this.statusProperty = new SimpleObjectProperty<ChartSeriesStatusEnum>(ChartSeriesStatusEnum.NO_MESSAGES);
+		this.statusProperty = new SimpleStringProperty();
 		this.valueExpressionProperty = new SimpleStringProperty(valueExpression);
 		this.visibleProperty = new SimpleBooleanProperty(true);
+		this.lastUpdated = new Date();
 	}
 		
 	public SimpleBooleanProperty visibleProperty()
@@ -67,7 +75,7 @@ public class ChartSeriesProperties
 		return this.typeProperty;
 	}
 	
-	public SimpleObjectProperty<ChartSeriesStatusEnum> statusProperty()
+	public SimpleStringProperty statusProperty()
 	{
 		return this.statusProperty;
 	}
@@ -116,10 +124,38 @@ public class ChartSeriesProperties
 	public void setErrorMessage(final String message)
 	{
 		this.errorMessage = message;
+		this.statusProperty.set(errorMessage);
 	}
 	
 	public String getErrorMessage()
 	{
 		return errorMessage;
+	}
+	
+	public Date getLastUpdated()
+	{
+		return lastUpdated;
+	}
+	
+	public void setLastUpdated(final Date date)
+	{
+		this.lastUpdated = date;
+		this.statusProperty.set(TimeUtils.DATE_WITH_SECONDS_SDF.format(getLastUpdated()));
+	}
+
+	/**
+	 * @return the seriesStatus
+	 */
+	public ChartSeriesStatusEnum getSeriesStatus()
+	{
+		return seriesStatus;
+	}
+
+	/**
+	 * @param seriesStatus the seriesStatus to set
+	 */
+	public void setSeriesStatus(ChartSeriesStatusEnum seriesStatus)
+	{
+		this.seriesStatus = seriesStatus;
 	}
 }

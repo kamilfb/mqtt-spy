@@ -35,32 +35,20 @@
             
       <!-- Broker URI -->
       <Label layoutX="23.0" layoutY="53.0" text="Server URI(s)" />
-      <!--  onKeyReleased="#updateConnectionName" -->
       <TextField fx:id="brokerAddressText" layoutX="260.0" layoutY="51.0" prefHeight="26.0" prefWidth="164.0" promptText="tcp://localhost:1883" text="127.0.0.1" AnchorPane.leftAnchor="260.0" AnchorPane.rightAnchor="166.0" />
       
-      <Label layoutX="48.0" layoutY="67.0" text="[e.g. localhost or mybroker:1883]" textFill="#5e5e5e">
-      <!-- SSL: ssl://mybroker:8888 -->
-         <font>
-            <Font size="10.0" />
-         </font>
-      </Label>
+      <Label styleClass="vsmall-font" layoutX="48.0" layoutY="67.0" text="[e.g. localhost or mybroker:1883]" />
       
       <Label layoutX="23.0" layoutY="98.0" text="Client ID" />
       <!-- onKeyReleased="#updateClientId" -->
       <TextField fx:id="clientIdText" layoutX="260.0" layoutY="92.0" prefHeight="25.0" prefWidth="227.0" promptText="e.g. your name" AnchorPane.leftAnchor="260.0" AnchorPane.rightAnchor="107.0" />
-	  <Label fx:id="lengthLabel" alignment="CENTER_RIGHT" layoutX="383.0" layoutY="116.0" prefHeight="14.0" prefWidth="100.0" text="Length = 0/23" AnchorPane.rightAnchor="107.0">
-         <font>
-            <Font size="10.0" />
-         </font>
-      </Label>
+	  
+	  <Label fx:id="lengthLabel" styleClass="vsmall-font" alignment="CENTER_RIGHT" layoutX="383.0" layoutY="116.0" prefHeight="14.0" prefWidth="100.0" text="Length = 0/23" AnchorPane.rightAnchor="107.0" />
                        
       <Label layoutX="23.0" layoutY="147.0" text="Clean session" />
       <CheckBox fx:id="cleanSession" layoutX="181.0" layoutY="144.0" mnemonicParsing="false" selected="true" />
-      <Label layoutX="48.0" layoutY="113.0" text="[keep it unique to avoid disconnections]" textFill="#5e5e5e">
-         <font>
-            <Font size="10.0" />
-         </font>
-      </Label>
+      <Label styleClass="vsmall-font" layoutX="48.0" layoutY="113.0" text="[keep it unique to avoid disconnections]" />
+
       <Label fx:id="timeoutLabel" layoutX="265.0" layoutY="147.0" text="Connection timeout [s]" AnchorPane.leftAnchor="265.0" />
       <Label fx:id="keepAliveLabel" layoutX="265.0" layoutY="179.0" text="Keep alive interval [s]" AnchorPane.leftAnchor="265.0" />
       <TextField fx:id="connectionTimeout" layoutX="437.0" layoutY="140.0" prefHeight="25.0" prefWidth="46.0" />

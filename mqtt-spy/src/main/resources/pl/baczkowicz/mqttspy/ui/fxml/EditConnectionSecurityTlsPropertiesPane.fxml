@@ -33,11 +33,8 @@
 
 <AnchorPane fx:id="propertiesPane" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="8.0" AnchorPane.leftAnchor="23.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="43.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.baczkowicz.mqttspy.ui.controllers.edit.EditConnectionSecurityTlsPropertiesController">
    <children>
-      <Label layoutY="116.0" prefHeight="43.0" prefWidth="214.0" text="Note: double click  to edit a table row, then Enter to submit the new value." textFill="#5e5e5e" wrapText="true">
-         <font>
-            <Font size="10.0" />
-         </font>
-      </Label>
+      <Label styleClass="vsmall-font" layoutY="116.0" prefHeight="43.0" prefWidth="214.0" text="Note: double click  to edit a table row, then Enter to submit the new value." textFill="#5e5e5e" wrapText="true" />
+
       <Button fx:id="addPropertyButton" focusTraversable="false" layoutX="258.0" layoutY="126.0" mnemonicParsing="false" onAction="#addProperty" prefHeight="25.0" prefWidth="145" text="Add property" AnchorPane.bottomAnchor="8.0" AnchorPane.rightAnchor="166.0">
          <graphic>
             <ImageView fitHeight="16" fitWidth="16" pickOnBounds="true">

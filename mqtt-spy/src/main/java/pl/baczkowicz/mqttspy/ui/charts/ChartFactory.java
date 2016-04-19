@@ -19,6 +19,7 @@
  */
 package pl.baczkowicz.mqttspy.ui.charts;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 import javafx.collections.ObservableList;
@@ -53,7 +54,7 @@ public class ChartFactory<T extends FormattedMessage>
 		statsPaneController.setStore(store);
 		statsPaneController.setSeriesTypeName(seriesType);
 		statsPaneController.setChartMode(mode);
-		statsPaneController.initialiseSeries(topics);
+		statsPaneController.initialiseSeries(new ArrayList<String>(topics));
 		statsPaneController.setSeriesValueName(seriesValueName);
 		statsPaneController.setSeriesUnit(seriesUnit);
 		statsPaneController.init();

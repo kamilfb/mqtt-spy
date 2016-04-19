@@ -75,80 +75,39 @@
 		      	</graphic>
       </Button>
       
-      <Label layoutX="273.0" layoutY="19.0" text="Name">
-         <font>
-            <Font size="11.0" />
-         </font>
-      </Label>
+      <Label styleClass="small-font" layoutX="273.0" layoutY="19.0" text="Name" />
      
-      <TextField fx:id="formatterName" layoutX="381.0" layoutY="14.0" prefHeight="25.0" prefWidth="187.0" AnchorPane.leftAnchor="381.0" AnchorPane.rightAnchor="206.0">
-         <font>
-            <Font size="11.0" />
-         </font>
-      </TextField>
+      <TextField fx:id="formatterName" styleClass="small-font" layoutX="381.0" layoutY="14.0" prefHeight="25.0" prefWidth="187.0" AnchorPane.leftAnchor="381.0" AnchorPane.rightAnchor="206.0" />
       
-      <Label layoutX="580.0" layoutY="19.0" text="Type" AnchorPane.rightAnchor="162.0">
-         <font>
-            <Font size="11.0" />
-         </font></Label>
+      <Label styleClass="small-font" layoutX="580.0" layoutY="19.0" text="Type" AnchorPane.rightAnchor="162.0" />
       
+      <TextField styleClass="small-font" fx:id="formatterType" editable="false" layoutX="622.0" layoutY="14.0" prefHeight="25.0" prefWidth="137.0" AnchorPane.rightAnchor="14.0" />
+
+      <Label styleClass="small-font" fx:id="detailsLabel" layoutX="273.0" layoutY="53.0" text="Details" />
+
+      <TextArea styleClass="small-font" fx:id="formatterDetails" layoutX="381.0" layoutY="46.0" prefHeight="98.0" prefWidth="379.0" wrapText="true" AnchorPane.leftAnchor="381.0" AnchorPane.rightAnchor="14.0" />
       
-      <TextField fx:id="formatterType" editable="false" layoutX="622.0" layoutY="14.0" prefHeight="25.0" prefWidth="137.0" AnchorPane.rightAnchor="14.0">
-         <font>
-            <Font size="11.0" />
-         </font></TextField>
-      <Label fx:id="detailsLabel" layoutX="273.0" layoutY="53.0" text="Details">
-         <font>
-            <Font size="11.0" />
-         </font></Label>
-      <TextArea fx:id="formatterDetails" layoutX="381.0" layoutY="46.0" prefHeight="98.0" prefWidth="379.0" wrapText="true" AnchorPane.leftAnchor="381.0" AnchorPane.rightAnchor="14.0">
-         <font>
-            <Font size="11.0" />
-         </font></TextArea>
       <Separator layoutX="260.0" layoutY="7.0" orientation="VERTICAL" prefHeight="160.0" AnchorPane.bottomAnchor="7.0" AnchorPane.topAnchor="7.0" />
       <SplitPane dividerPositions="0.36" layoutX="272.0" layoutY="188.0" orientation="VERTICAL" prefHeight="240.0" prefWidth="488.0" AnchorPane.bottomAnchor="14.0" AnchorPane.leftAnchor="272.0" AnchorPane.rightAnchor="14.0" AnchorPane.topAnchor="188.0">
         <items>
           <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="117.0" prefWidth="511.0">
                <children>
-                  <TextArea fx:id="sampleInput" layoutX="108.0" prefHeight="98.0" prefWidth="373.0" promptText="(put here text to convert using the formatter)" text="sample message to format" wrapText="true" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="108.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="5.0">
-                     <font>
-                        <Font size="11.0" />
-                     </font>
-                  </TextArea>
-                  <Label layoutX="12.0" layoutY="10.0" text="Sample input">
-                     <font>
-                        <Font size="11.0" />
-                     </font>
-                  </Label>
+                  <TextArea styleClass="small-font" fx:id="sampleInput" layoutX="108.0" prefHeight="98.0" prefWidth="373.0" promptText="(put here text to convert using the formatter)" text="sample message to format" wrapText="true" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="108.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="5.0" />
+                  <Label styleClass="small-font" layoutX="12.0" layoutY="10.0" text="Sample input" />
                </children>
             </AnchorPane>
           <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
                <children>
-                  <Label layoutX="12.0" layoutY="10.0" text="Sample output">
-                     <font>
-                        <Font size="11.0" />
-                     </font>
-                  </Label>
-                  <TextArea fx:id="sampleOutput" layoutX="108.0" prefHeight="98.0" prefWidth="373.0" wrapText="true" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="108.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="5.0">
-                     <font>
-                        <Font size="11.0" />
-                     </font>
-                  </TextArea>
+                  <Label styleClass="small-font" layoutX="12.0" layoutY="10.0" text="Sample output" />
+                  <TextArea fx:id="sampleOutput" styleClass="small-font" layoutX="108.0" prefHeight="98.0" prefWidth="373.0" wrapText="true" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="108.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="5.0" />
                </children>
             </AnchorPane>
         </items>
       </SplitPane>
       
-      <Label layoutX="272.0" layoutY="166.0" text="Below try the selected formatter:">
-         <font>
-            <Font size="11.0" />
-         </font>
-      </Label>
+      <Label styleClass="small-font" layoutX="272.0" layoutY="166.0" text="Below try the selected formatter:" />
+
       <Separator layoutX="262.0" layoutY="156.0" prefHeight="3.0" prefWidth="501.0" AnchorPane.leftAnchor="262.0" AnchorPane.rightAnchor="7.0" />
-      <Label layoutX="14.0" layoutY="260.0" prefHeight="33.0" prefWidth="233.0" text="Note: reload your connection(s) for any changes to have an effect" wrapText="true" AnchorPane.bottomAnchor="109.0">
-         <font>
-            <Font size="11.0" />
-         </font>
-      </Label>
+      <Label styleClass="small-font" layoutX="14.0" layoutY="260.0" prefHeight="33.0" prefWidth="233.0" text="Note: reload your connection(s) for any changes to have an effect" wrapText="true" AnchorPane.bottomAnchor="109.0" />
    </children>
 </AnchorPane>

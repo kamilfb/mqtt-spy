@@ -22,7 +22,6 @@ package pl.baczkowicz.mqttspy.ui;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-import javafx.application.Application;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -37,6 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
+import pl.baczkowicz.mqttspy.ui.events.ShowExternalWebPageEvent;
 import pl.baczkowicz.mqttspy.ui.properties.VersionInfoProperties;
 import pl.baczkowicz.mqttspy.versions.VersionManager;
 import pl.baczkowicz.mqttspy.versions.events.VersionInfoErrorEvent;
@@ -76,13 +76,9 @@ public class AboutController implements Initializable
 	@FXML
 	private ProgressIndicator progressIndicator;
 
-	private Application application;
-
 	private ConfigurationManager configurationManager;
 
 	private VersionManager versionManager;
-
-	// private EventManager eventManager;
 	
 	private IKBus eventBus;
 
@@ -163,13 +159,11 @@ public class AboutController implements Initializable
 						
 						logger.debug("Retrieved version info = " + versions.toString());
 						eventBus.publish(new VersionInfoReceivedEvent(versions));
-						// eventManager.notifyVersionInfoRetrieved(versions);
 					}
 					catch (final XMLException e)
 					{
 						// If an error occurred					
-						eventBus.publish(new VersionInfoErrorEvent(e));
-						// eventManager.notifyVersionInfoError(e);				
+						eventBus.publish(new VersionInfoErrorEvent(e));			
 					}
 				}
 			}).start();			
@@ -180,7 +174,6 @@ public class AboutController implements Initializable
 	{
 		eventBus.subscribe(this, this::onVersionInfoReceived, VersionInfoReceivedEvent.class, new SimpleRunLaterExecutor());
 		eventBus.subscribe(this, this::onVersionInfoError, VersionInfoErrorEvent.class, new SimpleRunLaterExecutor());
-		// eventManager.registerVersionInfoObserver(this);
 		
 		versionLabel.setText(configurationManager.getDefaultPropertyFile().getFullVersionName());
 		
@@ -190,12 +183,7 @@ public class AboutController implements Initializable
 	@FXML
 	private void openProjectWebsite()
 	{
-		application.getHostServices().showDocument("http://kamilfb.github.io/mqtt-spy/");				
-	}
-
-	public void setApplication(Application application)
-	{
-		this.application = application;		
+		eventBus.publish(new ShowExternalWebPageEvent("http://kamilfb.github.io/mqtt-spy/"));				
 	}
 
 	public void setConfigurationManager(final ConfigurationManager configurationManager)
@@ -208,43 +196,23 @@ public class AboutController implements Initializable
 		this.versionManager = versionManager;
 	}
 	
-//	public void setEventManager(final EventManager eventManager)	
-//	{
-//		this.eventManager = eventManager;
-//	}
-	
 	public void onVersionInfoReceived(final VersionInfoReceivedEvent event)
 	{
-		// If all OK
-//		Platform.runLater(new Runnable()
-//		{						
-//			@Override
-//			public void run()
-//			{
-				progressIndicator.setVisible(false);
-				statusIcon.setVisible(true);	
-				
-				final VersionInfoProperties properties = versionManager.getVersionInfoProperties(configurationManager);			
-				final String imageName = ControlPanelItemController.getStatusIconName(properties.getStatus());
-				// statusIcon.setImage(new Image(ControlPanelItemController.class.getResource(imageLocation).toString()));		
-				statusIcon.setImage(ImageUtils.createIcon(imageName).getImage());
-				statusLabel.setText(properties.getTitle() + System.getProperty("line.separator") + properties.getDetails());
-//			}
-//		});
+		progressIndicator.setVisible(false);
+		statusIcon.setVisible(true);	
+		
+		final VersionInfoProperties properties = versionManager.getVersionInfoProperties(configurationManager);			
+		final String imageName = ControlPanelItemController.getStatusIconName(properties.getStatus());
+		// statusIcon.setImage(new Image(ControlPanelItemController.class.getResource(imageLocation).toString()));		
+		statusIcon.setImage(ImageUtils.createIcon(imageName).getImage());
+		statusLabel.setText(properties.getTitle() + System.getProperty("line.separator") + properties.getDetails());
 	}
 
 	public void onVersionInfoError(final VersionInfoErrorEvent event)
 	{
-//		Platform.runLater(new Runnable()
-//		{						
-//			@Override
-//			public void run()
-//			{
-				progressIndicator.setVisible(false);
-				statusIcon.setVisible(true);
-				statusLabel.setText("Error occurred while getting version info. Please perform manual update.");
-//			}
-//		});		
+		progressIndicator.setVisible(false);
+		statusIcon.setVisible(true);
+		statusLabel.setText("Error occurred while getting version info. Please perform manual update.");
 	}
 	
 	public void setEventBus(final IKBus eventBus)

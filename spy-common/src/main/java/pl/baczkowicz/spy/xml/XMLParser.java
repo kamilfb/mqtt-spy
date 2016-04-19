@@ -221,6 +221,10 @@ public class XMLParser
 		Object readObject = null;
 		try
 		{
+			if (xml == null || xml.isEmpty())
+			{
+				throw new XMLException("Cannot parse empty XML");
+			}
 	        final DocumentBuilder db = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 	        final InputSource is = new InputSource();
 	        is.setCharacterStream(new StringReader(xml));

@@ -510,7 +510,10 @@ public class ConnectionController implements Initializable, TabController
 		
 		for (final BaseMqttSubscription sub : connection.getSubscriptions().values())
 		{
-			((MqttSubscription) sub).getSubscriptionController().updateContextMenu();
+			if (sub instanceof MqttSubscription)
+			{
+				((MqttSubscription) sub).getSubscriptionController().updateContextMenu();
+			}
 		}
 		
 		// If the context menu is available and has items in it

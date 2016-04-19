@@ -125,11 +125,7 @@
 			            </MenuButton>
 			         </children>
 			      </AnchorPane>
-			      <Label fx:id="changesDetectedLabel" layoutX="14.0" layoutY="304.0" text="Note: to save the changes, click the &quot;Apply all&quot; button" textFill="#f20303" AnchorPane.bottomAnchor="80.0">
-			         <font>
-			            <Font size="10.0" />
-			         </font>
-			      </Label>
+			      <Label styleClass="vsmall-font" fx:id="changesDetectedLabel" layoutX="14.0" layoutY="304.0" text="Note: to save the changes, click the &quot;Apply all&quot; button" textFill="#f20303" AnchorPane.bottomAnchor="80.0" />
    			
 			</AnchorPane>
           

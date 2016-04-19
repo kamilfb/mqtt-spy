@@ -162,7 +162,6 @@ public class ViewManager
 		final AnchorPane window = FxmlUtils.loadAnchorPane(loader);
 		
 		aboutController = ((AboutController) loader.getController());
-		aboutController.setApplication(application);
 		aboutController.setConfigurationManager(configurationManager);
 		aboutController.setVersionManager(versionManager);
 		aboutController.setEventBus(eventBus);

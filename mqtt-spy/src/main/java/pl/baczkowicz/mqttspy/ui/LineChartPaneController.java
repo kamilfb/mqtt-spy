@@ -64,10 +64,11 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuButton;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableRow;
 import javafx.scene.control.TableColumn.CellEditEvent;
+import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.control.Tooltip;
@@ -83,21 +84,13 @@ import javafx.util.Callback;
 import javafx.util.StringConverter;
 
 import javax.imageio.ImageIO;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
 
-import org.apache.commons.io.IOUtils;
 import org.gillius.jfxutils.chart.ChartPanManager;
 import org.gillius.jfxutils.chart.JFXChartUtil;
 import org.gillius.jfxutils.chart.StableTicksAxis;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.jayway.jsonpath.JsonPath;
 
 import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
 import pl.baczkowicz.mqttspy.ui.charts.ChartMode;
@@ -105,7 +98,6 @@ import pl.baczkowicz.mqttspy.ui.events.SaveChartSeriesEvent;
 import pl.baczkowicz.mqttspy.ui.events.ShowEditChartSeriesWindowEvent;
 import pl.baczkowicz.mqttspy.ui.utils.StylingUtils;
 import pl.baczkowicz.spy.eventbus.IKBus;
-import pl.baczkowicz.spy.exceptions.ExceptionUtils;
 import pl.baczkowicz.spy.messages.FormattedMessage;
 import pl.baczkowicz.spy.ui.charts.ChartSeriesStatusEnum;
 import pl.baczkowicz.spy.ui.charts.ChartSeriesTypeEnum;
@@ -113,11 +105,12 @@ import pl.baczkowicz.spy.ui.events.MessageAddedEvent;
 import pl.baczkowicz.spy.ui.events.queuable.ui.BrowseReceivedMessageEvent;
 import pl.baczkowicz.spy.ui.properties.ChartSeriesProperties;
 import pl.baczkowicz.spy.ui.properties.MessageLimitProperties;
-import pl.baczkowicz.spy.ui.properties.PublicationScriptProperties;
-import pl.baczkowicz.spy.ui.properties.SubscriptionTopicSummaryProperties;
 import pl.baczkowicz.spy.ui.storage.BasicMessageStoreWithSummary;
 import pl.baczkowicz.spy.ui.utils.DialogFactory;
 import pl.baczkowicz.spy.utils.TimeUtils;
+
+import com.jayway.jsonpath.JsonPath;
+import com.jayway.jsonpath.PathNotFoundException;
 
 /**
  * Controller for line chart pane.
@@ -188,7 +181,7 @@ public class LineChartPaneController<T extends FormattedMessage> implements Init
 	private TableColumn<ChartSeriesProperties, ChartSeriesTypeEnum> typeColumn;
 	
 	@FXML
-	private TableColumn<ChartSeriesProperties, ChartSeriesStatusEnum> statusColumn;
+	private TableColumn<ChartSeriesProperties, String> statusColumn;
 	
 	@FXML
 	private TableColumn<ChartSeriesProperties, String> expressionColumn;	
@@ -206,11 +199,11 @@ public class LineChartPaneController<T extends FormattedMessage> implements Init
 	
 	private Map<String, List<FormattedMessage>> chartData = new HashMap<>();
 	
-	private Map<String, Series<Number, Number>> topicToSeries = new LinkedHashMap<>();
+	private Map<Integer, Series<Number, Number>> seriesIdToSeriesData = new LinkedHashMap<>();
 	
 	private LineChart<Number, Number> lineChart;
 	
-	private boolean warningShown;
+	private boolean warningLogged;
 
 	private String seriesTypeName;
 
@@ -228,7 +221,10 @@ public class LineChartPaneController<T extends FormattedMessage> implements Init
 
 	private boolean addTimestampOnAutoExport;
 
-	private Map<String, ChartSeriesProperties> seriesList = new HashMap<>();
+	private Map<String, List<ChartSeriesProperties>> topicToSeries = new HashMap<>();
+	
+	// Should match the table - is that really needed?
+	private List<ChartSeriesProperties> allSeries = new ArrayList<>();
 	
 	/**
 	 * @param seriesValueName the seriesValueName to set
@@ -368,51 +364,51 @@ public class LineChartPaneController<T extends FormattedMessage> implements Init
 			}
 		});
 		
-		statusColumn.setCellValueFactory(new PropertyValueFactory<ChartSeriesProperties, ChartSeriesStatusEnum>("status"));
-		statusColumn.setCellFactory(new Callback<TableColumn<ChartSeriesProperties, ChartSeriesStatusEnum>, TableCell<ChartSeriesProperties, ChartSeriesStatusEnum>>()
+		statusColumn.setCellValueFactory(new PropertyValueFactory<ChartSeriesProperties, String>("status"));
+		statusColumn.setCellFactory(new Callback<TableColumn<ChartSeriesProperties, String>, TableCell<ChartSeriesProperties, String>>()
 		{
-			public TableCell<ChartSeriesProperties, ChartSeriesStatusEnum> call(
-					TableColumn<ChartSeriesProperties, ChartSeriesStatusEnum> p)
+			public TableCell<ChartSeriesProperties, String> call(
+					TableColumn<ChartSeriesProperties, String> p)
 			{
-				final TableCell<ChartSeriesProperties, ChartSeriesStatusEnum> cell = new TableCell<ChartSeriesProperties, ChartSeriesStatusEnum>()
+				final TableCell<ChartSeriesProperties, String> cell = new TableCell<ChartSeriesProperties, String>()
 				{
 					@Override
-					public void updateItem(final ChartSeriesStatusEnum item, boolean empty)
+					public void updateItem(final String item, boolean empty)
 					{
 						super.updateItem(item, empty);			
 						
-						if (item != null)
-						{
-							this.setText(item.value());
-						}
-						else
-						{
-							this.setText(null);
-						}
+						final TableRow<ChartSeriesProperties> currentRow = this.getTableRow();
+						final ChartSeriesProperties properties = (ChartSeriesProperties) currentRow.getItem();
 						
-						final TableRow<ChartSeriesProperties> currentRow = getTableRow();
-
-		                if (!isEmpty()) 
+		                if (!isEmpty() && properties != null) 
 		                {
 		                	currentRow.getStyleClass().clear();
 		                	currentRow.setTooltip(null);
 		                	
-		                    if(ChartSeriesStatusEnum.NO_MESSAGES.equals(item))
+		                    if(ChartSeriesStatusEnum.NO_MESSAGES.equals(properties.getSeriesStatus()))
 		                    {
 		                        currentRow.getStyleClass().add("seriesNoMessages");
+		                        this.setText(null);
 		                    }
-		                    else if(ChartSeriesStatusEnum.OK.equals(item))
+		                    else if(ChartSeriesStatusEnum.OK.equals(properties.getSeriesStatus()))
 		                    {
 		                    	currentRow.getStyleClass().add("seriesOK");
+		                    	this.setText(item);
 		                    }
 		                    else
-		                    {
-		                    	currentRow.getStyleClass().add("seriesError");
-		                    	final ChartSeriesProperties properties = (ChartSeriesProperties) this.getTableRow().getItem();
+		                    {		                    	
+		                    	currentRow.getStyleClass().add("seriesError");		                    	
 		                    	currentRow.setTooltip(new Tooltip(properties.getErrorMessage()));
+		                    	
+		                    	this.setText(item);
 		                    }
 		                }
-		                
+		                else
+		                {
+		                	currentRow.getStyleClass().clear();
+		                	currentRow.setTooltip(null);
+		                	this.setText(null);
+		                }
 					}
 				};
 								
@@ -483,8 +479,25 @@ public class LineChartPaneController<T extends FormattedMessage> implements Init
 									eventBus.publish(new ShowEditChartSeriesWindowEvent(chartPane.getScene().getWindow(), item));									
 								}
 							});
+							
+							final ContextMenu menu = new ContextMenu(editMenu);
+							
+							if (ChartSeriesStatusEnum.ERROR.equals(item.getSeriesStatus()) && item.getErrorMessage() != null)
+							{
+								final MenuItem errorMenu = new MenuItem("Show error...");
+								errorMenu.setOnAction(new EventHandler<ActionEvent>()
+								{									
+									@Override
+									public void handle(ActionEvent event)
+									{
+										DialogFactory.createErrorDialog("Series error", item.getErrorMessage());										
+									}
+								});
+								menu.getItems().add(new SeparatorMenuItem());
+								menu.getItems().add(errorMenu);
+							}
 
-							this.setContextMenu(new ContextMenu(editMenu));
+							this.setContextMenu(menu);
 						}
 					}
 				};
@@ -596,7 +609,6 @@ public class LineChartPaneController<T extends FormattedMessage> implements Init
 //		}
 		
 		eventBus.subscribeWithFilterOnly(this, this::onMessageAdded, MessageAddedEvent.class, store.getMessageList());
-		// eventManager.registerMessageAddedObserver(this, store.getMessageList());
 		
 		setupPanAndZoom();
 		
@@ -609,10 +621,11 @@ public class LineChartPaneController<T extends FormattedMessage> implements Init
 		{
 			event.getEditedProperties().setId(lastSeriesId++);
 			
+			logger.debug("Adding new series = {}", event.getEditedProperties().getName());
 			addNewSeries(event.getEditedProperties());
 		}		
 		
-		warningShown = false;
+		warningLogged = false;
 		
 		refresh();
 	}
@@ -725,6 +738,27 @@ public class LineChartPaneController<T extends FormattedMessage> implements Init
 	}
 	
 	@FXML
+	private void duplicateSeries()
+	{
+		final ChartSeriesProperties itemToCopy = seriesTable.getSelectionModel().getSelectedItem();
+		
+		if (itemToCopy != null)
+		{
+			final ChartSeriesProperties duplicate = new ChartSeriesProperties(
+					lastSeriesId++, 
+					itemToCopy.getName() + "_copy", 
+					itemToCopy.getTopic(), 
+					itemToCopy.typeProperty().get(), 
+					itemToCopy.valueExpressionProperty().get());
+			eventBus.publish(new SaveChartSeriesEvent(duplicate, true));
+		}
+		else
+		{
+			// TODO: make sure the button is disabled when none selected
+		}
+	}
+	
+	@FXML
 	private void addSeries()
 	{
 		eventBus.publish(new ShowEditChartSeriesWindowEvent(chartPane.getScene().getWindow(), null));
@@ -732,7 +766,7 @@ public class LineChartPaneController<T extends FormattedMessage> implements Init
 	
 	private XYChart.Data<Number, Number> createDataObject(
 			final ChartSeriesProperties seriesProperties, 
-			final FormattedMessage message) throws XPathExpressionException, IOException
+			final FormattedMessage message) throws XPathExpressionException, PathNotFoundException, IllegalArgumentException, IOException
 	{
 		if (ChartSeriesTypeEnum.PAYLOAD_PLAIN.equals(seriesProperties.typeProperty().get()))			
 		{
@@ -741,9 +775,7 @@ public class LineChartPaneController<T extends FormattedMessage> implements Init
 		}
 		else if (ChartSeriesTypeEnum.PAYLOAD_JSON.equals(seriesProperties.typeProperty().get()))			
 		{			
-			final String jsonValue = String.valueOf(JsonPath.read(message.getFormattedPayload(), seriesProperties.valueExpressionProperty().get())); 
-			logger.debug("JSON path value = {}", jsonValue);
-			
+			final String jsonValue = String.valueOf(JsonPath.read(message.getFormattedPayload(), seriesProperties.valueExpressionProperty().get())); 			
 			final Double value = Double.valueOf(jsonValue);							
 			return new XYChart.Data<Number, Number>(message.getDate().getTime(), value);	
 		}
@@ -773,38 +805,37 @@ public class LineChartPaneController<T extends FormattedMessage> implements Init
 		return null;
 	}
 	
-	private void addMessageToSeries(final Series<Number, Number> series, final FormattedMessage message)
+	private void addMessageToSeries(final ChartSeriesProperties seriesProperties, final FormattedMessage message)
 	{
-		final ChartSeriesProperties seriesProperties = seriesList.get(message.getTopic()); 
+		//final List<ChartSeriesProperties> topicSeries = topicToSeries.get(message.getTopic());
 		
-		try
-    	{
-    		series.getData().add(createDataObject(seriesProperties, message));
-    		seriesProperties.statusProperty().set(ChartSeriesStatusEnum.OK);
-    	}
-    	catch (Exception e)
-    	{
-    		if (!warningShown && ChartMode.USER_DRIVEN_MSG_PAYLOAD.equals(chartMode))
-    		{
-    			seriesProperties.setErrorMessage(e.getLocalizedMessage());
-    			seriesProperties.statusProperty().set(ChartSeriesStatusEnum.ERROR);
-    			logger.error("Invalid payload", e);
-    			warningShown = true;
-//    			
-//    			String payload = message.getFormattedPayload();
-//    			if (payload.length() > 25)
-//    			{
-//    				payload = payload.substring(0, 25) + "...";
-//    			}
-//    			
-//    			// TODO: replace with longer dialog
-//    			DialogFactory.createWarningDialog(
-//    					"Invalid content",
-//    					"Payload \"" + payload 
-//    					+ "\" on \"" + message.getTopic() 
-//    					+ "\" cannot be converted to a number - ignoring all invalid values.");    			
-    		}
-    	}
+		//for (final ChartSeriesProperties seriesProperties : topicSeries)
+		//{		
+		final Series<Number, Number> series = seriesIdToSeriesData.get(seriesProperties.getId());
+		
+		if (series != null)
+		{
+			try
+	    	{
+				seriesProperties.setLastUpdated(new Date());
+				
+				final Data<Number, Number> data = createDataObject(seriesProperties, message);
+				logger.debug("Series {}, data = {}", seriesProperties.getName(), data);
+	    		series.getData().add(data);
+	    		seriesProperties.setSeriesStatus(ChartSeriesStatusEnum.OK);	    		
+	    	}
+	    	catch (Exception e)
+	    	{
+	    		if (!warningLogged && ChartMode.USER_DRIVEN_MSG_PAYLOAD.equals(chartMode))
+	    		{
+	    			seriesProperties.setErrorMessage(e.toString());
+	    			seriesProperties.setSeriesStatus(ChartSeriesStatusEnum.ERROR);
+	    			logger.error("Invalid payload", e);
+	    			warningLogged = true;   			    			
+	    		}
+	    	}
+		}
+		//}
 	}
 	
 	@FXML
@@ -936,12 +967,22 @@ public class LineChartPaneController<T extends FormattedMessage> implements Init
 	{		
 		synchronized (chartData)
 		{
+			// Refresh mappings as topics might have changed
+			topics.clear();
+			topicToSeries.clear();
+			for (final ChartSeriesProperties seriesProperties : allSeries)
+			{
+				topics.add(seriesProperties.getTopic());
+				populateTopicToSeries(seriesProperties);
+			}
+			
+			// Dive up the data
 			divideMessagesByTopic(topics);
 			lineChart.getData().clear();
 			lineChart.setCreateSymbols(lastDisplaySymbols);
-			topicToSeries.clear();
+			seriesIdToSeriesData.clear();
 			
-			for (final ChartSeriesProperties seriesProperties : seriesList.values())
+			for (final ChartSeriesProperties seriesProperties : allSeries)
 			{
 				if (!seriesProperties.visibleProperty().get())
 				{
@@ -950,11 +991,12 @@ public class LineChartPaneController<T extends FormattedMessage> implements Init
 					
 				final List<FormattedMessage> extractedMessages = new ArrayList<>();
 				final Series<Number, Number> series = new XYChart.Series<>();
-				topicToSeries.put(seriesProperties.getTopic(), series);
+				seriesIdToSeriesData.put(seriesProperties.getId(), series);
 		        series.setName(seriesProperties.getName());
 		        
 		        final MessageLimitProperties limit = showRangeBox.getValue();
-		        final int itemsAvailable = chartData.get(seriesProperties.getTopic()).size();
+		        final List<FormattedMessage> messageList = chartData.get(seriesProperties.getTopic());
+		        final int itemsAvailable = messageList == null ? 0 : messageList.size();
 		        
 		        // Limit by number
 		        int startIndex = 0;	        
@@ -976,7 +1018,7 @@ public class LineChartPaneController<T extends FormattedMessage> implements Init
 		        	}
 		        	
 		        	extractedMessages.add(message);
-		        	addMessageToSeries(series, message);
+		        	addMessageToSeries(seriesProperties, message);
 		        }
 		        // logger.info("Populated = {}=?{}/{}", chartData.get(topic).size(), topicToSeries.get(topic).getData().size(), limit.getMessageLimit());
 				
@@ -1035,60 +1077,77 @@ public class LineChartPaneController<T extends FormattedMessage> implements Init
 		// TODO: is that ever deregistered?
 		synchronized (chartData)
 		{	
-			final String topic = message.getTopic();
+			final String topic = message.getTopic();			
 			createTopicIfDoesNotExist(topic);		
 			
-			final MessageLimitProperties limit = showRangeBox.getValue();
-			//logger.info("Message limit = {}", limit.getMessageLimit());
-			//logger.info("Time limit = {}", limit.getTimeLimit());
+			final List<ChartSeriesProperties> topicSeries = topicToSeries.get(topic);
 			
-			if (autoRefreshCheckBox.isSelected() && topics.contains(topic))
-			{			
-				// Apply message limit			
-				while ((limit.getMessageLimit() > 0) && (chartData.get(topic).size() >= limit.getMessageLimit()))
+			if (topicSeries != null)
+			{
+				for (final ChartSeriesProperties properties : topicSeries)
 				{
-					//logger.info("Deleting = {}=?{}/{}", chartData.get(topic).size(), topicToSeries.get(topic).getData().size(), limit.getMessageLimit());
-					chartData.get(topic).remove(0);
+					final Series<Number, Number> seriesData = seriesIdToSeriesData.get(properties.getId()); 
 					
-					if (topicToSeries.get(topic).getData().size() > 0)
-					{
-						topicToSeries.get(topic).getData().remove(0);
+					if (seriesData != null)
+					{				
+						updateSeries(topic, seriesData, message, properties);
 					}
 				}
-				
-				// Apply time limit
-				final Date now = new Date();
-				if (limit.getTimeLimit() > 0)
-				{
-					FormattedMessage oldestMessage = chartData.get(topic).get(0);
-					while (oldestMessage.getDate().getTime() + limit.getTimeLimit() < now.getTime())
-					{
-						chartData.get(topic).remove(0);
-						topicToSeries.get(topic).getData().remove(0);
-						
-						if (chartData.get(topic).size() == 0)
-						{
-							break;
-						}
-						oldestMessage = chartData.get(topic).get(0);
-					}				
-				}
-				
-				// Add the new message
-				chartData.get(topic).add(message);
-				addMessageToSeries(topicToSeries.get(topic), message);
-				//logger.info("Added = {}=?{}/{}", chartData.get(topic).size(), topicToSeries.get(topic).getData().size(), limit.getMessageLimit());
-				
-				if (topicToSeries.get(topic).getData().size() > 0)
-				{
-					populateTooltip(topicToSeries.get(topic), 
-						topicToSeries.get(topic).getData().get(topicToSeries.get(topic).getData().size() - 1));
-				}
-				
-				saveOnMessage();
 			}
 		}
-	}	
+	}
+	
+	private void updateSeries(final String topic, final Series<Number, Number> seriesData, final FormattedMessage message, final ChartSeriesProperties properties)
+	{
+		final MessageLimitProperties limit = showRangeBox.getValue();
+		//logger.info("Message limit = {}", limit.getMessageLimit());
+		//logger.info("Time limit = {}", limit.getTimeLimit());
+		
+		if (autoRefreshCheckBox.isSelected() && topics.contains(topic))
+		{			
+			// Apply message limit			
+			while ((limit.getMessageLimit() > 0) && (chartData.get(topic).size() >= limit.getMessageLimit()))
+			{
+				//logger.info("Deleting = {}=?{}/{}", chartData.get(topic).size(), topicToSeries.get(topic).getData().size(), limit.getMessageLimit());
+				chartData.get(topic).remove(0);
+				
+				if (seriesData.getData().size() > 0)
+				{
+					seriesData.getData().remove(0);
+				}
+			}
+			
+			// Apply time limit
+			final Date now = new Date();
+			if (limit.getTimeLimit() > 0)
+			{
+				FormattedMessage oldestMessage = chartData.get(topic).get(0);
+				while (oldestMessage.getDate().getTime() + limit.getTimeLimit() < now.getTime())
+				{
+					chartData.get(topic).remove(0);
+					seriesData.getData().remove(0);
+					
+					if (chartData.get(topic).size() == 0)
+					{
+						break;
+					}
+					oldestMessage = chartData.get(topic).get(0);
+				}				
+			}
+			
+			// Add the new message
+			chartData.get(topic).add(message);
+			addMessageToSeries(properties, message);
+			//logger.info("Added = {}=?{}/{}", chartData.get(topic).size(), topicToSeries.get(topic).getData().size(), limit.getMessageLimit());
+			
+			if (seriesData.getData().size() > 0)
+			{
+				populateTooltip(seriesData, seriesData.getData().get(seriesData.getData().size() - 1));
+			}
+			
+			saveOnMessage();
+		}
+	}
 	
 	private void saveOnMessage()
 	{
@@ -1154,7 +1213,20 @@ public class LineChartPaneController<T extends FormattedMessage> implements Init
 	private void addNewSeries(final ChartSeriesProperties series)
 	{
 		this.seriesTable.getItems().add(series);
-		seriesList.put(series.getTopic(), series);
+		
+		allSeries.add(series);
+		
+		populateTopicToSeries(series);
+	}
+	
+	private void populateTopicToSeries(final ChartSeriesProperties series)
+	{
+		if (topicToSeries.get(series.getTopic()) == null)
+		{
+			topicToSeries.put(series.getTopic(), new ArrayList<>());
+		}
+		
+		topicToSeries.get(series.getTopic()).add(series);
 	}
 	
 	public void setSubscription(MqttSubscription subscription)

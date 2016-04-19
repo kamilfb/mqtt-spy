@@ -325,10 +325,6 @@ public class PublicationScriptsController implements Initializable, TitledPaneCo
 		
 		scriptManager = connection.getScriptManager();
 		eventBus.subscribe(this, this::onScriptStateChange, ScriptStateChangeEvent.class, new SimpleRunLaterExecutor());
-		// TODO: replaced with event bus; to be deleted
-		// eventManager.registerScriptStateChangeObserver(this, null);
-		refreshList();
-		scriptTable.setItems(scriptManager.getObservableScriptList());
 		
 		// Note: subscription scripts don't have context menus because they can't be started/stopped manually - for future, consider enabled/disabled
 		contextMenus.put(ScriptTypeEnum.PUBLICATION, createDirectoryTypeScriptTableContextMenu(ScriptTypeEnum.PUBLICATION));		
@@ -343,6 +339,9 @@ public class PublicationScriptsController implements Initializable, TitledPaneCo
 		publicationScriptsDirectory = InteractiveScriptManager.getScriptDirectoryForConnection(
 				connection.getProperties().getConfiguredProperties().getPublicationScripts());		
 
+		refreshList();
+		scriptTable.setItems(scriptManager.getObservableScriptList());
+		
 		scriptTable.getSortOrder().clear();
 		scriptTable.getSortOrder().add(nameColumn);
 	}

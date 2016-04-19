@@ -5,10 +5,10 @@ function before()
 
 function onMessage()
 {
-	if (!receivedMessage.getTopic().equals("reply"))
+	if (!receivedMessage.getTopic().contains("reply"))
 	{
 		mqttspy.publish(
-			"mqtt-spy/reply", "<simpleReply><topic>" + receivedMessage.getTopic() + "</topic>" 
+			"mqtt-spy/auto-reply", "<simpleReply><topic>" + receivedMessage.getTopic() + "</topic>" 
 			+ "<payload><![CDATA[" + receivedMessage.getPayload() + "]]></payload>"
 			+ "</simpleReply>", 0, false);
 		

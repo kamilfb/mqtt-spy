@@ -38,11 +38,7 @@
       <Label layoutX="14.0" layoutY="18.0" text="Connection name" />
       <TextField fx:id="connectionNameText" layoutX="262.0" layoutY="13.0" prefHeight="25.0" prefWidth="302.0" AnchorPane.leftAnchor="278.0" AnchorPane.rightAnchor="14.0" />
 
-      <Label layoutX="39.0" layoutY="32.0" text="[auto-generated if = client ID@server URI]" textFill="#5e5e5e">
-         <font>
-            <Font size="10.0" />
-         </font>
-      </Label>
+      <Label styleClass="vsmall-font" layoutX="39.0" layoutY="32.0" text="[auto-generated if = client ID@server URI]" />
       
       <!-- Create -->
  	  <Button fx:id="connectButton" focusTraversable="false" graphicTextGap="15" layoutY="317.0" mnemonicParsing="false" onAction="#createConnection" prefHeight="28" prefWidth="302.0" text="Open connection" AnchorPane.bottomAnchor="14.0" AnchorPane.rightAnchor="18.0">
