@@ -4,7 +4,10 @@ function publish()
 
 	for (i = 0; i < 20; i++)
 	{
-		mqttspy.publish("/home/floor1/average", "{ temp: " + (20 + Math.floor((Math.random() * 10) + 1) / 10) + ", " + "energy: " + (40 + Math.floor((Math.random() * 10) + 1)) + "}", 0, false);	
+		mqttspy.publish("home/sockets/all", 
+				"{ " +
+				"energy: " + (240 + Math.floor((Math.random() * 70) + 1)) + 
+				"}", 0, false);	
 
 		try 
 		{
