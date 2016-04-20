@@ -62,9 +62,11 @@ import pl.baczkowicz.mqttspy.stats.StatisticsManager;
 import pl.baczkowicz.mqttspy.ui.connections.ConnectionManager;
 import pl.baczkowicz.mqttspy.ui.events.ConnectionStatusChangeEvent;
 import pl.baczkowicz.mqttspy.ui.events.ShowNewSubscriptionWindowEvent;
+import pl.baczkowicz.mqttspy.ui.scripts.InteractiveScriptManager;
 import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
-import pl.baczkowicz.mqttspy.ui.utils.StylingUtils;
+import pl.baczkowicz.mqttspy.ui.utils.MqttStylingUtils;
 import pl.baczkowicz.spy.eventbus.IKBus;
+import pl.baczkowicz.spy.ui.controllers.TestCasesExecutionController;
 import pl.baczkowicz.spy.ui.panes.PaneVisibilityStatus;
 import pl.baczkowicz.spy.ui.panes.TabController;
 import pl.baczkowicz.spy.ui.panes.TabStatus;
@@ -345,8 +347,11 @@ public class ConnectionController implements Initializable, TabController
 			testCasesTitledPane.setExpanded(false);
 			
 			testCasesPaneController = loader.getController();
-			testCasesPaneController.setConnection(connection);
-			testCasesPaneController.setConnectionController(this);
+			// testCasesPaneController.setConnection(connection);
+			testCasesPaneController.setScriptManager(new InteractiveScriptManager(eventBus, connection));
+			// testCasesPaneController.setConnectionController(this);
+			testCasesPaneController.setSettingsButton(ViewManager.createTitleButtons(testCasesPaneController, new AnchorPane(), this));
+			
 			testCasesPaneController.setTitledPane(testCasesTitledPane);
 			testCasesPaneController.init();
 			
@@ -354,7 +359,7 @@ public class ConnectionController implements Initializable, TabController
 						
 			paneToStatus.put(testCasesTitledPane, testCasesTitledStatus);
 			
-			logger.info("Test cases pane initialised!");
+			logger.debug("Test cases pane initialised!");
 		}
 	}
 	
@@ -568,7 +573,7 @@ public class ConnectionController implements Initializable, TabController
 		{
 			connectionTab.getStyleClass().remove(1);
 		}
-		connectionTab.getStyleClass().add(StylingUtils.getStyleForMqttConnectionStatus(connectionStatus));
+		connectionTab.getStyleClass().add(MqttStylingUtils.getStyleForMqttConnectionStatus(connectionStatus));
 		
 		DialogUtils.updateConnectionTooltip(connection, tooltip);
 	}

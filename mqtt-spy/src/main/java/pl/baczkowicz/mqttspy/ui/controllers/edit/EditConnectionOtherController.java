@@ -41,12 +41,12 @@ import pl.baczkowicz.mqttspy.configuration.ConfiguredConnectionDetails;
 import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnectionDetails;
 import pl.baczkowicz.mqttspy.ui.EditConnectionController;
 import pl.baczkowicz.mqttspy.ui.FormattersController;
-import pl.baczkowicz.mqttspy.ui.events.FormattersChangedEvent;
-import pl.baczkowicz.mqttspy.ui.events.ShowFormattersWindowEvent;
 import pl.baczkowicz.spy.common.generated.FormatterDetails;
 import pl.baczkowicz.spy.eventbus.IKBus;
 import pl.baczkowicz.spy.formatting.FormattingManager;
 import pl.baczkowicz.spy.formatting.FormattingUtils;
+import pl.baczkowicz.spy.ui.events.FormattersChangedEvent;
+import pl.baczkowicz.spy.ui.events.ShowFormattersWindowEvent;
 import pl.baczkowicz.spy.ui.keyboard.KeyboardUtils;
 
 /**

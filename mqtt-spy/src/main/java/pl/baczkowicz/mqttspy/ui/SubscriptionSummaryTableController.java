@@ -58,15 +58,15 @@ import pl.baczkowicz.mqttspy.connectivity.BaseMqttSubscription;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
 import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
-import pl.baczkowicz.mqttspy.ui.charts.ChartFactory;
-import pl.baczkowicz.mqttspy.ui.charts.ChartMode;
-import pl.baczkowicz.mqttspy.ui.utils.StylingUtils;
 import pl.baczkowicz.spy.eventbus.IKBus;
+import pl.baczkowicz.spy.ui.charts.ChartFactory;
+import pl.baczkowicz.spy.ui.charts.ChartMode;
 import pl.baczkowicz.spy.ui.events.MessageIndexToFirstEvent;
 import pl.baczkowicz.spy.ui.events.MessageListChangedEvent;
 import pl.baczkowicz.spy.ui.properties.SubscriptionTopicSummaryProperties;
 import pl.baczkowicz.spy.ui.storage.ManagedMessageStoreWithFiltering;
 import pl.baczkowicz.spy.ui.utils.DialogFactory;
+import pl.baczkowicz.spy.ui.utils.StylingUtils;
 import pl.baczkowicz.spy.ui.utils.UiUtils;
 
 /**

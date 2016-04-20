@@ -49,27 +49,28 @@ import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.connectivity.MqttConnectionStatus;
 import pl.baczkowicz.mqttspy.ui.connections.ConnectionManager;
 import pl.baczkowicz.mqttspy.ui.controlpanel.ControlPanelStatsUpdater;
-import pl.baczkowicz.mqttspy.ui.controlpanel.GettingInvolvedTooltip;
-import pl.baczkowicz.mqttspy.ui.controlpanel.ItemStatus;
 import pl.baczkowicz.mqttspy.ui.events.ConfigurationLoadedEvent;
 import pl.baczkowicz.mqttspy.ui.events.ConnectionStatusChangeEvent;
 import pl.baczkowicz.mqttspy.ui.events.ConnectionsChangedEvent;
-import pl.baczkowicz.mqttspy.ui.events.LoadConfigurationFileEvent;
-import pl.baczkowicz.mqttspy.ui.events.ShowExternalWebPageEvent;
-import pl.baczkowicz.mqttspy.ui.properties.VersionInfoProperties;
 import pl.baczkowicz.mqttspy.ui.utils.ActionUtils;
 import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
-import pl.baczkowicz.mqttspy.ui.utils.StylingUtils;
-import pl.baczkowicz.mqttspy.versions.VersionManager;
-import pl.baczkowicz.mqttspy.versions.events.VersionInfoErrorEvent;
-import pl.baczkowicz.mqttspy.versions.events.VersionInfoReceivedEvent;
-import pl.baczkowicz.mqttspy.versions.generated.MqttSpyVersions;
+import pl.baczkowicz.mqttspy.ui.utils.MqttStylingUtils;
 import pl.baczkowicz.spy.configuration.BasePropertyNames;
 import pl.baczkowicz.spy.eventbus.IKBus;
 import pl.baczkowicz.spy.exceptions.ConfigurationException;
 import pl.baczkowicz.spy.exceptions.XMLException;
 import pl.baczkowicz.spy.ui.configuration.ConfiguredConnectionGroupDetails;
+import pl.baczkowicz.spy.ui.controllers.ControlPanelItemController;
+import pl.baczkowicz.spy.ui.controlpanel.ItemStatus;
+import pl.baczkowicz.spy.ui.controls.GettingInvolvedTooltip;
+import pl.baczkowicz.spy.ui.events.LoadConfigurationFileEvent;
+import pl.baczkowicz.spy.ui.events.ShowExternalWebPageEvent;
+import pl.baczkowicz.spy.ui.events.VersionInfoErrorEvent;
+import pl.baczkowicz.spy.ui.events.VersionInfoReceivedEvent;
+import pl.baczkowicz.spy.ui.generated.versions.SpyVersions;
+import pl.baczkowicz.spy.ui.properties.VersionInfoProperties;
 import pl.baczkowicz.spy.ui.threading.SimpleRunLaterExecutor;
+import pl.baczkowicz.spy.ui.versions.VersionManager;
 import pl.baczkowicz.spy.utils.ThreadingUtils;
 
 /**
@@ -148,11 +149,6 @@ public class ControlPanelController extends AnchorPane implements Initializable
 		eventBus.subscribe(this, this::onConnectionsChanged, ConnectionsChangedEvent.class);
 		eventBus.subscribe(this, this::onConfigurationFileStatusChange, ConfigurationLoadedEvent.class);
 		
-		controlPanelItem1Controller.setConfigurationMananger(configurationManager);
-		controlPanelItem2Controller.setConfigurationMananger(configurationManager);
-		controlPanelItem3Controller.setConfigurationMananger(configurationManager);
-		controlPanelItem4Controller.setConfigurationMananger(configurationManager);
-		
 		// Item 1
 		showConfigurationFileStatus(controlPanelItem1Controller, button1);		
 		
@@ -181,7 +177,15 @@ public class ControlPanelController extends AnchorPane implements Initializable
 		
 		statsUpdater = new ControlPanelStatsUpdater(controlPanelItem4Controller, button, eventBus);
 		statsUpdater.show();
-		gettingInvolvedTooltip = new GettingInvolvedTooltip();				  
+		
+		final String text = 
+				"mqtt-spy needs you! Please support the project" + System.lineSeparator()
+				+ "by raising bugs, " + "helping out with testing" + System.lineSeparator()
+				+ "or making a charity donation. " + System.lineSeparator()
+				+ "See http://github.com/kamilfb/mqtt-spy/wiki/Getting-involved" + System.lineSeparator()
+				+ "for more information on how to get involved." + System.lineSeparator();		
+		
+		gettingInvolvedTooltip = new GettingInvolvedTooltip(text, "mqtt-spy-logo");				  
 		button.setTooltip(gettingInvolvedTooltip);
 		button.setOnMouseMoved(new EventHandler<MouseEvent>()
 		{
@@ -267,7 +271,7 @@ public class ControlPanelController extends AnchorPane implements Initializable
 			final MqttAsyncConnection connection, final ConfiguredConnectionDetails connectionDetails, 
 			final Button connectionButton, final String connectionName)
 	{			
-		connectionButton.getStyleClass().add(StylingUtils.getStyleForMqttConnectionStatus(status));	
+		connectionButton.getStyleClass().add(MqttStylingUtils.getStyleForMqttConnectionStatus(status));	
 		connectionButton.setOnAction(ActionUtils.createNextAction(status, connection, connectionManager));
 		
 		final HBox buttonBox = new HBox();			
@@ -307,7 +311,7 @@ public class ControlPanelController extends AnchorPane implements Initializable
 		if (connection == null || (!connection.isOpened() && !connection.isOpening()))
 		{
 			final String buttonText = "Open " + connectionName; 
-			connectionButton.getStyleClass().add(StylingUtils.getStyleForMqttConnectionStatus(null));	
+			connectionButton.getStyleClass().add(MqttStylingUtils.getStyleForMqttConnectionStatus(null));	
 			connectionButton.setOnAction(new EventHandler<ActionEvent>()
 			{						
 				@Override
@@ -338,7 +342,7 @@ public class ControlPanelController extends AnchorPane implements Initializable
 		else if (connection.getConnectionStatus() != null)
 		{
 			final String buttonText = nextActionTitle.get(connection.getConnectionStatus()) + " " + connectionName; 
-			connectionButton.getStyleClass().add(StylingUtils.getStyleForMqttConnectionStatus(connection.getConnectionStatus()));	
+			connectionButton.getStyleClass().add(MqttStylingUtils.getStyleForMqttConnectionStatus(connection.getConnectionStatus()));	
 			connectionButton.setOnAction(ActionUtils.createNextAction(connection.getConnectionStatus(), connection, connectionManager));
 			
 			connectionButton.setGraphic(null);
@@ -473,7 +477,7 @@ public class ControlPanelController extends AnchorPane implements Initializable
 					// Wait some time for the app to start properly
 					ThreadingUtils.sleep(5000);					
 					
-					final MqttSpyVersions versions = versionManager.loadVersions();
+					final SpyVersions versions = versionManager.loadVersions();
 					
 					logger.debug("Retrieved version info = " + versions.toString());
 					eventBus.publish(new VersionInfoReceivedEvent(versions));
@@ -495,42 +499,10 @@ public class ControlPanelController extends AnchorPane implements Initializable
 	{
 		controller.setShowProgress(false);
 		
-		final VersionInfoProperties properties = versionManager.getVersionInfoProperties(configurationManager);
+		final VersionInfoProperties properties = versionManager.getVersionInfoProperties(configurationManager.getDefaultPropertyFile());
 		controller.setStatus(properties.getStatus());
 		controller.setTitle(properties.getTitle());
 		controller.setDetails(properties.getDetails());
-		
-//		if (versionManager.getVersions() != null)
-//		{
-//			boolean versionFound = false;
-//			
-//			for (final ReleaseStatus release : versionManager.getVersions().getReleaseStatuses().getReleaseStatus())
-//			{
-//				if (VersionManager.isInRange(configurationManager.getDefaultPropertyFile().getFullVersionNumber(), release))
-//				{					
-//					controller.setStatus(VersionManager.convertVersionStatus(release));
-//					controller.setTitle(release.getUpdateTitle());
-//					// TODO: might need to append version info
-//					controller.setDetails(release.getUpdateDetails());
-//					versionFound = true;
-//					break;
-//				}
-//			}
-//			
-//			if (!versionFound)
-//			{
-//				controller.setStatus(ItemStatus.INFO);
-//				controller.setTitle("Couldn't find any information about your version - please check manually.");
-//				controller.setDetails("Your version is " + configurationManager.getDefaultPropertyFile().getFullVersionName() + ".");
-//			}
-//		}	
-//		else
-//		{
-//			// Set the default state
-//			controller.setStatus(ItemStatus.WARN);
-//			controller.setTitle("Cannot check for updates - is your internet connection up?");
-//			controller.setDetails("Click here to go to the download page for mqtt-spy.");
-//		}
 		
 		controller.refresh();
 	}
@@ -584,7 +556,7 @@ public class ControlPanelController extends AnchorPane implements Initializable
 //		});		
 	}
 
-	public void setVersionManager(VersionManager versionManager)
+	public void setVersionManager(final VersionManager versionManager)
 	{
 		this.versionManager = versionManager;		
 	}

@@ -48,22 +48,22 @@ import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnection
 import pl.baczkowicz.mqttspy.stats.ConnectionStatsUpdater;
 import pl.baczkowicz.mqttspy.stats.StatisticsManager;
 import pl.baczkowicz.mqttspy.ui.connections.ConnectionManager;
-import pl.baczkowicz.mqttspy.ui.events.LoadConfigurationFileEvent;
-import pl.baczkowicz.mqttspy.ui.events.NewPerspectiveSelectedEvent;
-import pl.baczkowicz.mqttspy.ui.events.ShowAboutWindowEvent;
 import pl.baczkowicz.mqttspy.ui.events.ShowEditConnectionsWindowEvent;
-import pl.baczkowicz.mqttspy.ui.events.ShowExternalWebPageEvent;
-import pl.baczkowicz.mqttspy.ui.events.ShowFormattersWindowEvent;
 import pl.baczkowicz.mqttspy.ui.events.ShowMessageLogEvent;
 import pl.baczkowicz.mqttspy.ui.events.ShowNewSubscriptionWindowEvent;
 import pl.baczkowicz.mqttspy.ui.events.ShowTestCasesWindowEvent;
 import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
-import pl.baczkowicz.mqttspy.versions.VersionManager;
 import pl.baczkowicz.spy.eventbus.IKBus;
 import pl.baczkowicz.spy.exceptions.SpyUncaughtExceptionHandler;
 import pl.baczkowicz.spy.exceptions.XMLException;
+import pl.baczkowicz.spy.ui.events.LoadConfigurationFileEvent;
+import pl.baczkowicz.spy.ui.events.NewPerspectiveSelectedEvent;
+import pl.baczkowicz.spy.ui.events.ShowAboutWindowEvent;
+import pl.baczkowicz.spy.ui.events.ShowExternalWebPageEvent;
+import pl.baczkowicz.spy.ui.events.ShowFormattersWindowEvent;
 import pl.baczkowicz.spy.ui.panes.PaneVisibilityStatus;
 import pl.baczkowicz.spy.ui.panes.SpyPerspective;
+import pl.baczkowicz.spy.ui.versions.VersionManager;
 
 /**
  * Controller for the main window.

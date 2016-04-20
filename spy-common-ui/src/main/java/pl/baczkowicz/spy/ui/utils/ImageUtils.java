@@ -22,24 +22,24 @@ package pl.baczkowicz.spy.ui.utils;
 import javafx.scene.image.ImageView;
 
 public class ImageUtils
-{
+{	
 	private static final String IMG_EXT = ".png";
 	
 	public static ImageView createIcon(final String name, final int size, final String style)
 	{
-		final String location = "images/" + name + IMG_EXT;
+		final String location = ResourcePaths.IMAGES_PATH + name + IMG_EXT;
 		return createImage(location, size, style);
 	}
 	
 	public static ImageView createIcon(final String name, final int size)
 	{
-		final String location = "images/" + name + IMG_EXT;
+		final String location = ResourcePaths.IMAGES_PATH + name + IMG_EXT;
 		return createImage(location, size);
 	}
 	
 	public static ImageView createIcon(final String name)
 	{
-		final String location = "images/" + name + IMG_EXT;
+		final String location = ResourcePaths.IMAGES_PATH + name + IMG_EXT;
 		return createImage(location);
 	}
 	

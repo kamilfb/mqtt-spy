@@ -30,11 +30,11 @@ import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
 import pl.baczkowicz.mqttspy.stats.StatisticsManager;
 import pl.baczkowicz.mqttspy.ui.ViewManager;
 import pl.baczkowicz.mqttspy.ui.connections.ConnectionManager;
-import pl.baczkowicz.mqttspy.ui.events.LoadConfigurationFileEvent;
-import pl.baczkowicz.mqttspy.versions.VersionManager;
 import pl.baczkowicz.spy.eventbus.IKBus;
 import pl.baczkowicz.spy.eventbus.KBus;
+import pl.baczkowicz.spy.ui.events.LoadConfigurationFileEvent;
 import pl.baczkowicz.spy.ui.utils.FxmlUtils;
+import pl.baczkowicz.spy.ui.versions.VersionManager;
 
 /** 
  * The main class, loading the app.

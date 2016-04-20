@@ -64,27 +64,28 @@ import pl.baczkowicz.mqttspy.configuration.ConfiguredConnectionDetails;
 import pl.baczkowicz.mqttspy.messages.BaseMqttMessage;
 import pl.baczkowicz.mqttspy.stats.StatisticsManager;
 import pl.baczkowicz.mqttspy.ui.connections.ConnectionManager;
-import pl.baczkowicz.mqttspy.ui.controllers.edit.EditChartSeriesController;
 import pl.baczkowicz.mqttspy.ui.events.ConfigurationLoadedEvent;
 import pl.baczkowicz.mqttspy.ui.events.ConnectionStatusChangeEvent;
 import pl.baczkowicz.mqttspy.ui.events.ConnectionsChangedEvent;
-import pl.baczkowicz.mqttspy.ui.events.ShowEditChartSeriesWindowEvent;
 import pl.baczkowicz.mqttspy.ui.events.ShowNewSubscriptionWindowEvent;
-import pl.baczkowicz.mqttspy.ui.events.LoadConfigurationFileEvent;
-import pl.baczkowicz.mqttspy.ui.events.NewPerspectiveSelectedEvent;
-import pl.baczkowicz.mqttspy.ui.events.ShowAboutWindowEvent;
 import pl.baczkowicz.mqttspy.ui.events.ShowEditConnectionsWindowEvent;
-import pl.baczkowicz.mqttspy.ui.events.ShowExternalWebPageEvent;
-import pl.baczkowicz.mqttspy.ui.events.ShowFormattersWindowEvent;
 import pl.baczkowicz.mqttspy.ui.events.ShowMessageLogEvent;
 import pl.baczkowicz.mqttspy.ui.events.ShowTestCasesWindowEvent;
 import pl.baczkowicz.mqttspy.ui.messagelog.LogReaderTask;
 import pl.baczkowicz.mqttspy.ui.messagelog.TaskWithProgressUpdater;
-import pl.baczkowicz.mqttspy.versions.VersionManager;
 import pl.baczkowicz.spy.configuration.BaseConfigurationUtils;
 import pl.baczkowicz.spy.eventbus.IKBus;
 import pl.baczkowicz.spy.exceptions.ConfigurationException;
 import pl.baczkowicz.spy.ui.configuration.UiProperties;
+import pl.baczkowicz.spy.ui.controllers.AboutController;
+import pl.baczkowicz.spy.ui.controllers.EditChartSeriesController;
+import pl.baczkowicz.spy.ui.controllers.TestCasesExecutionController;
+import pl.baczkowicz.spy.ui.events.LoadConfigurationFileEvent;
+import pl.baczkowicz.spy.ui.events.NewPerspectiveSelectedEvent;
+import pl.baczkowicz.spy.ui.events.ShowAboutWindowEvent;
+import pl.baczkowicz.spy.ui.events.ShowEditChartSeriesWindowEvent;
+import pl.baczkowicz.spy.ui.events.ShowExternalWebPageEvent;
+import pl.baczkowicz.spy.ui.events.ShowFormattersWindowEvent;
 import pl.baczkowicz.spy.ui.panes.PaneVisibilityStatus;
 import pl.baczkowicz.spy.ui.panes.SpyPerspective;
 import pl.baczkowicz.spy.ui.panes.TitledPaneController;
@@ -92,6 +93,7 @@ import pl.baczkowicz.spy.ui.panes.TitledPaneStatus;
 import pl.baczkowicz.spy.ui.threading.SimpleRunLaterExecutor;
 import pl.baczkowicz.spy.ui.utils.FxmlUtils;
 import pl.baczkowicz.spy.ui.utils.ImageUtils;
+import pl.baczkowicz.spy.ui.versions.VersionManager;
 
 public class ViewManager
 {
@@ -162,10 +164,10 @@ public class ViewManager
 		final AnchorPane window = FxmlUtils.loadAnchorPane(loader);
 		
 		aboutController = ((AboutController) loader.getController());
-		aboutController.setConfigurationManager(configurationManager);
+		// aboutController.setConfigurationManager(configurationManager);
 		aboutController.setVersionManager(versionManager);
 		aboutController.setEventBus(eventBus);
-		
+		aboutController.setPropertyFileLoader(configurationManager.getDefaultPropertyFile());
 		aboutController.init();
 		
 		Scene scene = new Scene(window);
@@ -274,7 +276,7 @@ public class ViewManager
 		final double width = Math.min(UiProperties.getApplicationWidth(configurationManager.getUiPropertyFile()), primaryScreenBounds.getWidth());
 		
 		final Scene scene = new Scene(pane, width, height);			
-		scene.getStylesheets().add(Main.class.getResource("application.css").toExternalForm());
+		scene.getStylesheets().add(Main.class.getResource("/ui/css/application.css").toExternalForm());
 		
 		stylesheets = scene.getStylesheets();
 		
