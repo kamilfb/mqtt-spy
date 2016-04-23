@@ -31,7 +31,7 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="221.0" prefWidth="590.0" xmlns="http://javafx.com/javafx/8.0.66" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.baczkowicz.mqttspy.ui.controllers.edit.EditChartSeriesController">
+<AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="221.0" prefWidth="590.0" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.baczkowicz.spy.ui.controllers.EditChartSeriesController">
    <children>  
       
       <Label layoutX="23.0" layoutY="21.0" text="Series name" />      

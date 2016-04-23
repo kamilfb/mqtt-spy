@@ -31,18 +31,19 @@ import org.jmock.lib.legacy.ClassImposteriser;
 import org.junit.Before;
 import org.junit.Test;
 
-import pl.baczkowicz.mqttspy.configuration.ConfiguredConnectionDetails;
+import pl.baczkowicz.mqttspy.configuration.ConfiguredMqttConnectionDetails;
 import pl.baczkowicz.mqttspy.connectivity.reconnection.ReconnectionManager;
 import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
-import pl.baczkowicz.mqttspy.stats.StatisticsManager;
-import pl.baczkowicz.mqttspy.ui.events.ConnectionStatusChangeEvent;
 import pl.baczkowicz.mqttspy.ui.events.SubscriptionStatusChangeEvent;
 import pl.baczkowicz.spy.common.generated.FormatterDetails;
+import pl.baczkowicz.spy.connectivity.ConnectionStatus;
 import pl.baczkowicz.spy.eventbus.IKBus;
 import pl.baczkowicz.spy.exceptions.ConfigurationException;
 import pl.baczkowicz.spy.exceptions.XMLException;
 import pl.baczkowicz.spy.formatting.FormattingManager;
+import pl.baczkowicz.spy.ui.events.ConnectionStatusChangeEvent;
 import pl.baczkowicz.spy.ui.events.queuable.EventQueueManager;
+import pl.baczkowicz.spy.ui.stats.StatisticsManager;
 
 public class MqttConnectionTest extends TestCase
 {
@@ -83,7 +84,7 @@ public class MqttConnectionTest extends TestCase
 		mockEventBus = context.mock(IKBus.class);
 		mockedReconnectionManager = context.mock(ReconnectionManager.class);
 		mockedFormattingManager = context.mock(FormattingManager.class);
-		statisticsManager = new StatisticsManager();
+		statisticsManager = new StatisticsManager(null);
 		statisticsManager.loadStats();
 	}
 
@@ -91,7 +92,7 @@ public class MqttConnectionTest extends TestCase
 	public void testUnsubscribeAndRemove() throws MqttException, ConfigurationException
 	{
 		// Set up connection
-		final ConfiguredConnectionDetails configuredConnectionDetails = new ConfiguredConnectionDetails();
+		final ConfiguredMqttConnectionDetails configuredConnectionDetails = new ConfiguredMqttConnectionDetails();
 		configuredConnectionDetails.setName(name);
 		configuredConnectionDetails.getServerURI().add(serverURI);
 		configuredConnectionDetails.setClientID(clientId);
@@ -101,7 +102,7 @@ public class MqttConnectionTest extends TestCase
 		configuredConnectionDetails.setMinMessagesStoredPerTopic(10);
 		configuredConnectionDetails.setMaxMessagesStored(500);
 		
-		final RuntimeConnectionProperties connectionProperties = new RuntimeConnectionProperties(configuredConnectionDetails);
+		final MqttRuntimeConnectionProperties connectionProperties = new MqttRuntimeConnectionProperties(configuredConnectionDetails);
 		context.checking(new Expectations()
 		{
 			{
@@ -110,7 +111,7 @@ public class MqttConnectionTest extends TestCase
 		});
 		
 		final MqttAsyncConnection connection = new MqttAsyncConnection(
-				mockedReconnectionManager, connectionProperties, MqttConnectionStatus.CONNECTING, 
+				mockedReconnectionManager, connectionProperties, ConnectionStatus.CONNECTING, 
 				mockEventBus, null, mockedFormattingManager, new EventQueueManager(), 100);
 		connection.setStatisticsManager(statisticsManager);
 		context.assertIsSatisfied();
@@ -157,7 +158,7 @@ public class MqttConnectionTest extends TestCase
 	public void testUnsubscribe() throws MqttException, ConfigurationException
 	{
 		// Set up connection
-		final ConfiguredConnectionDetails configuredConnectionDetails = new ConfiguredConnectionDetails();
+		final ConfiguredMqttConnectionDetails configuredConnectionDetails = new ConfiguredMqttConnectionDetails();
 		configuredConnectionDetails.setName(name);
 		configuredConnectionDetails.getServerURI().add(serverURI);
 		configuredConnectionDetails.setClientID(clientId);
@@ -167,7 +168,7 @@ public class MqttConnectionTest extends TestCase
 		configuredConnectionDetails.setMinMessagesStoredPerTopic(10);
 		configuredConnectionDetails.setMaxMessagesStored(200);
 		
-		final RuntimeConnectionProperties connectionProperties = new RuntimeConnectionProperties(configuredConnectionDetails);
+		final MqttRuntimeConnectionProperties connectionProperties = new MqttRuntimeConnectionProperties(configuredConnectionDetails);
 		
 		context.checking(new Expectations()
 		{
@@ -177,7 +178,7 @@ public class MqttConnectionTest extends TestCase
 		});
 		
 		final MqttAsyncConnection connection = new MqttAsyncConnection(
-				mockedReconnectionManager, connectionProperties, MqttConnectionStatus.CONNECTING, 
+				mockedReconnectionManager, connectionProperties, ConnectionStatus.CONNECTING, 
 				mockEventBus, null, mockedFormattingManager, new EventQueueManager(), 100);
 		connection.setStatisticsManager(statisticsManager);
 		context.assertIsSatisfied();

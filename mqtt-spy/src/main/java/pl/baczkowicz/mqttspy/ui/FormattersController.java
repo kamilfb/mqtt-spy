@@ -45,8 +45,8 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
-import pl.baczkowicz.mqttspy.configuration.ConfiguredConnectionDetails;
+import pl.baczkowicz.mqttspy.configuration.MqttConfigurationManager;
+import pl.baczkowicz.mqttspy.configuration.ConfiguredMqttConnectionDetails;
 import pl.baczkowicz.mqttspy.connectivity.BaseMqttConnection;
 import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.scripts.MqttScriptManager;
@@ -105,7 +105,7 @@ public class FormattersController implements Initializable
 	
 	private FormatterDetails selectedFormatter = FormattingUtils.createBasicFormatter("default", "Plain", "", ConversionMethod.PLAIN);
 
-	private ConfigurationManager configurationManager;
+	private MqttConfigurationManager configurationManager;
 	
 	private ScriptBasedFormatter scriptBasedFormatter;
 
@@ -306,7 +306,7 @@ public class FormattersController implements Initializable
 		}
 		
 		int count = 0;
-		for (final ConfiguredConnectionDetails connectionDetails : configurationManager.getConnections())
+		for (final ConfiguredMqttConnectionDetails connectionDetails : configurationManager.getConnections())
 		{
 			if (connectionDetails.getFormatter() == null)
 			{
@@ -329,7 +329,7 @@ public class FormattersController implements Initializable
 		
 		if (count == 0 || result.get() == ButtonType.YES)
 		{
-			for (final ConfiguredConnectionDetails connectionDetails : configurationManager.getConnections())
+			for (final ConfiguredMqttConnectionDetails connectionDetails : configurationManager.getConnections())
 			{					
 				connectionDetails.setFormatter(null);					
 			}
@@ -559,7 +559,7 @@ public class FormattersController implements Initializable
 	// === Setters and getters =======
 	// ===============================
 	
-	public void setConfigurationManager(final ConfigurationManager configurationManager)
+	public void setConfigurationManager(final MqttConfigurationManager configurationManager)
 	{
 		this.configurationManager = configurationManager;
 	}

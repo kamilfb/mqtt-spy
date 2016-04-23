@@ -94,7 +94,7 @@ public class ConfigurationUtils
 	{
 		try
 		{ 
-			final File dest = ConfigurationManager.getDefaultConfigurationFile();
+			final File dest = MqttConfigurationManager.getDefaultConfigurationFile();
 		
 			dest.mkdirs();
 			Files.copy(orig.toPath(), dest.toPath(), StandardCopyOption.REPLACE_EXISTING);			
@@ -113,7 +113,7 @@ public class ConfigurationUtils
 
 	private static boolean copyFileFromClassPath(final InputStream orig, final File dest) throws IOException
 	{
-		ConfigurationManager.getDefaultHomeDirectoryFile().mkdirs();
+		MqttConfigurationManager.getDefaultHomeDirectoryFile().mkdirs();
 		ConfigurationUtils.streamToFile(orig, dest);
 
 		return true;	
@@ -124,7 +124,7 @@ public class ConfigurationUtils
 		final String origin = "/samples" + "/" + name + "-mqtt-spy-configuration.xml";
 		try
 		{			
-			return copyFileFromClassPath(Main.class.getResourceAsStream(origin), ConfigurationManager.getDefaultConfigurationFile());
+			return copyFileFromClassPath(Main.class.getResourceAsStream(origin), MqttConfigurationManager.getDefaultConfigurationFile());
 		}
 		catch (IllegalArgumentException | IOException e)
 		{
@@ -137,10 +137,10 @@ public class ConfigurationUtils
 	
 	public static boolean createUiPropertyFileFromClassPath()
 	{
-		final String origin = "/samples" + ConfigurationManager.UI_PROPERTIES_FILE_NAME;
+		final String origin = "/samples" + MqttConfigurationManager.UI_PROPERTIES_FILE_NAME;
 		try
 		{			
-			return copyFileFromClassPath(Main.class.getResourceAsStream(origin), ConfigurationManager.getUiPropertiesFile());
+			return copyFileFromClassPath(Main.class.getResourceAsStream(origin), MqttConfigurationManager.getUiPropertiesFile());
 		}
 		catch (IllegalArgumentException | IOException e)
 		{

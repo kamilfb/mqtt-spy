@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
 import pl.baczkowicz.mqttspy.connectivity.topicmatching.TopicMatcher;
 import pl.baczkowicz.mqttspy.utils.ConnectionUtils;
 import pl.baczkowicz.spy.common.generated.ScriptDetails;
+import pl.baczkowicz.spy.connectivity.ConnectionStatus;
 import pl.baczkowicz.spy.exceptions.ExceptionUtils;
 import pl.baczkowicz.spy.exceptions.SpyException;
 import pl.baczkowicz.spy.scripts.BaseScriptManager;
@@ -69,7 +70,7 @@ public abstract class BaseMqttConnection implements IMqttConnection
 	protected final MqttConnectionDetailsWithOptions connectionDetails;	
 
 	/** COnnection status. */
-	private MqttConnectionStatus connectionStatus = MqttConnectionStatus.NOT_CONNECTED;
+	private ConnectionStatus connectionStatus = ConnectionStatus.NOT_CONNECTED;
 
 	/** Disconnection reason (if any). */
 	private String disconnectionReason;
@@ -428,7 +429,7 @@ public abstract class BaseMqttConnection implements IMqttConnection
 	public void connectionLost(Throwable connectionLostCause)
 	{	
 		setDisconnectionReason(ExceptionUtils.getInfo(connectionLostCause));
-		setConnectionStatus(MqttConnectionStatus.DISCONNECTED);
+		setConnectionStatus(ConnectionStatus.DISCONNECTED);
 	}
 	
 	/**
@@ -508,7 +509,7 @@ public abstract class BaseMqttConnection implements IMqttConnection
 	 * 
 	 * @return Current connection status
 	 */
-	public MqttConnectionStatus getConnectionStatus()
+	public ConnectionStatus getConnectionStatus()
 	{
 		return connectionStatus;
 	}
@@ -518,7 +519,7 @@ public abstract class BaseMqttConnection implements IMqttConnection
 	 * 
 	 * @param connectionStatus The connection status to set
 	 */
-	public void setConnectionStatus(final MqttConnectionStatus connectionStatus)
+	public void setConnectionStatus(final ConnectionStatus connectionStatus)
 	{
 		this.connectionStatus = connectionStatus;
 	}

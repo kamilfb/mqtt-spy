@@ -35,7 +35,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane fx:id="editConnectionsWindow" minWidth="850.0" prefHeight="420" prefWidth="945.0" xmlns="http://javafx.com/javafx/8.0.66" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.baczkowicz.mqttspy.ui.EditConnectionsController">
+<AnchorPane fx:id="editConnectionsWindow" minWidth="850.0" prefHeight="420" prefWidth="945.0" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.baczkowicz.spy.ui.controllers.EditConnectionsController">
    <children>
    	
    	  <SplitPane styleClass="normal-font" dividerPositions="0.2" prefHeight="160.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
@@ -102,6 +102,7 @@
 							      </ImageView>
 					      	</graphic>
 					      	 <items>		        	
+					      	 	<!-- 
 			        			<MenuItem onAction="#newMqttConnection" text="Create new MQTT connection">
 			        				<graphic>
 							      		<ImageView fitHeight="18" fitWidth="18" pickOnBounds="true">
@@ -111,6 +112,7 @@
 									      </ImageView>
 							      	</graphic>
 			        			</MenuItem>
+			        			 -->
 			        			<SeparatorMenuItem />
 			        			<MenuItem onAction="#newGroup" text="Create new connection group">
 			        				<graphic>
@@ -131,7 +133,6 @@
           
           	<AnchorPane fx:id="connectionDetailsPane" minWidth="600.0">
 	      		<children>
-	   	      			<fx:include fx:id="editConnectionPane" source="EditConnectionPane.fxml" />
 	   	      			<fx:include fx:id="editConnectionGroupPane" source="EditConnectionGroupPane.fxml" visible="false" />   	      			
 	   	    	</children>
       		</AnchorPane>

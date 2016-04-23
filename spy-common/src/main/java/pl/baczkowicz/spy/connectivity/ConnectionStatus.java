@@ -17,12 +17,12 @@
  *    Kamil Baczkowicz - initial API and implementation and/or initial documentation
  *    
  */
-package pl.baczkowicz.mqttspy.connectivity;
+package pl.baczkowicz.spy.connectivity;
 
 /**
  * Indicates the status of the connection.
  */
-public enum MqttConnectionStatus
+public enum ConnectionStatus
 {
 	/** No attempt made yet. */
 	NOT_CONNECTED, 

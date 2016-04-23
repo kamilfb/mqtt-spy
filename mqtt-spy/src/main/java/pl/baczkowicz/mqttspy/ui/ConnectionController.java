@@ -56,24 +56,24 @@ import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.connectivity.BaseMqttSubscription;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
-import pl.baczkowicz.mqttspy.connectivity.MqttConnectionStatus;
 import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
-import pl.baczkowicz.mqttspy.stats.StatisticsManager;
 import pl.baczkowicz.mqttspy.ui.connections.ConnectionManager;
-import pl.baczkowicz.mqttspy.ui.events.ConnectionStatusChangeEvent;
 import pl.baczkowicz.mqttspy.ui.events.ShowNewSubscriptionWindowEvent;
 import pl.baczkowicz.mqttspy.ui.scripts.InteractiveScriptManager;
 import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
 import pl.baczkowicz.mqttspy.ui.utils.MqttStylingUtils;
+import pl.baczkowicz.spy.connectivity.ConnectionStatus;
 import pl.baczkowicz.spy.eventbus.IKBus;
 import pl.baczkowicz.spy.ui.controllers.TestCasesExecutionController;
+import pl.baczkowicz.spy.ui.events.ConnectionStatusChangeEvent;
 import pl.baczkowicz.spy.ui.panes.PaneVisibilityStatus;
 import pl.baczkowicz.spy.ui.panes.TabController;
 import pl.baczkowicz.spy.ui.panes.TabStatus;
 import pl.baczkowicz.spy.ui.panes.TitledPaneStatus;
+import pl.baczkowicz.spy.ui.stats.StatisticsManager;
 import pl.baczkowicz.spy.ui.utils.DialogFactory;
 import pl.baczkowicz.spy.ui.utils.FxmlUtils;
-import pl.baczkowicz.spy.ui.utils.ImageUtils;
+import pl.baczkowicz.spy.ui.utils.UiUtils;
 
 /**
  * Controller looking after the connection tab.
@@ -455,10 +455,10 @@ public class ConnectionController implements Initializable, TabController
 			connectionTab.setGraphic(title);
 			connectionTab.setText(null);
 		}
-		else if (connection.getConnectionStatus().equals(MqttConnectionStatus.CONNECTED))
+		else if (connection.getConnectionStatus().equals(ConnectionStatus.CONNECTED))
 		{								
 			connectionTab.setGraphic(
-					createSecurityIcons(
+					UiUtils.createSecurityIcons(
 							connection.getProperties().getSSL() != null, 
 							connection.getProperties().getUserCredentials() != null, false));
 			connectionTab.setText(connection.getName());
@@ -470,45 +470,11 @@ public class ConnectionController implements Initializable, TabController
 		}
 	}
 	
-	public static HBox createSecurityIcons(final boolean tlsEnabled, final boolean userAuthEnabled, final boolean showBothStates)
-	{
-		final HBox icons = new HBox();
-		
-		createTlsIcon(icons, tlsEnabled, showBothStates);
-		createAuthIcon(icons, userAuthEnabled, showBothStates);
-		
-		return icons;
-	}
-	
-	public static void createTlsIcon(final HBox icons, final boolean tlsEnabled, final boolean showBothStates)
-	{
-		if (tlsEnabled)
-		{
-			icons.getChildren().add(ImageUtils.createIcon("lock-yes", 16));
-		}
-		else if (!tlsEnabled && showBothStates)
-		{
-			icons.getChildren().add(ImageUtils.createIcon("lock-no", 16));
-		}		
-	}
-	
-	public static void createAuthIcon(final HBox icons, final boolean userAuthEnabled, final boolean showBothStates)
-	{
-		if (userAuthEnabled)
-		{
-			icons.getChildren().add(ImageUtils.createIcon("auth-yes", 19));
-		}
-		else if (!userAuthEnabled && showBothStates)
-		{
-			icons.getChildren().add(ImageUtils.createIcon("auth-none", 19));
-		}
-	}
-	
 	public void onConnectionStatusChanged(final ConnectionStatusChangeEvent event)
 	{
-		final MqttConnectionStatus connectionStatus = event.getChangedConnection().getConnectionStatus();
+		final ConnectionStatus connectionStatus = event.getConnectionStatus();
 		
-		logger.debug("Updating {} connection status to {}", event.getChangedConnection().getName(), connectionStatus);		
+		logger.debug("Updating {} connection status to {}", event.getName(), connectionStatus);		
 		
 		newSubscriptionPaneController.setConnected(false);
 		getNewPublicationPaneController().setConnected(false);
@@ -816,7 +782,7 @@ public class ConnectionController implements Initializable, TabController
 		if (connection != null)
 		{
 			
-			onConnectionStatusChanged(new ConnectionStatusChangeEvent(connection));
+			onConnectionStatusChanged(new ConnectionStatusChangeEvent(connection, connection.getName(), connection.getConnectionStatus()));
 		}
 	}
 

@@ -18,26 +18,32 @@
  *    
  */
 
-package pl.baczkowicz.mqttspy.ui.events;
+package pl.baczkowicz.spy.ui.events;
 
-import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
+import pl.baczkowicz.spy.connectivity.ConnectionStatus;
 import pl.baczkowicz.spy.eventbus.FilterableEvent;
 
 public class ConnectionStatusChangeEvent extends FilterableEvent
 {
-	private final MqttAsyncConnection changedConnection;
+	private String name;
+	
+	private ConnectionStatus status;
 
-	public ConnectionStatusChangeEvent(final MqttAsyncConnection changedConnection)
+	public ConnectionStatusChangeEvent(final Object changedConnection, final String name, final ConnectionStatus status)
 	{
 		this.setFilter(changedConnection);
-		this.changedConnection = changedConnection;
+		
+		this.name = name;
+		this.status = status;
 	}
-
-	/**
-	 * @return the changedConnection
-	 */
-	public MqttAsyncConnection getChangedConnection()
+	
+	public String getName() 
 	{
-		return changedConnection;
+		return name;
+	}
+	
+	public ConnectionStatus getConnectionStatus()
+	{
+		return status;
 	}
 }

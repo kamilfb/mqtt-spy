@@ -25,7 +25,7 @@ import pl.baczkowicz.spy.common.generated.ConnectionGroupReference;
 import pl.baczkowicz.spy.ui.configuration.ConfiguredConnectionGroupDetails;
 import pl.baczkowicz.spy.ui.properties.ModifiableItem;
 
-public class ConfiguredConnectionDetails extends UserInterfaceMqttConnectionDetails implements ModifiableItem
+public class ConfiguredMqttConnectionDetails extends UserInterfaceMqttConnectionDetails implements ModifiableItem
 {
 	private static final long serialVersionUID = -111271741915161354L;
 
@@ -39,13 +39,13 @@ public class ConfiguredConnectionDetails extends UserInterfaceMqttConnectionDeta
 	
 	private boolean valid;
 
-	private ConfiguredConnectionDetails lastSavedValues;	
+	private ConfiguredMqttConnectionDetails lastSavedValues;	
 
 	private ConnectionGroupReference group;
 
 	private boolean groupingModified;
 
-	public ConfiguredConnectionDetails()
+	public ConfiguredMqttConnectionDetails()
 	{
 		// Default constructor
 	}
@@ -53,7 +53,7 @@ public class ConfiguredConnectionDetails extends UserInterfaceMqttConnectionDeta
 	 /**
      * Initialising value constructor
      */
-	public ConfiguredConnectionDetails(
+	public ConfiguredMqttConnectionDetails(
 			final ConnectionGroupReference group,
 			final UserInterfaceMqttConnectionDetails connection)
 	{
@@ -61,7 +61,7 @@ public class ConfiguredConnectionDetails extends UserInterfaceMqttConnectionDeta
 		connection.copyTo(this);
     }
 	
-	public ConfiguredConnectionDetails(final boolean created, final boolean newConnection,
+	public ConfiguredMqttConnectionDetails(final boolean created, final boolean newConnection,
 			final UserInterfaceMqttConnectionDetails connection)
 	{
 		//this.id = id;
@@ -69,13 +69,13 @@ public class ConfiguredConnectionDetails extends UserInterfaceMqttConnectionDeta
 		this.begingCreated = created;
 		this.newConnection = newConnection;		
 		
-		final ConfiguredConnectionDetails connectionDetails = new ConfiguredConnectionDetails(null, connection);
+		final ConfiguredMqttConnectionDetails connectionDetails = new ConfiguredMqttConnectionDetails(null, connection);
 
 		setConnectionDetails(connectionDetails);
 		setLastSavedValues(connectionDetails);
 	}
 
-	public void setConnectionDetails(final ConfiguredConnectionDetails connectionDetails)
+	public void setConnectionDetails(final ConfiguredMqttConnectionDetails connectionDetails)
 	{
 		// Take a copy and null it, so that copyTo can work...
 		final ConnectionGroup group = connectionDetails.getGroup() != null ? (ConnectionGroup) connectionDetails.getGroup().getReference() : null;
@@ -116,7 +116,7 @@ public class ConfiguredConnectionDetails extends UserInterfaceMqttConnectionDeta
 		return lastSavedValues;
 	}
 
-	private void setLastSavedValues(final ConfiguredConnectionDetails savedValues)
+	private void setLastSavedValues(final ConfiguredMqttConnectionDetails savedValues)
 	{
 		this.lastSavedValues = savedValues;
 	}
@@ -153,7 +153,7 @@ public class ConfiguredConnectionDetails extends UserInterfaceMqttConnectionDeta
 
 	public void apply()
 	{
-		final ConfiguredConnectionDetails valuesToSave = new ConfiguredConnectionDetails(false, false, this);
+		final ConfiguredMqttConnectionDetails valuesToSave = new ConfiguredMqttConnectionDetails(false, false, this);
 		
 		setLastSavedValues(valuesToSave);
 		begingCreated = false;

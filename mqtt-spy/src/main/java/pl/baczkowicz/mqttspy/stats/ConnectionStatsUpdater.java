@@ -50,6 +50,7 @@ public class ConnectionStatsUpdater implements Runnable
 				break;
 			}
 		
+			// TODO: turn this into an event via event bus
 			Platform.runLater(new Runnable()
 			{					
 				@Override

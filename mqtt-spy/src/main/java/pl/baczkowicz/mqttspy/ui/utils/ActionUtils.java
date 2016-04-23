@@ -22,8 +22,8 @@ package pl.baczkowicz.mqttspy.ui.utils;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
-import pl.baczkowicz.mqttspy.connectivity.MqttConnectionStatus;
 import pl.baczkowicz.mqttspy.ui.connections.ConnectionManager;
+import pl.baczkowicz.spy.connectivity.ConnectionStatus;
 
 /**
  * Utilities for creating user actions.
@@ -116,7 +116,7 @@ public class ActionUtils
 	 * 
 	 * @return The EventHandler with the action
 	 */
-	public static EventHandler<ActionEvent> createNextAction(final MqttConnectionStatus state, 
+	public static EventHandler<ActionEvent> createNextAction(final ConnectionStatus state, 
 			final MqttAsyncConnection connection, final ConnectionManager connectionManager)
 	{
 		if (state == null)

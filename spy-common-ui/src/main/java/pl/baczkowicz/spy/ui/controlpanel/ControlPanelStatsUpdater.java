@@ -17,7 +17,7 @@
  *    Kamil Baczkowicz - initial API and implementation and/or initial documentation
  *    
  */
-package pl.baczkowicz.mqttspy.ui.controlpanel;
+package pl.baczkowicz.spy.ui.controlpanel;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,12 +32,11 @@ import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
-import pl.baczkowicz.mqttspy.stats.StatisticsManager;
 import pl.baczkowicz.spy.eventbus.IKBus;
 import pl.baczkowicz.spy.formatting.FormattingUtils;
 import pl.baczkowicz.spy.ui.controllers.ControlPanelItemController;
-import pl.baczkowicz.spy.ui.controlpanel.ItemStatus;
 import pl.baczkowicz.spy.ui.events.ShowExternalWebPageEvent;
+import pl.baczkowicz.spy.ui.stats.StatisticsManager;
 import pl.baczkowicz.spy.utils.ThreadingUtils;
 import pl.baczkowicz.spy.utils.TimeUtils;
 
@@ -47,7 +46,7 @@ import pl.baczkowicz.spy.utils.TimeUtils;
 public class ControlPanelStatsUpdater implements Runnable
 {
 	/** Milliseconds since first stats recorded. */
-	private final static long MILLISECONDS = new Date().getTime() - StatisticsManager.stats.getStartDate().toGregorianCalendar().getTime().getTime();
+	private final static long MILLISECONDS = new Date().getTime() - StatisticsManager.stats.getStartDate().getTime();
 	
 	/** Days since first stats recorded. */
 	private final static long DAYS = MILLISECONDS / (1000 * 60 * 60 * 24);
@@ -56,7 +55,7 @@ public class ControlPanelStatsUpdater implements Runnable
 	private final static String IN_DAYS_PHRASE = DAYS > 1 ? (" in " + DAYS + " days") : "";
 	
 	/** Text saying "since XXXX-XX-XX", where the X is the date of first recorded stats. */
-	private final static String SINCE_PHRASE = " since " + TimeUtils.DATE_SDF.format(StatisticsManager.stats.getStartDate().toGregorianCalendar().getTime());
+	private final static String SINCE_PHRASE = " since " + TimeUtils.DATE_SDF.format(StatisticsManager.stats.getStartDate());
 	
 	/** How many different stat messages there are. */
 	private final static int STATS_MESSAGES = 6;

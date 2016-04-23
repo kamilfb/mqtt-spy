@@ -19,7 +19,7 @@
  */
 package pl.baczkowicz.mqttspy.ui.utils;
 
-import pl.baczkowicz.mqttspy.connectivity.MqttConnectionStatus;
+import pl.baczkowicz.spy.connectivity.ConnectionStatus;
 
 /**
  * Styling-related utilities.
@@ -33,13 +33,13 @@ public class MqttStylingUtils
 	 * 
 	 * @return The style to be used
 	 */
-	public static String getStyleForMqttConnectionStatus(final MqttConnectionStatus status)
+	public static String getStyleForMqttConnectionStatus(final ConnectionStatus status)
 	{
 		String style = "connection-default";
 		
 		if (status != null)
 		{
-			switch ((MqttConnectionStatus) status)
+			switch ((ConnectionStatus) status)
 			{
 				case NOT_CONNECTED:
 					style = "connection-not-connected";

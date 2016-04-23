@@ -40,14 +40,13 @@ import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.common.generated.MessageLog;
 import pl.baczkowicz.mqttspy.common.generated.MessageLogEnum;
-import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
-import pl.baczkowicz.mqttspy.configuration.ConfiguredConnectionDetails;
+import pl.baczkowicz.mqttspy.configuration.MqttConfigurationManager;
+import pl.baczkowicz.mqttspy.configuration.ConfiguredMqttConnectionDetails;
 import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnectionDetails;
 import pl.baczkowicz.mqttspy.connectivity.BaseMqttSubscription;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnectionRunnable;
-import pl.baczkowicz.mqttspy.connectivity.MqttConnectionStatus;
-import pl.baczkowicz.mqttspy.connectivity.RuntimeConnectionProperties;
+import pl.baczkowicz.mqttspy.connectivity.MqttRuntimeConnectionProperties;
 import pl.baczkowicz.mqttspy.connectivity.handlers.MqttCallbackHandler;
 import pl.baczkowicz.mqttspy.connectivity.handlers.MqttDisconnectionResultHandler;
 import pl.baczkowicz.mqttspy.connectivity.handlers.MqttEventHandler;
@@ -56,12 +55,10 @@ import pl.baczkowicz.mqttspy.logger.MqttMessageLogger;
 import pl.baczkowicz.mqttspy.messages.BaseMqttMessage;
 import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.scripts.MqttScriptManager;
-import pl.baczkowicz.mqttspy.stats.StatisticsManager;
 import pl.baczkowicz.mqttspy.ui.ConnectionController;
 import pl.baczkowicz.mqttspy.ui.MainController;
 import pl.baczkowicz.mqttspy.ui.SubscriptionController;
 import pl.baczkowicz.mqttspy.ui.ViewManager;
-import pl.baczkowicz.mqttspy.ui.events.ConnectionStatusChangeEvent;
 import pl.baczkowicz.mqttspy.ui.events.queuable.UIEventHandler;
 import pl.baczkowicz.mqttspy.ui.events.queuable.connectivity.MqttConnectionAttemptFailureEvent;
 import pl.baczkowicz.mqttspy.ui.events.queuable.connectivity.MqttDisconnectionAttemptFailureEvent;
@@ -70,14 +67,17 @@ import pl.baczkowicz.mqttspy.ui.utils.ConnectivityUtils;
 import pl.baczkowicz.mqttspy.ui.utils.ContextMenuUtils;
 import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
 import pl.baczkowicz.spy.common.generated.UserCredentials;
+import pl.baczkowicz.spy.connectivity.ConnectionStatus;
 import pl.baczkowicz.spy.eventbus.IKBus;
 import pl.baczkowicz.spy.exceptions.ConfigurationException;
 import pl.baczkowicz.spy.exceptions.SpyException;
 import pl.baczkowicz.spy.formatting.FormattingManager;
 import pl.baczkowicz.spy.ui.configuration.UiProperties;
+import pl.baczkowicz.spy.ui.events.ConnectionStatusChangeEvent;
 import pl.baczkowicz.spy.ui.events.queuable.EventQueueManager;
 import pl.baczkowicz.spy.ui.panes.PaneVisibilityStatus;
 import pl.baczkowicz.spy.ui.panes.TabStatus;
+import pl.baczkowicz.spy.ui.stats.StatisticsManager;
 import pl.baczkowicz.spy.ui.storage.ManagedMessageStoreWithFiltering;
 import pl.baczkowicz.spy.ui.threading.SimpleRunLaterExecutor;
 import pl.baczkowicz.spy.ui.utils.DialogFactory;
@@ -99,7 +99,7 @@ public class ConnectionManager
 	private final StatisticsManager statisticsManager;
 	
 	/** Global configuration manager. */
-	private final ConfigurationManager configurationManager;
+	private final MqttConfigurationManager configurationManager;
 	
 	// TODO: not sure this is needed
 	/** Map of connections and their IDs. */
@@ -114,6 +114,8 @@ public class ConnectionManager
 	/** Map of connection controllers and their subscription managers. */
 	private final Map<ConnectionController, SubscriptionManager> subscriptionManagers = new HashMap<>();
 	
+	private MainController mainController;
+	
 	/** UI event queue. */
 	private final EventQueueManager<FormattedMqttMessage> uiEventQueue;
 	
@@ -125,7 +127,7 @@ public class ConnectionManager
 	private Set<ConnectionController> offlineConnectionControllers = new HashSet<>();
 
 	public ConnectionManager(final IKBus eventBus, final StatisticsManager statisticsManager, 
-			final ConfigurationManager configurationManager)
+			final MqttConfigurationManager configurationManager)
 	{
 		this.uiEventQueue = new EventQueueManager<FormattedMqttMessage>();
 		
@@ -139,10 +141,10 @@ public class ConnectionManager
 		new Thread(new UIEventHandler(uiEventQueue, eventBus)).start();
 	}
 	
-	public void openConnection(final ConfiguredConnectionDetails configuredConnectionDetails, final MainController mainController) throws ConfigurationException
+	public void openConnection(final ConfiguredMqttConnectionDetails configuredConnectionDetails) throws ConfigurationException
 	{
 		// Note: this is not a complete ConfiguredConnectionDetails copy but ConnectionDetails copy - any user credentials entered won't be stored in config
-		final ConfiguredConnectionDetails connectionDetails = new ConfiguredConnectionDetails();
+		final ConfiguredMqttConnectionDetails connectionDetails = new ConfiguredMqttConnectionDetails();
 		//configuredConnectionDetails.copyTo(connectionDetails);
 		connectionDetails.setConnectionDetails(configuredConnectionDetails);
 		connectionDetails.setID(configuredConnectionDetails.getID());			
@@ -160,7 +162,7 @@ public class ConnectionManager
 			{
 				try
 				{
-					final RuntimeConnectionProperties connectionProperties = new RuntimeConnectionProperties(connectionDetails);
+					final MqttRuntimeConnectionProperties connectionProperties = new MqttRuntimeConnectionProperties(connectionDetails);
 					new Thread(new Runnable()
 					{					
 						@Override
@@ -212,7 +214,7 @@ public class ConnectionManager
 	 * @param connectionProperties The connection properties from which to create the connection
 	 */
 	public void loadConnectionTab(final MainController mainController,
-			final Object parent, final RuntimeConnectionProperties connectionProperties)
+			final Object parent, final MqttRuntimeConnectionProperties connectionProperties)
 	{		
 		// Create connection
 		final MqttAsyncConnection connection = createConnection(connectionProperties, uiEventQueue);
@@ -272,7 +274,7 @@ public class ConnectionManager
 				}
 				else
 				{
-					connection.setConnectionStatus(MqttConnectionStatus.NOT_CONNECTED);
+					connection.setConnectionStatus(ConnectionStatus.NOT_CONNECTED);
 				}	
 				
 				// Add "All" tab								
@@ -470,12 +472,12 @@ public class ConnectionManager
 		return null;
 	}
 
-	public MqttAsyncConnection createConnection(final RuntimeConnectionProperties connectionProperties, final EventQueueManager<FormattedMqttMessage> uiEventQueue)
+	public MqttAsyncConnection createConnection(final MqttRuntimeConnectionProperties connectionProperties, final EventQueueManager<FormattedMqttMessage> uiEventQueue)
 	{
 		final InteractiveScriptManager scriptManager = new InteractiveScriptManager(eventBus, null);
 		final FormattingManager formattingManager = new FormattingManager(scriptManager);
 		final MqttAsyncConnection connection = new MqttAsyncConnection(reconnectionManager,
-				connectionProperties, MqttConnectionStatus.DISCONNECTED, 
+				connectionProperties, ConnectionStatus.DISCONNECTED, 
 				eventBus, scriptManager, formattingManager, uiEventQueue, 
 				UiProperties.getSummaryMaxPayloadLength(configurationManager.getUiPropertyFile()));
 
@@ -601,5 +603,10 @@ public class ConnectionManager
 	public void setViewManager(final ViewManager viewManager)
 	{
 		this.viewManager = viewManager;		
+	}
+	
+	public void setMainController(final MainController mainController)
+	{
+		this.mainController = mainController;		
 	}
 }

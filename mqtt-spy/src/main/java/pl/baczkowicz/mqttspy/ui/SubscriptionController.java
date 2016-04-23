@@ -60,11 +60,10 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
+import pl.baczkowicz.mqttspy.configuration.MqttConfigurationManager;
 import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
-import pl.baczkowicz.mqttspy.connectivity.RuntimeConnectionProperties;
+import pl.baczkowicz.mqttspy.connectivity.MqttRuntimeConnectionProperties;
 import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
-import pl.baczkowicz.mqttspy.stats.StatisticsManager;
 import pl.baczkowicz.mqttspy.ui.connections.SubscriptionManager;
 import pl.baczkowicz.mqttspy.ui.events.SubscriptionStatusChangeEvent;
 import pl.baczkowicz.mqttspy.ui.messagelog.MessageLogUtils;
@@ -87,6 +86,7 @@ import pl.baczkowicz.spy.ui.events.queuable.ui.BrowseReceivedMessageEvent;
 import pl.baczkowicz.spy.ui.panes.TabController;
 import pl.baczkowicz.spy.ui.panes.TabStatus;
 import pl.baczkowicz.spy.ui.search.UniqueContentOnlyFilter;
+import pl.baczkowicz.spy.ui.stats.StatisticsManager;
 import pl.baczkowicz.spy.ui.storage.BasicMessageStoreWithSummary;
 import pl.baczkowicz.spy.ui.storage.ManagedMessageStoreWithFiltering;
 import pl.baczkowicz.spy.ui.threading.SimpleRunLaterExecutor;
@@ -171,7 +171,7 @@ public class SubscriptionController implements Initializable, TabController
 
 	private Tab tab;
 
-	private RuntimeConnectionProperties connectionProperties;
+	private MqttRuntimeConnectionProperties connectionProperties;
 
 	private MqttSubscription subscription;
 
@@ -201,7 +201,7 @@ public class SubscriptionController implements Initializable, TabController
 
 	private HBox titleBox;
 
-	private ConfigurationManager configurationManager;
+	private MqttConfigurationManager configurationManager;
 
 	private FormattingManager formattingManager;
 
@@ -551,7 +551,7 @@ public class SubscriptionController implements Initializable, TabController
 		this.tab = tab;
 	}
 
-	public void setConnectionProperties(RuntimeConnectionProperties connectionProperties)
+	public void setConnectionProperties(MqttRuntimeConnectionProperties connectionProperties)
 	{
 		this.connectionProperties = connectionProperties;		
 	}
@@ -828,7 +828,7 @@ public class SubscriptionController implements Initializable, TabController
 		return connectionController;
 	}
 	
-	public void setConfingurationManager(final ConfigurationManager configurationManager)
+	public void setConfingurationManager(final MqttConfigurationManager configurationManager)
 	{
 		this.configurationManager = configurationManager;
 	}

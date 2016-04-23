@@ -43,26 +43,26 @@ import javafx.scene.layout.HBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
-import pl.baczkowicz.mqttspy.configuration.ConfiguredConnectionDetails;
+import pl.baczkowicz.mqttspy.configuration.MqttConfigurationManager;
+import pl.baczkowicz.mqttspy.configuration.ConfiguredMqttConnectionDetails;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
-import pl.baczkowicz.mqttspy.connectivity.MqttConnectionStatus;
 import pl.baczkowicz.mqttspy.ui.connections.ConnectionManager;
-import pl.baczkowicz.mqttspy.ui.controlpanel.ControlPanelStatsUpdater;
 import pl.baczkowicz.mqttspy.ui.events.ConfigurationLoadedEvent;
-import pl.baczkowicz.mqttspy.ui.events.ConnectionStatusChangeEvent;
 import pl.baczkowicz.mqttspy.ui.events.ConnectionsChangedEvent;
 import pl.baczkowicz.mqttspy.ui.utils.ActionUtils;
 import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
 import pl.baczkowicz.mqttspy.ui.utils.MqttStylingUtils;
 import pl.baczkowicz.spy.configuration.BasePropertyNames;
+import pl.baczkowicz.spy.connectivity.ConnectionStatus;
 import pl.baczkowicz.spy.eventbus.IKBus;
 import pl.baczkowicz.spy.exceptions.ConfigurationException;
 import pl.baczkowicz.spy.exceptions.XMLException;
 import pl.baczkowicz.spy.ui.configuration.ConfiguredConnectionGroupDetails;
 import pl.baczkowicz.spy.ui.controllers.ControlPanelItemController;
+import pl.baczkowicz.spy.ui.controlpanel.ControlPanelStatsUpdater;
 import pl.baczkowicz.spy.ui.controlpanel.ItemStatus;
 import pl.baczkowicz.spy.ui.controls.GettingInvolvedTooltip;
+import pl.baczkowicz.spy.ui.events.ConnectionStatusChangeEvent;
 import pl.baczkowicz.spy.ui.events.LoadConfigurationFileEvent;
 import pl.baczkowicz.spy.ui.events.ShowExternalWebPageEvent;
 import pl.baczkowicz.spy.ui.events.VersionInfoErrorEvent;
@@ -112,11 +112,9 @@ public class ControlPanelController extends AnchorPane implements Initializable
 
 	private VersionManager versionManager;
 
-	private ConfigurationManager configurationManager;
+	private MqttConfigurationManager configurationManager;
 
 	private MainController mainController;
-
-	// private EventManager<FormattedMqttMessage> eventManager;
 	
 	private IKBus eventBus;
 
@@ -124,7 +122,7 @@ public class ControlPanelController extends AnchorPane implements Initializable
 	
 	private ControlPanelStatsUpdater statsUpdater;
 	
-	private Map<MqttConnectionStatus, String> nextActionTitle = new HashMap<MqttConnectionStatus, String>();
+	private Map<ConnectionStatus, String> nextActionTitle = new HashMap<ConnectionStatus, String>();
 
 	private GettingInvolvedTooltip gettingInvolvedTooltip;
 	
@@ -134,11 +132,11 @@ public class ControlPanelController extends AnchorPane implements Initializable
 	
 	public void initialize(URL location, ResourceBundle resources)
 	{
-		nextActionTitle.put(MqttConnectionStatus.NOT_CONNECTED, "Connect to");
-		nextActionTitle.put(MqttConnectionStatus.CONNECTING, "Connecting to");
-		nextActionTitle.put(MqttConnectionStatus.CONNECTED, "Disconnect from");
-		nextActionTitle.put(MqttConnectionStatus.DISCONNECTED, "Connect to");
-		nextActionTitle.put(MqttConnectionStatus.DISCONNECTING, "Disconnecting from");
+		nextActionTitle.put(ConnectionStatus.NOT_CONNECTED, "Connect to");
+		nextActionTitle.put(ConnectionStatus.CONNECTING, "Connecting to");
+		nextActionTitle.put(ConnectionStatus.CONNECTED, "Disconnect from");
+		nextActionTitle.put(ConnectionStatus.DISCONNECTED, "Connect to");
+		nextActionTitle.put(ConnectionStatus.DISCONNECTING, "Disconnecting from");
 	}
 		
 	public void init()
@@ -240,7 +238,7 @@ public class ControlPanelController extends AnchorPane implements Initializable
 				{
 					if (DialogUtils.showDefaultConfigurationFileMissingChoice("Configuration file not found", button.getScene().getWindow()))
 					{
-						eventBus.publish(new LoadConfigurationFileEvent(ConfigurationManager.getDefaultConfigurationFile()));
+						eventBus.publish(new LoadConfigurationFileEvent(MqttConfigurationManager.getDefaultConfigurationFile()));
 						// mainController.loadConfigurationFileOnRunLater(ConfigurationManager.getDefaultConfigurationFile());
 					}					
 				}
@@ -267,8 +265,8 @@ public class ControlPanelController extends AnchorPane implements Initializable
 		controller.refresh();		
 	}	
 	
-	private void showPending(final String statusText, final MqttConnectionStatus status, 
-			final MqttAsyncConnection connection, final ConfiguredConnectionDetails connectionDetails, 
+	private void showPending(final String statusText, final ConnectionStatus status, 
+			final MqttAsyncConnection connection, final ConfiguredMqttConnectionDetails connectionDetails, 
 			final Button connectionButton, final String connectionName)
 	{			
 		connectionButton.getStyleClass().add(MqttStylingUtils.getStyleForMqttConnectionStatus(status));	
@@ -285,7 +283,7 @@ public class ControlPanelController extends AnchorPane implements Initializable
 		connectionButton.setText(null);
 	}
 	
-	private Button createConnectionButton(final ConfiguredConnectionDetails connectionDetails)
+	private Button createConnectionButton(final ConfiguredMqttConnectionDetails connectionDetails)
 	{
 		MqttAsyncConnection connection = null; 
 		for (final MqttAsyncConnection openedConnection : connectionManager.getConnections())
@@ -319,7 +317,7 @@ public class ControlPanelController extends AnchorPane implements Initializable
 				{
 					try
 					{				
-						connectionManager.openConnection(connectionDetails, mainController);
+						connectionManager.openConnection(connectionDetails);
 						event.consume();
 					}
 					catch (ConfigurationException e)
@@ -335,7 +333,7 @@ public class ControlPanelController extends AnchorPane implements Initializable
 		{
 			showPending("Opening", null, connection, connectionDetails, connectionButton, connectionName);
 		}
-		else if (connection.getConnectionStatus() == MqttConnectionStatus.CONNECTING)
+		else if (connection.getConnectionStatus() == ConnectionStatus.CONNECTING)
 		{
 			showPending("Connecting to", connection.getConnectionStatus(), connection, connectionDetails, connectionButton, connectionName);
 		}
@@ -370,7 +368,7 @@ public class ControlPanelController extends AnchorPane implements Initializable
 			List<Label> labels = new ArrayList<>();
 			for (final ConfiguredConnectionGroupDetails group : groups)
 			{
-				final List<ConfiguredConnectionDetails> connections = configurationManager.getConnections(group);
+				final List<ConfiguredMqttConnectionDetails> connections = configurationManager.getConnections(group);
 				if (connections.isEmpty())
 				{
 					continue;
@@ -411,7 +409,7 @@ public class ControlPanelController extends AnchorPane implements Initializable
 					buttons.getChildren().add(groupLabel);
 				}
 				
-				for (final ConfiguredConnectionDetails connection : connections)
+				for (final ConfiguredMqttConnectionDetails connection : connections)
 				// for (final ConfiguredConnectionDetails connection : configurationManager.getConnections())
 				{
 					buttons.getChildren().add(createConnectionButton(connection));
@@ -511,7 +509,7 @@ public class ControlPanelController extends AnchorPane implements Initializable
 	// === Setters and getters =======
 	// ===============================
 	
-	public void setConfigurationMananger(final ConfigurationManager configurationManager)
+	public void setConfigurationMananger(final MqttConfigurationManager configurationManager)
 	{
 		this.configurationManager = configurationManager;
 	}

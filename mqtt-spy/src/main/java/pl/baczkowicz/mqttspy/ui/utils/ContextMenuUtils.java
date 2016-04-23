@@ -35,12 +35,11 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.Tab;
 import javafx.scene.paint.Color;
-import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
+import pl.baczkowicz.mqttspy.configuration.MqttConfigurationManager;
 import pl.baczkowicz.mqttspy.configuration.generated.TabbedSubscriptionDetails;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
 import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
-import pl.baczkowicz.mqttspy.stats.StatisticsManager;
 import pl.baczkowicz.mqttspy.ui.ConnectionController;
 import pl.baczkowicz.mqttspy.ui.SubscriptionController;
 import pl.baczkowicz.mqttspy.ui.connections.ConnectionManager;
@@ -52,6 +51,7 @@ import pl.baczkowicz.spy.ui.charts.ChartMode;
 import pl.baczkowicz.spy.ui.events.ClearTabEvent;
 import pl.baczkowicz.spy.ui.panes.PaneVisibilityStatus;
 import pl.baczkowicz.spy.ui.panes.TitledPaneStatus;
+import pl.baczkowicz.spy.ui.stats.StatisticsManager;
 import pl.baczkowicz.spy.ui.utils.DialogFactory;
 import pl.baczkowicz.spy.ui.utils.StylingUtils;
 import pl.baczkowicz.spy.ui.utils.TabUtils;
@@ -81,7 +81,7 @@ public class ContextMenuUtils
 			final MqttSubscription subscription,  
 			final IKBus eventBus,
 			final SubscriptionManager subscriptionManager,
-			final ConfigurationManager configurationManager,
+			final MqttConfigurationManager configurationManager,
 			final SubscriptionController subscriptionController)
 	{
 		final ContextMenu contextMenu = new ContextMenu();
@@ -277,7 +277,7 @@ public class ContextMenuUtils
 			final MqttAsyncConnection connection, 
 			final IKBus eventBus,
 			final SubscriptionManager subscriptionManager,
-			final ConfigurationManager configurationManager,
+			final MqttConfigurationManager configurationManager,
 			final SubscriptionController subscriptionController)
 	{
 		final ContextMenu contextMenu = new ContextMenu();

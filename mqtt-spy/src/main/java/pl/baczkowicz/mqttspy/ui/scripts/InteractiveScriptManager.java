@@ -25,7 +25,7 @@ import java.util.List;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
+import pl.baczkowicz.mqttspy.configuration.MqttConfigurationManager;
 import pl.baczkowicz.mqttspy.configuration.generated.TabbedSubscriptionDetails;
 import pl.baczkowicz.mqttspy.connectivity.IMqttConnection;
 import pl.baczkowicz.mqttspy.scripts.MqttScriptManager;
@@ -81,7 +81,7 @@ public class InteractiveScriptManager extends MqttScriptManager
 		else
 		{
 			// If directory defined, use the mqtt-spy's home directory
-			return ConfigurationManager.getDefaultHomeDirectory();
+			return MqttConfigurationManager.getDefaultHomeDirectory();
 		}	
 	}
 	

@@ -19,13 +19,13 @@
  */
 package pl.baczkowicz.mqttspy.ui.controllers.edit;
 
-import pl.baczkowicz.mqttspy.configuration.ConfiguredConnectionDetails;
+import pl.baczkowicz.mqttspy.configuration.ConfiguredMqttConnectionDetails;
 import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnectionDetails;
 import pl.baczkowicz.mqttspy.ui.EditConnectionController;
 
 public interface EditConnectionSubController
 {
-	void displayConnectionDetails(final ConfiguredConnectionDetails connection);
+	void displayConnectionDetails(final ConfiguredMqttConnectionDetails connection);
 	
 	UserInterfaceMqttConnectionDetails readValues(final UserInterfaceMqttConnectionDetails connection);
 	

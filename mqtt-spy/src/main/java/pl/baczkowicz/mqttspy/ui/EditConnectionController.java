@@ -47,9 +47,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.common.generated.MessageLog;
-import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
+import pl.baczkowicz.mqttspy.configuration.MqttConfigurationManager;
 import pl.baczkowicz.mqttspy.configuration.ConfigurationUtils;
-import pl.baczkowicz.mqttspy.configuration.ConfiguredConnectionDetails;
+import pl.baczkowicz.mqttspy.configuration.ConfiguredMqttConnectionDetails;
 import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnectionDetails;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.ui.connections.ConnectionManager;
@@ -65,6 +65,8 @@ import pl.baczkowicz.mqttspy.utils.ConnectionUtils;
 import pl.baczkowicz.spy.common.generated.ConnectionGroupReference;
 import pl.baczkowicz.spy.eventbus.IKBus;
 import pl.baczkowicz.spy.exceptions.ConfigurationException;
+import pl.baczkowicz.spy.ui.controllers.EditConnectionsController;
+import pl.baczkowicz.spy.ui.events.ConnectionNameChangedEvent;
 import pl.baczkowicz.spy.ui.panes.SpyPerspective;
 import pl.baczkowicz.spy.ui.utils.DialogFactory;
 import pl.baczkowicz.spy.ui.utils.TooltipFactory;
@@ -146,13 +148,13 @@ public class EditConnectionController extends AnchorPane implements Initializabl
 
 	private String lastGeneratedConnectionName = "";
 	
-	private MainController mainController;
+	// private MainController mainController;
 
-	private ConfiguredConnectionDetails editedConnectionDetails;
+	private ConfiguredMqttConnectionDetails editedConnectionDetails;
 
 	private boolean recordModifications;
     
-	private ConfigurationManager configurationManager;
+	private MqttConfigurationManager configurationManager;
 
 	private EditConnectionsController editConnectionsController;
 
@@ -301,7 +303,20 @@ public class EditConnectionController extends AnchorPane implements Initializabl
 		editConnectionOtherController.init();
 		editConnectionPublicationsController.init();
 		editConnectionSecurityController.init();
-		editConnectionSubscriptionsController.init();
+		editConnectionSubscriptionsController.init();		
+
+		getConnectionName().textProperty().addListener(new ChangeListener()
+		{
+			@Override
+			public void changed(ObservableValue observable,
+					Object oldValue, Object newValue)
+			{
+				if (isRecordModifications())
+				{
+					eventBus.publish(new ConnectionNameChangedEvent(getConnectionName().getText()));
+				}
+			}
+		});
 	}
 	
 	private void updatePerspective(final SpyPerspective perspective)
@@ -390,7 +405,7 @@ public class EditConnectionController extends AnchorPane implements Initializabl
 		stage.close();
 	}
 	
-	public void openConnection(final ConfiguredConnectionDetails connectionDetails)
+	public void openConnection(final ConfiguredMqttConnectionDetails connectionDetails)
 	{
 		final String validationResult = ConnectivityUtils.validateConnectionDetails(connectionDetails, false);
 		
@@ -443,7 +458,7 @@ public class EditConnectionController extends AnchorPane implements Initializabl
 				{
 					try
 					{						
-						connectionManager.openConnection(connectionDetails, getMainController());
+						connectionManager.openConnection(connectionDetails);
 					}
 					catch (ConfigurationException e)
 					{
@@ -456,7 +471,7 @@ public class EditConnectionController extends AnchorPane implements Initializabl
 	}
 	
 	@FXML
-	public void createConnection() throws ConfigurationException
+	public void readAndOpenConnection() throws ConfigurationException
 	{
 		readAndDetectChanges();
 		openConnection(editedConnectionDetails);
@@ -520,7 +535,7 @@ public class EditConnectionController extends AnchorPane implements Initializabl
 	
 	private boolean readAndDetectChanges()
 	{
-		final ConfiguredConnectionDetails connection = new ConfiguredConnectionDetails(null, readValues());
+		final ConfiguredMqttConnectionDetails connection = new ConfiguredMqttConnectionDetails(null, readValues());
 
 		// Copy...
 		final ConnectionGroupReference group = editedConnectionDetails.getGroup();
@@ -533,6 +548,12 @@ public class EditConnectionController extends AnchorPane implements Initializabl
 		boolean changed = !connection.equals(editedConnectionDetails.getSavedValues());
 			
 		logger.debug("Values read. Changed = " + changed);
+		if (changed)
+		{
+			logger.debug("New value = {}", connection.toString());
+			logger.debug("Old value = {}", editedConnectionDetails.getSavedValues().toString());
+		}
+				
 		editedConnectionDetails.setModified(changed);
 		editedConnectionDetails.setConnectionDetails(connection);
 		
@@ -558,7 +579,7 @@ public class EditConnectionController extends AnchorPane implements Initializabl
 		}
 	}
 
-	public void editConnection(final ConfiguredConnectionDetails connectionDetails)
+	public void editConnection(final ConfiguredMqttConnectionDetails connectionDetails)
 	{	
 		synchronized (this)
 		{
@@ -604,7 +625,7 @@ public class EditConnectionController extends AnchorPane implements Initializabl
 		}
 	}
 	
-	private void displayConnectionDetails(final ConfiguredConnectionDetails connection)
+	private void displayConnectionDetails(final ConfiguredMqttConnectionDetails connection)
 	{
 		ConfigurationUtils.populateConnectionDefaults(connection);
 		
@@ -625,12 +646,12 @@ public class EditConnectionController extends AnchorPane implements Initializabl
 	// === Setters and getters =======
 	// ===============================
 	
-	public void setMainController(MainController mainController)
-	{
-		this.mainController = mainController;
-	}
+//	public void setMainController(MainController mainController)
+//	{
+//		this.mainController = mainController;
+//	}
 
-	public void setConfigurationManager(final ConfigurationManager configurationManager)
+	public void setConfigurationManager(final MqttConfigurationManager configurationManager)
 	{
 		this.configurationManager = configurationManager;
 	}
@@ -682,7 +703,7 @@ public class EditConnectionController extends AnchorPane implements Initializabl
 		return connectionNameText;
 	}
 	
-	public ConfiguredConnectionDetails getEditedConnectionDetails()
+	public ConfiguredMqttConnectionDetails getEditedConnectionDetails()
 	{
 		return editedConnectionDetails;
 	}
@@ -690,10 +711,10 @@ public class EditConnectionController extends AnchorPane implements Initializabl
 	/**
 	 * @return the mainController
 	 */
-	public MainController getMainController()
-	{
-		return mainController;
-	}
+//	public MainController getMainController()
+//	{
+//		return mainController;
+//	}
 
 	public SpyPerspective getPerspective()
 	{

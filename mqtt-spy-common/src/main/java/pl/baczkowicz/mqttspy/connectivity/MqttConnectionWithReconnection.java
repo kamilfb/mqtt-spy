@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.common.generated.ReconnectionSettings;
 import pl.baczkowicz.mqttspy.connectivity.reconnection.ReconnectionManager;
+import pl.baczkowicz.spy.connectivity.ConnectionStatus;
 import pl.baczkowicz.spy.exceptions.SpyException;
 
 /**
@@ -89,7 +90,7 @@ public abstract class MqttConnectionWithReconnection extends BaseMqttConnection
 
 		// TODO: check if connected?
 
-		setConnectionStatus(MqttConnectionStatus.DISCONNECTING);
+		setConnectionStatus(ConnectionStatus.DISCONNECTING);
 		unsubscribeAll(true);
 
 		try

@@ -30,11 +30,11 @@ import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Window;
 import javafx.util.Pair;
 import pl.baczkowicz.spy.common.generated.UserCredentials;
-import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
+import pl.baczkowicz.mqttspy.configuration.MqttConfigurationManager;
 import pl.baczkowicz.mqttspy.configuration.ConfigurationUtils;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
-import pl.baczkowicz.mqttspy.connectivity.MqttConnectionStatus;
 import pl.baczkowicz.spy.configuration.BaseConfigurationUtils;
+import pl.baczkowicz.spy.connectivity.ConnectionStatus;
 import pl.baczkowicz.spy.ui.controls.CommandLinksDialog;
 import pl.baczkowicz.spy.ui.controls.DialogAction;
 import pl.baczkowicz.spy.ui.utils.DialogFactory;
@@ -89,19 +89,19 @@ public class DialogUtils
 		// TODO: use Java dialogs
 		final DialogAction createWithSample = new DialogAction("Create mqtt-spy configuration file with sample content",
 				System.getProperty("line.separator") + "This creates a configuration file " +  
-                "in \"" + ConfigurationManager.DEFAULT_HOME_DIRECTORY + "\"" + 
-                " called \"" + ConfigurationManager.DEFAULT_FILE_NAME + "\"" + 
+                "in \"" + MqttConfigurationManager.DEFAULT_HOME_DIRECTORY + "\"" + 
+                " called \"" + MqttConfigurationManager.DEFAULT_FILE_NAME + "\"" + 
                 ", which will include sample connections to localhost and iot.eclipse.org.");
 		
 		 final DialogAction createEmpty = new DialogAction("Create empty mqtt-spy configuration file",
 				 System.getProperty("line.separator") + "This creates a configuration file " +  
-                 "in \"" + ConfigurationManager.DEFAULT_HOME_DIRECTORY + "\"" + 
-                 " called \"" + ConfigurationManager.DEFAULT_FILE_NAME + "\" with no sample connections.");
+                 "in \"" + MqttConfigurationManager.DEFAULT_HOME_DIRECTORY + "\"" + 
+                 " called \"" + MqttConfigurationManager.DEFAULT_FILE_NAME + "\" with no sample connections.");
 		 
 		 final DialogAction copyExisting = new DialogAction("Copy existing mqtt-spy configuration file",
 				 System.getProperty("line.separator") + "This copies an existing configuration file (selected in the next step) " +  
-                 "to \"" + ConfigurationManager.DEFAULT_HOME_DIRECTORY + "\"" + 
-                 " and renames it to \"" + ConfigurationManager.DEFAULT_FILE_NAME + "\".");
+                 "to \"" + MqttConfigurationManager.DEFAULT_HOME_DIRECTORY + "\"" + 
+                 " and renames it to \"" + MqttConfigurationManager.DEFAULT_FILE_NAME + "\".");
 		 
 		 final DialogAction dontDoAnything = new DialogAction("Don't do anything",
 				 System.getProperty("line.separator") + "You can still point mqtt-spy at your chosen configuration file " +  
@@ -162,7 +162,7 @@ public class DialogUtils
 		final StringBuffer sb = new StringBuffer();
 		sb.append("Status: " + connection.getConnectionStatus().toString().toLowerCase());
 		
-		if (MqttConnectionStatus.CONNECTED.equals(connection.getConnectionStatus()))
+		if (ConnectionStatus.CONNECTED.equals(connection.getConnectionStatus()))
 		{
 			sb.append(" (" + connection.getLastSuccessfulyConnectionAttempt() + ")");
 			

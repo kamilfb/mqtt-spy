@@ -17,7 +17,7 @@
  *    Kamil Baczkowicz - initial API and implementation and/or initial documentation
  *    
  */
-package pl.baczkowicz.mqttspy.stats;
+package pl.baczkowicz.spy.ui.stats;
 
 import java.util.ArrayList;
 import java.util.HashMap;

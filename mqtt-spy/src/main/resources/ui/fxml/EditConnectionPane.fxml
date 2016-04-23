@@ -41,7 +41,7 @@
       <Label styleClass="vsmall-font" layoutX="39.0" layoutY="32.0" text="[auto-generated if = client ID@server URI]" />
       
       <!-- Create -->
- 	  <Button fx:id="connectButton" focusTraversable="false" graphicTextGap="15" layoutY="317.0" mnemonicParsing="false" onAction="#createConnection" prefHeight="28" prefWidth="302.0" text="Open connection" AnchorPane.bottomAnchor="14.0" AnchorPane.rightAnchor="18.0">
+ 	  <Button fx:id="connectButton" focusTraversable="false" graphicTextGap="15" layoutY="317.0" mnemonicParsing="false" onAction="#readAndOpenConnection" prefHeight="28" prefWidth="302.0" text="Open connection" AnchorPane.bottomAnchor="14.0" AnchorPane.rightAnchor="18.0">
 	   <padding><Insets bottom="1.0" left="1.0" right="1.0" top="1.0" /></padding>
 		    <graphic>
 		  		<ImageView fitHeight="22" fitWidth="22" pickOnBounds="true">

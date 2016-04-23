@@ -17,7 +17,7 @@
  *    Kamil Baczkowicz - initial API and implementation and/or initial documentation
  *    
  */
-package pl.baczkowicz.mqttspy.ui;
+package pl.baczkowicz.spy.ui.controllers;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -46,16 +46,14 @@ import javafx.util.Callback;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import pl.baczkowicz.mqttspy.common.generated.ProtocolVersionEnum;
-import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
-import pl.baczkowicz.mqttspy.configuration.ConfiguredConnectionDetails;
-import pl.baczkowicz.mqttspy.utils.ConnectionUtils;
 import pl.baczkowicz.spy.configuration.BaseConfigurationUtils;
 import pl.baczkowicz.spy.exceptions.ConfigurationException;
 import pl.baczkowicz.spy.ui.configuration.ConfiguredConnectionGroupDetails;
+import pl.baczkowicz.spy.ui.connections.UIConnectionFactory;
 import pl.baczkowicz.spy.ui.properties.ConnectionListItemProperties;
 import pl.baczkowicz.spy.ui.properties.ConnectionTreeItemProperties;
-import pl.baczkowicz.spy.ui.utils.ImageUtils;
+import pl.baczkowicz.spy.ui.properties.ModifiableItem;
+import pl.baczkowicz.spy.ui.utils.UiUtils;
 
 /**
  * Controller for editing a single connection.
@@ -93,19 +91,21 @@ public class EditConnectionGroupController extends AnchorPane implements Initial
 	
 	// Other fields
 
-	private MainController mainController;
+	// private MainController mainController;
 
 	private ConfiguredConnectionGroupDetails editedConnectionGroupDetails;
 
-	private List<ConfiguredConnectionDetails> connections;
+	private List<ModifiableItem> connections;
 	
-	private Map<ConnectionListItemProperties, ConfiguredConnectionDetails> connectionMapping;
+	private Map<ConnectionListItemProperties, ModifiableItem> connectionMapping;
 
 	private boolean recordModifications;
 
 	private int noModificationsLock;
 
 	private EditConnectionsController editConnectionsController;
+	
+	private UIConnectionFactory connectionFactory;
 	
 	// ===============================
 	// === Initialisation ============
@@ -131,15 +131,7 @@ public class EditConnectionGroupController extends AnchorPane implements Initial
 						
 						if (getTableRow().getItem() != null)
 						{
-							if (item.contains("MQTT"))
-							{							
-								setGraphic(ImageUtils.createIcon("mqtt-icon", 18));
-								setText(item.replace("Default", ""));
-							}									
-							else
-							{
-								setText(item);
-							}							
+							connectionFactory.populateProtocolCell(this, item);												
 						}
 						else
 						{
@@ -171,7 +163,7 @@ public class EditConnectionGroupController extends AnchorPane implements Initial
 						{
 							final ConnectionListItemProperties row = (ConnectionListItemProperties) getTableRow().getItem();
 							
-							setGraphic(ConnectionController.createSecurityIcons(
+							setGraphic(UiUtils.createSecurityIcons(
 									row.isTlsEnabled(), 
 									row.isUserAuthenticationEnabled(),
 									true));
@@ -249,7 +241,7 @@ public class EditConnectionGroupController extends AnchorPane implements Initial
 	@FXML
 	public void createConnection() throws ConfigurationException
 	{
-		for (final ConfiguredConnectionDetails connection : connections)
+		for (final ModifiableItem connection : connections)
 		{
 			editConnectionsController.openConnection(connection);
 		}
@@ -290,7 +282,7 @@ public class EditConnectionGroupController extends AnchorPane implements Initial
 		{
 			this.editedConnectionGroupDetails = connectionGroup;
 			this.connections = new ArrayList<>();
-			ConfigurationManager.findConnections(connectionGroup, connections);					
+			connectionFactory.findConnections(connectionGroup, connections);					
 			
 			displayConnectionDetails(editedConnectionGroupDetails);		
 						
@@ -319,23 +311,13 @@ public class EditConnectionGroupController extends AnchorPane implements Initial
 		connectionList.getItems().clear();
 		connectionMapping = new HashMap<>();
 		
-		for (final ConfiguredConnectionDetails connection : connections)
-		{
-			final ProtocolVersionEnum protocol = connection.getProtocol();
-			
-			final ConnectionListItemProperties properties = new ConnectionListItemProperties(
-					connection.getName(), 
-					(protocol == null ? ProtocolVersionEnum.MQTT_DEFAULT.value() : protocol.value()), 
-					connection.getClientID() + "@" + ConnectionUtils.serverURIsToString(connection.getServerURI()), 
-					connection.getSSL() != null, 
-					connection.getUserAuthentication() != null);
+		for (final ModifiableItem connection : connections)
+		{						
+			final ConnectionListItemProperties properties = connectionFactory.createConnectionListItemProperties(connection);
 			
 			connectionList.getItems().add(properties);
 			connectionMapping.put(properties, connection);
 		}
-
-		
-		// editedConnectionGroupDetails.setBeingCreated(false);
 	}		
 
 	// ===============================
@@ -345,11 +327,6 @@ public class EditConnectionGroupController extends AnchorPane implements Initial
 	public void setEditConnectionsController(EditConnectionsController editConnectionsController)
 	{
 		this.editConnectionsController = editConnectionsController;		
-	}
-	
-	public void setMainController(MainController mainController)
-	{
-		this.mainController = mainController;
 	}
 	
 	public void setRecordModifications(boolean recordModifications)
@@ -372,11 +349,8 @@ public class EditConnectionGroupController extends AnchorPane implements Initial
 		}
 	}
 
-	/**
-	 * @return the mainController
-	 */
-	public MainController getMainController()
+	public void setConnectionFactory(final UIConnectionFactory connectionFactory)
 	{
-		return mainController;
+		this.connectionFactory = connectionFactory;
 	}
 }

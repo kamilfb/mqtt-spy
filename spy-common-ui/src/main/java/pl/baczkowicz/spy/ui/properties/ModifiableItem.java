@@ -29,9 +29,25 @@ public interface ModifiableItem
 	
 	String getID();
 
+	void apply();
+	
 	void setName(final String newName);
 
 	void setGroupingModified(boolean modified);
 
 	void setGroup(ConnectionGroupReference connectionGroupReference);
+
+	boolean isNew();
+
+	void removeFromGroup();
+
+	void undoAll();
+
+	void setDeleted(boolean value);
+
+	boolean isGroupingModified();
+	
+	ConnectionGroupReference getGroup();
+
+	boolean isBeingCreated();
 }

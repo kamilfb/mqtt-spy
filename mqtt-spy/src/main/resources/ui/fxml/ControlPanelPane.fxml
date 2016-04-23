@@ -34,7 +34,7 @@
          <children>
             <Button fx:id="button1" focusTraversable="false" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" VBox.vgrow="ALWAYS">
             	<graphic>                    	   
-            		<fx:include fx:id="controlPanelItem1" source="ControlPanelItem.fxml" />
+            		<fx:include fx:id="controlPanelItem1" source="/ui/fxml/ControlPanelItem.fxml" />
             	</graphic>
                <padding>
                   <Insets bottom="1.0" left="1.0" right="1.0" top="1.0" />
@@ -43,7 +43,7 @@
             
             <Button fx:id="button2" focusTraversable="false" layoutX="10.0" layoutY="10.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" VBox.vgrow="ALWAYS">
             	<graphic>                    	   
-            		<fx:include fx:id="controlPanelItem2" source="ControlPanelItem.fxml" />
+            		<fx:include fx:id="controlPanelItem2" source="/ui/fxml/ControlPanelItem.fxml" />
             	</graphic>
                <padding>
                   <Insets bottom="1.0" left="1.0" right="1.0" top="1.0" />
@@ -52,7 +52,7 @@
             
             <Button fx:id="button3" focusTraversable="false" layoutX="10.0" layoutY="10.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" VBox.vgrow="ALWAYS">
             	<graphic>                    	   
-            		<fx:include fx:id="controlPanelItem3" source="ControlPanelItem.fxml" />
+            		<fx:include fx:id="controlPanelItem3" source="/ui/fxml/ControlPanelItem.fxml" />
             	</graphic>
                <padding>
                   <Insets bottom="1.0" left="1.0" right="1.0" top="1.0" />
@@ -61,7 +61,7 @@
             
             <Button fx:id="button4" focusTraversable="false" layoutX="10.0" layoutY="10.0" minHeight="100" maxHeight="100" maxWidth="1.7976931348623157E308" mnemonicParsing="false" VBox.vgrow="NEVER">
             	<graphic>                    	   
-            		<fx:include fx:id="controlPanelItem4" source="ControlPanelItem.fxml" />
+            		<fx:include fx:id="controlPanelItem4" source="/ui/fxml/ControlPanelItem.fxml" />
             	</graphic>
                <padding>
                   <Insets bottom="1.0" left="1.0" right="1.0" top="1.0" />

@@ -36,8 +36,8 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
-import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
-import pl.baczkowicz.mqttspy.configuration.ConfiguredConnectionDetails;
+import pl.baczkowicz.mqttspy.configuration.MqttConfigurationManager;
+import pl.baczkowicz.mqttspy.configuration.ConfiguredMqttConnectionDetails;
 import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnectionDetails;
 import pl.baczkowicz.mqttspy.ui.EditConnectionController;
 import pl.baczkowicz.mqttspy.ui.FormattersController;
@@ -81,7 +81,7 @@ public class EditConnectionOtherController extends AnchorPane implements Initial
 	@FXML
 	private ComboBox<FormatterDetails> formatter;
 	
-	private ConfigurationManager configurationManager;
+	private MqttConfigurationManager configurationManager;
 
 	private final ChangeListener basicOnChangeListener = new ChangeListener()
 	{
@@ -92,7 +92,7 @@ public class EditConnectionOtherController extends AnchorPane implements Initial
 		}		
 	};
 
-	private ConfiguredConnectionDetails currentConnection;
+	private ConfiguredMqttConnectionDetails currentConnection;
 
 	private IKBus eventBus;
 	
@@ -216,7 +216,7 @@ public class EditConnectionOtherController extends AnchorPane implements Initial
 	}
 	
 	@Override
-	public void displayConnectionDetails(final ConfiguredConnectionDetails connection)
+	public void displayConnectionDetails(final ConfiguredMqttConnectionDetails connection)
 	{
 		this.currentConnection = connection;
 		
@@ -248,7 +248,7 @@ public class EditConnectionOtherController extends AnchorPane implements Initial
 	// === Setters and getters =======
 	// ===============================
 	
-	public void setConfigurationManager(final ConfigurationManager configurationManager)
+	public void setConfigurationManager(final MqttConfigurationManager configurationManager)
 	{
 		this.configurationManager = configurationManager;
 	}

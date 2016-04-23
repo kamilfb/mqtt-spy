@@ -31,7 +31,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane fx:id="aboutWindow" minHeight="350" minWidth="450" prefHeight="350" prefWidth="550" xmlns="http://javafx.com/javafx/8.0.66" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.baczkowicz.mqttspy.ui.AboutController">
+<AnchorPane fx:id="aboutWindow" minHeight="350" minWidth="450" prefHeight="350" prefWidth="550" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.baczkowicz.spy.ui.controllers.AboutController">
    <children>
       <AnchorPane prefHeight="147.0" prefWidth="429.0" style="-fx-background-color: white;" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
          <children>

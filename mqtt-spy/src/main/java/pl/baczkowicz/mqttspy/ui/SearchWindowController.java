@@ -39,7 +39,7 @@ import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
+import pl.baczkowicz.mqttspy.configuration.MqttConfigurationManager;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
 import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
@@ -90,7 +90,7 @@ public class SearchWindowController extends AnchorPane implements Initializable
 
 	private ConnectionController connectionController;
 
-	private ConfigurationManager configurationManager;
+	private MqttConfigurationManager configurationManager;
 
 	private FormattingManager formattingManager;
 	
@@ -251,7 +251,7 @@ public class SearchWindowController extends AnchorPane implements Initializable
 		this.connectionController = connectionController;
 	}
 	
-	public void setConfingurationManager(final ConfigurationManager configurationManager)
+	public void setConfingurationManager(final MqttConfigurationManager configurationManager)
 	{
 		this.configurationManager = configurationManager;
 	}

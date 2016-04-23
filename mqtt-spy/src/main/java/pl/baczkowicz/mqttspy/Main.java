@@ -26,13 +26,14 @@ import javafx.stage.Stage;
 
 import org.slf4j.LoggerFactory;
 
-import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
-import pl.baczkowicz.mqttspy.stats.StatisticsManager;
+import pl.baczkowicz.mqttspy.configuration.MqttConfigurationManager;
+import pl.baczkowicz.mqttspy.stats.MqttStatsFileIO;
 import pl.baczkowicz.mqttspy.ui.ViewManager;
 import pl.baczkowicz.mqttspy.ui.connections.ConnectionManager;
 import pl.baczkowicz.spy.eventbus.IKBus;
 import pl.baczkowicz.spy.eventbus.KBus;
 import pl.baczkowicz.spy.ui.events.LoadConfigurationFileEvent;
+import pl.baczkowicz.spy.ui.stats.StatisticsManager;
 import pl.baczkowicz.spy.ui.utils.FxmlUtils;
 import pl.baczkowicz.spy.ui.versions.VersionManager;
 
@@ -57,11 +58,11 @@ public class Main extends Application
 				
 		try
 		{
-			final ConfigurationManager configurationManager = new ConfigurationManager();			
+			final MqttConfigurationManager configurationManager = new MqttConfigurationManager();			
 			
 			FxmlUtils.setParentClass(getClass());									
 			
-			final StatisticsManager statisticsManager = new StatisticsManager();
+			final StatisticsManager statisticsManager = new StatisticsManager(new MqttStatsFileIO());
 			final ViewManager viewManager = new ViewManager();
 			final VersionManager versionManager = new VersionManager(configurationManager.getDefaultPropertyFile());	
 			final ConnectionManager connectionManager = new ConnectionManager(eventBus, statisticsManager, configurationManager);							

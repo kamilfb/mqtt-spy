@@ -42,11 +42,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.common.generated.PublicationDetails;
-import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
+import pl.baczkowicz.mqttspy.configuration.MqttConfigurationManager;
 import pl.baczkowicz.mqttspy.configuration.generated.TabbedSubscriptionDetails;
 import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnectionDetails;
 import pl.baczkowicz.mqttspy.stats.ConnectionStatsUpdater;
-import pl.baczkowicz.mqttspy.stats.StatisticsManager;
 import pl.baczkowicz.mqttspy.ui.connections.ConnectionManager;
 import pl.baczkowicz.mqttspy.ui.events.ShowEditConnectionsWindowEvent;
 import pl.baczkowicz.mqttspy.ui.events.ShowMessageLogEvent;
@@ -63,6 +62,7 @@ import pl.baczkowicz.spy.ui.events.ShowExternalWebPageEvent;
 import pl.baczkowicz.spy.ui.events.ShowFormattersWindowEvent;
 import pl.baczkowicz.spy.ui.panes.PaneVisibilityStatus;
 import pl.baczkowicz.spy.ui.panes.SpyPerspective;
+import pl.baczkowicz.spy.ui.stats.StatisticsManager;
 import pl.baczkowicz.spy.ui.versions.VersionManager;
 
 /**
@@ -115,7 +115,7 @@ public class MainController
 	@FXML
 	private CheckMenuItem resizeMessagePaneMenu;
 
-	private ConfigurationManager configurationManager;
+	private MqttConfigurationManager configurationManager;
 
 	private Stage stage;
 	
@@ -126,8 +126,6 @@ public class MainController
 	private StatisticsManager statisticsManager;
 
 	private ConnectionManager connectionManager;
-
-	// private SpyPerspective selectedPerspective = SpyPerspective.DEFAULT;
 	
 	private double lastWidth;
 	
@@ -144,7 +142,7 @@ public class MainController
 	}	
 	
 	public void init()
-	{							
+	{									
 		statisticsManager.loadStats();
 		
 		// Set up scene
@@ -385,7 +383,7 @@ public class MainController
 	{
 		if (DialogUtils.showDefaultConfigurationFileMissingChoice("Restore defaults", mainPane.getScene().getWindow()))
 		{
-			eventBus.publish(new LoadConfigurationFileEvent(ConfigurationManager.getDefaultConfigurationFile()));
+			eventBus.publish(new LoadConfigurationFileEvent(MqttConfigurationManager.getDefaultConfigurationFile()));
 			// loadConfigurationFileOnRunLater(ConfigurationManager.getDefaultConfigurationFile());			
 		}
 	}
@@ -449,7 +447,7 @@ public class MainController
 	 * 
 	 * @param configurationManager the configurationManager to set
 	 */
-	public void setConfigurationManager(ConfigurationManager configurationManager)
+	public void setConfigurationManager(MqttConfigurationManager configurationManager)
 	{
 		this.configurationManager = configurationManager;
 	}

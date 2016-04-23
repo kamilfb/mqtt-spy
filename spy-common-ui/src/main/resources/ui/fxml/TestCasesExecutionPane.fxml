@@ -32,7 +32,7 @@
 <?import javafx.scene.text.*?>
 <?import javafx.collections.*?>
 
-<AnchorPane prefHeight="357.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.baczkowicz.mqttspy.ui.TestCasesExecutionController">
+<AnchorPane prefHeight="357.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.baczkowicz.spy.ui.controllers.TestCasesExecutionController">
 	<padding><Insets bottom="0" left="0" right="0" top="0" /></padding>	
    <children>
       <SplitPane dividerPositions="0.3531317494600432" prefHeight="160.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">

@@ -32,7 +32,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.control.CheckMenuItem?>
 
-<AnchorPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.baczkowicz.mqttspy.ui.PieChartPaneController">
+<AnchorPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.baczkowicz.spy.ui.controllers.PieChartPaneController">
    <children>
       <AnchorPane fx:id="chartPane" prefHeight="40.0" prefWidth="599.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>

@@ -35,10 +35,9 @@ import javafx.scene.paint.Color;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
+import pl.baczkowicz.mqttspy.configuration.MqttConfigurationManager;
 import pl.baczkowicz.mqttspy.configuration.generated.TabbedSubscriptionDetails;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
-import pl.baczkowicz.mqttspy.connectivity.MqttConnectionStatus;
 import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
 import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.scripts.MqttScriptManager;
@@ -47,6 +46,7 @@ import pl.baczkowicz.mqttspy.ui.SubscriptionController;
 import pl.baczkowicz.mqttspy.ui.ViewManager;
 import pl.baczkowicz.mqttspy.ui.events.SubscriptionStatusChangeEvent;
 import pl.baczkowicz.mqttspy.ui.utils.ContextMenuUtils;
+import pl.baczkowicz.spy.connectivity.ConnectionStatus;
 import pl.baczkowicz.spy.eventbus.IKBus;
 import pl.baczkowicz.spy.formatting.FormattingManager;
 import pl.baczkowicz.spy.ui.configuration.UiProperties;
@@ -80,7 +80,7 @@ public class SubscriptionManager
 	private final EventQueueManager<FormattedMqttMessage> uiEventQueue;
 
 	/** Configuration manager. */
-	private ConfigurationManager configurationManager;
+	private MqttConfigurationManager configurationManager;
 	
 	private ViewManager viewManager;
 
@@ -95,7 +95,7 @@ public class SubscriptionManager
 	 * @param viewManager 
 	 * @param uiEventQueue The UI event queue to be used
 	 */
-	public SubscriptionManager(final IKBus eventBus, final ConfigurationManager configurationManager, 
+	public SubscriptionManager(final IKBus eventBus, final MqttConfigurationManager configurationManager, 
 			final ViewManager viewManager, final EventQueueManager<FormattedMqttMessage> uiEventQueue)
 	{
 		this.eventBus = eventBus;
@@ -307,7 +307,7 @@ public class SubscriptionManager
 		}
 
 		// Set menu items
-		if (subscription.getConnection().getConnectionStatus().equals(MqttConnectionStatus.CONNECTED))
+		if (subscription.getConnection().getConnectionStatus().equals(ConnectionStatus.CONNECTED))
 		{									
 			if (subscription.isActive())
 			{

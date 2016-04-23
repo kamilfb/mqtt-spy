@@ -19,17 +19,17 @@
  */
 package pl.baczkowicz.mqttspy.connectivity;
 
-import pl.baczkowicz.mqttspy.configuration.ConfiguredConnectionDetails;
+import pl.baczkowicz.mqttspy.configuration.ConfiguredMqttConnectionDetails;
 import pl.baczkowicz.spy.common.generated.FormatterDetails;
 import pl.baczkowicz.spy.exceptions.ConfigurationException;
 
-public class RuntimeConnectionProperties extends MqttConnectionDetailsWithOptions
+public class MqttRuntimeConnectionProperties extends MqttConnectionDetailsWithOptions
 {
 	private static final long serialVersionUID = -2411594766874071799L;
 	
-	private ConfiguredConnectionDetails configuredProperties;
+	private ConfiguredMqttConnectionDetails configuredProperties;
 
-	public RuntimeConnectionProperties(final ConfiguredConnectionDetails configuredProperties) throws ConfigurationException
+	public MqttRuntimeConnectionProperties(final ConfiguredMqttConnectionDetails configuredProperties) throws ConfigurationException
 	{	
 		super(configuredProperties.getID(), configuredProperties);
 		this.configuredProperties = configuredProperties;		
@@ -50,7 +50,7 @@ public class RuntimeConnectionProperties extends MqttConnectionDetailsWithOption
 		return configuredProperties.isAutoConnect();
 	}
 	
-	public ConfiguredConnectionDetails getConfiguredProperties()
+	public ConfiguredMqttConnectionDetails getConfiguredProperties()
 	{
 		return this.configuredProperties;
 	}

@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.common.generated.ReconnectionSettings;
 import pl.baczkowicz.mqttspy.connectivity.BaseMqttConnection;
-import pl.baczkowicz.mqttspy.connectivity.MqttConnectionStatus;
+import pl.baczkowicz.spy.connectivity.ConnectionStatus;
 import pl.baczkowicz.spy.utils.ThreadingUtils;
 import pl.baczkowicz.spy.utils.TimeUtils;
 
@@ -82,7 +82,7 @@ public class ReconnectionManager implements Runnable
 	{
 		for (final BaseMqttConnection connection : connections.keySet())
 		{
-			if (connection.getConnectionStatus().equals(MqttConnectionStatus.CONNECTING))
+			if (connection.getConnectionStatus().equals(ConnectionStatus.CONNECTING))
 			{
 				// If already connecting, ignore it
 				continue;
@@ -95,8 +95,8 @@ public class ReconnectionManager implements Runnable
 				continue;
 			}
 			
-			if (connection.getConnectionStatus().equals(MqttConnectionStatus.DISCONNECTED) 
-					|| connection.getConnectionStatus().equals(MqttConnectionStatus.NOT_CONNECTED))
+			if (connection.getConnectionStatus().equals(ConnectionStatus.DISCONNECTED) 
+					|| connection.getConnectionStatus().equals(ConnectionStatus.NOT_CONNECTED))
 			{
 				logger.info("Starting connection {}", connection.getMqttConnectionDetails().getName());
 				new Thread(connections.get(connection)).start();

@@ -59,13 +59,12 @@ import javafx.stage.Stage;
 import javafx.stage.Window;
 import javafx.stage.FileChooser.ExtensionFilter;
 import pl.baczkowicz.mqttspy.Main;
-import pl.baczkowicz.mqttspy.configuration.ConfigurationManager;
-import pl.baczkowicz.mqttspy.configuration.ConfiguredConnectionDetails;
+import pl.baczkowicz.mqttspy.configuration.MqttConfigurationManager;
+import pl.baczkowicz.mqttspy.configuration.ConfiguredMqttConnectionDetails;
+import pl.baczkowicz.mqttspy.connectivity.MqttConnectionFactory;
 import pl.baczkowicz.mqttspy.messages.BaseMqttMessage;
-import pl.baczkowicz.mqttspy.stats.StatisticsManager;
 import pl.baczkowicz.mqttspy.ui.connections.ConnectionManager;
 import pl.baczkowicz.mqttspy.ui.events.ConfigurationLoadedEvent;
-import pl.baczkowicz.mqttspy.ui.events.ConnectionStatusChangeEvent;
 import pl.baczkowicz.mqttspy.ui.events.ConnectionsChangedEvent;
 import pl.baczkowicz.mqttspy.ui.events.ShowNewSubscriptionWindowEvent;
 import pl.baczkowicz.mqttspy.ui.events.ShowEditConnectionsWindowEvent;
@@ -79,7 +78,9 @@ import pl.baczkowicz.spy.exceptions.ConfigurationException;
 import pl.baczkowicz.spy.ui.configuration.UiProperties;
 import pl.baczkowicz.spy.ui.controllers.AboutController;
 import pl.baczkowicz.spy.ui.controllers.EditChartSeriesController;
+import pl.baczkowicz.spy.ui.controllers.EditConnectionsController;
 import pl.baczkowicz.spy.ui.controllers.TestCasesExecutionController;
+import pl.baczkowicz.spy.ui.events.ConnectionStatusChangeEvent;
 import pl.baczkowicz.spy.ui.events.LoadConfigurationFileEvent;
 import pl.baczkowicz.spy.ui.events.NewPerspectiveSelectedEvent;
 import pl.baczkowicz.spy.ui.events.ShowAboutWindowEvent;
@@ -90,6 +91,7 @@ import pl.baczkowicz.spy.ui.panes.PaneVisibilityStatus;
 import pl.baczkowicz.spy.ui.panes.SpyPerspective;
 import pl.baczkowicz.spy.ui.panes.TitledPaneController;
 import pl.baczkowicz.spy.ui.panes.TitledPaneStatus;
+import pl.baczkowicz.spy.ui.stats.StatisticsManager;
 import pl.baczkowicz.spy.ui.threading.SimpleRunLaterExecutor;
 import pl.baczkowicz.spy.ui.utils.FxmlUtils;
 import pl.baczkowicz.spy.ui.utils.ImageUtils;
@@ -105,7 +107,7 @@ public class ViewManager
 	
 	public static int TITLE_MARGIN = 13;
 	
-	private ConfigurationManager configurationManager;
+	private MqttConfigurationManager configurationManager;
 
 	private VersionManager versionManager;
 
@@ -241,14 +243,20 @@ public class ViewManager
 			eventBus.unsubscribeConsumer(editConnectionsController, ConnectionStatusChangeEvent.class);
 		}
 		
+		final MqttConnectionFactory mqttConnectionFactory = new MqttConnectionFactory();
+		mqttConnectionFactory.setConfigurationManager(configurationManager);
+		mqttConnectionFactory.setConnectionManager(connectionManager);
+		mqttConnectionFactory.setEventBus(eventBus);
+
 		final FXMLLoader loader = FxmlUtils.createFxmlLoaderForProjectFile("EditConnectionsWindow.fxml");
 		final AnchorPane connectionWindow = FxmlUtils.loadAnchorPane(loader);
 		editConnectionsController = ((EditConnectionsController) loader.getController());		
-		editConnectionsController.setMainController(mainController);
 		editConnectionsController.setEventBus(eventBus);
-		editConnectionsController.setConnectionManager(connectionManager);
+		editConnectionsController.setConnectionFactory(mqttConnectionFactory);
 		editConnectionsController.setConfigurationManager(configurationManager);
 		editConnectionsController.init();
+		
+		// TODO: set the connection factory
 		
 		Scene scene = new Scene(connectionWindow);
 		scene.getStylesheets().addAll(stylesheets);		
@@ -291,6 +299,8 @@ public class ViewManager
 		mainController.setConfigurationManager(configurationManager);
 		mainController.updateSelectedPerspective(UiProperties.getApplicationPerspective(configurationManager.getUiPropertyFile()));
 		mainController.getResizeMessagePaneMenu().setSelected(UiProperties.getResizeMessagePane(configurationManager.getUiPropertyFile()));
+		
+		connectionManager.setMainController(mainController);
 		
 		// Set the stage's properties
 		primaryStage.setScene(scene);	
@@ -570,13 +580,13 @@ public class ViewManager
 			eventBus.publish(new ConnectionsChangedEvent());
 			
 			// Process the connection settings		
-			for (final ConfiguredConnectionDetails connection : configurationManager.getConnections())
+			for (final ConfiguredMqttConnectionDetails connection : configurationManager.getConnections())
 			{
 				if (connection.isAutoOpen() != null && connection.isAutoOpen())
 				{					
 					try
 					{
-						connectionManager.openConnection(connection, mainController);
+						connectionManager.openConnection(connection);
 					}
 					catch (ConfigurationException e)
 					{
@@ -592,7 +602,7 @@ public class ViewManager
 	
 	public void loadDefaultConfigurationFile()
 	{		
-		final File defaultConfigurationFile = ConfigurationManager.getDefaultConfigurationFile();
+		final File defaultConfigurationFile = MqttConfigurationManager.getDefaultConfigurationFile();
 		
 		logger.info("Default configuration file present (" + defaultConfigurationFile.getAbsolutePath() + ") = " + defaultConfigurationFile.exists());
 		
@@ -735,7 +745,7 @@ public class ViewManager
 	 * 
 	 * @param configurationManager the configurationManager to set
 	 */
-	public void setConfigurationManager(ConfigurationManager configurationManager)
+	public void setConfigurationManager(MqttConfigurationManager configurationManager)
 	{
 		this.configurationManager = configurationManager;
 	}

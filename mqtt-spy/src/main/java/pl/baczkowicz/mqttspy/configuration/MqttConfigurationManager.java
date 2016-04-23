@@ -48,6 +48,7 @@ import pl.baczkowicz.spy.common.generated.Formatting;
 import pl.baczkowicz.spy.configuration.BaseConfigurationUtils;
 import pl.baczkowicz.spy.configuration.PropertyFileLoader;
 import pl.baczkowicz.spy.exceptions.XMLException;
+import pl.baczkowicz.spy.ui.configuration.ConfigurationManager;
 import pl.baczkowicz.spy.ui.configuration.ConfiguredConnectionGroupDetails;
 import pl.baczkowicz.spy.ui.configuration.UiProperties;
 import pl.baczkowicz.spy.ui.panes.SpyPerspective;
@@ -60,9 +61,9 @@ import pl.baczkowicz.spy.xml.XMLParser;
  * Manages loading and saving configuration files.
  */
 @SuppressWarnings({"unchecked", "rawtypes"})
-public class ConfigurationManager
+public class MqttConfigurationManager implements ConfigurationManager
 {
-	final static Logger logger = LoggerFactory.getLogger(ConfigurationManager.class);
+	final static Logger logger = LoggerFactory.getLogger(MqttConfigurationManager.class);
 	
 	public static final String PACKAGE = "pl.baczkowicz.mqttspy.configuration.generated";
 	
@@ -84,7 +85,7 @@ public class ConfigurationManager
 	
 	private MqttSpyConfiguration configuration;
 	
-	private List<ConfiguredConnectionDetails> connections = new ArrayList<>();	
+	private List<ConfiguredMqttConnectionDetails> connections = new ArrayList<>();	
 	
 	private List<ConfiguredConnectionGroupDetails> connectionGroups = new ArrayList<>();
 	
@@ -100,7 +101,7 @@ public class ConfigurationManager
 	
 	private final PropertyFileLoader uiPropertyFile;
 
-	public ConfigurationManager() throws XMLException
+	public MqttConfigurationManager() throws XMLException
 	{
 		// Load the default property file from classpath
 		this.defaultPropertyFile = new PropertyFileLoader();
@@ -172,7 +173,7 @@ public class ConfigurationManager
 	{
 		for (final Object connectionDetails : getConfiguration().getConnectivity().getConnectionOrConnectionV2())
 		{
-			ConfiguredConnectionDetails configuredConnectionDetails = null;
+			ConfiguredMqttConnectionDetails configuredConnectionDetails = null;
 			
 			if (connectionDetails instanceof UserInterfaceMqttConnectionDetailsV010)
 			{			
@@ -213,13 +214,13 @@ public class ConfigurationManager
 				
 				// Put the defaults at the point of loading the config, so we don't need to do it again
 				ConfigurationUtils.populateConnectionDefaults(details);
-				configuredConnectionDetails = new ConfiguredConnectionDetails(false, false, details);
+				configuredConnectionDetails = new ConfiguredMqttConnectionDetails(false, false, details);
 			}
 			else if (connectionDetails instanceof UserInterfaceMqttConnectionDetails)
 			{
 				// Put the defaults at the point of loading the config, so we don't need to do it again
 				ConfigurationUtils.populateConnectionDefaults((UserInterfaceMqttConnectionDetails) connectionDetails);
-				configuredConnectionDetails = new ConfiguredConnectionDetails(false, false, 
+				configuredConnectionDetails = new ConfiguredMqttConnectionDetails(false, false, 
 						(UserInterfaceMqttConnectionDetails) connectionDetails);
 			}
 			
@@ -235,12 +236,12 @@ public class ConfigurationManager
 	
 	public static File getDefaultConfigurationFile()
 	{			
-		return new File(getDefaultHomeDirectory() + ConfigurationManager.DEFAULT_FILE_NAME);
+		return new File(getDefaultHomeDirectory() + MqttConfigurationManager.DEFAULT_FILE_NAME);
 	}
 	
 	public static File getUiPropertiesFile()
 	{			
-		return new File(getDefaultHomeDirectory() + ConfigurationManager.UI_PROPERTIES_FILE_NAME);
+		return new File(getDefaultHomeDirectory() + MqttConfigurationManager.UI_PROPERTIES_FILE_NAME);
 	}
 	
 	public static File getDefaultHomeDirectoryFile()
@@ -297,9 +298,9 @@ public class ConfigurationManager
 		return false;
 	}
 	
-	private void populateMissingFormatters(final List<FormatterDetails> formatters, final List<ConfiguredConnectionDetails> connections)
+	private void populateMissingFormatters(final List<FormatterDetails> formatters, final List<ConfiguredMqttConnectionDetails> connections)
 	{
-		for (final ConfiguredConnectionDetails connection : connections)
+		for (final ConfiguredMqttConnectionDetails connection : connections)
 		{
 			if (connection.getFormatter() == null)
 			{
@@ -331,9 +332,9 @@ public class ConfigurationManager
 		lastException =  null;
 	}
 	
-	public ConfiguredConnectionDetails getMatchingConnection(final String id)
+	public ConfiguredMqttConnectionDetails getMatchingConnection(final String id)
 	{
-		for (final ConfiguredConnectionDetails details : getConnections())
+		for (final ConfiguredMqttConnectionDetails details : getConnections())
 		{
 			if (id.equals(details.getID()))
 			{
@@ -346,7 +347,7 @@ public class ConfigurationManager
 	
 	public void updateSubscriptionConfiguration(final MqttAsyncConnection connection, final MqttSubscription subscription)	
 	{
-		final ConfiguredConnectionDetails details = getMatchingConnection(connection.getId());
+		final ConfiguredMqttConnectionDetails details = getMatchingConnection(connection.getId());
 		
 		boolean matchFound = false;
 		for (final TabbedSubscriptionDetails subscriptionDetails : details.getSubscription())
@@ -377,7 +378,7 @@ public class ConfigurationManager
 	
 	public void deleteSubscriptionConfiguration(final MqttAsyncConnection connection, final MqttSubscription subscription)	
 	{
-		final ConfiguredConnectionDetails details = getMatchingConnection(connection.getId());
+		final ConfiguredMqttConnectionDetails details = getMatchingConnection(connection.getId());
 		
 		TabbedSubscriptionDetails itemToRemove = null;
 		
@@ -441,24 +442,24 @@ public class ConfigurationManager
 		return configuration;
 	}
 	
-	public List<ConfiguredConnectionDetails> getConnections()
+	public List<ConfiguredMqttConnectionDetails> getConnections()
 	{
 		return connections;
 	}
 	
-	public List<ConfiguredConnectionDetails> getConnections(final ConfiguredConnectionGroupDetails group)
+	public List<ConfiguredMqttConnectionDetails> getConnections(final ConfiguredConnectionGroupDetails group)
 	{
-		List<ConfiguredConnectionDetails> orderedConnections = new ArrayList<>();
+		List<ConfiguredMqttConnectionDetails> orderedConnections = new ArrayList<>();
 		for (final ConnectionReference connetionRef : group.getConnections())
 		{
-			orderedConnections.add((ConfiguredConnectionDetails) connetionRef.getReference());
+			orderedConnections.add((ConfiguredMqttConnectionDetails) connetionRef.getReference());
 		}
 		return orderedConnections;
 	}
 	
-	public List<ConfiguredConnectionDetails> getOrderedConnections()
+	public List<ConfiguredMqttConnectionDetails> getOrderedConnections()
 	{
-		List<ConfiguredConnectionDetails> orderedConnections = new ArrayList<>();		
+		List<ConfiguredMqttConnectionDetails> orderedConnections = new ArrayList<>();		
 		List<ConfiguredConnectionGroupDetails> orderedGroups = new ArrayList<>();
 		
 		sortConnections(getRootGroup(), orderedGroups, orderedConnections);
@@ -468,7 +469,7 @@ public class ConfigurationManager
 	
 	public List<ConfiguredConnectionGroupDetails> getOrderedGroups()
 	{
-		List<ConfiguredConnectionDetails> orderedConnections = new ArrayList<>();		
+		List<ConfiguredMqttConnectionDetails> orderedConnections = new ArrayList<>();		
 		List<ConfiguredConnectionGroupDetails> orderedGroups = new ArrayList<>();
 		
 		orderedGroups.add(getRootGroup());
@@ -478,7 +479,7 @@ public class ConfigurationManager
 	}
 	
 	private void sortConnections(final ConfiguredConnectionGroupDetails parentGroup, 
-			final List<ConfiguredConnectionGroupDetails> orderedGroups, List<ConfiguredConnectionDetails> orderedConnections)
+			final List<ConfiguredConnectionGroupDetails> orderedGroups, List<ConfiguredMqttConnectionDetails> orderedConnections)
 	{		
 		for (final ConnectionGroupReference reference : parentGroup.getSubgroups())		
 		{
@@ -491,7 +492,7 @@ public class ConfigurationManager
 		
 		for (final ConnectionReference reference : parentGroup.getConnections())			
 		{
-			final ConfiguredConnectionDetails connection = (ConfiguredConnectionDetails) reference.getReference();
+			final ConfiguredMqttConnectionDetails connection = (ConfiguredMqttConnectionDetails) reference.getReference();
 			orderedConnections.add(connection);
 		}				
 	}
@@ -547,7 +548,7 @@ public class ConfigurationManager
 		}
 	}
 	
-	public static String generateConnectionGroupId()
+	public String generateConnectionGroupId()
 	{
 		ThreadingUtils.sleep(1);
 		return "cg" + TimeUtils.getMonotonicTime();
@@ -590,7 +591,7 @@ public class ConfigurationManager
 			connectionGroups.add(rootGroup);
 			
 			// Assign all connections to the new root
-			for (final ConfiguredConnectionDetails connection : getConnections())
+			for (final ConfiguredMqttConnectionDetails connection : getConnections())
 			{
 				connection.setGroup(new ConnectionGroupReference(rootGroup));
 				rootGroup.getConnections().add(new ConnectionReference(connection));
@@ -630,9 +631,9 @@ public class ConfigurationManager
 		return null;
 	}
 	
-	private ConfiguredConnectionDetails findMatchingConnection(final UserInterfaceMqttConnectionDetails connection)
+	private ConfiguredMqttConnectionDetails findMatchingConnection(final UserInterfaceMqttConnectionDetails connection)
 	{
-		for (final ConfiguredConnectionDetails connectionDetails : connections)
+		for (final ConfiguredMqttConnectionDetails connectionDetails : connections)
 		{
 			if (connection.getID().equals(connectionDetails.getID()))
 			{
@@ -641,23 +642,6 @@ public class ConfigurationManager
 		}
 		
 		return null;
-	}
-	
-	public static void findConnections(final ConfiguredConnectionGroupDetails parentGroup, final List<ConfiguredConnectionDetails> connections)
-	{		
-		for (final ConnectionGroupReference reference : parentGroup.getSubgroups())			
-		{
-			final ConfiguredConnectionGroupDetails groupDetails = (ConfiguredConnectionGroupDetails) reference.getReference();
-						
-			// Recursive
-			findConnections(groupDetails, connections);
-		}
-		
-		for (final ConnectionReference reference : parentGroup.getConnections())			
-		{
-			final ConfiguredConnectionDetails connectionDetails = (ConfiguredConnectionDetails) reference.getReference();
-			connections.add(connectionDetails);
-		}		
 	}
 	
 	private void updateTree(final ConfiguredConnectionGroupDetails parentGroup)
@@ -683,7 +667,7 @@ public class ConfigurationManager
 		for (final ConnectionReference reference : connections)			
 		{
 			final UserInterfaceMqttConnectionDetails connection = (UserInterfaceMqttConnectionDetails) reference.getReference();
-			final ConfiguredConnectionDetails connectionDetails = findMatchingConnection(connection);
+			final ConfiguredMqttConnectionDetails connectionDetails = findMatchingConnection(connection);
 			parentGroup.getConnections().add(new ConnectionReference(connectionDetails));
 			connectionDetails.setGroup(new ConnectionGroupReference(parentGroup));	
 			connectionDetails.apply();

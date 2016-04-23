@@ -252,4 +252,16 @@ public class ConfiguredConnectionGroupDetails extends ConnectionGroup implements
 		}
 		connections.remove(refToDelete);
 	}
+
+	@Override
+	public void setDeleted(boolean value)
+	{
+		// Not used		
+	}
+
+	@Override
+	public boolean isBeingCreated()
+	{
+		return false;
+	}
 }

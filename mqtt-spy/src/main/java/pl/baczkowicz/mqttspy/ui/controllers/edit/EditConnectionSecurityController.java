@@ -49,14 +49,14 @@ import javafx.util.StringConverter;
 import javax.net.ssl.SSLContext;
 
 import pl.baczkowicz.mqttspy.common.generated.SecureSocketSettings;
-import pl.baczkowicz.spy.common.generated.UserCredentials;
-import pl.baczkowicz.mqttspy.configuration.ConfiguredConnectionDetails;
+import pl.baczkowicz.mqttspy.configuration.ConfiguredMqttConnectionDetails;
 import pl.baczkowicz.mqttspy.configuration.generated.UserAuthenticationOptions;
 import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnectionDetails;
-import pl.baczkowicz.mqttspy.ui.ConnectionController;
 import pl.baczkowicz.mqttspy.ui.EditConnectionController;
 import pl.baczkowicz.spy.common.generated.SecureSocketModeEnum;
+import pl.baczkowicz.spy.common.generated.UserCredentials;
 import pl.baczkowicz.spy.configuration.BaseConfigurationUtils;
+import pl.baczkowicz.spy.ui.utils.UiUtils;
 
 /**
  * Controller for editing a single connection - security tab.
@@ -404,7 +404,7 @@ public class EditConnectionSecurityController extends AnchorPane implements Init
 	}
 	
 	@Override
-	public void displayConnectionDetails(final ConfiguredConnectionDetails connection)
+	public void displayConnectionDetails(final ConfiguredMqttConnectionDetails connection)
 	{
 		// Security
 		userAuthentication.setSelected(connection.getUserAuthentication() != null && connection.getUserCredentials() != null);
@@ -463,18 +463,18 @@ public class EditConnectionSecurityController extends AnchorPane implements Init
 	private void updateAuthIcon(boolean authEnabled)
 	{
 		final HBox authIcon = new HBox();
-		ConnectionController.createAuthIcon(authIcon, authEnabled, true);
+		UiUtils.createAuthIcon(authIcon, authEnabled, true);
 		authTab.setGraphic(authIcon);
 	}
 	
 	private void updateTlsIcon(boolean tlsEnabled)
 	{
 		final HBox tlsIcon = new HBox();
-		ConnectionController.createTlsIcon(tlsIcon, tlsEnabled, true);
+		UiUtils.createTlsIcon(tlsIcon, tlsEnabled, true);
 		tlsTab.setGraphic(tlsIcon);		
 	}
 	
-	private void showIcons(final ConfiguredConnectionDetails connection)
+	private void showIcons(final ConfiguredMqttConnectionDetails connection)
 	{
 		updateTlsIcon(connection.getSSL() != null);
 		updateAuthIcon(connection.getUserCredentials() != null);
