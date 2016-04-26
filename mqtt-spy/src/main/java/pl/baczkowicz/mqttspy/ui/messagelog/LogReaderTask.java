@@ -30,8 +30,8 @@ import org.slf4j.LoggerFactory;
 import pl.baczkowicz.mqttspy.common.generated.LoggedMqttMessage;
 import pl.baczkowicz.mqttspy.logger.MqttMessageLogParserUtils;
 import pl.baczkowicz.mqttspy.messages.BaseMqttMessage;
-import pl.baczkowicz.mqttspy.ui.MainController;
-import pl.baczkowicz.mqttspy.ui.connections.ConnectionManager;
+import pl.baczkowicz.mqttspy.ui.MqttViewManager;
+import pl.baczkowicz.mqttspy.ui.controllers.MqttSpyMainController;
 import pl.baczkowicz.spy.files.FileUtils;
 import pl.baczkowicz.spy.utils.ThreadingUtils;
 
@@ -46,11 +46,11 @@ public class LogReaderTask extends TaskWithProgressUpdater<List<BaseMqttMessage>
 	/** The file to read from. */
 	private File selectedFile;
 	
-	/** Connection manager - used for loading the message log tab. */
-	protected ConnectionManager connectionManager;
+	/** View manager - used for loading the message log tab. */
+	protected MqttViewManager viewManager;
 	
 	/** Main controller. */
-	protected MainController controller;
+	protected MqttSpyMainController controller;
 	
 	/**
 	 * Creates a LogReaderTask with the supplied parameters.
@@ -59,10 +59,10 @@ public class LogReaderTask extends TaskWithProgressUpdater<List<BaseMqttMessage>
 	 * @param connectionManager The connection manager
 	 * @param mainController The main controller
 	 */
-	public LogReaderTask(final File selectedFile, final ConnectionManager connectionManager, final MainController mainController)
+	public LogReaderTask(final File selectedFile, final MqttViewManager viewManager, final MqttSpyMainController mainController)
 	{
 		this.selectedFile = selectedFile;
-		this.connectionManager = connectionManager;
+		this.viewManager = viewManager;
 		this.controller = mainController;
 		super.updateTitle("Processing message audit log file " + selectedFile.getName());
 	}
@@ -114,7 +114,7 @@ public class LogReaderTask extends TaskWithProgressUpdater<List<BaseMqttMessage>
 				@Override
 				public void run()
 				{
-					connectionManager.loadMessageLogTab(controller, selectedFile.getName(), processedMessages);								
+					viewManager.loadMessageLogTab(controller, selectedFile.getName(), processedMessages);								
 				}
 			});	
 			

@@ -83,7 +83,7 @@ public class FormattingManager
 			else
 			{
 				// Use the raw payload to make sure any formatting/encoding that is applied is correct
-				message.setFormattedPayload(FormattingUtils.checkAndFormatText(formatter, message.getRawBinaryPayload()));
+				message.setFormattedPayload(FormattingUtils.checkAndFormatText(formatter, message.getRawPayload()));
 				message.setPrettyPayload(message.getFormattedPayload());
 			}
 		}

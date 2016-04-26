@@ -21,7 +21,7 @@ package pl.baczkowicz.mqttspy.connectivity;
 
 import javafx.scene.paint.Color;
 import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
-import pl.baczkowicz.mqttspy.ui.SubscriptionController;
+import pl.baczkowicz.mqttspy.ui.controllers.SubscriptionController;
 import pl.baczkowicz.mqttspy.ui.events.SubscriptionStatusChangeEvent;
 import pl.baczkowicz.spy.eventbus.IKBus;
 import pl.baczkowicz.spy.formatting.FormattingManager;

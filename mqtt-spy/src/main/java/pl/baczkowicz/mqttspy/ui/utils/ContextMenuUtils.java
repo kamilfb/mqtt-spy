@@ -21,9 +21,6 @@ package pl.baczkowicz.mqttspy.ui.utils;
 
 import java.util.Arrays;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
@@ -40,15 +37,15 @@ import pl.baczkowicz.mqttspy.configuration.generated.TabbedSubscriptionDetails;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
 import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
-import pl.baczkowicz.mqttspy.ui.ConnectionController;
-import pl.baczkowicz.mqttspy.ui.SubscriptionController;
-import pl.baczkowicz.mqttspy.ui.connections.ConnectionManager;
-import pl.baczkowicz.mqttspy.ui.connections.SubscriptionManager;
-import pl.baczkowicz.mqttspy.ui.events.ShowEditConnectionsWindowEvent;
+import pl.baczkowicz.mqttspy.ui.MqttConnectionViewManager;
+import pl.baczkowicz.mqttspy.ui.MqttSubscriptionViewManager;
+import pl.baczkowicz.mqttspy.ui.controllers.MqttConnectionController;
+import pl.baczkowicz.mqttspy.ui.controllers.SubscriptionController;
 import pl.baczkowicz.spy.eventbus.IKBus;
 import pl.baczkowicz.spy.ui.charts.ChartFactory;
 import pl.baczkowicz.spy.ui.charts.ChartMode;
 import pl.baczkowicz.spy.ui.events.ClearTabEvent;
+import pl.baczkowicz.spy.ui.events.ShowEditConnectionsWindowEvent;
 import pl.baczkowicz.spy.ui.panes.PaneVisibilityStatus;
 import pl.baczkowicz.spy.ui.panes.TitledPaneStatus;
 import pl.baczkowicz.spy.ui.stats.StatisticsManager;
@@ -62,7 +59,7 @@ import pl.baczkowicz.spy.ui.utils.UiUtils;
  */
 public class ContextMenuUtils
 {	
-	private final static Logger logger = LoggerFactory.getLogger(ContextMenuUtils.class);
+	// private final static Logger logger = LoggerFactory.getLogger(ContextMenuUtils.class);
 	
 	/**
 	 * Create context menu for the subscription tab.
@@ -80,7 +77,7 @@ public class ContextMenuUtils
 			final MqttAsyncConnection connection, 
 			final MqttSubscription subscription,  
 			final IKBus eventBus,
-			final SubscriptionManager subscriptionManager,
+			final MqttSubscriptionViewManager subscriptionManager,
 			final MqttConfigurationManager configurationManager,
 			final SubscriptionController subscriptionController)
 	{
@@ -247,7 +244,7 @@ public class ContextMenuUtils
 					
 					// Update 'all' tab				
 					subscriptionManager.getSubscriptionControllersMap().
-						get(SubscriptionManager.ALL_SUBSCRIPTIONS_TAB_TITLE).getSummaryTablePaneController().refreshRowStyling();
+						get(MqttSubscriptionViewManager.ALL_SUBSCRIPTIONS_TAB_TITLE).getSummaryTablePaneController().refreshRowStyling();
 				}
 			}
 		});
@@ -276,7 +273,7 @@ public class ContextMenuUtils
 	public static ContextMenu createAllSubscriptionsTabContextMenu(
 			final MqttAsyncConnection connection, 
 			final IKBus eventBus,
-			final SubscriptionManager subscriptionManager,
+			final MqttSubscriptionViewManager subscriptionManager,
 			final MqttConfigurationManager configurationManager,
 			final SubscriptionController subscriptionController)
 	{
@@ -384,7 +381,7 @@ public class ContextMenuUtils
 	}
 	
 	private static Menu createConnectionPaneMenu(final String name, 
-			final ConnectionController connectionController, 
+			final MqttConnectionController connectionController, 
 			final TitledPaneStatus status)
 	{
 		final Menu menu = new Menu(name);
@@ -437,7 +434,7 @@ public class ContextMenuUtils
 	 * @return Created context menu
 	 */
 	public static ContextMenu createConnectionMenu(final MqttAsyncConnection connection, final IKBus eventBus,
-			final ConnectionController connectionController, final ConnectionManager connectionManager)
+			final MqttConnectionController connectionController, final MqttConnectionViewManager connectionManager)
 	{
 		// Context menu
 		ContextMenu contextMenu = new ContextMenu();
@@ -543,7 +540,9 @@ public class ContextMenuUtils
 			public void handle(ActionEvent event)
 			{
 				eventBus.publish(new ShowEditConnectionsWindowEvent(
-						connectionController.getTab().getTabPane().getScene().getWindow(), false, connection));
+						connectionController.getTab().getTabPane().getScene().getWindow(), 
+						false, 
+						connection.getProperties().getConfiguredProperties()));
 			}
 		});		
 		contextMenu.getItems().add(editItem);
@@ -561,8 +560,8 @@ public class ContextMenuUtils
 	 */
 	public static ContextMenu createMessageLogMenu(
 			final Tab tab, 
-			final ConnectionController connectionController, 
-			final ConnectionManager connectionManager)
+			final MqttConnectionController connectionController, 
+			final MqttConnectionViewManager connectionManager)
 	{
 		// Context menu
 		ContextMenu contextMenu = new ContextMenu();

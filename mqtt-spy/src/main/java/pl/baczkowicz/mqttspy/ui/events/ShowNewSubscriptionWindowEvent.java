@@ -20,18 +20,18 @@
 
 package pl.baczkowicz.mqttspy.ui.events;
 
-import pl.baczkowicz.mqttspy.ui.ConnectionController;
+import pl.baczkowicz.mqttspy.ui.controllers.MqttConnectionController;
 import pl.baczkowicz.spy.ui.panes.PaneVisibilityStatus;
 
 public class ShowNewSubscriptionWindowEvent
 {
-	private final ConnectionController controller;
+	private final MqttConnectionController controller;
 	
 	private final PaneVisibilityStatus newStatus;
 	
 	private final PaneVisibilityStatus previousStatus;
 
-	public ShowNewSubscriptionWindowEvent(final ConnectionController controller, 
+	public ShowNewSubscriptionWindowEvent(final MqttConnectionController controller, 
 			final PaneVisibilityStatus newStatus, final PaneVisibilityStatus previousStatus)
 	{
 		this.controller = controller;
@@ -42,7 +42,7 @@ public class ShowNewSubscriptionWindowEvent
 	/**
 	 * @return the changedSubscription
 	 */
-	public ConnectionController getConnectionController()
+	public MqttConnectionController getConnectionController()
 	{
 		return controller;
 	}

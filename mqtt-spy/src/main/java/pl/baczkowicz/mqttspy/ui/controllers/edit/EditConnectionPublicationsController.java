@@ -47,7 +47,7 @@ import org.slf4j.LoggerFactory;
 import pl.baczkowicz.mqttspy.common.generated.PublicationDetails;
 import pl.baczkowicz.mqttspy.configuration.ConfiguredMqttConnectionDetails;
 import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnectionDetails;
-import pl.baczkowicz.mqttspy.ui.EditConnectionController;
+import pl.baczkowicz.mqttspy.ui.controllers.EditMqttConnectionController;
 import pl.baczkowicz.spy.common.generated.ScriptDetails;
 import pl.baczkowicz.spy.ui.properties.BackgroundScriptProperties;
 import pl.baczkowicz.spy.ui.properties.BaseTopicProperty;
@@ -61,7 +61,7 @@ public class EditConnectionPublicationsController extends AnchorPane implements 
 	private final static Logger logger = LoggerFactory.getLogger(EditConnectionPublicationsController.class);
 	
 	/** The parent controller. */
-	private EditConnectionController parent;
+	private EditMqttConnectionController parent;
 
 	// Action buttons
 	
@@ -355,7 +355,7 @@ public class EditConnectionPublicationsController extends AnchorPane implements 
 	// ===============================
 	
 	@Override
-	public void setParent(final EditConnectionController controller)
+	public void setParent(final EditMqttConnectionController controller)
 	{
 		this.parent = controller;
 	}

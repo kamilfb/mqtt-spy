@@ -37,7 +37,7 @@ import javafx.scene.layout.AnchorPane;
 import pl.baczkowicz.mqttspy.common.generated.SecureSocketSettings;
 import pl.baczkowicz.mqttspy.configuration.ConfiguredMqttConnectionDetails;
 import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnectionDetails;
-import pl.baczkowicz.mqttspy.ui.EditConnectionController;
+import pl.baczkowicz.mqttspy.ui.controllers.EditMqttConnectionController;
 import pl.baczkowicz.spy.common.generated.Property;
 import pl.baczkowicz.spy.common.generated.SecureSocketModeEnum;
 import pl.baczkowicz.spy.ui.properties.KeyValueProperty;
@@ -49,7 +49,7 @@ import pl.baczkowicz.spy.ui.properties.KeyValueProperty;
 public class EditConnectionSecurityTlsPropertiesController extends AnchorPane implements Initializable
 {
 	/** The parent controller. */
-	private EditConnectionController parent;
+	private EditMqttConnectionController parent;
 	
 	@FXML
 	private AnchorPane propertiesPane;
@@ -185,7 +185,7 @@ public class EditConnectionSecurityTlsPropertiesController extends AnchorPane im
 	// === Setters and getters =======
 	// ===============================
 	
-	public void setParent(final EditConnectionController controller)
+	public void setParent(final EditMqttConnectionController controller)
 	{
 		this.parent = controller;
 	}

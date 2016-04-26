@@ -14,15 +14,15 @@ import pl.baczkowicz.mqttspy.common.generated.ProtocolVersionEnum;
 import pl.baczkowicz.mqttspy.configuration.ConfiguredMqttConnectionDetails;
 import pl.baczkowicz.mqttspy.configuration.MqttConfigurationManager;
 import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnectionDetails;
-import pl.baczkowicz.mqttspy.ui.EditConnectionController;
-import pl.baczkowicz.mqttspy.ui.connections.ConnectionManager;
+import pl.baczkowicz.mqttspy.ui.MqttConnectionViewManager;
+import pl.baczkowicz.mqttspy.ui.controllers.EditMqttConnectionController;
 import pl.baczkowicz.mqttspy.utils.ConnectionUtils;
 import pl.baczkowicz.mqttspy.utils.MqttUtils;
 import pl.baczkowicz.spy.common.generated.ConnectionGroupReference;
 import pl.baczkowicz.spy.common.generated.ConnectionReference;
 import pl.baczkowicz.spy.eventbus.IKBus;
 import pl.baczkowicz.spy.ui.configuration.ConfiguredConnectionGroupDetails;
-import pl.baczkowicz.spy.ui.connections.UIConnectionFactory;
+import pl.baczkowicz.spy.ui.connections.IConnectionFactory;
 import pl.baczkowicz.spy.ui.controllers.EditConnectionsController;
 import pl.baczkowicz.spy.ui.panes.SpyPerspective;
 import pl.baczkowicz.spy.ui.properties.ConnectionListItemProperties;
@@ -30,13 +30,13 @@ import pl.baczkowicz.spy.ui.properties.ModifiableItem;
 import pl.baczkowicz.spy.ui.utils.FxmlUtils;
 import pl.baczkowicz.spy.ui.utils.ImageUtils;
 
-public class MqttConnectionFactory implements UIConnectionFactory
+public class MqttConnectionFactory implements IConnectionFactory
 {
 	private static final String MQTT = "MQTT";
 	
-	private EditConnectionController editConnectionPaneController;
+	private EditMqttConnectionController editConnectionPaneController;
 
-	private ConnectionManager connectionManager;
+	private MqttConnectionViewManager connectionManager;
 
 	private IKBus eventBus;
 
@@ -189,7 +189,7 @@ public class MqttConnectionFactory implements UIConnectionFactory
 			final FXMLLoader loader = FxmlUtils.createFxmlLoaderForProjectFile("EditConnectionPane.fxml");
 			editConnectionPane = FxmlUtils.loadAnchorPane(loader);
 			
-			editConnectionPaneController = ((EditConnectionController) loader.getController());
+			editConnectionPaneController = ((EditMqttConnectionController) loader.getController());
 
 			editConnectionPaneController.setConfigurationManager(configurationManager);
 			editConnectionPaneController.setEventBus(eventBus);
@@ -249,7 +249,7 @@ public class MqttConnectionFactory implements UIConnectionFactory
 		this.configurationManager = configurationManager;
 	}	
 	
-	public void setConnectionManager(final ConnectionManager connectionManager)
+	public void setConnectionManager(final MqttConnectionViewManager connectionManager)
 	{
 		this.connectionManager = connectionManager;
 	}

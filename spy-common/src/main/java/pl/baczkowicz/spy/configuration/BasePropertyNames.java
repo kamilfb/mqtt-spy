@@ -24,6 +24,12 @@ public class BasePropertyNames
 	/** Name of the 'version' property. */
 	public static final String VERSION_PROPERTY = "application.version";
 	
+	/** Name of the 'logo' property. */
+	public static final String LOGO_PROPERTY = "application.logo";
+	
+	/** Name of the 'name' property. */
+	public static final String NAME_PROPERTY = "application.name";
+	
 	/** Name of the 'build number' property. */
 	public static final String BUILD_PROPERTY = "application.build";
 	

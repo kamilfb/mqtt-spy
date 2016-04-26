@@ -94,7 +94,7 @@ public class ConfigurationUtils
 	{
 		try
 		{ 
-			final File dest = MqttConfigurationManager.getDefaultConfigurationFile();
+			final File dest = MqttConfigurationManager.getDefaultConfigurationFileObject();
 		
 			dest.mkdirs();
 			Files.copy(orig.toPath(), dest.toPath(), StandardCopyOption.REPLACE_EXISTING);			
@@ -124,7 +124,7 @@ public class ConfigurationUtils
 		final String origin = "/samples" + "/" + name + "-mqtt-spy-configuration.xml";
 		try
 		{			
-			return copyFileFromClassPath(Main.class.getResourceAsStream(origin), MqttConfigurationManager.getDefaultConfigurationFile());
+			return copyFileFromClassPath(Main.class.getResourceAsStream(origin), MqttConfigurationManager.getDefaultConfigurationFileObject());
 		}
 		catch (IllegalArgumentException | IOException e)
 		{

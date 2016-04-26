@@ -49,7 +49,7 @@ import org.slf4j.LoggerFactory;
 import pl.baczkowicz.spy.configuration.BaseConfigurationUtils;
 import pl.baczkowicz.spy.exceptions.ConfigurationException;
 import pl.baczkowicz.spy.ui.configuration.ConfiguredConnectionGroupDetails;
-import pl.baczkowicz.spy.ui.connections.UIConnectionFactory;
+import pl.baczkowicz.spy.ui.connections.IConnectionFactory;
 import pl.baczkowicz.spy.ui.properties.ConnectionListItemProperties;
 import pl.baczkowicz.spy.ui.properties.ConnectionTreeItemProperties;
 import pl.baczkowicz.spy.ui.properties.ModifiableItem;
@@ -105,7 +105,7 @@ public class EditConnectionGroupController extends AnchorPane implements Initial
 
 	private EditConnectionsController editConnectionsController;
 	
-	private UIConnectionFactory connectionFactory;
+	private IConnectionFactory connectionFactory;
 	
 	// ===============================
 	// === Initialisation ============
@@ -349,7 +349,7 @@ public class EditConnectionGroupController extends AnchorPane implements Initial
 		}
 	}
 
-	public void setConnectionFactory(final UIConnectionFactory connectionFactory)
+	public void setConnectionFactory(final IConnectionFactory connectionFactory)
 	{
 		this.connectionFactory = connectionFactory;
 	}

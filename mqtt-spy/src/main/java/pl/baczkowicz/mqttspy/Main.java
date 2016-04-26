@@ -27,9 +27,11 @@ import javafx.stage.Stage;
 import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.configuration.MqttConfigurationManager;
-import pl.baczkowicz.mqttspy.stats.MqttStatsFileIO;
-import pl.baczkowicz.mqttspy.ui.ViewManager;
-import pl.baczkowicz.mqttspy.ui.connections.ConnectionManager;
+import pl.baczkowicz.mqttspy.connectivity.MqttConnectionFactory;
+import pl.baczkowicz.mqttspy.scripts.MqttScriptManager;
+import pl.baczkowicz.mqttspy.ui.MqttConnectionViewManager;
+import pl.baczkowicz.mqttspy.ui.MqttViewManager;
+import pl.baczkowicz.mqttspy.ui.stats.MqttStatsFileIO;
 import pl.baczkowicz.spy.eventbus.IKBus;
 import pl.baczkowicz.spy.eventbus.KBus;
 import pl.baczkowicz.spy.ui.events.LoadConfigurationFileEvent;
@@ -63,12 +65,20 @@ public class Main extends Application
 			FxmlUtils.setParentClass(getClass());									
 			
 			final StatisticsManager statisticsManager = new StatisticsManager(new MqttStatsFileIO());
-			final ViewManager viewManager = new ViewManager();
-			final VersionManager versionManager = new VersionManager(configurationManager.getDefaultPropertyFile());	
-			final ConnectionManager connectionManager = new ConnectionManager(eventBus, statisticsManager, configurationManager);							
+			final VersionManager versionManager = new VersionManager(configurationManager.getDefaultPropertyFile());
 			
-			connectionManager.setViewManager(viewManager);
-			
+			final MqttViewManager viewManager = new MqttViewManager();
+									
+			final MqttConnectionViewManager connectionManager = new MqttConnectionViewManager(eventBus, statisticsManager, configurationManager);										
+			connectionManager.setViewManager(viewManager);			
+
+			final MqttConnectionFactory connectionFactory = new MqttConnectionFactory();
+			connectionFactory.setConfigurationManager(configurationManager);
+			connectionFactory.setConnectionManager(connectionManager);
+			connectionFactory.setEventBus(eventBus);
+
+			viewManager.setConnectionFactory(connectionFactory);
+			viewManager.setGenericScriptManager(new MqttScriptManager(null, null, null));
 			viewManager.setEventBus(eventBus);
 			viewManager.setConfigurationManager(configurationManager);
 			viewManager.setConnectionManager(connectionManager);

@@ -22,7 +22,7 @@ package pl.baczkowicz.mqttspy.ui.utils;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
-import pl.baczkowicz.mqttspy.ui.connections.ConnectionManager;
+import pl.baczkowicz.mqttspy.ui.MqttConnectionViewManager;
 import pl.baczkowicz.spy.connectivity.ConnectionStatus;
 
 /**
@@ -39,7 +39,7 @@ public class ActionUtils
 	 * 
 	 * @return The EventHandler with the action
 	 */
-	public static EventHandler<ActionEvent> createDisconnectAction(final ConnectionManager connectionManager, final MqttAsyncConnection connection)
+	public static EventHandler<ActionEvent> createDisconnectAction(final MqttConnectionViewManager connectionManager, final MqttAsyncConnection connection)
 	{
 		return new EventHandler<ActionEvent>()
 		{
@@ -75,7 +75,7 @@ public class ActionUtils
 	 * 
 	 * @return The EventHandler with the action
 	 */
-	public static EventHandler<ActionEvent> createDisconnectAndCloseAction(final ConnectionManager connectionManager, final MqttAsyncConnection connection)
+	public static EventHandler<ActionEvent> createDisconnectAndCloseAction(final MqttConnectionViewManager connectionManager, final MqttAsyncConnection connection)
 	{
 		return new EventHandler<ActionEvent>()
 		{
@@ -95,7 +95,7 @@ public class ActionUtils
 	 * 
 	 * @return The EventHandler with the action
 	 */
-	public static EventHandler<ActionEvent> createConnectAction(final ConnectionManager connectionManager, final MqttAsyncConnection connection)
+	public static EventHandler<ActionEvent> createConnectAction(final MqttConnectionViewManager connectionManager, final MqttAsyncConnection connection)
 	{
 		return new EventHandler<ActionEvent>()
 		{
@@ -117,7 +117,7 @@ public class ActionUtils
 	 * @return The EventHandler with the action
 	 */
 	public static EventHandler<ActionEvent> createNextAction(final ConnectionStatus state, 
-			final MqttAsyncConnection connection, final ConnectionManager connectionManager)
+			final MqttAsyncConnection connection, final MqttConnectionViewManager connectionManager)
 	{
 		if (state == null)
 		{

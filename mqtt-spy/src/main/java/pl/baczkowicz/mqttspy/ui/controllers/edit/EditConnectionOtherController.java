@@ -39,12 +39,12 @@ import javafx.util.StringConverter;
 import pl.baczkowicz.mqttspy.configuration.MqttConfigurationManager;
 import pl.baczkowicz.mqttspy.configuration.ConfiguredMqttConnectionDetails;
 import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnectionDetails;
-import pl.baczkowicz.mqttspy.ui.EditConnectionController;
-import pl.baczkowicz.mqttspy.ui.FormattersController;
+import pl.baczkowicz.mqttspy.ui.controllers.EditMqttConnectionController;
 import pl.baczkowicz.spy.common.generated.FormatterDetails;
 import pl.baczkowicz.spy.eventbus.IKBus;
 import pl.baczkowicz.spy.formatting.FormattingManager;
 import pl.baczkowicz.spy.formatting.FormattingUtils;
+import pl.baczkowicz.spy.ui.controllers.FormattersController;
 import pl.baczkowicz.spy.ui.events.FormattersChangedEvent;
 import pl.baczkowicz.spy.ui.events.ShowFormattersWindowEvent;
 import pl.baczkowicz.spy.ui.keyboard.KeyboardUtils;
@@ -56,7 +56,7 @@ import pl.baczkowicz.spy.ui.keyboard.KeyboardUtils;
 public class EditConnectionOtherController extends AnchorPane implements Initializable, EditConnectionSubController
 {
 	/** The parent controller. */
-	private EditConnectionController parent;
+	private EditMqttConnectionController parent;
 
 	// UI & Formatting
 		
@@ -254,7 +254,7 @@ public class EditConnectionOtherController extends AnchorPane implements Initial
 	}
 
 	@Override
-	public void setParent(final EditConnectionController controller)
+	public void setParent(final EditMqttConnectionController controller)
 	{
 		this.parent = controller;
 	}

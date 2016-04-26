@@ -51,9 +51,9 @@ import pl.baczkowicz.spy.common.generated.ConnectionGroupReference;
 import pl.baczkowicz.spy.common.generated.ConnectionReference;
 import pl.baczkowicz.spy.configuration.BaseConfigurationUtils;
 import pl.baczkowicz.spy.eventbus.IKBus;
-import pl.baczkowicz.spy.ui.configuration.ConfigurationManager;
+import pl.baczkowicz.spy.ui.configuration.IConfigurationManager;
 import pl.baczkowicz.spy.ui.configuration.ConfiguredConnectionGroupDetails;
-import pl.baczkowicz.spy.ui.connections.UIConnectionFactory;
+import pl.baczkowicz.spy.ui.connections.IConnectionFactory;
 import pl.baczkowicz.spy.ui.controls.DragAndDropTreeViewCell;
 import pl.baczkowicz.spy.ui.events.ConnectionNameChangedEvent;
 import pl.baczkowicz.spy.ui.events.ConnectionStatusChangeEvent;
@@ -105,7 +105,7 @@ public class EditConnectionsController extends AnchorPane implements Initializab
 	@FXML
 	private Label changesDetectedLabel;
 	
-	private ConfigurationManager configurationManager;
+	private IConfigurationManager configurationManager;
 
 	private List<ModifiableItem> connections = new ArrayList<>();
 
@@ -119,7 +119,7 @@ public class EditConnectionsController extends AnchorPane implements Initializab
 	
 	private List<ConfiguredConnectionGroupDetails> groups;
 	
-	private UIConnectionFactory connectionFactory;
+	private IConnectionFactory connectionFactory;
 
 	@FXML
 	private Node editConnectionGroupPane;
@@ -412,7 +412,7 @@ public class EditConnectionsController extends AnchorPane implements Initializab
 	@FXML
 	public void newMqttConnection()
 	{
-		final ModifiableItem connectionDetails = connectionFactory.newConnection(UIConnectionFactory.MQTT);
+		final ModifiableItem connectionDetails = connectionFactory.newConnection(IConnectionFactory.MQTT);
 		
 		addToParentGroup(connectionDetails, configurationManager.getRootGroup());
 		
@@ -776,7 +776,7 @@ public class EditConnectionsController extends AnchorPane implements Initializab
 	// === Setters and getters =======
 	// ===============================
 	
-	public void setConfigurationManager(final ConfigurationManager configurationManager)
+	public void setConfigurationManager(final IConfigurationManager configurationManager)
 	{
 		this.configurationManager = configurationManager;
 	}	
@@ -806,7 +806,7 @@ public class EditConnectionsController extends AnchorPane implements Initializab
 		this.eventBus = eventBus;
 	}
 
-	public void setConnectionFactory(final UIConnectionFactory connectionFactory)
+	public void setConnectionFactory(final IConnectionFactory connectionFactory)
 	{
 		this.connectionFactory = connectionFactory;
 	}

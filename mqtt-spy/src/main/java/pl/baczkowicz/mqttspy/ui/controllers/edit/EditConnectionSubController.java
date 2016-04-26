@@ -21,7 +21,7 @@ package pl.baczkowicz.mqttspy.ui.controllers.edit;
 
 import pl.baczkowicz.mqttspy.configuration.ConfiguredMqttConnectionDetails;
 import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnectionDetails;
-import pl.baczkowicz.mqttspy.ui.EditConnectionController;
+import pl.baczkowicz.mqttspy.ui.controllers.EditMqttConnectionController;
 
 public interface EditConnectionSubController
 {
@@ -29,5 +29,5 @@ public interface EditConnectionSubController
 	
 	UserInterfaceMqttConnectionDetails readValues(final UserInterfaceMqttConnectionDetails connection);
 	
-	void setParent(final EditConnectionController controller);
+	void setParent(final EditMqttConnectionController controller);
 }

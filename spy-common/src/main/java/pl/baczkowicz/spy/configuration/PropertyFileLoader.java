@@ -189,4 +189,14 @@ public class PropertyFileLoader
 	{
 		return getProperty(BasePropertyNames.VERSION_PROPERTY).replace("-", " ") + " (build " + getBuildNumber() + ")";
 	}
+
+	public String getApplicationLogo()
+	{
+		return getProperty(BasePropertyNames.LOGO_PROPERTY);
+	}
+	
+	public String getApplicationName()
+	{
+		return getProperty(BasePropertyNames.NAME_PROPERTY);
+	}
 }

@@ -31,7 +31,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.image.*?>
 
-<AnchorPane fx:id="connectionPane" prefHeight="640.0" xmlns="http://javafx.com/javafx/8.0.66" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.baczkowicz.mqttspy.ui.ConnectionController">
+<AnchorPane fx:id="connectionPane" prefHeight="640.0" xmlns="http://javafx.com/javafx/8.0.66" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.baczkowicz.mqttspy.ui.MqttConnectionController">
 	<children>
       <SplitPane fx:id="splitPane" dividerPositions="0.5" orientation="VERTICAL" prefHeight="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <items>

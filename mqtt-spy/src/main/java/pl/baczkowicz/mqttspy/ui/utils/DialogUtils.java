@@ -29,10 +29,10 @@ import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Window;
 import javafx.util.Pair;
-import pl.baczkowicz.spy.common.generated.UserCredentials;
-import pl.baczkowicz.mqttspy.configuration.MqttConfigurationManager;
 import pl.baczkowicz.mqttspy.configuration.ConfigurationUtils;
+import pl.baczkowicz.mqttspy.configuration.MqttConfigurationManager;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
+import pl.baczkowicz.spy.common.generated.UserCredentials;
 import pl.baczkowicz.spy.configuration.BaseConfigurationUtils;
 import pl.baczkowicz.spy.connectivity.ConnectionStatus;
 import pl.baczkowicz.spy.ui.controls.CommandLinksDialog;
@@ -44,7 +44,6 @@ import pl.baczkowicz.spy.ui.utils.DialogFactory;
  */
 public class DialogUtils
 {
-
 	/**
 	 * Asks the user to review/complete username and password information.
 	 * 

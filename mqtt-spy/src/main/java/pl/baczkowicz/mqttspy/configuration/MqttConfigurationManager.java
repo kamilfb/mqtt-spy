@@ -48,7 +48,7 @@ import pl.baczkowicz.spy.common.generated.Formatting;
 import pl.baczkowicz.spy.configuration.BaseConfigurationUtils;
 import pl.baczkowicz.spy.configuration.PropertyFileLoader;
 import pl.baczkowicz.spy.exceptions.XMLException;
-import pl.baczkowicz.spy.ui.configuration.ConfigurationManager;
+import pl.baczkowicz.spy.ui.configuration.IConfigurationManager;
 import pl.baczkowicz.spy.ui.configuration.ConfiguredConnectionGroupDetails;
 import pl.baczkowicz.spy.ui.configuration.UiProperties;
 import pl.baczkowicz.spy.ui.panes.SpyPerspective;
@@ -61,7 +61,7 @@ import pl.baczkowicz.spy.xml.XMLParser;
  * Manages loading and saving configuration files.
  */
 @SuppressWarnings({"unchecked", "rawtypes"})
-public class MqttConfigurationManager implements ConfigurationManager
+public class MqttConfigurationManager implements IConfigurationManager
 {
 	final static Logger logger = LoggerFactory.getLogger(MqttConfigurationManager.class);
 	
@@ -234,9 +234,14 @@ public class MqttConfigurationManager implements ConfigurationManager
 		}		
 	}
 	
-	public static File getDefaultConfigurationFile()
+	public static File getDefaultConfigurationFileObject()
 	{			
 		return new File(getDefaultHomeDirectory() + MqttConfigurationManager.DEFAULT_FILE_NAME);
+	}
+	
+	public File getDefaultConfigurationFile()
+	{			
+		return getDefaultConfigurationFileObject();
 	}
 	
 	public static File getUiPropertiesFile()
@@ -684,5 +689,47 @@ public class MqttConfigurationManager implements ConfigurationManager
 	public ConfiguredConnectionGroupDetails getRootGroup()
 	{
 		return rootGroup;
+	}
+
+	@Override
+	public List<FormatterDetails> getFormatters()
+	{
+		return getConfiguration().getFormatting().getFormatter();
+	}
+
+	@Override
+	public boolean removeFormatter(final FormatterDetails formatter)
+	{
+		for (final ConfiguredMqttConnectionDetails connectionDetails : getConnections())
+		{		
+			if (formatter.getID().equals(((FormatterDetails) connectionDetails.getFormatter()).getID()))
+			{
+				connectionDetails.setFormatter(null);
+			}
+		}
+		
+		getFormatters().remove(formatter);
+		
+		return saveConfiguration();
+	}
+
+	@Override
+	public int countFormatter(final FormatterDetails formatter)
+	{
+		int count = 0;
+		for (final ConfiguredMqttConnectionDetails connectionDetails : getConnections())
+		{
+			if (connectionDetails.getFormatter() == null)
+			{
+				continue;
+			}
+			
+			if (formatter.getID().equals(((FormatterDetails) connectionDetails.getFormatter()).getID()))
+			{
+				count++;
+			}
+		}
+		
+		return count;
 	}
 }
