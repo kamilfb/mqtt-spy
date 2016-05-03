@@ -41,21 +41,23 @@ import javafx.stage.WindowEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import pl.baczkowicz.mqttspy.common.generated.PublicationDetails;
 import pl.baczkowicz.mqttspy.configuration.MqttConfigurationManager;
-import pl.baczkowicz.mqttspy.configuration.generated.TabbedSubscriptionDetails;
-import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnectionDetails;
 import pl.baczkowicz.mqttspy.ui.MqttConnectionViewManager;
 import pl.baczkowicz.mqttspy.ui.MqttViewManager;
 import pl.baczkowicz.mqttspy.ui.controlpanel.MqttConfigControlPanelItem;
 import pl.baczkowicz.mqttspy.ui.controlpanel.MqttConnectionsControlPanelItem;
 import pl.baczkowicz.mqttspy.ui.controlpanel.MqttStatsControlPanelItem;
-import pl.baczkowicz.mqttspy.ui.events.ShowNewSubscriptionWindowEvent;
+import pl.baczkowicz.mqttspy.ui.events.ShowNewMqttSubscriptionWindowEvent;
 import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
+import pl.baczkowicz.spy.configuration.PropertyFileLoader;
 import pl.baczkowicz.spy.eventbus.IKBus;
 import pl.baczkowicz.spy.exceptions.SpyUncaughtExceptionHandler;
 import pl.baczkowicz.spy.exceptions.XMLException;
+import pl.baczkowicz.spy.ui.configuration.BaseConfigurationManager;
+import pl.baczkowicz.spy.ui.configuration.IConfigurationManager;
+import pl.baczkowicz.spy.ui.configuration.UiProperties;
 import pl.baczkowicz.spy.ui.controllers.ControlPanelController;
+import pl.baczkowicz.spy.ui.events.AddConnectionTabEvent;
 import pl.baczkowicz.spy.ui.events.LoadConfigurationFileEvent;
 import pl.baczkowicz.spy.ui.events.NewPerspectiveSelectedEvent;
 import pl.baczkowicz.spy.ui.events.ShowAboutWindowEvent;
@@ -120,7 +122,7 @@ public class MqttSpyMainController
 	@FXML
 	private CheckMenuItem resizeMessagePaneMenu;
 
-	private MqttConfigurationManager configurationManager;
+	private IConfigurationManager configurationManager;
 
 	private Stage stage;
 	
@@ -186,7 +188,7 @@ public class MqttSpyMainController
 		
 		controlPanelPaneController.setUserAndConfigItem(new MqttConfigControlPanelItem(configurationManager, eventBus));
 		controlPanelPaneController.setConnectionsItem(new MqttConnectionsControlPanelItem(configurationManager, connectionViewManager, eventBus));
-		controlPanelPaneController.setStatsItem(new MqttStatsControlPanelItem(eventBus));
+		controlPanelPaneController.setStatsItem(new MqttStatsControlPanelItem(configurationManager, eventBus));
 		
 		controlPanelPaneController.setConfigurationMananger(configurationManager);
 		controlPanelPaneController.setEventBus(eventBus);		
@@ -194,6 +196,17 @@ public class MqttSpyMainController
 		controlPanelPaneController.init();	
 		
 		new Thread(new ConnectionStatsUpdater(connectionViewManager)).start();
+		
+		resizeMessagePaneMenu.selectedProperty().addListener(new ChangeListener<Boolean>()
+		{
+			@Override
+			public void changed(ObservableValue<? extends Boolean> observable, final Boolean oldValue, final Boolean newValue)
+			{
+				configurationManager.getUiPropertyFile().setProperty(UiProperties.MESSAGE_PANE_RESIZE_PROPERTY, newValue.toString());
+			}
+		});
+		
+		eventBus.subscribe(this, this::onConnectionTabAdded, AddConnectionTabEvent.class);
 	}		
 
 	@FXML
@@ -217,7 +230,7 @@ public class MqttSpyMainController
 		
 		if (controller != null)
 		{
-			eventBus.publish(new ShowNewSubscriptionWindowEvent(
+			eventBus.publish(new ShowNewMqttSubscriptionWindowEvent(
 					controller, 
 					PaneVisibilityStatus.DETACHED,
 					controller.getNewSubscriptionPaneStatus().getVisibility()));
@@ -262,7 +275,7 @@ public class MqttSpyMainController
 	 * 
 	 * @param selectedPerspective the selectedPerspective to set
 	 */
-	public void updateSelectedPerspective(final SpyPerspective selectedPerspective)
+	private void updateSelectedPerspective(final SpyPerspective selectedPerspective)
 	{
 		switch (selectedPerspective)
 		{
@@ -291,7 +304,12 @@ public class MqttSpyMainController
 		return connectionTabs;
 	}
 
-	public void addConnectionTab(Tab tab)
+	public void onConnectionTabAdded(final AddConnectionTabEvent event)
+	{
+		addConnectionTab(event.getTab());
+	}
+	
+	private void addConnectionTab(Tab tab)
 	{
 		connectionTabs.getTabs().add(tab);
 	}
@@ -315,27 +333,6 @@ public class MqttSpyMainController
 		{
 			eventBus.publish(new LoadConfigurationFileEvent(selectedFile));
 			// loadConfigurationFileOnRunLater(selectedFile);
-		}
-	}
-	
-	public void populateConnectionPanes(final UserInterfaceMqttConnectionDetails connectionDetails, final MqttConnectionController connectionController)
-	{
-		for (final PublicationDetails publicationDetails : connectionDetails.getPublication())
-		{
-			// Add it to the list of pre-defined topics
-			connectionController.getNewPublicationPaneController().recordPublicationTopic(publicationDetails.getTopic());
-		}
-		
-		for (final TabbedSubscriptionDetails subscriptionDetails : connectionDetails.getSubscription())
-		{
-			// Check if we should create a tab for the subscription
-			if (subscriptionDetails.isCreateTab())
-			{
-				connectionController.getNewSubscriptionPaneController().subscribe(subscriptionDetails, connectionDetails.isAutoSubscribe());
-			}
-			
-			// Add it to the list of pre-defined topics
-			connectionController.getNewSubscriptionPaneController().recordSubscriptionTopic(subscriptionDetails.getTopic());
 		}
 	}
 	
@@ -389,7 +386,7 @@ public class MqttSpyMainController
 	{
 		if (DialogUtils.showDefaultConfigurationFileMissingChoice("Restore defaults", mainPane.getScene().getWindow()))
 		{
-			eventBus.publish(new LoadConfigurationFileEvent(configurationManager.getDefaultConfigurationFile()));			
+			eventBus.publish(new LoadConfigurationFileEvent(BaseConfigurationManager.getDefaultConfigurationFileObject()));			
 		}
 	}
 	
@@ -402,38 +399,38 @@ public class MqttSpyMainController
 	@FXML
 	private void openGettingInvolved()
 	{
-		eventBus.publish(new ShowExternalWebPageEvent("https://github.com/kamilfb/mqtt-spy/wiki/Getting-involved"));
+		eventBus.publish(new ShowExternalWebPageEvent(configurationManager.getDefaultPropertyFile().getApplicationWikiUrl() + "Getting-involved"));
 	}
 
 	@FXML
 	private void overviewWiki()
 	{
-		eventBus.publish(new ShowExternalWebPageEvent("https://github.com/kamilfb/mqtt-spy/wiki/Overview"));		
+		eventBus.publish(new ShowExternalWebPageEvent(configurationManager.getDefaultPropertyFile().getApplicationWikiUrl() + "Overview"));		
 	}
 	
 	@FXML
 	private void changelogWiki()
 	{
-		eventBus.publish(new ShowExternalWebPageEvent("https://github.com/kamilfb/mqtt-spy/wiki/Changelog"));
+		eventBus.publish(new ShowExternalWebPageEvent(configurationManager.getDefaultPropertyFile().getApplicationWikiUrl() + "Changelog"));
 	}
 	
 	@FXML
 	private void scriptingWiki()
 	{
-		eventBus.publish(new ShowExternalWebPageEvent("https://github.com/kamilfb/mqtt-spy/wiki/Scripting"));
+		eventBus.publish(new ShowExternalWebPageEvent(configurationManager.getDefaultPropertyFile().getApplicationWikiUrl() + "Scripting"));
 	}
 	
 	@FXML
 	private void messageSearchWiki()
 	{
-		eventBus.publish(new ShowExternalWebPageEvent("https://github.com/kamilfb/mqtt-spy/wiki/MessageSearch"));
+		eventBus.publish(new ShowExternalWebPageEvent(configurationManager.getDefaultPropertyFile().getApplicationWikiUrl() + "MessageSearch"));
 	}
 	
-	@FXML
-	private void loggingWiki()
-	{
-		eventBus.publish(new ShowExternalWebPageEvent("https://github.com/kamilfb/mqtt-spy/wiki/Logging"));
-	}
+//	@FXML
+//	private void loggingWiki()
+//	{
+//		eventBus.publish(new ShowExternalWebPageEvent("https://github.com/kamilfb/mqtt-spy/wiki/Logging"));
+//	}
 
 	// *********************
 
@@ -452,7 +449,7 @@ public class MqttSpyMainController
 	 * 
 	 * @param configurationManager the configurationManager to set
 	 */
-	public void setConfigurationManager(MqttConfigurationManager configurationManager)
+	public void setConfigurationManager(IConfigurationManager configurationManager)
 	{
 		this.configurationManager = configurationManager;
 	}
@@ -517,7 +514,7 @@ public class MqttSpyMainController
 		this.lastHeight = lastHeight;
 	}
 
-	public CheckMenuItem getResizeMessagePaneMenu()
+	private CheckMenuItem getResizeMessagePaneMenu()
 	{
 		return resizeMessagePaneMenu;
 	}
@@ -567,5 +564,11 @@ public class MqttSpyMainController
 	public MenuItem getNewSubuscriptionMenu()
 	{
 		return newSubscriptionMenu;
+	}
+	
+	public void updateUiProperties(final PropertyFileLoader uiPropertyFile)
+	{
+		updateSelectedPerspective(UiProperties.getApplicationPerspective(configurationManager.getUiPropertyFile()));
+		getResizeMessagePaneMenu().setSelected(UiProperties.getResizeMessagePane(configurationManager.getUiPropertyFile()));		
 	}
 }

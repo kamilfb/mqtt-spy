@@ -48,7 +48,7 @@ import pl.baczkowicz.mqttspy.configuration.generated.TabbedSubscriptionDetails;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.ui.MqttConnectionViewManager;
 import pl.baczkowicz.mqttspy.ui.MqttViewManager;
-import pl.baczkowicz.mqttspy.ui.events.ShowNewSubscriptionWindowEvent;
+import pl.baczkowicz.mqttspy.ui.events.ShowNewMqttSubscriptionWindowEvent;
 import pl.baczkowicz.mqttspy.utils.MqttUtils;
 import pl.baczkowicz.spy.eventbus.IKBus;
 import pl.baczkowicz.spy.exceptions.SpyException;
@@ -192,7 +192,7 @@ public class NewSubscriptionController implements Initializable, TitledPaneContr
 			
 			if (!controlDown)
 			{
-				eventBus.publish(new ShowNewSubscriptionWindowEvent(connectionController, previousStatus, PaneVisibilityStatus.DETACHED));
+				eventBus.publish(new ShowNewMqttSubscriptionWindowEvent(connectionController, previousStatus, PaneVisibilityStatus.DETACHED));
 			}
 		}
 		else

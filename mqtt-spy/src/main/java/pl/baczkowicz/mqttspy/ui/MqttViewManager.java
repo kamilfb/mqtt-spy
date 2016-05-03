@@ -46,7 +46,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.Main;
-import pl.baczkowicz.mqttspy.configuration.MqttConfigurationManager;
+import pl.baczkowicz.mqttspy.common.generated.PublicationDetails;
+import pl.baczkowicz.mqttspy.configuration.generated.TabbedSubscriptionDetails;
+import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnectionDetails;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.connectivity.MqttRuntimeConnectionProperties;
 import pl.baczkowicz.mqttspy.messages.BaseMqttMessage;
@@ -55,15 +57,17 @@ import pl.baczkowicz.mqttspy.scripts.MqttScriptManager;
 import pl.baczkowicz.mqttspy.ui.controllers.MqttConnectionController;
 import pl.baczkowicz.mqttspy.ui.controllers.MqttSpyMainController;
 import pl.baczkowicz.mqttspy.ui.controllers.SubscriptionController;
-import pl.baczkowicz.mqttspy.ui.events.ShowNewSubscriptionWindowEvent;
+import pl.baczkowicz.mqttspy.ui.events.ShowNewMqttSubscriptionWindowEvent;
 import pl.baczkowicz.mqttspy.ui.messagelog.LogReaderTask;
 import pl.baczkowicz.mqttspy.ui.messagelog.TaskWithProgressUpdater;
 import pl.baczkowicz.mqttspy.ui.utils.ContextMenuUtils;
 import pl.baczkowicz.spy.connectivity.ConnectionStatus;
 import pl.baczkowicz.spy.formatting.FormattingManager;
 import pl.baczkowicz.spy.ui.BaseViewManager;
+import pl.baczkowicz.spy.ui.configuration.BaseConfigurationManager;
 import pl.baczkowicz.spy.ui.configuration.UiProperties;
 import pl.baczkowicz.spy.ui.controllers.EditConnectionsController;
+import pl.baczkowicz.spy.ui.events.AddConnectionTabEvent;
 import pl.baczkowicz.spy.ui.events.ConfigurationLoadedEvent;
 import pl.baczkowicz.spy.ui.events.ConnectionStatusChangeEvent;
 import pl.baczkowicz.spy.ui.events.ConnectionsChangedEvent;
@@ -83,7 +87,7 @@ public class MqttViewManager extends BaseViewManager
 {
 	private final static Logger logger = LoggerFactory.getLogger(MqttViewManager.class);
 
-	private MqttConfigurationManager mqttConfigurationManager;
+	// private MqttConfigurationManager mqttConfigurationManager;
 
 	private MqttConnectionViewManager mqttConnectionViewManager;
 
@@ -93,12 +97,14 @@ public class MqttViewManager extends BaseViewManager
 
 	public void init()
 	{
+		super.init();
+		
 		eventBus.subscribe(this, this::loadConfigurationFile, LoadConfigurationFileEvent.class, new SimpleRunLaterExecutor());
 		eventBus.subscribe(this, this::onNewSelectedPerspective, NewPerspectiveSelectedEvent.class);
 		eventBus.subscribe(this, this::openMessageLog, ShowMessageLogEvent.class);
-		eventBus.subscribe(this, this::showNewSubscriptionWindow, ShowNewSubscriptionWindowEvent.class);
+		eventBus.subscribe(this, MqttViewManager::showNewSubscriptionWindow, ShowNewMqttSubscriptionWindowEvent.class);
 		
-		mqttConfigurationManager = (MqttConfigurationManager) configurationManager;
+		// mqttConfigurationManager = (MqttConfigurationManager) configurationManager;
 	}
 	
 	public Scene createMainWindow(final Stage primaryStage) throws IOException
@@ -127,11 +133,10 @@ public class MqttViewManager extends BaseViewManager
 		mqttSpyMainController.setStatisticsManager(statisticsManager);
 		mqttSpyMainController.setVersionManager(versionManager);
 		mqttSpyMainController.setViewManager(this);
-		mqttSpyMainController.setConfigurationManager(mqttConfigurationManager);
-		mqttSpyMainController.updateSelectedPerspective(UiProperties.getApplicationPerspective(configurationManager.getUiPropertyFile()));
-		mqttSpyMainController.getResizeMessagePaneMenu().setSelected(UiProperties.getResizeMessagePane(configurationManager.getUiPropertyFile()));
-		
-		mqttConnectionViewManager.setMainController(mqttSpyMainController);
+		mqttSpyMainController.setConfigurationManager(configurationManager);
+		mqttSpyMainController.updateUiProperties(configurationManager.getUiPropertyFile());
+
+		mqttConnectionViewManager.setParentStage(mqttSpyMainController.getStage());
 		
 		// Set the stage's properties
 		primaryStage.setScene(scene);	
@@ -150,7 +155,7 @@ public class MqttViewManager extends BaseViewManager
 		return scene;
 	}
 	
-	public void showNewSubscriptionWindow(final ShowNewSubscriptionWindowEvent event)
+	public static void showNewSubscriptionWindow(final ShowNewMqttSubscriptionWindowEvent event)
 	{
 		final MqttConnectionController connectionController = event.getConnectionController();
 		
@@ -282,12 +287,9 @@ public class MqttViewManager extends BaseViewManager
 	/**
 	 * Creates and loads a new connection tab.
 	 * 
-	 * @param mainController The main controller
-	 * @param parent The UI parent node
 	 * @param connectionProperties The connection properties from which to create the connection
 	 */
-	public void loadConnectionTab(final MqttSpyMainController mainController,
-			final Object parent, final MqttRuntimeConnectionProperties connectionProperties)
+	public void loadConnectionTab(final MqttRuntimeConnectionProperties connectionProperties)
 	{		
 		// Create connection
 		final MqttAsyncConnection connection = mqttConnectionViewManager.createConnection(connectionProperties, mqttConnectionViewManager.getUiEventQueue());
@@ -305,17 +307,18 @@ public class MqttViewManager extends BaseViewManager
 		connectionController.setStatisticsManager(statisticsManager);
 		connectionController.setTabStatus(new TabStatus());
 		connectionController.getTabStatus().setVisibility(PaneVisibilityStatus.NOT_VISIBLE);
-		connectionController.getResizeMessageContentMenu().setSelected(mainController.getResizeMessagePaneMenu().isSelected());
+		connectionController.getResizeMessageContentMenu().setSelected(
+				configurationManager.getUiPropertyFile().getBooleanProperty(UiProperties.MESSAGE_PANE_RESIZE_PROPERTY));
 		
 		final Tab connectionTab = createConnectionTab(connection.getProperties().getName(), connectionPane, connectionController);
 		
 		final MqttSubscriptionViewManager subscriptionManager = new MqttSubscriptionViewManager(
-				eventBus, mqttConfigurationManager, this, mqttConnectionViewManager.getUiEventQueue());			
+				eventBus, configurationManager, this, mqttConnectionViewManager.getUiEventQueue());			
 		
 		final SubscriptionController subscriptionController = subscriptionManager.createSubscriptionTab(
 				true, connection.getStore(), null, connection, connectionController);
 		subscriptionController.setConnectionController(connectionController);
-		subscriptionController.setFormatting(mqttConfigurationManager.getConfiguration().getFormatting());
+		subscriptionController.setFormatters(configurationManager.getFormatters());
 		
 		// final ConnectionManager connectionManager = this;
 		
@@ -326,15 +329,16 @@ public class MqttViewManager extends BaseViewManager
 			{					
 				connectionController.init();
 				subscriptionController.init();				
-								
-				mainController.addConnectionTab(connectionTab);
+
+				eventBus.publish(new AddConnectionTabEvent(connectionTab));
+
 				connectionController.getTabStatus().setVisibility(PaneVisibilityStatus.ATTACHED);
 				connectionController.getTabStatus().setParent(connectionTab.getTabPane());
 				
 				connectionTab.setContextMenu(ContextMenuUtils.createConnectionMenu(connection, eventBus, connectionController, mqttConnectionViewManager));
 				
 				subscriptionController.getTab().setContextMenu(ContextMenuUtils.createAllSubscriptionsTabContextMenu(
-						connection, eventBus, subscriptionManager, mqttConfigurationManager, subscriptionController));
+						connection, eventBus, subscriptionManager, configurationManager, subscriptionController));
 				
 				eventBus.subscribe(connectionController, connectionController::onConnectionStatusChanged, ConnectionStatusChangeEvent.class, new SimpleRunLaterExecutor(), connection);
 											
@@ -360,12 +364,33 @@ public class MqttViewManager extends BaseViewManager
 				mqttConnectionViewManager.getSubscriptionManagers().put(connectionController, subscriptionManager);
 								
 				// Populate panes
-				mainController.populateConnectionPanes(connectionProperties.getConfiguredProperties(), connectionController);	
+				populateConnectionPanes(connectionProperties.getConfiguredProperties(), connectionController);	
 				
 				// Apply perspective
 				showPerspective(connectionController);
 			}
 		});		
+	}
+	
+	public static void populateConnectionPanes(final UserInterfaceMqttConnectionDetails connectionDetails, final MqttConnectionController connectionController)
+	{
+		for (final PublicationDetails publicationDetails : connectionDetails.getPublication())
+		{
+			// Add it to the list of pre-defined topics
+			connectionController.getNewPublicationPaneController().recordPublicationTopic(publicationDetails.getTopic());
+		}
+		
+		for (final TabbedSubscriptionDetails subscriptionDetails : connectionDetails.getSubscription())
+		{
+			// Check if we should create a tab for the subscription
+			if (subscriptionDetails.isCreateTab())
+			{
+				connectionController.getNewSubscriptionPaneController().subscribe(subscriptionDetails, connectionDetails.isAutoSubscribe());
+			}
+			
+			// Add it to the list of pre-defined topics
+			connectionController.getNewSubscriptionPaneController().recordSubscriptionTopic(subscriptionDetails.getTopic());
+		}
 	}
 	
 	/**
@@ -390,11 +415,12 @@ public class MqttViewManager extends BaseViewManager
 		connectionController.setReplayMode(true);
 		connectionController.setTabStatus(new TabStatus());
 		connectionController.getTabStatus().setVisibility(PaneVisibilityStatus.NOT_VISIBLE);
-		connectionController.getResizeMessageContentMenu().setSelected(mainController.getResizeMessagePaneMenu().isSelected());
+		connectionController.getResizeMessageContentMenu().setSelected(
+				configurationManager.getUiPropertyFile().getBooleanProperty(UiProperties.MESSAGE_PANE_RESIZE_PROPERTY));
 		
 		final Tab replayTab = createConnectionTab(name, connectionPane, connectionController);
 		final MqttSubscriptionViewManager subscriptionManager = new MqttSubscriptionViewManager(
-				eventBus, mqttConfigurationManager, this, mqttConnectionViewManager.getUiEventQueue());			
+				eventBus, configurationManager, this, mqttConnectionViewManager.getUiEventQueue());			
 		
         final ManagedMessageStoreWithFiltering<FormattedMqttMessage> store = new ManagedMessageStoreWithFiltering<FormattedMqttMessage>(
         		name, 0, list.size(), list.size(), mqttConnectionViewManager.getUiEventQueue(), //eventManager, 
@@ -403,7 +429,7 @@ public class MqttViewManager extends BaseViewManager
 		final SubscriptionController subscriptionController = subscriptionManager.createSubscriptionTab(
 				true, store, null, null, connectionController);
 		subscriptionController.setConnectionController(connectionController);
-		subscriptionController.setFormatting(mqttConfigurationManager.getConfiguration().getFormatting());
+		subscriptionController.setFormatters(configurationManager.getFormatters());
 		subscriptionController.setReplayMode(true);
 		
 		Platform.runLater(new Runnable()
@@ -414,7 +440,7 @@ public class MqttViewManager extends BaseViewManager
 				connectionController.init();
 				subscriptionController.init();				
 								
-				mainController.addConnectionTab(replayTab);
+				eventBus.publish(new AddConnectionTabEvent(replayTab));
 				
 				replayTab.setContextMenu(ContextMenuUtils.createMessageLogMenu(replayTab, connectionController, mqttConnectionViewManager));
 								
@@ -443,7 +469,7 @@ public class MqttViewManager extends BaseViewManager
 	
 	public void loadDefaultConfigurationFile()
 	{		
-		final File defaultConfigurationFile = configurationManager.getDefaultConfigurationFile();
+		final File defaultConfigurationFile = BaseConfigurationManager.getDefaultConfigurationFileObject();
 		
 		logger.info("Default configuration file present (" + defaultConfigurationFile.getAbsolutePath() + ") = " + defaultConfigurationFile.exists());
 		
@@ -500,7 +526,7 @@ public class MqttViewManager extends BaseViewManager
 					
 					if (controller != null)
 					{
-						eventBus.publish(new ShowNewSubscriptionWindowEvent(
+						eventBus.publish(new ShowNewMqttSubscriptionWindowEvent(
 								controller, 
 								PaneVisibilityStatus.DETACHED,
 								controller.getNewSubscriptionPaneStatus().getVisibility()));

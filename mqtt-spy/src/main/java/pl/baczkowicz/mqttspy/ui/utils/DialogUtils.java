@@ -88,19 +88,19 @@ public class DialogUtils
 		// TODO: use Java dialogs
 		final DialogAction createWithSample = new DialogAction("Create mqtt-spy configuration file with sample content",
 				System.getProperty("line.separator") + "This creates a configuration file " +  
-                "in \"" + MqttConfigurationManager.DEFAULT_HOME_DIRECTORY + "\"" + 
-                " called \"" + MqttConfigurationManager.DEFAULT_FILE_NAME + "\"" + 
+                "in \"" + MqttConfigurationManager.getDefaultHomeDirectory() + "\"" + 
+                " called \"" + MqttConfigurationManager.getDefaultConfigurationFileName() + "\"" + 
                 ", which will include sample connections to localhost and iot.eclipse.org.");
 		
 		 final DialogAction createEmpty = new DialogAction("Create empty mqtt-spy configuration file",
 				 System.getProperty("line.separator") + "This creates a configuration file " +  
-                 "in \"" + MqttConfigurationManager.DEFAULT_HOME_DIRECTORY + "\"" + 
-                 " called \"" + MqttConfigurationManager.DEFAULT_FILE_NAME + "\" with no sample connections.");
+                 "in \"" + MqttConfigurationManager.getDefaultHomeDirectory() + "\"" + 
+                 " called \"" + MqttConfigurationManager.getDefaultConfigurationFileName() + "\" with no sample connections.");
 		 
 		 final DialogAction copyExisting = new DialogAction("Copy existing mqtt-spy configuration file",
 				 System.getProperty("line.separator") + "This copies an existing configuration file (selected in the next step) " +  
-                 "to \"" + MqttConfigurationManager.DEFAULT_HOME_DIRECTORY + "\"" + 
-                 " and renames it to \"" + MqttConfigurationManager.DEFAULT_FILE_NAME + "\".");
+                 "to \"" + MqttConfigurationManager.getDefaultHomeDirectory() + "\"" + 
+                 " and renames it to \"" + MqttConfigurationManager.getDefaultConfigurationFileName() + "\".");
 		 
 		 final DialogAction dontDoAnything = new DialogAction("Don't do anything",
 				 System.getProperty("line.separator") + "You can still point mqtt-spy at your chosen configuration file " +  

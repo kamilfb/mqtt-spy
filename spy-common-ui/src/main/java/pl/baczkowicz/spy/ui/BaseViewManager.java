@@ -53,6 +53,7 @@ import org.slf4j.LoggerFactory;
 import pl.baczkowicz.spy.configuration.BaseConfigurationUtils;
 import pl.baczkowicz.spy.eventbus.IKBus;
 import pl.baczkowicz.spy.scripts.BaseScriptManager;
+import pl.baczkowicz.spy.ui.configuration.BaseConfigurationManager;
 import pl.baczkowicz.spy.ui.configuration.IConfigurationManager;
 import pl.baczkowicz.spy.ui.connections.IConnectionFactory;
 import pl.baczkowicz.spy.ui.controllers.AboutController;
@@ -311,7 +312,8 @@ public abstract class BaseViewManager
 		
 		if (event.isCreateNew())
 		{
-			editConnectionsController.newMqttConnection();
+			// TODO: pass the protocol in
+			editConnectionsController.newConnection(IConnectionFactory.MQTT);
 		}
 
 		if (event.getConnectionProperties() != null)
@@ -361,7 +363,7 @@ public abstract class BaseViewManager
 	
 	public void loadDefaultConfigurationFile()
 	{		
-		final File defaultConfigurationFile = configurationManager.getDefaultConfigurationFile();
+		final File defaultConfigurationFile = BaseConfigurationManager.getDefaultConfigurationFileObject();
 		
 		logger.info("Default configuration file present (" + defaultConfigurationFile.getAbsolutePath() + ") = " + defaultConfigurationFile.exists());
 		

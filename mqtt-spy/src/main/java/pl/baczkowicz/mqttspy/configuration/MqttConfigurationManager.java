@@ -31,14 +31,10 @@ import javax.xml.namespace.QName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import pl.baczkowicz.mqttspy.common.generated.SimpleMqttMessage;
 import pl.baczkowicz.mqttspy.configuration.generated.Connectivity;
 import pl.baczkowicz.mqttspy.configuration.generated.MqttSpyConfiguration;
 import pl.baczkowicz.mqttspy.configuration.generated.TabbedSubscriptionDetails;
-import pl.baczkowicz.mqttspy.configuration.generated.UserAuthenticationOptions;
 import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnectionDetails;
-import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnectionDetailsV010;
-import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
 import pl.baczkowicz.spy.common.generated.ConnectionGroup;
 import pl.baczkowicz.spy.common.generated.ConnectionGroupReference;
@@ -46,75 +42,39 @@ import pl.baczkowicz.spy.common.generated.ConnectionReference;
 import pl.baczkowicz.spy.common.generated.FormatterDetails;
 import pl.baczkowicz.spy.common.generated.Formatting;
 import pl.baczkowicz.spy.configuration.BaseConfigurationUtils;
-import pl.baczkowicz.spy.configuration.PropertyFileLoader;
+import pl.baczkowicz.spy.connectivity.BaseSubscription;
 import pl.baczkowicz.spy.exceptions.XMLException;
-import pl.baczkowicz.spy.ui.configuration.IConfigurationManager;
+import pl.baczkowicz.spy.ui.configuration.BaseConfigurationManager;
 import pl.baczkowicz.spy.ui.configuration.ConfiguredConnectionGroupDetails;
 import pl.baczkowicz.spy.ui.configuration.UiProperties;
 import pl.baczkowicz.spy.ui.panes.SpyPerspective;
 import pl.baczkowicz.spy.ui.utils.DialogFactory;
-import pl.baczkowicz.spy.utils.ThreadingUtils;
-import pl.baczkowicz.spy.utils.TimeUtils;
 import pl.baczkowicz.spy.xml.XMLParser;
 
 /**
  * Manages loading and saving configuration files.
  */
 @SuppressWarnings({"unchecked", "rawtypes"})
-public class MqttConfigurationManager implements IConfigurationManager
+public class MqttConfigurationManager extends BaseConfigurationManager
 {
-	final static Logger logger = LoggerFactory.getLogger(MqttConfigurationManager.class);
+	private final static Logger logger = LoggerFactory.getLogger(MqttConfigurationManager.class);
 	
 	public static final String PACKAGE = "pl.baczkowicz.mqttspy.configuration.generated";
 	
 	public static final String SCHEMA = "/mqtt-spy-configuration.xsd";
-	
-	public static final String SPY_COMMON_SCHEMA = "/spy-common.xsd";
-	
+		
 	public static final String MQTT_COMMON_SCHEMA = "/mqtt-spy-common.xsd";
 
-	public static final String DEFAULT_FILE_NAME = "mqtt-spy-configuration.xml";
-	
-	public static final String DEFAULT_PROPERTIES_FILE_NAME = "/mqtt-spy.properties";
-	
-	public static final String UI_PROPERTIES_FILE_NAME = "/mqtt-spy-ui.properties";
-	
-	public static final String DEFAULT_HOME_DIRECTORY = getDefaultHomeDirectory();
-	
-	private static final String DEFAULT_HOME_DIRECTORY_NAME = "mqtt-spy";
-	
 	private MqttSpyConfiguration configuration;
 	
 	private List<ConfiguredMqttConnectionDetails> connections = new ArrayList<>();	
 	
-	private List<ConfiguredConnectionGroupDetails> connectionGroups = new ArrayList<>();
-	
-	private ConfiguredConnectionGroupDetails rootGroup;
-
-	private File loadedConfigurationFile;
-
-	private Exception lastException;
-	
 	private final XMLParser parser;
 	
-	private final PropertyFileLoader defaultPropertyFile;
-	
-	private final PropertyFileLoader uiPropertyFile;
-
 	public MqttConfigurationManager() throws XMLException
 	{
-		// Load the default property file from classpath
-		this.defaultPropertyFile = new PropertyFileLoader();
-		this.defaultPropertyFile.readFromClassPath(DEFAULT_PROPERTIES_FILE_NAME);
-		
-		// Load the UI property file
-		if (!getUiPropertiesFile().exists())
-		{
-			logger.info("Creating UI property file");
-			ConfigurationUtils.createUiPropertyFileFromClassPath();
-		}
-		this.uiPropertyFile = new PropertyFileLoader();
-		this.uiPropertyFile.readFromFileSystem(getUiPropertiesFile());
+		loadDefaultPropertyFile();
+		loadUiPropertyFile();		
 		
 		this.parser = new XMLParser(PACKAGE, new String[] {SPY_COMMON_SCHEMA, MQTT_COMMON_SCHEMA, SCHEMA});
 					
@@ -133,7 +93,7 @@ public class MqttConfigurationManager implements IConfigurationManager
 			
 			initialiseConfiguration();
 			
-			loadedConfigurationFile = file;
+			setLoadedConfigurationFile(file);
 			return true;
 		}
 		catch (XMLException e)
@@ -171,52 +131,53 @@ public class MqttConfigurationManager implements IConfigurationManager
 	
 	private void createConnections()
 	{
-		for (final Object connectionDetails : getConfiguration().getConnectivity().getConnectionOrConnectionV2())
+		for (final Object connectionDetails : getConfiguration().getConnectivity().getConnectionV2())
 		{
 			ConfiguredMqttConnectionDetails configuredConnectionDetails = null;
 			
-			if (connectionDetails instanceof UserInterfaceMqttConnectionDetailsV010)
-			{			
-				final UserInterfaceMqttConnectionDetailsV010 connectionDetailsV010 = (UserInterfaceMqttConnectionDetailsV010) connectionDetails;
-				
-				final UserInterfaceMqttConnectionDetails details = new UserInterfaceMqttConnectionDetails();
-				details.setName(connectionDetailsV010.getName());
-				details.getServerURI().add(connectionDetailsV010.getServerURI());
-				details.setClientID(connectionDetailsV010.getClientID());
-				details.setUserCredentials(connectionDetailsV010.getUserAuthentication());
-				if (connectionDetailsV010.getUserAuthentication() != null)
-				{
-					details.setUserAuthentication(new UserAuthenticationOptions(
-							connectionDetailsV010.getUserAuthentication().isAskForUsername(), 
-							connectionDetailsV010.getUserAuthentication().isAskForPassword()));
-				}
-				
-				if (connectionDetailsV010.getLastWillAndTestament() != null)
-				{
-					details.setLastWillAndTestament(new SimpleMqttMessage(
-							connectionDetailsV010.getLastWillAndTestament().getPayload(), 
-							connectionDetailsV010.getLastWillAndTestament().getTopic(), 
-							connectionDetailsV010.getLastWillAndTestament().getQoS(), 
-							connectionDetailsV010.getLastWillAndTestament().isRetained()));
-				}
-				details.setCleanSession(connectionDetailsV010.isCleanSession());
-				details.setConnectionTimeout(connectionDetailsV010.getConnectionTimeout());
-				details.setKeepAliveInterval(connectionDetailsV010.getKeepAliveInterval());
-				
-				details.setAutoOpen(connectionDetailsV010.isAutoOpen());
-				details.setAutoConnect(connectionDetailsV010.isAutoConnect());
-				details.setFormatter(connectionDetailsV010.getFormatter());
-				details.setMinMessagesStoredPerTopic(connectionDetailsV010.getMinMessagesStoredPerTopic());
-				details.setMaxMessagesStored(connectionDetailsV010.getMaxMessagesStored());
-				details.setPublicationScripts(connectionDetailsV010.getPublicationScripts());
-				details.getPublication().addAll(connectionDetailsV010.getPublication());
-				details.getSubscription().addAll(connectionDetailsV010.getSubscription());
-				
-				// Put the defaults at the point of loading the config, so we don't need to do it again
-				ConfigurationUtils.populateConnectionDefaults(details);
-				configuredConnectionDetails = new ConfiguredMqttConnectionDetails(false, false, details);
-			}
-			else if (connectionDetails instanceof UserInterfaceMqttConnectionDetails)
+//			if (connectionDetails instanceof UserInterfaceMqttConnectionDetailsV010)
+//			{			
+//				final UserInterfaceMqttConnectionDetailsV010 connectionDetailsV010 = (UserInterfaceMqttConnectionDetailsV010) connectionDetails;
+//				
+//				final UserInterfaceMqttConnectionDetails details = new UserInterfaceMqttConnectionDetails();
+//				details.setName(connectionDetailsV010.getName());
+//				details.getServerURI().add(connectionDetailsV010.getServerURI());
+//				details.setClientID(connectionDetailsV010.getClientID());
+//				details.setUserCredentials(connectionDetailsV010.getUserAuthentication());
+//				if (connectionDetailsV010.getUserAuthentication() != null)
+//				{
+//					details.setUserAuthentication(new UserAuthenticationOptions(
+//							connectionDetailsV010.getUserAuthentication().isAskForUsername(), 
+//							connectionDetailsV010.getUserAuthentication().isAskForPassword()));
+//				}
+//				
+//				if (connectionDetailsV010.getLastWillAndTestament() != null)
+//				{
+//					details.setLastWillAndTestament(new SimpleMqttMessage(
+//							connectionDetailsV010.getLastWillAndTestament().getPayload(), 
+//							connectionDetailsV010.getLastWillAndTestament().getTopic(), 
+//							connectionDetailsV010.getLastWillAndTestament().getQoS(), 
+//							connectionDetailsV010.getLastWillAndTestament().isRetained()));
+//				}
+//				details.setCleanSession(connectionDetailsV010.isCleanSession());
+//				details.setConnectionTimeout(connectionDetailsV010.getConnectionTimeout());
+//				details.setKeepAliveInterval(connectionDetailsV010.getKeepAliveInterval());
+//				
+//				details.setAutoOpen(connectionDetailsV010.isAutoOpen());
+//				details.setAutoConnect(connectionDetailsV010.isAutoConnect());
+//				details.setFormatter(connectionDetailsV010.getFormatter());
+//				details.setMinMessagesStoredPerTopic(connectionDetailsV010.getMinMessagesStoredPerTopic());
+//				details.setMaxMessagesStored(connectionDetailsV010.getMaxMessagesStored());
+//				details.setPublicationScripts(connectionDetailsV010.getPublicationScripts());
+//				details.getPublication().addAll(connectionDetailsV010.getPublication());
+//				details.getSubscription().addAll(connectionDetailsV010.getSubscription());
+//				
+//				// Put the defaults at the point of loading the config, so we don't need to do it again
+//				ConfigurationUtils.populateConnectionDefaults(details);
+//				configuredConnectionDetails = new ConfiguredMqttConnectionDetails(false, false, details);
+//			}
+//			else 
+			if (connectionDetails instanceof UserInterfaceMqttConnectionDetails)
 			{
 				// Put the defaults at the point of loading the config, so we don't need to do it again
 				ConfigurationUtils.populateConnectionDefaults((UserInterfaceMqttConnectionDetails) connectionDetails);
@@ -234,50 +195,17 @@ public class MqttConfigurationManager implements IConfigurationManager
 		}		
 	}
 	
-	public static File getDefaultConfigurationFileObject()
-	{			
-		return new File(getDefaultHomeDirectory() + MqttConfigurationManager.DEFAULT_FILE_NAME);
-	}
-	
-	public File getDefaultConfigurationFile()
-	{			
-		return getDefaultConfigurationFileObject();
-	}
-	
-	public static File getUiPropertiesFile()
-	{			
-		return new File(getDefaultHomeDirectory() + MqttConfigurationManager.UI_PROPERTIES_FILE_NAME);
-	}
-	
-	public static File getDefaultHomeDirectoryFile()
-	{			
-		return new File(getDefaultHomeDirectory());
-	}
-	
-	public static String getDefaultHomeDirectory()
-	{
-		final String filePathSeparator = System.getProperty("file.separator");
-		String userHomeDirectory = System.getProperty("user.home");
-		
-		if (!userHomeDirectory.endsWith(filePathSeparator))
-		{
-			userHomeDirectory = userHomeDirectory + filePathSeparator;
-		}
-		
-		return userHomeDirectory + DEFAULT_HOME_DIRECTORY_NAME + filePathSeparator;
-	}
-
 	public boolean saveConfiguration()
 	{
 		if (isConfigurationWritable())
 		{
 			try
 			{
-				configuration.getConnectivity().getConnectionOrConnectionV2().clear();
-				configuration.getConnectivity().getConnectionOrConnectionV2().addAll(connections);
+				configuration.getConnectivity().getConnectionV2().clear();
+				configuration.getConnectivity().getConnectionV2().addAll(connections);
 				
 				configuration.getConnectionGroups().clear();
-				configuration.getConnectionGroups().addAll(connectionGroups);
+				configuration.getConnectionGroups().addAll(getConnectionGrops());
 				
 				populateMissingFormatters(configuration.getFormatting().getFormatter(), connections);
 //				for (final ConnectionGroup group : connectionGroups)
@@ -288,7 +216,7 @@ public class MqttConfigurationManager implements IConfigurationManager
 //					}
 //				}
 				
-				parser.saveToFile(loadedConfigurationFile, 
+				parser.saveToFile(getLoadedConfigurationFile(), 
 						new JAXBElement(new QName("http://baczkowicz.pl/mqtt-spy-configuration", "MqttSpyConfiguration"), MqttSpyConfiguration.class, configuration));
 				return true;
 			}
@@ -296,7 +224,6 @@ public class MqttConfigurationManager implements IConfigurationManager
 			{
 				setLastException(e);
 				logger.error("Cannot save the configuration file", e);
-				// eventManager.notifyConfigurationFileWriteFailure();
 			}
 		}
 		
@@ -333,8 +260,8 @@ public class MqttConfigurationManager implements IConfigurationManager
 	{
 		connections.clear();
 		configuration = null;
-		loadedConfigurationFile = null;
-		lastException =  null;
+		setLoadedConfigurationFile(null);
+		setLastException(null);
 	}
 	
 	public ConfiguredMqttConnectionDetails getMatchingConnection(final String id)
@@ -350,16 +277,19 @@ public class MqttConfigurationManager implements IConfigurationManager
 		return null;
 	}
 	
-	public void updateSubscriptionConfiguration(final MqttAsyncConnection connection, final MqttSubscription subscription)	
+	public void updateSubscriptionConfiguration(final String connectionId, final BaseSubscription subscription)	
 	{
-		final ConfiguredMqttConnectionDetails details = getMatchingConnection(connection.getId());
+		final ConfiguredMqttConnectionDetails details = getMatchingConnection(connectionId);
 		
 		boolean matchFound = false;
 		for (final TabbedSubscriptionDetails subscriptionDetails : details.getSubscription())
 		{							
 			if (subscriptionDetails.getTopic().equals(subscription.getTopic()))
 			{
-				subscriptionDetails.setQos(subscription.getQos());
+				if (subscription instanceof MqttSubscription)
+				{
+					subscriptionDetails.setQos(((MqttSubscription) subscription).getQos());
+				}
 				subscriptionDetails.setCreateTab(true);
 				subscriptionDetails.setScriptFile(subscription.getDetails().getScriptFile());
 				matchFound = true;
@@ -372,7 +302,10 @@ public class MqttConfigurationManager implements IConfigurationManager
 		{
 			final TabbedSubscriptionDetails subscriptionDetails = new TabbedSubscriptionDetails();
 			subscriptionDetails.setTopic(subscription.getTopic());
-			subscriptionDetails.setQos(subscription.getQos());
+			if (subscription instanceof MqttSubscription)
+			{
+				subscriptionDetails.setQos(((MqttSubscription) subscription).getQos());
+			}
 			subscriptionDetails.setCreateTab(true);
 			subscriptionDetails.setScriptFile(subscription.getDetails().getScriptFile());
 			details.getSubscription().add(subscriptionDetails);							
@@ -381,9 +314,9 @@ public class MqttConfigurationManager implements IConfigurationManager
 		saveConfiguration();
 	}
 	
-	public void deleteSubscriptionConfiguration(final MqttAsyncConnection connection, final MqttSubscription subscription)	
+	public void deleteSubscriptionConfiguration(final String connectionId, final BaseSubscription subscription)	
 	{
-		final ConfiguredMqttConnectionDetails details = getMatchingConnection(connection.getId());
+		final ConfiguredMqttConnectionDetails details = getMatchingConnection(connectionId);
 		
 		TabbedSubscriptionDetails itemToRemove = null;
 		
@@ -407,40 +340,6 @@ public class MqttConfigurationManager implements IConfigurationManager
 	// ===============================
 	// === Setters and getters =======
 	// ===============================
-
-	public Exception getLastException()
-	{
-		return lastException;
-	}
-
-	public void setLastException(Exception lastException)
-	{
-		this.lastException = lastException;
-	}
-	
-	public File getLoadedConfigurationFile()
-	{
-		return loadedConfigurationFile;
-	}
-	
-	public boolean isConfigurationWritable()
-	{
-		if (loadedConfigurationFile != null && loadedConfigurationFile.canWrite())
-		{
-			return true;
-		}
-		return false;
-	}
-	
-	public boolean isConfigurationReadOnly()
-	{
-		if (loadedConfigurationFile != null && !loadedConfigurationFile.canWrite())
-		{					
-			return true;
-		}
-		
-		return false;
-	}
 	
 	public MqttSpyConfiguration getConfiguration()
 	{
@@ -502,76 +401,34 @@ public class MqttConfigurationManager implements IConfigurationManager
 		}				
 	}
 
-	/** 
-	 * Gets the connection ID generator.
-	 * 
-	 * @return the connectionIdGenerator
-	 */
-//	public IdGenerator getConnectionIdGenerator()
-//	{
-//		return connectionIdGenerator;
-//	}
-
-	/**
-	 * Gets the default property file.
-	 * 
-	 * @return the defaultPropertyFile
-	 */
-	public PropertyFileLoader getDefaultPropertyFile()
-	{
-		return defaultPropertyFile;
-	}
-
-	/**
-	 * Gets the UI property file.
-	 * 
-	 * @return the uiPropertyFile
-	 */
-	public PropertyFileLoader getUiPropertyFile()
-	{
-		return uiPropertyFile;
-	}
-
 	public void saveUiProperties(final double width, final double height, boolean maximized, 
 			final SpyPerspective selectedPerspective, final boolean resizeMessagePane)
 	{
-		uiPropertyFile.setProperty(UiProperties.WIDTH_PROPERTY, String.valueOf(width));
-		uiPropertyFile.setProperty(UiProperties.HEIGHT_PROPERTY, String.valueOf(height));
-		uiPropertyFile.setProperty(UiProperties.MAXIMIZED_PROPERTY, String.valueOf(maximized));
-		uiPropertyFile.setProperty(UiProperties.PERSPECTIVE_PROPERTY, selectedPerspective.toString());
-		uiPropertyFile.setProperty(UiProperties.MESSAGE_PANE_RESIZE_PROPERTY, String.valueOf(resizeMessagePane));
+		updateUiProperty(UiProperties.WIDTH_PROPERTY, String.valueOf(width));
+		updateUiProperty(UiProperties.HEIGHT_PROPERTY, String.valueOf(height));
+		updateUiProperty(UiProperties.MAXIMIZED_PROPERTY, String.valueOf(maximized));
+		updateUiProperty(UiProperties.PERSPECTIVE_PROPERTY, selectedPerspective.toString());
+		updateUiProperty(UiProperties.MESSAGE_PANE_RESIZE_PROPERTY, String.valueOf(resizeMessagePane));
 		
 		// Other properties are read-only from file
 		
 		try
 		{
-			uiPropertyFile.saveToFileSystem("mqtt-spy-ui", getUiPropertiesFile());
+			getUiPropertyFile().saveToFileSystem("mqtt-spy-ui", getUiPropertyFileObject());
 		}
 		catch (IOException e)
 		{
 			logger.error("Cannot save UI properties", e);
 		}
 	}
-	
-	public String generateConnectionGroupId()
-	{
-		ThreadingUtils.sleep(1);
-		return "cg" + TimeUtils.getMonotonicTime();
-	}
-	
-	public static String generateConnectionId()
-	{
-		ThreadingUtils.sleep(1);
-		return "conn" + TimeUtils.getMonotonicTime();		
-	}
-	
+
 	public void createConnectionGroups()
 	{						
 		final List<ConnectionGroup> groupsWithoutParent = new ArrayList<>(configuration.getConnectionGroups());
 		
 		// Clear up resources - in case something was loaded before
-		connectionGroups.clear();
-		rootGroup = null;
+		getConnectionGrops().clear();
+		setRootGroup(null);
 		
 		// This is expected from v0.3.0
 		for (final ConnectionGroup group : configuration.getConnectionGroups())
@@ -583,59 +440,46 @@ public class MqttConfigurationManager implements IConfigurationManager
 				groupsWithoutParent.remove(subgroup.getReference());
 			}
 			
-			connectionGroups.add(details);						
+			getConnectionGrops().add(details);						
 		}
 		
 		// Create the root if no groups present (pre v0.3.0)
-		if (connectionGroups.isEmpty() || groupsWithoutParent.isEmpty())
+		if (getConnectionGrops().isEmpty() || groupsWithoutParent.isEmpty())
 		{
 			logger.debug("Creating root group called 'All connections'");
-			rootGroup = new ConfiguredConnectionGroupDetails(new ConnectionGroup(
-					BaseConfigurationUtils.DEFAULT_GROUP, "All connections", new ArrayList(), new ArrayList()), false);
+			setRootGroup(new ConfiguredConnectionGroupDetails(new ConnectionGroup(
+					BaseConfigurationUtils.DEFAULT_GROUP, "All connections", new ArrayList(), new ArrayList()), false));
 			
-			connectionGroups.add(rootGroup);
+			getConnectionGrops().add(getRootGroup());
 			
 			// Assign all connections to the new root
 			for (final ConfiguredMqttConnectionDetails connection : getConnections())
 			{
-				connection.setGroup(new ConnectionGroupReference(rootGroup));
-				rootGroup.getConnections().add(new ConnectionReference(connection));
+				connection.setGroup(new ConnectionGroupReference(getRootGroup()));
+				getRootGroup().getConnections().add(new ConnectionReference(connection));
 			}
 			
-			rootGroup.apply();
+			getRootGroup().apply();
 		}
 		else
 		{
 			// Find the root group
 			final String rootId = groupsWithoutParent.get(0).getID();
-			for (final ConfiguredConnectionGroupDetails group : connectionGroups)
+			for (final ConfiguredConnectionGroupDetails group : getConnectionGrops())
 			{
 				if (group.getID().equals(rootId))
 				{
-					rootGroup = group;
+					setRootGroup(group);
 					break;
 				}
 			}
 			// At this point, new groups link to old connection and group objects, and old connection objects to old groups
 			
 			// Re-wire all connections
-			updateTree(rootGroup);
+			updateTree(getRootGroup());
 		}
 	}
-	
-	private ConfiguredConnectionGroupDetails findMatchingGroup(final ConnectionGroup group)
-	{
-		for (final ConfiguredConnectionGroupDetails groupDetails : connectionGroups)
-		{
-			if (group.getID().equals(groupDetails.getID()))
-			{
-				return groupDetails;
-			}
-		}
-		
-		return null;
-	}
-	
+
 	private ConfiguredMqttConnectionDetails findMatchingConnection(final UserInterfaceMqttConnectionDetails connection)
 	{
 		for (final ConfiguredMqttConnectionDetails connectionDetails : connections)
@@ -679,16 +523,6 @@ public class MqttConfigurationManager implements IConfigurationManager
 		}
 		
 		parentGroup.apply();
-	}
-
-	public List<ConfiguredConnectionGroupDetails> getConnectionGrops()
-	{
-		return connectionGroups;
-	}
-	
-	public ConfiguredConnectionGroupDetails getRootGroup()
-	{
-		return rootGroup;
 	}
 
 	@Override

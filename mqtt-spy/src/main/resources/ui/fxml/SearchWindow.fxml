@@ -29,7 +29,7 @@
 <?import javafx.collections.*?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane prefHeight="486.0" prefWidth="813.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.baczkowicz.mqttspy.ui.SearchWindowController">
+<AnchorPane prefHeight="486.0" prefWidth="813.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.baczkowicz.mqttspy.ui.controllers.SearchWindowController">
    <children>
       <AnchorPane prefHeight="71.0" prefWidth="600.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>

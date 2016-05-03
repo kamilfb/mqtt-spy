@@ -35,7 +35,6 @@ import javafx.scene.paint.Color;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import pl.baczkowicz.mqttspy.configuration.MqttConfigurationManager;
 import pl.baczkowicz.mqttspy.configuration.generated.TabbedSubscriptionDetails;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
@@ -48,6 +47,7 @@ import pl.baczkowicz.mqttspy.ui.utils.ContextMenuUtils;
 import pl.baczkowicz.spy.connectivity.ConnectionStatus;
 import pl.baczkowicz.spy.eventbus.IKBus;
 import pl.baczkowicz.spy.formatting.FormattingManager;
+import pl.baczkowicz.spy.ui.configuration.IConfigurationManager;
 import pl.baczkowicz.spy.ui.configuration.UiProperties;
 import pl.baczkowicz.spy.ui.events.queuable.EventQueueManager;
 import pl.baczkowicz.spy.ui.panes.PaneVisibilityStatus;
@@ -79,7 +79,7 @@ public class MqttSubscriptionViewManager
 	private final EventQueueManager<FormattedMqttMessage> uiEventQueue;
 
 	/** Configuration manager. */
-	private MqttConfigurationManager configurationManager;
+	private IConfigurationManager configurationManager;
 	
 	private MqttViewManager viewManager;
 
@@ -94,7 +94,7 @@ public class MqttSubscriptionViewManager
 	 * @param viewManager 
 	 * @param uiEventQueue The UI event queue to be used
 	 */
-	public MqttSubscriptionViewManager(final IKBus eventBus, final MqttConfigurationManager configurationManager, 
+	public MqttSubscriptionViewManager(final IKBus eventBus, final IConfigurationManager configurationManager, 
 			final MqttViewManager viewManager, final EventQueueManager<FormattedMqttMessage> uiEventQueue)
 	{
 		this.eventBus = eventBus;
@@ -135,7 +135,7 @@ public class MqttSubscriptionViewManager
 				connection, subscription, eventBus, this, configurationManager, subscriptionController));		
 
 		subscriptionController.setConnectionController(connectionController);
-		subscriptionController.setFormatting(configurationManager.getConfiguration().getFormatting());
+		subscriptionController.setFormatters(configurationManager.getFormatters());
 		subscriptionController.setTabStatus(new TabStatus());
 		subscriptionController.getTabStatus().setVisibility(PaneVisibilityStatus.NOT_VISIBLE);
 		subscriptionController.init();

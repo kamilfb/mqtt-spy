@@ -17,7 +17,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.configuration.ConfiguredMqttConnectionDetails;
-import pl.baczkowicz.mqttspy.configuration.MqttConfigurationManager;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.ui.MqttConnectionViewManager;
 import pl.baczkowicz.mqttspy.ui.utils.ActionUtils;
@@ -26,6 +25,7 @@ import pl.baczkowicz.spy.connectivity.ConnectionStatus;
 import pl.baczkowicz.spy.eventbus.IKBus;
 import pl.baczkowicz.spy.exceptions.ConfigurationException;
 import pl.baczkowicz.spy.ui.configuration.ConfiguredConnectionGroupDetails;
+import pl.baczkowicz.spy.ui.configuration.IConfigurationManager;
 import pl.baczkowicz.spy.ui.controllers.ControlPanelController;
 import pl.baczkowicz.spy.ui.controllers.ControlPanelItemController;
 import pl.baczkowicz.spy.ui.controlpanel.IControlPanelItem;
@@ -38,13 +38,13 @@ public class MqttConnectionsControlPanelItem implements IControlPanelItem
 
 	private static final double MAX_CONNECTIONS_HEIGHT = 350;
 	
-	private MqttConfigurationManager configurationManager;
+	private IConfigurationManager configurationManager;
 
 	private IKBus eventBus;
 
 	private MqttConnectionViewManager connectionManager;
 
-	public MqttConnectionsControlPanelItem(final MqttConfigurationManager configurationManager, 
+	public MqttConnectionsControlPanelItem(final IConfigurationManager configurationManager, 
 			final MqttConnectionViewManager connectionManager, final IKBus eventBus)
 	{
 		this.configurationManager = configurationManager;
@@ -59,7 +59,7 @@ public class MqttConnectionsControlPanelItem implements IControlPanelItem
 	}
 	
 	public static void showConnections(final ControlPanelItemController controller, final Button button, 
-			final MqttConfigurationManager configurationManager, final MqttConnectionViewManager connectionManager, final IKBus eventBus)
+			final IConfigurationManager configurationManager, final MqttConnectionViewManager connectionManager, final IKBus eventBus)
 	{
 		button.setMaxHeight(MAX_CONNECTIONS_HEIGHT);
 		

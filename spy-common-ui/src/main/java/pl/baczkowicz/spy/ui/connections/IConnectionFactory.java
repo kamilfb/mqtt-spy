@@ -9,7 +9,7 @@ import javafx.scene.layout.AnchorPane;
 import pl.baczkowicz.spy.ui.configuration.ConfiguredConnectionGroupDetails;
 import pl.baczkowicz.spy.ui.panes.SpyPerspective;
 import pl.baczkowicz.spy.ui.properties.ConnectionListItemProperties;
-import pl.baczkowicz.spy.ui.properties.ModifiableItem;
+import pl.baczkowicz.spy.ui.properties.ModifiableConnection;
 
 public interface IConnectionFactory
 {
@@ -19,21 +19,21 @@ public interface IConnectionFactory
 	
 	// String getIconNameForProtocol(final String protocol);
 	
-	ConnectionListItemProperties createConnectionListItemProperties(final ModifiableItem connection);
+	ConnectionListItemProperties createConnectionListItemProperties(final ModifiableConnection connection);
 	
-	void findConnections(final ConfiguredConnectionGroupDetails parentGroup, final List<ModifiableItem> connections);
+	void findConnections(final ConfiguredConnectionGroupDetails parentGroup, final List<ModifiableConnection> connections);
 	
 	Collection<MenuItem> createMenuItems();
 	
-	ModifiableItem newConnection(final String protocol);
+	ModifiableConnection newConnection(final String protocol);
 	
-	ModifiableItem duplicateConnection(final ModifiableItem copyFrom);
+	ModifiableConnection duplicateConnection(final ModifiableConnection copyFrom);
 	
 	Collection<AnchorPane> loadControllers(final Object parent);
 	
-	void editConnection(final ModifiableItem connection);
+	void editConnection(final ModifiableConnection connection);
 	
-	void openConnection(final ModifiableItem connection);
+	void openConnection(final ModifiableConnection connection);
 	
 	void setRecordModifications(final boolean record);
 

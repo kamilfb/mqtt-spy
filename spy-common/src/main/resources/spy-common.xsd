@@ -35,6 +35,13 @@
 	<!-- === CONNECTIVITY === -->
 	<!-- ==================== -->
 
+	<xs:complexType name="BaseSpyConfiguration">
+		<xs:sequence>
+			<xs:element name="ConnectionGroups" type="spycommon:ConnectionGroup" minOccurs="0" maxOccurs="unbounded" />
+			<xs:element name="Formatting" 	type="spycommon:Formatting"	minOccurs="0" maxOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>
+	
 	<xs:complexType name="UserCredentials">
 		<xs:sequence>
 			<xs:element name="Username" 			type="xs:string" />

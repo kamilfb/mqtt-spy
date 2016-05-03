@@ -22,37 +22,42 @@ import pl.baczkowicz.spy.common.generated.ConnectionGroupReference;
 import pl.baczkowicz.spy.common.generated.ConnectionReference;
 import pl.baczkowicz.spy.eventbus.IKBus;
 import pl.baczkowicz.spy.ui.configuration.ConfiguredConnectionGroupDetails;
+import pl.baczkowicz.spy.ui.configuration.IConfigurationManager;
 import pl.baczkowicz.spy.ui.connections.IConnectionFactory;
 import pl.baczkowicz.spy.ui.controllers.EditConnectionsController;
+import pl.baczkowicz.spy.ui.events.CreateNewConnectionEvent;
 import pl.baczkowicz.spy.ui.panes.SpyPerspective;
 import pl.baczkowicz.spy.ui.properties.ConnectionListItemProperties;
-import pl.baczkowicz.spy.ui.properties.ModifiableItem;
+import pl.baczkowicz.spy.ui.properties.ModifiableConnection;
 import pl.baczkowicz.spy.ui.utils.FxmlUtils;
 import pl.baczkowicz.spy.ui.utils.ImageUtils;
 
 public class MqttConnectionFactory implements IConnectionFactory
 {
-	private static final String MQTT = "MQTT";
-	
 	private EditMqttConnectionController editConnectionPaneController;
 
 	private MqttConnectionViewManager connectionManager;
 
 	private IKBus eventBus;
 
-	private MqttConfigurationManager configurationManager;
+	private IConfigurationManager configurationManager;
 
 	private AnchorPane editConnectionPane;
 	
-	private String getIconNameForProtocol(final String protocol)
+	public static String getIconNameForProtocol(final String protocol)
 	{
-		if (MQTT.equals(protocol))
-		{
-			return "mqtt-icon";
-		}
-		
-		return null;
+		return protocol.toLowerCase() + "-icon";
 	}
+//	
+//	public static String getIconNameForProtocol()
+//	{
+////		if (MQTT.equals(protocol))
+////		{
+////			return "mqtt-icon";
+////		}
+//		
+//		return "mqtt-icon";
+//	}
 
 	@Override
 	public void populateProtocolCell(TableCell<ConnectionListItemProperties, String> cell, String item)
@@ -68,10 +73,15 @@ public class MqttConnectionFactory implements IConnectionFactory
 		}			
 	}
 
-	public ModifiableItem newConnection(final String protocol)
+	public ModifiableConnection newConnection(final String protocol)
 	{
-		if (MQTT.equals(protocol))
-		{
+		return newConnection();
+	}
+	
+	public static ModifiableConnection newConnection()
+	{
+//		if (MQTT.equals(protocol))
+//		{
 			final UserInterfaceMqttConnectionDetails baseConnection = new UserInterfaceMqttConnectionDetails();				
 			baseConnection.getServerURI().add("127.0.0.1");
 			baseConnection.setClientID(MqttUtils.generateClientIdWithTimestamp(System.getProperty("user.name"), ProtocolVersionEnum.MQTT_DEFAULT));
@@ -83,12 +93,12 @@ public class MqttConnectionFactory implements IConnectionFactory
 			connectionDetails.setID(MqttConfigurationManager.generateConnectionId());
 			
 			return connectionDetails;
-		}
+		//}
 		
-		return null;
+		//return null;
 	}
 	
-	public ModifiableItem duplicateConnection(final ModifiableItem copyFrom)
+	public ModifiableConnection duplicateConnection(final ModifiableConnection copyFrom)
 	{
 		if (copyFrom instanceof UserInterfaceMqttConnectionDetails)
 		{
@@ -107,7 +117,7 @@ public class MqttConnectionFactory implements IConnectionFactory
 	{
 		final Collection<AnchorPane> items = new ArrayList<AnchorPane>();
 		
-		items.add(loadController(MQTT, parent));
+		items.add(loadController(parent));
 		
 		return items;
 	}
@@ -122,29 +132,26 @@ public class MqttConnectionFactory implements IConnectionFactory
 		return items;
 	}
 	
-	private MenuItem createMenuItemForProtocol(final String protocol)
+	public MenuItem createMenuItemForProtocol(final String protocol)
 	{
-		if (MQTT.equals(protocol))
-		{
-			// Populate menu
-			final MenuItem newMqttConnection = new MenuItem("Create new MQTT connection");
-			newMqttConnection.setGraphic(ImageUtils.createIcon(getIconNameForProtocol(MQTT), 18));
-			newMqttConnection.setOnAction(new EventHandler<ActionEvent>()
-			{			
-				@Override
-				public void handle(ActionEvent event)
-				{
-					newConnection(MQTT);				
-				}
-			});
-			
-			return newMqttConnection;
-		}
+		// Populate menu
+		final MenuItem newConnection = new MenuItem("Create new " + protocol + " connection");
+		newConnection.setGraphic(ImageUtils.createIcon(getIconNameForProtocol(protocol), 18));
+		newConnection.setOnAction(new EventHandler<ActionEvent>()
+		{			
+			@Override
+			public void handle(ActionEvent event)
+			{
+				eventBus.publish(new CreateNewConnectionEvent(protocol));
+				// TODO: make an event bus call rather than calling new connection directly
+				//newConnection(protocol);				
+			}
+		});
 		
-		return null;
+		return newConnection;
 	}
 	
-	public ConnectionListItemProperties createConnectionListItemProperties(final ModifiableItem connection)
+	public ConnectionListItemProperties createConnectionListItemProperties(final ModifiableConnection connection)
 	{
 		ConnectionListItemProperties properties = null;
 	
@@ -165,7 +172,7 @@ public class MqttConnectionFactory implements IConnectionFactory
 		return properties;
 	}	
 	
-	public void findConnections(final ConfiguredConnectionGroupDetails parentGroup, final List<ModifiableItem> connections)
+	public void findConnections(final ConfiguredConnectionGroupDetails parentGroup, final List<ModifiableConnection> connections)
 	{		
 		for (final ConnectionGroupReference reference : parentGroup.getSubgroups())			
 		{
@@ -182,29 +189,24 @@ public class MqttConnectionFactory implements IConnectionFactory
 		}		
 	}
 	
-	private AnchorPane loadController(String protocol, final Object parent)
+	public AnchorPane loadController(final Object parent)
 	{
-		if (MQTT.equals(protocol))
-		{
-			final FXMLLoader loader = FxmlUtils.createFxmlLoaderForProjectFile("EditConnectionPane.fxml");
-			editConnectionPane = FxmlUtils.loadAnchorPane(loader);
-			
-			editConnectionPaneController = ((EditMqttConnectionController) loader.getController());
-
-			editConnectionPaneController.setConfigurationManager(configurationManager);
-			editConnectionPaneController.setEventBus(eventBus);
-			editConnectionPaneController.setConnectionManager(connectionManager);
-			editConnectionPaneController.setEditConnectionsController((EditConnectionsController) parent);
-			editConnectionPaneController.init();
-			
-			return editConnectionPane;
-		}	
+		final FXMLLoader loader = FxmlUtils.createFxmlLoaderForProjectFile("EditMqttConnectionPane.fxml");
+		editConnectionPane = FxmlUtils.loadAnchorPane(loader);
 		
-		return null;
+		editConnectionPaneController = ((EditMqttConnectionController) loader.getController());
+
+		editConnectionPaneController.setConfigurationManager(configurationManager);
+		editConnectionPaneController.setEventBus(eventBus);
+		editConnectionPaneController.setConnectionManager(connectionManager);
+		editConnectionPaneController.setEditConnectionsController((EditConnectionsController) parent);
+		editConnectionPaneController.init();
+		
+		return editConnectionPane;
 	}
 
 	@Override
-	public void editConnection(final ModifiableItem connection)
+	public void editConnection(final ModifiableConnection connection)
 	{
 		if (connection instanceof ConfiguredMqttConnectionDetails)
 		{
@@ -214,7 +216,7 @@ public class MqttConnectionFactory implements IConnectionFactory
 
 
 	@Override
-	public void openConnection(final ModifiableItem connection)
+	public void openConnection(final ModifiableConnection connection)
 	{
 		if (connection instanceof ConfiguredMqttConnectionDetails)
 		{
@@ -244,7 +246,7 @@ public class MqttConnectionFactory implements IConnectionFactory
 		editConnectionPaneController.setEmptyConnectionListMode(empty);
 	}
 	
-	public void setConfigurationManager(final MqttConfigurationManager configurationManager)
+	public void setConfigurationManager(final IConfigurationManager configurationManager)
 	{
 		this.configurationManager = configurationManager;
 	}	

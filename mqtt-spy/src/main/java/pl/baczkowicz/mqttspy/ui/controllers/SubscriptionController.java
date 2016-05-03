@@ -49,7 +49,6 @@ import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -60,19 +59,18 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import pl.baczkowicz.mqttspy.configuration.MqttConfigurationManager;
-import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
 import pl.baczkowicz.mqttspy.connectivity.MqttRuntimeConnectionProperties;
+import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
 import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.ui.MqttSubscriptionViewManager;
 import pl.baczkowicz.mqttspy.ui.MqttViewManager;
 import pl.baczkowicz.mqttspy.ui.events.SubscriptionStatusChangeEvent;
 import pl.baczkowicz.mqttspy.ui.messagelog.MessageLogUtils;
 import pl.baczkowicz.spy.common.generated.FormatterDetails;
-import pl.baczkowicz.spy.common.generated.Formatting;
 import pl.baczkowicz.spy.eventbus.IKBus;
 import pl.baczkowicz.spy.formatting.FormattingManager;
 import pl.baczkowicz.spy.formatting.FormattingUtils;
+import pl.baczkowicz.spy.ui.configuration.IConfigurationManager;
 import pl.baczkowicz.spy.ui.events.ClearTabEvent;
 import pl.baczkowicz.spy.ui.events.FormattersChangedEvent;
 import pl.baczkowicz.spy.ui.events.MessageAddedEvent;
@@ -194,7 +192,9 @@ public class SubscriptionController implements Initializable, TabController
 
 	private boolean replayMode;
 
-	private Formatting formatting;
+	// private Formatting formatting;
+	
+	private List<FormatterDetails> formatters;
 
 	private UniqueContentOnlyFilter<FormattedMqttMessage> uniqueContentOnlyFilter;
 
@@ -202,7 +202,7 @@ public class SubscriptionController implements Initializable, TabController
 
 	private HBox titleBox;
 
-	private MqttConfigurationManager configurationManager;
+	private IConfigurationManager configurationManager;
 
 	private FormattingManager formattingManager;
 
@@ -421,13 +421,13 @@ public class SubscriptionController implements Initializable, TabController
 	
 	public void populateFormatters()
 	{
-		if (formatting.getFormatter().size() > 0)
+		if (formatters.size() > 0)
 		{
 			customFormatterMenu.setDisable(false);
 		}
 					
 		customFormatterMenu.getItems().clear();
-		for (final FormatterDetails formatter : formatting.getFormatter())
+		for (final FormatterDetails formatter : formatters)
 		{
 			// Check if this is really a custom one
 			if (FormattingUtils.isDefault(formatter))
@@ -454,9 +454,9 @@ public class SubscriptionController implements Initializable, TabController
 		replayMode = value;
 	}
 	
-	public void setFormatting(final Formatting formatting)
+	public void setFormatters(final List<FormatterDetails> formatters)
 	{
-		this.formatting = formatting;
+		this.formatters = formatters;
 	}
 	
 	public void setViewVisibility(final boolean detailedView, final boolean basicView)
@@ -829,7 +829,7 @@ public class SubscriptionController implements Initializable, TabController
 		return connectionController;
 	}
 	
-	public void setConfingurationManager(final MqttConfigurationManager configurationManager)
+	public void setConfingurationManager(final IConfigurationManager configurationManager)
 	{
 		this.configurationManager = configurationManager;
 	}

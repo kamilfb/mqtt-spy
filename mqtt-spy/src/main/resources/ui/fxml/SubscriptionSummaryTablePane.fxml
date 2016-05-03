@@ -28,7 +28,7 @@
 <?import javafx.collections.*?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.baczkowicz.mqttspy.ui.SubscriptionSummaryTableController">
+<AnchorPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.baczkowicz.mqttspy.ui.controllers.SubscriptionSummaryTableController">
 	<padding><Insets top="10" right="5" bottom="5" left="5" /></padding>
 	<children>
 	

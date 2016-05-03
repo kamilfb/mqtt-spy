@@ -6,8 +6,9 @@ import java.util.List;
 
 import pl.baczkowicz.spy.common.generated.FormatterDetails;
 import pl.baczkowicz.spy.configuration.PropertyFileLoader;
+import pl.baczkowicz.spy.connectivity.BaseSubscription;
 import pl.baczkowicz.spy.ui.panes.SpyPerspective;
-import pl.baczkowicz.spy.ui.properties.ModifiableItem;
+import pl.baczkowicz.spy.ui.properties.ModifiableConnection;
 
 public interface IConfigurationManager
 {
@@ -21,9 +22,9 @@ public interface IConfigurationManager
 
 	List<ConfiguredConnectionGroupDetails> getConnectionGrops();
 
-	Collection<? extends ModifiableItem> getConnections();
+	Collection<? extends ModifiableConnection> getConnections();
 
-	Collection<? extends ModifiableItem> getConnections(ConfiguredConnectionGroupDetails group);
+	Collection<? extends ModifiableConnection> getConnections(ConfiguredConnectionGroupDetails group);
 	
 	List<FormatterDetails> getFormatters();
 	
@@ -34,8 +35,6 @@ public interface IConfigurationManager
 	PropertyFileLoader getDefaultPropertyFile();
 
 	PropertyFileLoader getUiPropertyFile();
-
-	File getDefaultConfigurationFile();
 
 	void initialiseConfiguration();
 
@@ -49,4 +48,7 @@ public interface IConfigurationManager
 
 	void saveUiProperties(double lastWidth, double lastHeight, boolean maximized, SpyPerspective perspective, boolean selected);
 
+	void updateSubscriptionConfiguration(String id, BaseSubscription subscription);
+
+	void deleteSubscriptionConfiguration(String id, BaseSubscription subscription);
 }

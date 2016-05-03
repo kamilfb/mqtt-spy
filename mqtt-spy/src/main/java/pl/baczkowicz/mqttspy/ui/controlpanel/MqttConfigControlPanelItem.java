@@ -5,6 +5,7 @@ import javafx.event.EventHandler;
 import javafx.scene.control.Button;
 import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
 import pl.baczkowicz.spy.eventbus.IKBus;
+import pl.baczkowicz.spy.ui.configuration.BaseConfigurationManager;
 import pl.baczkowicz.spy.ui.configuration.IConfigurationManager;
 import pl.baczkowicz.spy.ui.controllers.ControlPanelItemController;
 import pl.baczkowicz.spy.ui.controlpanel.IControlPanelItem;
@@ -45,7 +46,7 @@ public class MqttConfigControlPanelItem implements IControlPanelItem
 				{
 					if (DialogUtils.showDefaultConfigurationFileMissingChoice("Configuration file not found", button.getScene().getWindow()))
 					{
-						eventBus.publish(new LoadConfigurationFileEvent(configurationManager.getDefaultConfigurationFile()));
+						eventBus.publish(new LoadConfigurationFileEvent(BaseConfigurationManager.getDefaultConfigurationFileObject()));
 					}					
 				}
 			});

@@ -21,7 +21,7 @@
 package pl.baczkowicz.spy.ui.events;
 
 import javafx.stage.Window;
-import pl.baczkowicz.spy.ui.properties.ModifiableItem;
+import pl.baczkowicz.spy.ui.properties.ModifiableConnection;
 
 public class ShowEditConnectionsWindowEvent
 {
@@ -29,9 +29,9 @@ public class ShowEditConnectionsWindowEvent
 	
 	private final boolean createNew;
 
-	private final ModifiableItem connectionProperties;
+	private final ModifiableConnection connectionProperties;
 
-	public ShowEditConnectionsWindowEvent(final Window parent, final boolean createNew, final ModifiableItem connectionProperties)
+	public ShowEditConnectionsWindowEvent(final Window parent, final boolean createNew, final ModifiableConnection connectionProperties)
 	{
 		this.parent = parent;
 		this.createNew = createNew;
@@ -57,7 +57,7 @@ public class ShowEditConnectionsWindowEvent
 	/**
 	 * @return the connection
 	 */
-	public ModifiableItem getConnectionProperties()
+	public ModifiableConnection getConnectionProperties()
 	{
 		return connectionProperties;
 	}

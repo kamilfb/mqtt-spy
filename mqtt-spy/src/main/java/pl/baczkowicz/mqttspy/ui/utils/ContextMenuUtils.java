@@ -32,7 +32,6 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.Tab;
 import javafx.scene.paint.Color;
-import pl.baczkowicz.mqttspy.configuration.MqttConfigurationManager;
 import pl.baczkowicz.mqttspy.configuration.generated.TabbedSubscriptionDetails;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
@@ -44,6 +43,7 @@ import pl.baczkowicz.mqttspy.ui.controllers.SubscriptionController;
 import pl.baczkowicz.spy.eventbus.IKBus;
 import pl.baczkowicz.spy.ui.charts.ChartFactory;
 import pl.baczkowicz.spy.ui.charts.ChartMode;
+import pl.baczkowicz.spy.ui.configuration.IConfigurationManager;
 import pl.baczkowicz.spy.ui.events.ClearTabEvent;
 import pl.baczkowicz.spy.ui.events.ShowEditConnectionsWindowEvent;
 import pl.baczkowicz.spy.ui.panes.PaneVisibilityStatus;
@@ -78,7 +78,7 @@ public class ContextMenuUtils
 			final MqttSubscription subscription,  
 			final IKBus eventBus,
 			final MqttSubscriptionViewManager subscriptionManager,
-			final MqttConfigurationManager configurationManager,
+			final IConfigurationManager configurationManager,
 			final SubscriptionController subscriptionController)
 	{
 		final ContextMenu contextMenu = new ContextMenu();
@@ -203,7 +203,7 @@ public class ContextMenuUtils
 		{
 			public void handle(ActionEvent e)
 			{
-				configurationManager.updateSubscriptionConfiguration(connection, subscription);
+				configurationManager.updateSubscriptionConfiguration(connection.getId(), subscription);
 			}
 		});
 		configuration.getItems().add(addItem);
@@ -214,7 +214,7 @@ public class ContextMenuUtils
 		{
 			public void handle(ActionEvent e)
 			{
-				configurationManager.deleteSubscriptionConfiguration(connection, subscription);
+				configurationManager.deleteSubscriptionConfiguration(connection.getId(), subscription);
 			}
 		});
 		configuration.getItems().add(removeItem);
@@ -274,7 +274,7 @@ public class ContextMenuUtils
 			final MqttAsyncConnection connection, 
 			final IKBus eventBus,
 			final MqttSubscriptionViewManager subscriptionManager,
-			final MqttConfigurationManager configurationManager,
+			final IConfigurationManager configurationManager,
 			final SubscriptionController subscriptionController)
 	{
 		final ContextMenu contextMenu = new ContextMenu();
@@ -351,7 +351,7 @@ public class ContextMenuUtils
 				{
 					if (controller.getSubscription() != null)
 					{
-						configurationManager.updateSubscriptionConfiguration(connection, controller.getSubscription());
+						configurationManager.updateSubscriptionConfiguration(connection.getId(), controller.getSubscription());
 					}
 				}
 			}
@@ -370,7 +370,7 @@ public class ContextMenuUtils
 				{
 					if (controller.getSubscription() != null)
 					{
-						configurationManager.deleteSubscriptionConfiguration(connection, controller.getSubscription());
+						configurationManager.deleteSubscriptionConfiguration(connection.getId(), controller.getSubscription());
 					}
 				}
 			}

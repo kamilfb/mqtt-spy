@@ -48,7 +48,6 @@ import javafx.scene.layout.HBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import pl.baczkowicz.mqttspy.configuration.MqttConfigurationManager;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.scripts.MqttScriptManager;
@@ -56,6 +55,7 @@ import pl.baczkowicz.spy.eventbus.IKBus;
 import pl.baczkowicz.spy.formatting.FormattingManager;
 import pl.baczkowicz.spy.messages.FormattedMessage;
 import pl.baczkowicz.spy.scripts.Script;
+import pl.baczkowicz.spy.ui.configuration.IConfigurationManager;
 import pl.baczkowicz.spy.ui.configuration.UiProperties;
 import pl.baczkowicz.spy.ui.events.MessageAddedEvent;
 import pl.baczkowicz.spy.ui.events.MessageFormatChangeEvent;
@@ -153,7 +153,7 @@ public class SearchPaneController implements Initializable
 
 	private UniqueContentOnlyFilter<FormattedMqttMessage> uniqueContentOnlyFilter;
 
-	private MqttConfigurationManager configurationManager;
+	private IConfigurationManager configurationManager;
 
 	private FormattingManager formattingManager;
 	
@@ -553,7 +553,7 @@ public class SearchPaneController implements Initializable
 		this.connection = connection;		
 	}
 	
-	public void setConfingurationManager(final MqttConfigurationManager configurationManager)
+	public void setConfingurationManager(final IConfigurationManager configurationManager)
 	{
 		this.configurationManager = configurationManager;
 	}

@@ -23,9 +23,10 @@ import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnection
 import pl.baczkowicz.spy.common.generated.ConnectionGroup;
 import pl.baczkowicz.spy.common.generated.ConnectionGroupReference;
 import pl.baczkowicz.spy.ui.configuration.ConfiguredConnectionGroupDetails;
-import pl.baczkowicz.spy.ui.properties.ModifiableItem;
+import pl.baczkowicz.spy.ui.connections.IAutoOpenConnection;
+import pl.baczkowicz.spy.ui.properties.ModifiableConnection;
 
-public class ConfiguredMqttConnectionDetails extends UserInterfaceMqttConnectionDetails implements ModifiableItem
+public class ConfiguredMqttConnectionDetails extends UserInterfaceMqttConnectionDetails implements ModifiableConnection, IAutoOpenConnection
 {
 	private static final long serialVersionUID = -111271741915161354L;
 

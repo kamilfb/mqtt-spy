@@ -35,6 +35,10 @@ public class BasePropertyNames
 	
 	/** Name of the 'download URL' property. */
 	public static final String DOWNLOAD_URL = "application.download.url";
-	
+
+	/** Name of the 'version URL' property. */
 	public static final String VERSION_INFO_URL = "application.update.url";
+	
+	/** Name of the 'wiki URL' property. */
+	public static final String WIKI_URL = "application.wiki.url";
 }

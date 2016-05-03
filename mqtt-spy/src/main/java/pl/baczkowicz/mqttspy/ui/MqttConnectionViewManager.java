@@ -37,7 +37,6 @@ import org.slf4j.LoggerFactory;
 import pl.baczkowicz.mqttspy.common.generated.MessageLog;
 import pl.baczkowicz.mqttspy.common.generated.MessageLogEnum;
 import pl.baczkowicz.mqttspy.configuration.ConfiguredMqttConnectionDetails;
-import pl.baczkowicz.mqttspy.configuration.MqttConfigurationManager;
 import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnectionDetails;
 import pl.baczkowicz.mqttspy.connectivity.BaseMqttSubscription;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
@@ -50,7 +49,6 @@ import pl.baczkowicz.mqttspy.connectivity.reconnection.ReconnectionManager;
 import pl.baczkowicz.mqttspy.logger.MqttMessageLogger;
 import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.ui.controllers.MqttConnectionController;
-import pl.baczkowicz.mqttspy.ui.controllers.MqttSpyMainController;
 import pl.baczkowicz.mqttspy.ui.events.queuable.UIEventHandler;
 import pl.baczkowicz.mqttspy.ui.events.queuable.connectivity.MqttConnectionAttemptFailureEvent;
 import pl.baczkowicz.mqttspy.ui.events.queuable.connectivity.MqttDisconnectionAttemptFailureEvent;
@@ -64,9 +62,11 @@ import pl.baczkowicz.spy.exceptions.ConfigurationException;
 import pl.baczkowicz.spy.exceptions.SpyException;
 import pl.baczkowicz.spy.formatting.FormattingManager;
 import pl.baczkowicz.spy.ui.IConnectionViewManager;
+import pl.baczkowicz.spy.ui.configuration.IConfigurationManager;
 import pl.baczkowicz.spy.ui.configuration.UiProperties;
 import pl.baczkowicz.spy.ui.controllers.IConnectionController;
 import pl.baczkowicz.spy.ui.events.queuable.EventQueueManager;
+import pl.baczkowicz.spy.ui.properties.ModifiableConnection;
 import pl.baczkowicz.spy.ui.stats.StatisticsManager;
 import pl.baczkowicz.spy.ui.utils.DialogFactory;
 import pl.baczkowicz.spy.ui.utils.TabUtils;
@@ -83,10 +83,10 @@ public class MqttConnectionViewManager implements IConnectionViewManager
 	private final IKBus eventBus;
 	
 	/** Global statistics manager .*/
-	private final StatisticsManager statisticsManager;
+	// private final StatisticsManager statisticsManager;
 	
 	/** Global configuration manager. */
-	private final MqttConfigurationManager configurationManager;
+	private final IConfigurationManager configurationManager;
 	
 	// TODO: not sure this is needed
 	/** Map of connections and their IDs. */
@@ -101,7 +101,7 @@ public class MqttConnectionViewManager implements IConnectionViewManager
 	/** Map of connection controllers and their subscription managers. */
 	private final Map<MqttConnectionController, MqttSubscriptionViewManager> subscriptionManagers = new HashMap<>();
 	
-	private MqttSpyMainController mainController;
+	private Stage parentStage;
 	
 	/** UI event queue. */
 	private final EventQueueManager<FormattedMqttMessage> uiEventQueue;
@@ -114,12 +114,12 @@ public class MqttConnectionViewManager implements IConnectionViewManager
 	private Set<MqttConnectionController> offlineConnectionControllers = new HashSet<>();
 
 	public MqttConnectionViewManager(final IKBus eventBus, final StatisticsManager statisticsManager, 
-			final MqttConfigurationManager configurationManager)
+			final IConfigurationManager configurationManager)
 	{
 		this.uiEventQueue = new EventQueueManager<FormattedMqttMessage>();
 		
 		this.eventBus = eventBus;
-		this.statisticsManager = statisticsManager;
+		// this.statisticsManager = statisticsManager;
 		this.configurationManager = configurationManager;
 		
 		this.reconnectionManager = new ReconnectionManager();
@@ -136,7 +136,7 @@ public class MqttConnectionViewManager implements IConnectionViewManager
 		connectionDetails.setConnectionDetails(configuredConnectionDetails);
 		connectionDetails.setID(configuredConnectionDetails.getID());			
 		
-		final boolean cancelled = completeUserAuthenticationCredentials(connectionDetails, mainController.getStage());		
+		final boolean cancelled = completeUserAuthenticationCredentials(connectionDetails, parentStage);		
 		
 		if (!cancelled)
 		{
@@ -155,7 +155,7 @@ public class MqttConnectionViewManager implements IConnectionViewManager
 						@Override
 						public void run()
 						{
-							viewManager.loadConnectionTab(mainController, mainController, connectionProperties);					
+							viewManager.loadConnectionTab(connectionProperties);					
 						}
 					}).start();											
 				}
@@ -408,12 +408,11 @@ public class MqttConnectionViewManager implements IConnectionViewManager
 		this.viewManager = viewManager;		
 	}
 	
-	public void setMainController(final MqttSpyMainController mainController)
+	public void setParentStage(final Stage parentStage)
 	{
-		this.mainController = mainController;		
+		this.parentStage = parentStage;		
 	}
 	
-
 	/**
 	 * @return the connectionTabs
 	 */
@@ -449,13 +448,15 @@ public class MqttConnectionViewManager implements IConnectionViewManager
 	@Override
 	public void autoOpenConnections()
 	{
-		for (final ConfiguredMqttConnectionDetails connection : configurationManager.getConnections())
+		for (final ModifiableConnection connection : configurationManager.getConnections())
 		{
-			if (connection.isAutoOpen() != null && connection.isAutoOpen())
+			final ConfiguredMqttConnectionDetails details = (ConfiguredMqttConnectionDetails) connection;
+			
+			if (details.isAutoOpen() != null && details.isAutoOpen())
 			{					
 				try
 				{
-					openConnection(connection);
+					openConnection(details);
 				}
 				catch (ConfigurationException e)
 				{

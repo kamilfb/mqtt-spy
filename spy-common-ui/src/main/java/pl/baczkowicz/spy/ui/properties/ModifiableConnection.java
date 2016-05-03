@@ -21,7 +21,7 @@ package pl.baczkowicz.spy.ui.properties;
 
 import pl.baczkowicz.spy.common.generated.ConnectionGroupReference;
 
-public interface ModifiableItem
+public interface ModifiableConnection
 {
 	boolean isModified();
 	

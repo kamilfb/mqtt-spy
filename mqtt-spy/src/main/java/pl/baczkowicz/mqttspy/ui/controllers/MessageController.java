@@ -41,11 +41,11 @@ import org.fxmisc.richtext.StyleClassedTextArea;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import pl.baczkowicz.mqttspy.configuration.MqttConfigurationManager;
 import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
 import pl.baczkowicz.spy.common.generated.FormatterDetails;
 import pl.baczkowicz.spy.formatting.FormattingManager;
 import pl.baczkowicz.spy.formatting.FormattingUtils;
+import pl.baczkowicz.spy.ui.configuration.IConfigurationManager;
 import pl.baczkowicz.spy.ui.configuration.UiProperties;
 import pl.baczkowicz.spy.ui.controls.StyledTextAreaWrapper;
 import pl.baczkowicz.spy.ui.controls.TextAreaInterface;
@@ -113,7 +113,7 @@ public class MessageController implements Initializable
 
 	private boolean detailedView;
 
-	private MqttConfigurationManager configurationManager;
+	private IConfigurationManager configurationManager;
 	
 	private FormattingManager formattingManager;
 
@@ -443,7 +443,7 @@ public class MessageController implements Initializable
 		this.searchOptions = searchOptions;
 	}
 	
-	public void setConfingurationManager(final MqttConfigurationManager configurationManager)
+	public void setConfingurationManager(final IConfigurationManager configurationManager)
 	{
 		this.configurationManager = configurationManager;
 	}

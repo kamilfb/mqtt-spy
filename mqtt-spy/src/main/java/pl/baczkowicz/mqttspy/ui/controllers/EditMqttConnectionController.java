@@ -47,7 +47,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.common.generated.MessageLog;
-import pl.baczkowicz.mqttspy.configuration.MqttConfigurationManager;
 import pl.baczkowicz.mqttspy.configuration.ConfigurationUtils;
 import pl.baczkowicz.mqttspy.configuration.ConfiguredMqttConnectionDetails;
 import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnectionDetails;
@@ -65,6 +64,7 @@ import pl.baczkowicz.mqttspy.utils.ConnectionUtils;
 import pl.baczkowicz.spy.common.generated.ConnectionGroupReference;
 import pl.baczkowicz.spy.eventbus.IKBus;
 import pl.baczkowicz.spy.exceptions.ConfigurationException;
+import pl.baczkowicz.spy.ui.configuration.IConfigurationManager;
 import pl.baczkowicz.spy.ui.controllers.EditConnectionsController;
 import pl.baczkowicz.spy.ui.events.ConnectionNameChangedEvent;
 import pl.baczkowicz.spy.ui.panes.SpyPerspective;
@@ -154,7 +154,7 @@ public class EditMqttConnectionController extends AnchorPane implements Initiali
 
 	private boolean recordModifications;
     
-	private MqttConfigurationManager configurationManager;
+	private IConfigurationManager configurationManager;
 
 	private EditConnectionsController editConnectionsController;
 
@@ -651,7 +651,7 @@ public class EditMqttConnectionController extends AnchorPane implements Initiali
 //		this.mainController = mainController;
 //	}
 
-	public void setConfigurationManager(final MqttConfigurationManager configurationManager)
+	public void setConfigurationManager(final IConfigurationManager configurationManager)
 	{
 		this.configurationManager = configurationManager;
 	}

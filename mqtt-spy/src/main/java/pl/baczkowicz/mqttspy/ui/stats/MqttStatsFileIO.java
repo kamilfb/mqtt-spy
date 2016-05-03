@@ -83,7 +83,7 @@ public class MqttStatsFileIO implements StatsIO
 		    logger.error("Cannot create date for stats", e);
 		}
 
-		return null;
+		return getStats(stats);
 	}
 	
 	public static SpyStats getStats(final MqttSpyStats stats)

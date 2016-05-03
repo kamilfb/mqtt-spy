@@ -34,6 +34,7 @@ import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import pl.baczkowicz.spy.eventbus.IKBus;
 import pl.baczkowicz.spy.formatting.FormattingUtils;
+import pl.baczkowicz.spy.ui.configuration.IConfigurationManager;
 import pl.baczkowicz.spy.ui.controllers.ControlPanelItemController;
 import pl.baczkowicz.spy.ui.events.ShowExternalWebPageEvent;
 import pl.baczkowicz.spy.ui.stats.StatisticsManager;
@@ -70,10 +71,7 @@ public class ControlPanelStatsUpdater implements Runnable
 	private boolean statsPlaying;
 	
 	/** List of getting involved messages. */
-	private List<String> gettingInvolvedDetails = new ArrayList<String>(Arrays.asList(
-			"Finding mqtt-spy useful? See how you can make mqtt-spy even better", 
-			"Like your mqtt-spy? See how you can help at", 
-			"Using mqtt-spy on a regular basis? See how you can help at"));
+	private final List<String> gettingInvolvedDetails;
 
 	/** The controller of the stats control panel item. */
 	private final ControlPanelItemController controlPanelItemController;
@@ -90,11 +88,22 @@ public class ControlPanelStatsUpdater implements Runnable
 	/** The index of the current statistics message. */
 	private int statMessageIndex;
 
-	public ControlPanelStatsUpdater(final ControlPanelItemController controlPanelItemController, final Button bigButton, final IKBus eventBus)
+	private IConfigurationManager configurationManager;
+
+	public ControlPanelStatsUpdater(final ControlPanelItemController controlPanelItemController, final Button bigButton, 
+			final IKBus eventBus, final IConfigurationManager configurationManager)
 	{
 		this.controlPanelItemController = controlPanelItemController;
 		this.bigButton = bigButton;
 		this.eventBus = eventBus;
+		this.configurationManager = configurationManager;
+		
+		final String appName = configurationManager.getDefaultPropertyFile().getApplicationName();
+		
+		gettingInvolvedDetails = new ArrayList<String>(Arrays.asList(
+				"Finding " + appName + " useful? See how you can make " + appName + " even better", 
+				"Like your " + appName + "? See how you can help at", 
+				"Using " + appName + " on a regular basis? See how you can help at"));
 	}	
 	
 	/**
@@ -103,7 +112,7 @@ public class ControlPanelStatsUpdater implements Runnable
 	public void show()
 	{
 		// Default values
-		controlPanelItemController.setTitle("Connect to an MQTT broker to start seeing processing statistics...");		
+		controlPanelItemController.setTitle("Connect to a server to start seeing processing statistics...");		
 		controlPanelItemController.setDetails("");
 		controlPanelItemController.setStatus(ItemStatus.STATS);
 		
@@ -123,13 +132,13 @@ public class ControlPanelStatsUpdater implements Runnable
 		items.add(new Label(gettingInvolvedDetails.get(r.nextInt(gettingInvolvedDetails.size()))));
 
 		final Hyperlink getInvolved = new Hyperlink();
-		getInvolved.setText("http://github.com/kamilfb/mqtt-spy/wiki/Getting-involved");
+		getInvolved.setText(configurationManager.getDefaultPropertyFile().getApplicationWikiUrl() + "Getting-involved");
 		getInvolved.setOnAction(new EventHandler<ActionEvent>()
 		{
 			@Override
 			public void handle(ActionEvent event)
 			{
-				eventBus.publish(new ShowExternalWebPageEvent("http://github.com/kamilfb/mqtt-spy/wiki/Getting-involved"));
+				eventBus.publish(new ShowExternalWebPageEvent(configurationManager.getDefaultPropertyFile().getApplicationWikiUrl() + "Getting-involved"));
 			}
 		});
 		items.add(getInvolved);
@@ -200,10 +209,12 @@ public class ControlPanelStatsUpdater implements Runnable
 	 */
 	private boolean refreshStatsMessage(final boolean updateOnly)
 	{
+		final String appName = configurationManager.getDefaultPropertyFile().getApplicationName();
+		
 		if ((statMessageIndex == 0) && (StatisticsManager.stats.getConnections() > 0))
 		{
 			controlPanelItemController.setTitle(String.format(
-					"Your mqtt-spy made %s connection" + (StatisticsManager.stats.getConnections() > 1 ? "s" : "") + " to MQTT brokers%s.",
+					"Your %s made %s connection" + (StatisticsManager.stats.getConnections() > 1 ? "s" : "") + " to MQTT brokers%s.", appName,
 					FormattingUtils.formatNumber(StatisticsManager.stats.getConnections()), IN_DAYS_PHRASE));
 			return true;
 		}
@@ -211,7 +222,7 @@ public class ControlPanelStatsUpdater implements Runnable
 		else if ((statMessageIndex == 1) && (StatisticsManager.stats.getMessagesPublished() > 1))
 		{
 			controlPanelItemController.setTitle(String.format(
-					"Your mqtt-spy published %s messages to MQTT brokers.",
+					"Your %s published %s messages to MQTT brokers.", appName,
 					FormattingUtils.formatNumber(StatisticsManager.stats.getMessagesPublished()), IN_DAYS_PHRASE));
 			return true;
 		}
@@ -219,7 +230,7 @@ public class ControlPanelStatsUpdater implements Runnable
 		else if ((statMessageIndex == 2) && (StatisticsManager.stats.getSubscriptions() > 1))
 		{
 			controlPanelItemController.setTitle(String.format(
-					"Your mqtt-spy made %s subscriptions to MQTT brokers%s.",
+					"Your %s made %s subscriptions to MQTT brokers%s.", appName,
 					FormattingUtils.formatNumber(StatisticsManager.stats.getSubscriptions()), IN_DAYS_PHRASE));
 			return true;
 		}
@@ -227,7 +238,7 @@ public class ControlPanelStatsUpdater implements Runnable
 		else if ((statMessageIndex == 3) && (StatisticsManager.stats.getMessagesReceived() > 1))
 		{
 			controlPanelItemController.setTitle(String.format(
-					"Your mqtt-spy received %s messages%s.",
+					"Your %s received %s messages%s.", appName,
 					FormattingUtils.formatNumber(StatisticsManager.stats.getMessagesReceived()), SINCE_PHRASE));
 			return true;
 		}
@@ -235,7 +246,7 @@ public class ControlPanelStatsUpdater implements Runnable
 		else if ((statMessageIndex == 4) && (updateOnly || StatisticsManager.getMessagesPublished() > 1))
 		{
 			controlPanelItemController.setTitle(String.format(
-					"Right now your mqtt-spy is publishing %s msgs/s.",
+					"Right now your %s is publishing %s msgs/s.", appName,
 					StatisticsManager.getMessagesPublished()));
 			return true;
 		}
@@ -243,7 +254,7 @@ public class ControlPanelStatsUpdater implements Runnable
 		else if ((statMessageIndex == 5) && (updateOnly || StatisticsManager.getMessagesReceived() > 1))
 		{
 			controlPanelItemController.setTitle(String.format(
-					"Right now your mqtt-spy is munching through %d msgs/s.",
+					"Right now your %s is munching through %d msgs/s.", appName,
 					StatisticsManager.getMessagesReceived()));
 			return true;
 		}				

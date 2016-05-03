@@ -59,7 +59,7 @@ import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
 import pl.baczkowicz.mqttspy.ui.MqttConnectionViewManager;
 import pl.baczkowicz.mqttspy.ui.MqttViewManager;
-import pl.baczkowicz.mqttspy.ui.events.ShowNewSubscriptionWindowEvent;
+import pl.baczkowicz.mqttspy.ui.events.ShowNewMqttSubscriptionWindowEvent;
 import pl.baczkowicz.mqttspy.ui.scripts.InteractiveScriptManager;
 import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
 import pl.baczkowicz.mqttspy.ui.utils.MqttStylingUtils;
@@ -240,7 +240,7 @@ public class MqttConnectionController implements Initializable, TabController, P
 		
 	private void showNewSubscription(final PaneVisibilityStatus status, final MqttConnectionController connectionController)
 	{
-		eventBus.publish(new ShowNewSubscriptionWindowEvent(connectionController, 
+		eventBus.publish(new ShowNewMqttSubscriptionWindowEvent(connectionController, 
 				status,
 				connectionController.getNewSubscriptionPaneStatus().getVisibility()));
 	}
@@ -253,7 +253,7 @@ public class MqttConnectionController implements Initializable, TabController, P
 		
 		if (controller != null)
 		{
-			eventBus.publish(new ShowNewSubscriptionWindowEvent(
+			eventBus.publish(new ShowNewMqttSubscriptionWindowEvent(
 					controller, 
 					PaneVisibilityStatus.DETACHED,
 					controller.getNewSubscriptionPaneStatus().getVisibility()));
@@ -310,7 +310,6 @@ public class MqttConnectionController implements Initializable, TabController, P
 			newSubscriptionPaneController.init();
 			
 			publicationScriptsPaneController.setConnection(connection);
-			// publicationScriptsPaneController.setEventManager(eventManager);
 			publicationScriptsPaneController.setEventBus(eventBus);
 			publicationScriptsPaneController.setConnectionController(this);
 			publicationScriptsPaneController.setTitledPane(scriptedPublicationsTitledPane);

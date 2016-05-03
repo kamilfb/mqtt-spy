@@ -36,7 +36,6 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
-import pl.baczkowicz.mqttspy.configuration.MqttConfigurationManager;
 import pl.baczkowicz.mqttspy.configuration.ConfiguredMqttConnectionDetails;
 import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnectionDetails;
 import pl.baczkowicz.mqttspy.ui.controllers.EditMqttConnectionController;
@@ -44,6 +43,7 @@ import pl.baczkowicz.spy.common.generated.FormatterDetails;
 import pl.baczkowicz.spy.eventbus.IKBus;
 import pl.baczkowicz.spy.formatting.FormattingManager;
 import pl.baczkowicz.spy.formatting.FormattingUtils;
+import pl.baczkowicz.spy.ui.configuration.IConfigurationManager;
 import pl.baczkowicz.spy.ui.controllers.FormattersController;
 import pl.baczkowicz.spy.ui.events.FormattersChangedEvent;
 import pl.baczkowicz.spy.ui.events.ShowFormattersWindowEvent;
@@ -81,7 +81,7 @@ public class EditConnectionOtherController extends AnchorPane implements Initial
 	@FXML
 	private ComboBox<FormatterDetails> formatter;
 	
-	private MqttConfigurationManager configurationManager;
+	private IConfigurationManager configurationManager;
 
 	private final ChangeListener basicOnChangeListener = new ChangeListener()
 	{
@@ -167,8 +167,7 @@ public class EditConnectionOtherController extends AnchorPane implements Initial
 		refreshFormattersList();
 		
 		// Populate those from the configuration file
-		FormattersController.addFormattersToList(
-				configurationManager.getConfiguration().getFormatting().getFormatter(), formatter.getItems());		
+		FormattersController.addFormattersToList(configurationManager.getFormatters(), formatter.getItems());		
 	}
 	
 	public void handleFormattersChange(final FormattersChangedEvent event)	
@@ -248,7 +247,7 @@ public class EditConnectionOtherController extends AnchorPane implements Initial
 	// === Setters and getters =======
 	// ===============================
 	
-	public void setConfigurationManager(final MqttConfigurationManager configurationManager)
+	public void setConfigurationManager(final IConfigurationManager configurationManager)
 	{
 		this.configurationManager = configurationManager;
 	}

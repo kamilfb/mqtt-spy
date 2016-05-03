@@ -30,7 +30,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.control.SeparatorMenuItem?>
 
-<AnchorPane prefHeight="282.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.baczkowicz.mqttspy.ui.SubscriptionController">
+<AnchorPane prefHeight="282.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.baczkowicz.mqttspy.ui.controllers.SubscriptionController">
 	<children>
       <AnchorPane layoutX="-2.0" layoutY="4.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="215.0" AnchorPane.topAnchor="5.0">
       		<children>

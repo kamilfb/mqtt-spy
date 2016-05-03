@@ -151,6 +151,18 @@ public class PropertyFileLoader
 	}
 	
 	/**
+	 * Retrieve a value of the specified property.
+	 *  
+	 * @param propertyName Name of the property to retrieve
+	 * 
+	 * @return Value of the property or false if it doesn't exist
+	 */
+	public boolean getBooleanProperty(final String propertyName)
+	{
+		return new Boolean(properties.getProperty(propertyName, "false"));
+	}
+	
+	/**
 	 * Save a value of the specified property.
 	 *  
 	 * @param propertyName Name of the property to retrieve
@@ -198,5 +210,10 @@ public class PropertyFileLoader
 	public String getApplicationName()
 	{
 		return getProperty(BasePropertyNames.NAME_PROPERTY);
+	}
+	
+	public String getApplicationWikiUrl()
+	{
+		return getProperty(BasePropertyNames.WIKI_URL);
 	}
 }

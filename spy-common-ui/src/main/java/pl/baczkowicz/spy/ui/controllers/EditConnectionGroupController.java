@@ -52,7 +52,7 @@ import pl.baczkowicz.spy.ui.configuration.ConfiguredConnectionGroupDetails;
 import pl.baczkowicz.spy.ui.connections.IConnectionFactory;
 import pl.baczkowicz.spy.ui.properties.ConnectionListItemProperties;
 import pl.baczkowicz.spy.ui.properties.ConnectionTreeItemProperties;
-import pl.baczkowicz.spy.ui.properties.ModifiableItem;
+import pl.baczkowicz.spy.ui.properties.ModifiableConnection;
 import pl.baczkowicz.spy.ui.utils.UiUtils;
 
 /**
@@ -95,9 +95,9 @@ public class EditConnectionGroupController extends AnchorPane implements Initial
 
 	private ConfiguredConnectionGroupDetails editedConnectionGroupDetails;
 
-	private List<ModifiableItem> connections;
+	private List<ModifiableConnection> connections;
 	
-	private Map<ConnectionListItemProperties, ModifiableItem> connectionMapping;
+	private Map<ConnectionListItemProperties, ModifiableConnection> connectionMapping;
 
 	private boolean recordModifications;
 
@@ -241,7 +241,7 @@ public class EditConnectionGroupController extends AnchorPane implements Initial
 	@FXML
 	public void createConnection() throws ConfigurationException
 	{
-		for (final ModifiableItem connection : connections)
+		for (final ModifiableConnection connection : connections)
 		{
 			editConnectionsController.openConnection(connection);
 		}
@@ -311,7 +311,7 @@ public class EditConnectionGroupController extends AnchorPane implements Initial
 		connectionList.getItems().clear();
 		connectionMapping = new HashMap<>();
 		
-		for (final ModifiableItem connection : connections)
+		for (final ModifiableConnection connection : connections)
 		{						
 			final ConnectionListItemProperties properties = connectionFactory.createConnectionListItemProperties(connection);
 			

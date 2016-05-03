@@ -126,7 +126,7 @@ public class KBus implements IKBus
             }
             catch (final ClassCastException e)
             {
-                logger.warn("Consumer {} can't accept events of type = {}", consumer, event.getClass());
+                logger.warn("Consumer {} can't accept events of type = {}", consumer, event.getClass(), e);
             }
         }
     }

@@ -20,6 +20,7 @@
 package pl.baczkowicz.spy.ui.stats;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -51,7 +52,10 @@ public class StatisticsManager implements Runnable
 	private StatsIO statsFileIO;	
 	
 	public StatisticsManager(final StatsIO statsFileIO) throws XMLException
-	{		
+	{	
+		// Default values
+		stats = new SpyStats(0, new Date(), 0, 0, 0, 0);
+		
 		this.statsFileIO = statsFileIO;
 		new Thread(this).start();
 	}
