@@ -74,18 +74,14 @@ public class DialogFactory
 		alert.showAndWait();
 	}
 	
-	public static void createExceptionDialog(final String title, final Exception e)
+	public static void createExceptionDialog(final String title, final String contentText, final String multilineText)
 	{	
 		final Alert alert = new Alert(AlertType.ERROR);
 		alert.setTitle(title);
 		alert.setHeaderText(null);
-		alert.setContentText(e.getMessage() + " - " + ExceptionUtils.getRootCauseMessage(e));
-		
-		final StringWriter sw = new StringWriter();
-		final PrintWriter pw = new PrintWriter(sw);
-		e.printStackTrace(pw);
+		alert.setContentText(contentText);
 
-		final TextArea textArea = new TextArea(sw.toString());
+		final TextArea textArea = new TextArea(multilineText);
 		
 		textArea.setEditable(false);
 		textArea.setWrapText(true);
@@ -101,8 +97,45 @@ public class DialogFactory
 		content.add(textArea, 0, 0);
 
 		alert.getDialogPane().setExpandableContent(content);
+		alert.getDialogPane().setExpanded(true);
 
 		alert.showAndWait();
+	}	
+	
+	public static void createExceptionDialog(final String title, final Exception e)
+	{
+		final StringWriter sw = new StringWriter();
+		final PrintWriter pw = new PrintWriter(sw);
+		e.printStackTrace(pw);
+
+		createExceptionDialog(title, e.getMessage() + " - " + ExceptionUtils.getRootCauseMessage(e), sw.toString());
+//		final Alert alert = new Alert(AlertType.ERROR);
+//		alert.setTitle(title);
+//		alert.setHeaderText(null);
+//		alert.setContentText(e.getMessage() + " - " + ExceptionUtils.getRootCauseMessage(e));
+//		
+//		final StringWriter sw = new StringWriter();
+//		final PrintWriter pw = new PrintWriter(sw);
+//		e.printStackTrace(pw);
+//
+//		final TextArea textArea = new TextArea(sw.toString());
+//		
+//		textArea.setEditable(false);
+//		textArea.setWrapText(true);
+//
+//		textArea.setMaxWidth(Double.MAX_VALUE);
+//		textArea.setMaxHeight(Double.MAX_VALUE);
+//		
+//		GridPane.setVgrow(textArea, Priority.ALWAYS);
+//		GridPane.setHgrow(textArea, Priority.ALWAYS);
+//
+//		GridPane content = new GridPane();
+//		content.setMaxWidth(Double.MAX_VALUE);
+//		content.add(textArea, 0, 0);
+//
+//		alert.getDialogPane().setExpandableContent(content);
+//
+//		alert.showAndWait();
 	}	
 
 	public static void createWarningDialog(final String title, final String message)

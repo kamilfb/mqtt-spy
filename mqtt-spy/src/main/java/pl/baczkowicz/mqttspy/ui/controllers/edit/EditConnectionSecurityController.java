@@ -62,7 +62,7 @@ import pl.baczkowicz.spy.ui.utils.UiUtils;
  * Controller for editing a single connection - security tab.
  */
 @SuppressWarnings({"unchecked", "rawtypes"})
-public class EditConnectionSecurityController extends AnchorPane implements Initializable, EditConnectionSubController
+public class EditConnectionSecurityController extends AnchorPane implements Initializable, IEditConnectionSubController
 {
 	/** The parent controller. */
 	private EditMqttConnectionController parent;
