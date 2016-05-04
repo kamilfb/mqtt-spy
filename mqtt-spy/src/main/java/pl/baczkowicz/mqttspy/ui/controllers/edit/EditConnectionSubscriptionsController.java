@@ -60,7 +60,7 @@ import pl.baczkowicz.spy.ui.utils.DialogFactory;
  * Controller for editing a single connection - subscriptions tab.
  */
 @SuppressWarnings({"unchecked", "rawtypes"})
-public class EditConnectionSubscriptionsController extends AnchorPane implements Initializable, EditConnectionSubController
+public class EditConnectionSubscriptionsController extends AnchorPane implements Initializable, IEditConnectionSubController
 {
 	private final static Logger logger = LoggerFactory.getLogger(EditConnectionSubscriptionsController.class);
 	
@@ -115,90 +115,93 @@ public class EditConnectionSubscriptionsController extends AnchorPane implements
 		searchScriptsText.textProperty().addListener(basicOnChangeListener);
 		createTabSubscriptionColumn.setCellValueFactory(new PropertyValueFactory<SubscriptionTopicProperties, Boolean>("show"));
 		createTabSubscriptionColumn.setCellFactory(new Callback<TableColumn<SubscriptionTopicProperties, Boolean>, TableCell<SubscriptionTopicProperties, Boolean>>()
+		{
+			public TableCell<SubscriptionTopicProperties, Boolean> call(
+					TableColumn<SubscriptionTopicProperties, Boolean> p)
+			{
+				final TableCell<SubscriptionTopicProperties, Boolean> cell = new TableCell<SubscriptionTopicProperties, Boolean>()
 				{
-					public TableCell<SubscriptionTopicProperties, Boolean> call(
-							TableColumn<SubscriptionTopicProperties, Boolean> p)
+					@Override
+					public void updateItem(final Boolean item, boolean empty)
 					{
-						final TableCell<SubscriptionTopicProperties, Boolean> cell = new TableCell<SubscriptionTopicProperties, Boolean>()
+						super.updateItem(item, empty);
+						if (!isEmpty())
 						{
-							@Override
-							public void updateItem(final Boolean item, boolean empty)
-							{
-								super.updateItem(item, empty);
-								if (!isEmpty())
+							final SubscriptionTopicProperties shownItem = getTableView().getItems().get(getIndex());
+							CheckBox box = new CheckBox();
+							box.selectedProperty().bindBidirectional(shownItem.showProperty());
+							box.setOnAction(new EventHandler<ActionEvent>()
+							{										
+								@Override
+								public void handle(ActionEvent event)
 								{
-									final SubscriptionTopicProperties shownItem = getTableView().getItems().get(getIndex());
-									CheckBox box = new CheckBox();
-									box.selectedProperty().bindBidirectional(shownItem.showProperty());
-									box.setOnAction(new EventHandler<ActionEvent>()
-									{										
-										@Override
-										public void handle(ActionEvent event)
-										{
-											logger.info("New value = {} {}", 
-													shownItem.topicProperty().getValue(),
-													shownItem.showProperty().getValue());
-											onChange();
-										}
-									});
-									setGraphic(box);
+									logger.info("New value = {} {}", 
+											shownItem.topicProperty().getValue(),
+											shownItem.showProperty().getValue());
+									onChange();
 								}
-								else
-								{
-									setGraphic(null);
-								}
-							}
-						};
-						cell.setAlignment(Pos.CENTER);
-						return cell;
+							});
+							setGraphic(box);
+						}
+						else
+						{
+							setGraphic(null);
+						}
 					}
-				});
+				};
+				cell.setAlignment(Pos.CENTER);
+				return cell;
+			}
+		});
 
 		subscriptionTopicColumn.setCellValueFactory(new PropertyValueFactory<SubscriptionTopicProperties, String>("topic"));
 		subscriptionTopicColumn.setCellFactory(TextFieldTableCell.<SubscriptionTopicProperties>forTableColumn());
 		subscriptionTopicColumn.setOnEditCommit(new EventHandler<TableColumn.CellEditEvent<SubscriptionTopicProperties, String>>()
-				{
-					@Override
-					public void handle(CellEditEvent<SubscriptionTopicProperties, String> event)
-					{
-						BaseTopicProperty p = event.getRowValue();
-			            String newValue = event.getNewValue();
-			            p.topicProperty().set(newValue);            
-						logger.debug("New value = {}", subscriptionsTable.getSelectionModel().getSelectedItem().topicProperty().getValue());
-						onChange();
-					}		
-				});
+		{
+			@Override
+			public void handle(CellEditEvent<SubscriptionTopicProperties, String> event)
+			{
+				BaseTopicProperty p = event.getRowValue();
+	            String newValue = event.getNewValue();
+	            p.topicProperty().set(newValue);            
+				logger.debug("New value = {}", subscriptionsTable.getSelectionModel().getSelectedItem().topicProperty().getValue());
+				onChange();
+			}		
+		});
 		
 		scriptColumn.setCellValueFactory(new PropertyValueFactory<SubscriptionTopicProperties, String>("script"));
 		scriptColumn.setCellFactory(TextFieldTableCell.<SubscriptionTopicProperties>forTableColumn());
 		scriptColumn.setOnEditCommit(new EventHandler<TableColumn.CellEditEvent<SubscriptionTopicProperties, String>>()
+		{
+			@Override
+			public void handle(CellEditEvent<SubscriptionTopicProperties, String> event)
+			{						
+	            final String newValue = event.getNewValue();
+	            			            
+				final File scriptFile = new File(newValue);
+				
+				if (!newValue.isEmpty() && !scriptFile.exists())
 				{
-					@Override
-					public void handle(CellEditEvent<SubscriptionTopicProperties, String> event)
-					{						
-			            final String newValue = event.getNewValue();
-			            			            
-						final File scriptFile = new File(newValue);
-						
-						if (!newValue.isEmpty() && !scriptFile.exists())
-						{
-							// TODO: display path correctly
-							DialogFactory.createWarningDialog("File does not exist", "File " + scriptFile.getName() + " does not exist in " + scriptFile.getAbsolutePath() + "!");							
-							event.consume();
-							
-							// TODO: clear the content
-							subscriptionsTable.getSelectionModel().getSelectedItem().scriptProperty().setValue("");
-						}						
-						else
-						{
-							SubscriptionTopicProperties p = event.getRowValue();
-				            p.scriptProperty().set(newValue);            
-							logger.debug("New value = {}", subscriptionsTable.getSelectionModel().getSelectedItem().scriptProperty().getValue());
-						
-							onChange();
-						}						
-					}		
-				});
+					DialogFactory.createExceptionDialog(
+							"File does not exist", 
+							"Could not locate the specified file - please check the name and the path.",
+							"File named " + scriptFile.getName() + " does not exist at " + scriptFile.getAbsolutePath() + "!");
+					
+					event.consume();
+					
+					// TODO: clear the content
+					subscriptionsTable.getSelectionModel().getSelectedItem().scriptProperty().setValue("");
+				}						
+				else
+				{
+					SubscriptionTopicProperties p = event.getRowValue();
+		            p.scriptProperty().set(newValue);            
+					logger.debug("New value = {}", subscriptionsTable.getSelectionModel().getSelectedItem().scriptProperty().getValue());
+				
+					onChange();
+				}						
+			}		
+		});
 		
 		final ObservableList<Integer> qosChoice = FXCollections.observableArrayList (
 			    new Integer(0),
@@ -208,60 +211,60 @@ public class EditConnectionSubscriptionsController extends AnchorPane implements
 		
 		qosSubscriptionColumn.setCellValueFactory(new PropertyValueFactory<SubscriptionTopicProperties, Integer>("qos"));
 		qosSubscriptionColumn.setCellFactory(new Callback<TableColumn<SubscriptionTopicProperties, Integer>, TableCell<SubscriptionTopicProperties, Integer>>()
-				{
-					public TableCell<SubscriptionTopicProperties, Integer> call(
-							TableColumn<SubscriptionTopicProperties, Integer> p)
-					{
-						final TableCell<SubscriptionTopicProperties, Integer> cell = new TableCell<SubscriptionTopicProperties, Integer>()
-						{
-							@Override
-							public void updateItem(final Integer item, boolean empty)
-							{
-								super.updateItem(item, empty);
-								if (!isEmpty())
-								{
-									final SubscriptionTopicProperties shownItem = getTableView().getItems().get(getIndex());
-									ChoiceBox box = new ChoiceBox();
-									box.setItems(qosChoice);
-									box.setId("subscriptionQosChoice");
-									int qos = shownItem.qosProperty().getValue();
-									box.getSelectionModel().select(qos);
-									box.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Integer>()
-									{
-										@Override
-										public void changed(ObservableValue<? extends Integer> observable, Integer oldValue, Integer newValue)
-										{
-											shownItem.qosProperty().setValue(newValue);
-											logger.info("New value = {} {}", 
-													shownItem.topicProperty().getValue(),
-													shownItem.qosProperty().getValue());
-											onChange();
-										}
-									});
-									setGraphic(box);
-								}
-								else
-								{
-									setGraphic(null);
-								}
-							}
-						};
-						cell.setAlignment(Pos.CENTER);
-						return cell;
-					}
-				});
-		qosSubscriptionColumn.setOnEditCommit(new EventHandler<TableColumn.CellEditEvent<SubscriptionTopicProperties, Integer>>()
+		{
+			public TableCell<SubscriptionTopicProperties, Integer> call(
+					TableColumn<SubscriptionTopicProperties, Integer> p)
+			{
+				final TableCell<SubscriptionTopicProperties, Integer> cell = new TableCell<SubscriptionTopicProperties, Integer>()
 				{
 					@Override
-					public void handle(CellEditEvent<SubscriptionTopicProperties, Integer> event)
+					public void updateItem(final Integer item, boolean empty)
 					{
-						SubscriptionTopicProperties p = event.getRowValue();
-						Integer newValue = event.getNewValue();
-			            p.qosProperty().set(newValue);            
-						logger.debug("New value = {}", subscriptionsTable.getSelectionModel().getSelectedItem().qosProperty().getValue());
-						onChange();
-					}		
-				});
+						super.updateItem(item, empty);
+						if (!isEmpty())
+						{
+							final SubscriptionTopicProperties shownItem = getTableView().getItems().get(getIndex());
+							ChoiceBox box = new ChoiceBox();
+							box.setItems(qosChoice);
+							box.setId("subscriptionQosChoice");
+							int qos = shownItem.qosProperty().getValue();
+							box.getSelectionModel().select(qos);
+							box.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Integer>()
+							{
+								@Override
+								public void changed(ObservableValue<? extends Integer> observable, Integer oldValue, Integer newValue)
+								{
+									shownItem.qosProperty().setValue(newValue);
+									logger.info("New value = {} {}", 
+											shownItem.topicProperty().getValue(),
+											shownItem.qosProperty().getValue());
+									onChange();
+								}
+							});
+							setGraphic(box);
+						}
+						else
+						{
+							setGraphic(null);
+						}
+					}
+				};
+				cell.setAlignment(Pos.CENTER);
+				return cell;
+			}
+		});
+		qosSubscriptionColumn.setOnEditCommit(new EventHandler<TableColumn.CellEditEvent<SubscriptionTopicProperties, Integer>>()
+		{
+			@Override
+			public void handle(CellEditEvent<SubscriptionTopicProperties, Integer> event)
+			{
+				SubscriptionTopicProperties p = event.getRowValue();
+				Integer newValue = event.getNewValue();
+	            p.qosProperty().set(newValue);            
+				logger.debug("New value = {}", subscriptionsTable.getSelectionModel().getSelectedItem().qosProperty().getValue());
+				onChange();
+			}		
+		});
 	}
 
 	public void init()

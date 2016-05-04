@@ -58,7 +58,7 @@ import pl.baczkowicz.spy.ui.panes.SpyPerspective;
  * Controller for editing a single connection - connectivity tab.
  */
 @SuppressWarnings({"unchecked", "rawtypes"})
-public class EditConnectionConnectivityController extends AnchorPane implements Initializable, EditConnectionSubController
+public class EditConnectionConnectivityController extends AnchorPane implements Initializable, IEditConnectionSubController
 {
 	private final static Logger logger = LoggerFactory.getLogger(EditConnectionConnectivityController.class);
 

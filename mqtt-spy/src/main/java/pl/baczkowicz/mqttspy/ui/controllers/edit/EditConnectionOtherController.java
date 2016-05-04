@@ -53,7 +53,7 @@ import pl.baczkowicz.spy.ui.keyboard.KeyboardUtils;
  * Controller for editing a single connection - other/ui tab.
  */
 @SuppressWarnings({"unchecked", "rawtypes"})
-public class EditConnectionOtherController extends AnchorPane implements Initializable, EditConnectionSubController
+public class EditConnectionOtherController extends AnchorPane implements Initializable, IEditConnectionSubController
 {
 	/** The parent controller. */
 	private EditMqttConnectionController parent;

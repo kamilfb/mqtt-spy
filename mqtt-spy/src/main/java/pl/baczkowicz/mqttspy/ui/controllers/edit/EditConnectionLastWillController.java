@@ -40,7 +40,7 @@ import pl.baczkowicz.mqttspy.ui.controllers.NewPublicationController;
  * Controller for editing a single connection - last will tab.
  */
 @SuppressWarnings({"unchecked", "rawtypes"})
-public class EditConnectionLastWillController extends AnchorPane implements Initializable, EditConnectionSubController
+public class EditConnectionLastWillController extends AnchorPane implements Initializable, IEditConnectionSubController
 {
 	// LWT
 	

@@ -38,7 +38,7 @@ import pl.baczkowicz.mqttspy.ui.controllers.EditMqttConnectionController;
  * Controller for editing a single connection - message log tab.
  */
 @SuppressWarnings({"unchecked", "rawtypes"})
-public class EditConnectionMessageLogController extends AnchorPane implements Initializable, EditConnectionSubController
+public class EditConnectionMessageLogController extends AnchorPane implements Initializable, IEditConnectionSubController
 {
 	/** The parent controller. */
 	private EditMqttConnectionController parent;	
