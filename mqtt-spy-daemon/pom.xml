@@ -200,6 +200,7 @@
 			                <generatePackage>pl.baczkowicz.mqttspy.daemon.configuration.generated</generatePackage>
 			                <removeOldOutput>false</removeOldOutput>
 			                
+			                <strict>false</strict>
 			                <catalogs>
 			                	<catalog>
 			                		<dependencyResource>

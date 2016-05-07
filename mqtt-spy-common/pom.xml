@@ -253,6 +253,7 @@
 			                <generateDirectory>src/main/java/</generateDirectory>
 			                <removeOldOutput>false</removeOldOutput>			               
 
+							<strict>false</strict>
 			                <catalogs>
 			                	<catalog>
 			                		<dependencyResource>

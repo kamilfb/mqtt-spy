@@ -221,6 +221,7 @@
 			                <generatePackage>pl.baczkowicz.mqttspy.configuration.generated</generatePackage>
 			                <removeOldOutput>false</removeOldOutput>
 			                
+			                <strict>false</strict>
 			                <catalogs>
 			                	<catalog>
 			                		<dependencyResource>
@@ -238,7 +239,7 @@
 			                	</catalog>
 			                </catalogs>
 			                
-			                <episode>false</episode>
+			                <episode>true</episode>
 			                
 			                <episodes>
 			                	<episode>
