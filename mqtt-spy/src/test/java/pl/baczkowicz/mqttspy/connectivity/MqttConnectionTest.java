@@ -35,6 +35,7 @@ import pl.baczkowicz.mqttspy.configuration.ConfiguredMqttConnectionDetails;
 import pl.baczkowicz.mqttspy.connectivity.reconnection.ReconnectionManager;
 import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.ui.events.SubscriptionStatusChangeEvent;
+import pl.baczkowicz.mqttspy.ui.stats.MqttStatsFileIO;
 import pl.baczkowicz.spy.common.generated.FormatterDetails;
 import pl.baczkowicz.spy.connectivity.ConnectionStatus;
 import pl.baczkowicz.spy.eventbus.IKBus;
@@ -84,7 +85,7 @@ public class MqttConnectionTest extends TestCase
 		mockEventBus = context.mock(IKBus.class);
 		mockedReconnectionManager = context.mock(ReconnectionManager.class);
 		mockedFormattingManager = context.mock(FormattingManager.class);
-		statisticsManager = new StatisticsManager(null);
+		statisticsManager = new StatisticsManager(new MqttStatsFileIO());
 		statisticsManager.loadStats();
 	}
 

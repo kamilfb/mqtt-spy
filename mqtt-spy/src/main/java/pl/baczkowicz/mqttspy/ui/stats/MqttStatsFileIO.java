@@ -115,9 +115,28 @@ public class MqttStatsFileIO implements StatsIO
 				statsFile.createNewFile();
 			}
 			
-			// TODO: turns SpyStats into MqttSpyStats
+			// Turn SpyStats into MqttSpyStats
+			final MqttSpyStats mqttSpyStats = new MqttSpyStats();
+			mqttSpyStats.setConnections(stats.getConnections());
+			mqttSpyStats.setID(stats.getId());
+			mqttSpyStats.setMessagesPublished(stats.getMessagesPublished());
+			mqttSpyStats.setMessagesReceived(stats.getMessagesReceived());
+			mqttSpyStats.setSubscriptions(stats.getSubscriptions());
+			
+			// TODO: turn this into a function
+			final GregorianCalendar gc = new GregorianCalendar();
+			gc.setTime(stats.getStartDate());
+			try 
+			{
+				mqttSpyStats.setStartDate(DatatypeFactory.newInstance().newXMLGregorianCalendar(gc));
+			} 
+			catch (DatatypeConfigurationException e) 
+			{
+			    logger.error("Cannot create date for stats", e);
+			}
+			
 			parser.saveToFile(statsFile, 
-					new JAXBElement(new QName("http://baczkowicz.pl/mqtt-spy-stats", "MqttSpyStats"), MqttSpyStats.class, stats));
+					new JAXBElement(new QName("http://baczkowicz.pl/mqtt-spy-stats", "MqttSpyStats"), MqttSpyStats.class, mqttSpyStats));
 			return true;
 		}
 		catch (XMLException | IOException e)

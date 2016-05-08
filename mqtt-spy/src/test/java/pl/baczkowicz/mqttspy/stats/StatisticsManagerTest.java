@@ -24,6 +24,7 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
+import pl.baczkowicz.mqttspy.ui.stats.MqttStatsFileIO;
 import pl.baczkowicz.spy.ui.stats.StatisticsManager;
 
 public class StatisticsManagerTest
@@ -33,7 +34,7 @@ public class StatisticsManagerTest
 	@Before
 	public void setUp() throws Exception
 	{
-		statisticsManager = new StatisticsManager(null);
+		statisticsManager = new StatisticsManager(new MqttStatsFileIO());
 		statisticsManager.loadStats();
 	}
 
