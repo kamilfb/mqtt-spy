@@ -178,7 +178,6 @@ public class EditConnectionsController extends AnchorPane implements Initializab
 					return;
 				}
 				
-				// showSelected();
 				updateUIForSelectedItem(((TreeItem<ConnectionTreeItemProperties>) newValue).getValue());
 			}
 		});

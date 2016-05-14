@@ -9,7 +9,7 @@
 //
 
 
-package pl.baczkowicz.mqttspy.common.generated;
+package pl.baczkowicz.spy.common.generated;
 
 import java.io.Serializable;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -17,7 +17,6 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlID;
 import javax.xml.bind.annotation.XmlSchemaType;
-import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.CollapsedStringAdapter;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
@@ -49,7 +48,6 @@ import org.jvnet.jaxb2_commons.locator.util.LocatorUtils;
  *       &lt;sequence&gt;
  *         &lt;element name="ID" type="{http://www.w3.org/2001/XMLSchema}ID" minOccurs="0"/&gt;
  *         &lt;element name="Name" type="{http://www.w3.org/2001/XMLSchema}string" minOccurs="0"/&gt;
- *         &lt;element name="Protocol" type="{http://baczkowicz.pl/mqtt-spy/common}ProtocolVersionEnum" minOccurs="0"/&gt;
  *       &lt;/sequence&gt;
  *     &lt;/restriction&gt;
  *   &lt;/complexContent&gt;
@@ -62,11 +60,7 @@ import org.jvnet.jaxb2_commons.locator.util.LocatorUtils;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "ConnectionDetails", propOrder = {
     "id",
-    "name",
-    "protocol"
-})
-@XmlSeeAlso({
-    MqttConnectionDetails.class
+    "name"
 })
 public class ConnectionDetails implements Serializable, Cloneable, CopyTo, Equals, HashCode, ToString
 {
@@ -79,9 +73,6 @@ public class ConnectionDetails implements Serializable, Cloneable, CopyTo, Equal
     protected String id;
     @XmlElement(name = "Name")
     protected String name;
-    @XmlElement(name = "Protocol")
-    @XmlSchemaType(name = "string")
-    protected ProtocolVersionEnum protocol;
 
     /**
      * Default no-arg constructor
@@ -95,10 +86,9 @@ public class ConnectionDetails implements Serializable, Cloneable, CopyTo, Equal
      * Fully-initialising value constructor
      * 
      */
-    public ConnectionDetails(final String id, final String name, final ProtocolVersionEnum protocol) {
+    public ConnectionDetails(final String id, final String name) {
         this.id = id;
         this.name = name;
-        this.protocol = protocol;
     }
 
     /**
@@ -149,30 +139,6 @@ public class ConnectionDetails implements Serializable, Cloneable, CopyTo, Equal
         this.name = value;
     }
 
-    /**
-     * Gets the value of the protocol property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link ProtocolVersionEnum }
-     *     
-     */
-    public ProtocolVersionEnum getProtocol() {
-        return protocol;
-    }
-
-    /**
-     * Sets the value of the protocol property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link ProtocolVersionEnum }
-     *     
-     */
-    public void setProtocol(ProtocolVersionEnum value) {
-        this.protocol = value;
-    }
-
     public String toString() {
         final ToStringStrategy strategy = JAXBToStringStrategy.INSTANCE;
         final StringBuilder buffer = new StringBuilder();
@@ -197,11 +163,6 @@ public class ConnectionDetails implements Serializable, Cloneable, CopyTo, Equal
             String theName;
             theName = this.getName();
             strategy.appendField(locator, this, "name", buffer, theName);
-        }
-        {
-            ProtocolVersionEnum theProtocol;
-            theProtocol = this.getProtocol();
-            strategy.appendField(locator, this, "protocol", buffer, theProtocol);
         }
         return buffer;
     }
@@ -232,15 +193,6 @@ public class ConnectionDetails implements Serializable, Cloneable, CopyTo, Equal
                 return false;
             }
         }
-        {
-            ProtocolVersionEnum lhsProtocol;
-            lhsProtocol = this.getProtocol();
-            ProtocolVersionEnum rhsProtocol;
-            rhsProtocol = that.getProtocol();
-            if (!strategy.equals(LocatorUtils.property(thisLocator, "protocol", lhsProtocol), LocatorUtils.property(thatLocator, "protocol", rhsProtocol), lhsProtocol, rhsProtocol)) {
-                return false;
-            }
-        }
         return true;
     }
 
@@ -260,11 +212,6 @@ public class ConnectionDetails implements Serializable, Cloneable, CopyTo, Equal
             String theName;
             theName = this.getName();
             currentHashCode = strategy.hashCode(LocatorUtils.property(locator, "name", theName), currentHashCode, theName);
-        }
-        {
-            ProtocolVersionEnum theProtocol;
-            theProtocol = this.getProtocol();
-            currentHashCode = strategy.hashCode(LocatorUtils.property(locator, "protocol", theProtocol), currentHashCode, theProtocol);
         }
         return currentHashCode;
     }
@@ -302,14 +249,6 @@ public class ConnectionDetails implements Serializable, Cloneable, CopyTo, Equal
                 copy.setName(copyName);
             } else {
                 copy.name = null;
-            }
-            if (this.protocol!= null) {
-                ProtocolVersionEnum sourceProtocol;
-                sourceProtocol = this.getProtocol();
-                ProtocolVersionEnum copyProtocol = ((ProtocolVersionEnum) strategy.copy(LocatorUtils.property(locator, "protocol", sourceProtocol), sourceProtocol));
-                copy.setProtocol(copyProtocol);
-            } else {
-                copy.protocol = null;
             }
         }
         return draftCopy;

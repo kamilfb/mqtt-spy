@@ -49,6 +49,14 @@ public class ObjectFactory {
     }
 
     /**
+     * Create an instance of {@link ConnectionDetails }
+     * 
+     */
+    public ConnectionDetails createConnectionDetails() {
+        return new ConnectionDetails();
+    }
+
+    /**
      * Create an instance of {@link BaseSpyConfiguration }
      * 
      */

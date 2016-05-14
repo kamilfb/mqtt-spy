@@ -19,6 +19,7 @@
  */
 package pl.baczkowicz.mqttspy.ui;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -28,6 +29,8 @@ import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.scene.control.Tab;
 import javafx.stage.Stage;
 
@@ -64,6 +67,7 @@ import pl.baczkowicz.spy.formatting.FormattingManager;
 import pl.baczkowicz.spy.ui.IConnectionViewManager;
 import pl.baczkowicz.spy.ui.configuration.IConfigurationManager;
 import pl.baczkowicz.spy.ui.configuration.UiProperties;
+import pl.baczkowicz.spy.ui.connections.IUiConnection;
 import pl.baczkowicz.spy.ui.controllers.IConnectionController;
 import pl.baczkowicz.spy.ui.events.queuable.EventQueueManager;
 import pl.baczkowicz.spy.ui.properties.ModifiableConnection;
@@ -81,9 +85,6 @@ public class MqttConnectionViewManager implements IConnectionViewManager
 	
 	/** Global event bus. */
 	private final IKBus eventBus;
-	
-	/** Global statistics manager .*/
-	// private final StatisticsManager statisticsManager;
 	
 	/** Global configuration manager. */
 	private final IConfigurationManager configurationManager;
@@ -119,7 +120,6 @@ public class MqttConnectionViewManager implements IConnectionViewManager
 		this.uiEventQueue = new EventQueueManager<FormattedMqttMessage>();
 		
 		this.eventBus = eventBus;
-		// this.statisticsManager = statisticsManager;
 		this.configurationManager = configurationManager;
 		
 		this.reconnectionManager = new ReconnectionManager();
@@ -128,7 +128,7 @@ public class MqttConnectionViewManager implements IConnectionViewManager
 		new Thread(new UIEventHandler(uiEventQueue, eventBus)).start();
 	}
 	
-	public void openConnection(final ConfiguredMqttConnectionDetails configuredConnectionDetails) throws ConfigurationException
+	public void openConnection(final ModifiableConnection configuredConnectionDetails) throws ConfigurationException
 	{
 		// Note: this is not a complete ConfiguredConnectionDetails copy but ConnectionDetails copy - any user credentials entered won't be stored in config
 		final ConfiguredMqttConnectionDetails connectionDetails = new ConfiguredMqttConnectionDetails();
@@ -198,7 +198,7 @@ public class MqttConnectionViewManager implements IConnectionViewManager
 	 * 
 	 * @return Collection of MqttAsyncConnection instances
 	 */
-	public Collection<MqttAsyncConnection> getConnections()
+	public Collection<MqttAsyncConnection> getMqttConnections()
 	{
 		// TODO: needs to use the connections list, as the controllers are populated later,
 		// so opening doesn't work properly
@@ -207,11 +207,24 @@ public class MqttConnectionViewManager implements IConnectionViewManager
 	}
 	
 	/**
+	 * Gets a collection of all connections.
+	 * 
+	 * @return Collection of MqttAsyncConnection instances
+	 */
+	public Collection<IUiConnection> getConnections()
+	{
+		// TODO: needs to use the connections list, as the controllers are populated later,
+		// so opening doesn't work properly
+		return new ArrayList<>(connections.values());
+		//return connectionControllers.keySet();
+	}
+	
+	/**
 	 * Disconnects all connections.
 	 */
 	public void disconnectAll()
 	{
-		for (final MqttAsyncConnection connection : getConnections())
+		for (final MqttAsyncConnection connection : getMqttConnections())
 		{
 			disconnectFromBroker(connection);
 		}
@@ -355,7 +368,7 @@ public class MqttConnectionViewManager implements IConnectionViewManager
 	 */
 	public void disconnectAndCloseAll()
 	{
-		for (final MqttAsyncConnection connection : getConnections())
+		for (final MqttAsyncConnection connection : getMqttConnections())
 		{
 			disconnectAndCloseTab(connection);
 		}
@@ -464,6 +477,116 @@ public class MqttConnectionViewManager implements IConnectionViewManager
 					logger.error("Cannot open conection {}", connection.getName(), e);
 				}
 			}
+		}		
+	}
+
+	/**
+	 * Creates an event handler with a disconnection action.
+	 * 
+	 * @param connection The connection to be used
+	 * @param connectionManager The connection manager
+	 * 
+	 * @return The EventHandler with the action
+	 */
+	public static EventHandler<ActionEvent> createDisconnectAction(final MqttConnectionViewManager connectionManager, final MqttAsyncConnection connection)
+	{
+		return new EventHandler<ActionEvent>()
+		{
+			public void handle(ActionEvent event)
+			{
+				connectionManager.disconnectFromBroker(connection);
+				event.consume();
+			}
+		};
+	}
+	
+	/**
+	 * Creates an event handler with an empty action.
+	 * 
+	 * @return The EventHandler with the action
+	 */
+	public static EventHandler<ActionEvent> createEmptyAction()
+	{
+		return new EventHandler<ActionEvent>()
+		{
+			public void handle(ActionEvent event)
+			{				
+				event.consume();
+			}
+		};
+	}
+	
+	/**
+	 * Creates an event handler with a disconnection and close action.
+	 * 
+	 * @param connection The connection to be used
+	 * @param connectionManager The connection manager used
+	 * 
+	 * @return The EventHandler with the action
+	 */
+	public static EventHandler<ActionEvent> createDisconnectAndCloseAction(final MqttConnectionViewManager connectionManager, final MqttAsyncConnection connection)
+	{
+		return new EventHandler<ActionEvent>()
+		{
+			public void handle(ActionEvent event)
+			{
+				connectionManager.disconnectAndCloseTab(connection);
+				event.consume();
+			}
+		};
+	}
+	
+	/**
+	 * Creates an event handler with a 'connect to broker' action.
+	 * 
+	 * @param connectionManager The connection manager to be used to connect
+	 * @param connection The connection to be used
+	 * 
+	 * @return The EventHandler with the action
+	 */
+	public static EventHandler<ActionEvent> createConnectAction(final MqttConnectionViewManager connectionManager, final MqttAsyncConnection connection)
+	{
+		return new EventHandler<ActionEvent>()
+		{
+			public void handle(ActionEvent event)
+			{
+				connectionManager.connectToBroker(connection);
+				event.consume();
+			}
+		};
+	}
+
+	/**
+	 * Creates an event handler with a next allowable action for the given connection.
+	 * 
+	 * @param state The next state
+	 * @param connection The connection to be used
+	 * @param mqttManager The MQTT manager to be used
+	 * 
+	 * @return The EventHandler with the action
+	 */
+	public static EventHandler<ActionEvent> createNextAction(final ConnectionStatus state, 
+			final MqttAsyncConnection connection, final MqttConnectionViewManager connectionManager)
+	{
+		if (state == null)
+		{
+			return createEmptyAction();
+		}
+		
+		switch (state)
+		{
+			case CONNECTED:				
+				return createDisconnectAction(connectionManager, connection);
+			case CONNECTING:
+				return createEmptyAction();
+			case DISCONNECTED:
+				return createConnectAction(connectionManager, connection);
+			case DISCONNECTING:
+				return createEmptyAction();
+			case NOT_CONNECTED:
+				return createConnectAction(connectionManager, connection);
+			default:
+				return createEmptyAction();
 		}		
 	}
 }

@@ -39,6 +39,7 @@ import pl.baczkowicz.spy.connectivity.ConnectionStatus;
 import pl.baczkowicz.spy.eventbus.IKBus;
 import pl.baczkowicz.spy.formatting.FormattingManager;
 import pl.baczkowicz.spy.scripts.Script;
+import pl.baczkowicz.spy.ui.connections.IUiConnection;
 import pl.baczkowicz.spy.ui.events.ConnectionStatusChangeEvent;
 import pl.baczkowicz.spy.ui.events.queuable.EventQueueManager;
 import pl.baczkowicz.spy.ui.stats.StatisticsManager;
@@ -48,7 +49,7 @@ import pl.baczkowicz.spy.utils.ConversionUtils;
 /**
  * Asynchronous MQTT connection with the extra UI elements required.
  */
-public class MqttAsyncConnection extends MqttConnectionWithReconnection
+public class MqttAsyncConnection extends MqttConnectionWithReconnection implements IUiConnection
 {
 	private final static Logger logger = LoggerFactory.getLogger(MqttAsyncConnection.class);
 

@@ -1,9 +1,12 @@
 package pl.baczkowicz.spy.ui.configuration;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,11 +14,20 @@ import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import pl.baczkowicz.spy.common.generated.ConnectionDetails;
 import pl.baczkowicz.spy.common.generated.ConnectionGroup;
+import pl.baczkowicz.spy.common.generated.ConnectionGroupReference;
+import pl.baczkowicz.spy.common.generated.ConnectionReference;
+import pl.baczkowicz.spy.configuration.BaseConfigurationUtils;
 import pl.baczkowicz.spy.configuration.PropertyFileLoader;
 import pl.baczkowicz.spy.exceptions.ConfigurationException;
+import pl.baczkowicz.spy.exceptions.XMLException;
+import pl.baczkowicz.spy.ui.panes.SpyPerspective;
+import pl.baczkowicz.spy.ui.properties.ModifiableConnection;
+import pl.baczkowicz.spy.ui.utils.DialogFactory;
 import pl.baczkowicz.spy.utils.ThreadingUtils;
 import pl.baczkowicz.spy.utils.TimeUtils;
+import pl.baczkowicz.spy.xml.XMLParser;
 
 public abstract class BaseConfigurationManager implements IConfigurationManager
 {
@@ -45,6 +57,199 @@ public abstract class BaseConfigurationManager implements IConfigurationManager
 		this.defaultPropertyFile.readFromClassPath(getDefaultPropertyFileLocation());
 	}
 	
+	public Object loadConfiguration(final XMLParser parser, final File file)
+	{
+		Object configuration;
+		
+		try
+		{
+			clear();
+			configuration = parser.loadFromFile(file);
+			
+			setLoadedConfigurationFile(file);
+			return configuration;
+		}
+		catch (XMLException e)
+		{
+			setLastException(e);
+			DialogFactory.createErrorDialog("Invalid configuration file", "Cannot process the given configuration file. See the log file for more details.");					
+			logger.error("Cannot process the configuration file at " + file.getAbsolutePath(), e);
+		}
+		catch (FileNotFoundException e)
+		{
+			setLastException(e);
+			DialogFactory.createErrorDialog("Invalid configuration file", "Cannot read the given configuration file. See the log file for more details.");
+			logger.error("Cannot read the configuration file from " + file.getAbsolutePath(), e);
+		}
+		
+		return null;
+	}
+	
+
+	public void createConnectionGroups(final List<ConnectionGroup> configuredGroups, final List<ModifiableConnection> configuredConnections)
+	{						
+		final List<ConnectionGroup> groupsWithoutParent = new ArrayList<>(configuredGroups);
+		
+		// Clear up resources - in case something was loaded before
+		getConnectionGrops().clear();
+		setRootGroup(null);
+		
+		// This is expected from v0.3.0
+		for (final ConnectionGroup group : configuredGroups)
+		{			
+			final ConfiguredConnectionGroupDetails details = new ConfiguredConnectionGroupDetails(group, false);
+			
+			for (ConnectionGroupReference subgroup : group.getSubgroups())
+			{
+				groupsWithoutParent.remove(subgroup.getReference());
+			}
+			
+			getConnectionGrops().add(details);						
+		}
+		
+		// Create the root if no groups present (pre v0.3.0)
+		if (getConnectionGrops().isEmpty() || groupsWithoutParent.isEmpty())
+		{
+			logger.debug("Creating root group called 'All connections'");
+			setRootGroup(new ConfiguredConnectionGroupDetails(new ConnectionGroup(
+					BaseConfigurationUtils.DEFAULT_GROUP, "All connections", new ArrayList<>(), new ArrayList<>()), false));
+			
+			getConnectionGrops().add(getRootGroup());
+			
+			// Assign all connections to the new root
+			for (final ModifiableConnection connection : configuredConnections)
+			{
+				connection.setGroup(new ConnectionGroupReference(getRootGroup()));
+				getRootGroup().getConnections().add(new ConnectionReference(connection));
+			}
+			
+			getRootGroup().apply();
+		}
+		else
+		{
+			// Find the root group
+			final String rootId = groupsWithoutParent.get(0).getID();
+			for (final ConfiguredConnectionGroupDetails group : getConnectionGrops())
+			{
+				if (group.getID().equals(rootId))
+				{
+					setRootGroup(group);
+					break;
+				}
+			}
+			// At this point, new groups link to old connection and group objects, and old connection objects to old groups
+			
+			// Re-wire all connections
+			updateTree(getRootGroup());
+		}
+	}
+	
+	private void updateTree(final ConfiguredConnectionGroupDetails parentGroup)
+	{
+		final List<ConnectionGroupReference> subgroups = new ArrayList<>(parentGroup.getSubgroups());
+		parentGroup.getSubgroups().clear();
+		
+		for (final ConnectionGroupReference reference : subgroups)			
+		{
+			final ConnectionGroup group = (ConnectionGroup) reference.getReference();
+			final ConfiguredConnectionGroupDetails groupDetails = findMatchingGroup(group);
+			parentGroup.getSubgroups().add(new ConnectionGroupReference(groupDetails));
+			groupDetails.setGroup(new ConnectionGroupReference(parentGroup));
+			groupDetails.apply();
+			
+			// Recursive
+			updateTree(groupDetails);
+		}
+		
+		final List<ConnectionReference> connections = new ArrayList<>(parentGroup.getConnections());
+		parentGroup.getConnections().clear();
+		
+		for (final ConnectionReference reference : connections)			
+		{
+			final ConnectionDetails connection = (ConnectionDetails) reference.getReference();
+			final ModifiableConnection connectionDetails = findMatchingConnection(connection, new ArrayList<>(getConnections()));
+			
+			if (connectionDetails != null)
+			{
+				parentGroup.getConnections().add(new ConnectionReference(connectionDetails));
+				connectionDetails.setGroup(new ConnectionGroupReference(parentGroup));	
+				connectionDetails.apply();
+			}
+			else
+			{
+				logger.warn("Match not found for connection {}", connection.getName());
+			}
+		}
+		
+		parentGroup.apply();
+	}
+	
+	public static ModifiableConnection findMatchingConnection(final ConnectionDetails connection, 
+			final List<ModifiableConnection> connections)
+	{
+		for (final ModifiableConnection connectionDetails : connections)
+		{
+			if (connection.getID().equals(connectionDetails.getID()))
+			{
+				return connectionDetails;
+			}
+		}
+		
+		return null;
+	}
+	
+	public List<ConfiguredConnectionGroupDetails> getOrderedGroups()
+	{
+		List<ModifiableConnection> orderedConnections = new ArrayList<>();		
+		List<ConfiguredConnectionGroupDetails> orderedGroups = new ArrayList<>();
+		
+		orderedGroups.add(getRootGroup());
+		sortConnections(getRootGroup(), orderedGroups, orderedConnections);
+		
+		return orderedGroups;
+	}
+	
+	public List<ModifiableConnection> getOrderedConnections()
+	{
+		List<ModifiableConnection> orderedConnections = new ArrayList<>();		
+		List<ConfiguredConnectionGroupDetails> orderedGroups = new ArrayList<>();
+		
+		sortConnections(getRootGroup(), orderedGroups, orderedConnections);
+		
+		return orderedConnections;
+	}
+	
+	private void sortConnections(final ConfiguredConnectionGroupDetails parentGroup, 
+			final List<ConfiguredConnectionGroupDetails> orderedGroups, List<ModifiableConnection> orderedConnections)
+	{		
+		for (final ConnectionGroupReference reference : parentGroup.getSubgroups())		
+		{
+			final ConfiguredConnectionGroupDetails group = (ConfiguredConnectionGroupDetails) reference.getReference();						
+			orderedGroups.add(group);
+			
+			// Recursive
+			sortConnections(group, orderedGroups, orderedConnections);
+		}
+		
+		for (final ConnectionReference reference : parentGroup.getConnections())			
+		{
+			final ModifiableConnection connection = (ModifiableConnection) reference.getReference();
+			orderedConnections.add(connection);
+		}				
+	}
+
+	public List<ModifiableConnection> getConnections(final ConfiguredConnectionGroupDetails group)
+	{
+		List<ModifiableConnection> orderedConnections = new ArrayList<>();
+		for (final ConnectionReference connetionRef : group.getConnections())
+		{
+			orderedConnections.add((ModifiableConnection) connetionRef.getReference());
+		}
+		return orderedConnections;
+	}
+	
+	protected abstract void clear();
+
 	protected void loadUiPropertyFile() throws ConfigurationException
 	{
 		// Load the UI property file
@@ -239,4 +444,66 @@ public abstract class BaseConfigurationManager implements IConfigurationManager
 	{
 		getUiPropertyFile().setProperty(propertyName, propertyValue);
 	}
+	
+
+	public static boolean createDefaultConfigFromFile(final File orig)
+	{
+		try
+		{ 
+			final File dest = BaseConfigurationManager.getDefaultConfigurationFileObject();
+		
+			dest.mkdirs();
+			Files.copy(orig.toPath(), dest.toPath(), StandardCopyOption.REPLACE_EXISTING);			
+			
+			return true;
+			
+		}
+		catch (IOException e)
+		{
+			// TODO: show warning dialog for invalid
+			logger.error("Cannot copy configuration file", e);
+		}
+		
+		return false;
+	}
+
+	public static boolean createDefaultConfigFromClassPath(final String name)
+	{
+		final String origin = "/samples" + "/" + name + "-" + APPLICATION_NAME + "-configuration.xml";
+		try
+		{			
+			return BaseConfigurationManager.copyFileFromClassPath(BaseConfigurationManager.class.getResourceAsStream(origin), 
+					BaseConfigurationManager.getDefaultConfigurationFileObject());
+		}
+		catch (IllegalArgumentException | IOException e)
+		{
+			// TODO: show warning dialog for invalid
+			logger.error("Cannot copy configuration file from {}", origin, e);
+		}
+		
+		return false;
+	}
+	
+
+	public void saveUiProperties(final double width, final double height, boolean maximized, 
+			final SpyPerspective selectedPerspective, final boolean resizeMessagePane)
+	{
+		updateUiProperty(UiProperties.WIDTH_PROPERTY, String.valueOf(width));
+		updateUiProperty(UiProperties.HEIGHT_PROPERTY, String.valueOf(height));
+		updateUiProperty(UiProperties.MAXIMIZED_PROPERTY, String.valueOf(maximized));
+		updateUiProperty(UiProperties.PERSPECTIVE_PROPERTY, selectedPerspective.toString());
+		updateUiProperty(UiProperties.MESSAGE_PANE_RESIZE_PROPERTY, String.valueOf(resizeMessagePane));
+		
+		// Other properties are read-only from file
+		
+		try
+		{
+			getUiPropertyFile().saveToFileSystem(APPLICATION_NAME + "-ui", getUiPropertyFileObject());
+		}
+		catch (IOException e)
+		{
+			logger.error("Cannot save UI properties", e);
+		}
+	}
+
 }

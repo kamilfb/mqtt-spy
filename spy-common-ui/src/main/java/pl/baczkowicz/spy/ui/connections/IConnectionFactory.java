@@ -3,6 +3,7 @@ package pl.baczkowicz.spy.ui.connections;
 import java.util.Collection;
 import java.util.List;
 
+import javafx.scene.control.Button;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableCell;
 import javafx.scene.layout.AnchorPane;
@@ -43,5 +44,7 @@ public interface IConnectionFactory
 
 	// void readAndOpenConnection(final String protocol) throws ConfigurationException;
 
-	void setVisible(boolean groupSelected);	
+	void setVisible(boolean groupSelected);
+
+	Button createConnectionButton(final ModifiableConnection connection);	
 }

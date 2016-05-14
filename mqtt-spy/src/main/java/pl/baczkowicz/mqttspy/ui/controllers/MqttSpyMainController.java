@@ -41,14 +41,11 @@ import javafx.stage.WindowEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import pl.baczkowicz.mqttspy.configuration.MqttConfigurationManager;
 import pl.baczkowicz.mqttspy.ui.MqttConnectionViewManager;
 import pl.baczkowicz.mqttspy.ui.MqttViewManager;
 import pl.baczkowicz.mqttspy.ui.controlpanel.MqttConfigControlPanelItem;
-import pl.baczkowicz.mqttspy.ui.controlpanel.MqttConnectionsControlPanelItem;
 import pl.baczkowicz.mqttspy.ui.controlpanel.MqttStatsControlPanelItem;
 import pl.baczkowicz.mqttspy.ui.events.ShowNewMqttSubscriptionWindowEvent;
-import pl.baczkowicz.mqttspy.ui.utils.DialogUtils;
 import pl.baczkowicz.spy.configuration.PropertyFileLoader;
 import pl.baczkowicz.spy.eventbus.IKBus;
 import pl.baczkowicz.spy.exceptions.SpyUncaughtExceptionHandler;
@@ -56,7 +53,9 @@ import pl.baczkowicz.spy.exceptions.XMLException;
 import pl.baczkowicz.spy.ui.configuration.BaseConfigurationManager;
 import pl.baczkowicz.spy.ui.configuration.IConfigurationManager;
 import pl.baczkowicz.spy.ui.configuration.UiProperties;
+import pl.baczkowicz.spy.ui.connections.IConnectionFactory;
 import pl.baczkowicz.spy.ui.controllers.ControlPanelController;
+import pl.baczkowicz.spy.ui.controlpanel.ConnectionsControlPanelItem;
 import pl.baczkowicz.spy.ui.events.AddConnectionTabEvent;
 import pl.baczkowicz.spy.ui.events.LoadConfigurationFileEvent;
 import pl.baczkowicz.spy.ui.events.NewPerspectiveSelectedEvent;
@@ -70,6 +69,7 @@ import pl.baczkowicz.spy.ui.panes.PaneVisibilityStatus;
 import pl.baczkowicz.spy.ui.panes.SpyPerspective;
 import pl.baczkowicz.spy.ui.stats.ConnectionStatsUpdater;
 import pl.baczkowicz.spy.ui.stats.StatisticsManager;
+import pl.baczkowicz.spy.ui.utils.DialogFactory;
 import pl.baczkowicz.spy.ui.versions.VersionManager;
 
 /**
@@ -142,7 +142,8 @@ public class MqttSpyMainController
 
 	private MqttViewManager viewManager;
 
-	
+	private IConnectionFactory connectionFactory;
+
 	public MqttSpyMainController() throws XMLException
 	{
 		Thread.setDefaultUncaughtExceptionHandler(new SpyUncaughtExceptionHandler());		
@@ -187,7 +188,7 @@ public class MqttSpyMainController
 		stage.setTitle(configurationManager.getDefaultPropertyFile().getApplicationName());
 		
 		controlPanelPaneController.setUserAndConfigItem(new MqttConfigControlPanelItem(configurationManager, eventBus));
-		controlPanelPaneController.setConnectionsItem(new MqttConnectionsControlPanelItem(configurationManager, connectionViewManager, eventBus));
+		controlPanelPaneController.setConnectionsItem(new ConnectionsControlPanelItem(configurationManager, connectionViewManager, connectionFactory, eventBus));
 		controlPanelPaneController.setStatsItem(new MqttStatsControlPanelItem(configurationManager, eventBus));
 		
 		controlPanelPaneController.setConfigurationMananger(configurationManager);
@@ -384,7 +385,7 @@ public class MqttSpyMainController
 	@FXML
 	private void restoreConfiguration()
 	{
-		if (DialogUtils.showDefaultConfigurationFileMissingChoice("Restore defaults", mainPane.getScene().getWindow()))
+		if (DialogFactory.showDefaultConfigurationFileMissingChoice("Restore defaults", mainPane.getScene()))
 		{
 			eventBus.publish(new LoadConfigurationFileEvent(BaseConfigurationManager.getDefaultConfigurationFileObject()));			
 		}
@@ -570,5 +571,10 @@ public class MqttSpyMainController
 	{
 		updateSelectedPerspective(UiProperties.getApplicationPerspective(configurationManager.getUiPropertyFile()));
 		getResizeMessagePaneMenu().setSelected(UiProperties.getResizeMessagePane(configurationManager.getUiPropertyFile()));		
+	}
+
+	public void setConnectionFactory(IConnectionFactory connectionFactory)
+	{
+		this.connectionFactory = connectionFactory;		
 	}
 }

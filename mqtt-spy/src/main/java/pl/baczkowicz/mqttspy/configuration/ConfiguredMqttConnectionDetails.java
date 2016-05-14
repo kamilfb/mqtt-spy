@@ -23,10 +23,9 @@ import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnection
 import pl.baczkowicz.spy.common.generated.ConnectionGroup;
 import pl.baczkowicz.spy.common.generated.ConnectionGroupReference;
 import pl.baczkowicz.spy.ui.configuration.ConfiguredConnectionGroupDetails;
-import pl.baczkowicz.spy.ui.connections.IAutoOpenConnection;
 import pl.baczkowicz.spy.ui.properties.ModifiableConnection;
 
-public class ConfiguredMqttConnectionDetails extends UserInterfaceMqttConnectionDetails implements ModifiableConnection, IAutoOpenConnection
+public class ConfiguredMqttConnectionDetails extends UserInterfaceMqttConnectionDetails implements ModifiableConnection
 {
 	private static final long serialVersionUID = -111271741915161354L;
 
@@ -76,7 +75,7 @@ public class ConfiguredMqttConnectionDetails extends UserInterfaceMqttConnection
 		setLastSavedValues(connectionDetails);
 	}
 
-	public void setConnectionDetails(final ConfiguredMqttConnectionDetails connectionDetails)
+	public void setConnectionDetails(final ModifiableConnection connectionDetails)
 	{
 		// Take a copy and null it, so that copyTo can work...
 		final ConnectionGroup group = connectionDetails.getGroup() != null ? (ConnectionGroup) connectionDetails.getGroup().getReference() : null;
@@ -84,7 +83,7 @@ public class ConfiguredMqttConnectionDetails extends UserInterfaceMqttConnection
 		
 		if (connectionDetails != null)
 		{
-			connectionDetails.copyTo(this);
+			((UserInterfaceMqttConnectionDetails) connectionDetails).copyTo(this);
 		}
 		
 		// Restore the group value

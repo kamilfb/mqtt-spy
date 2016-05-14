@@ -76,6 +76,17 @@ public abstract class MqttConnectionWithReconnection extends BaseMqttConnection
 			reconnectionManager.addConnection(this, connectionRunnable);
 		}
 	}
+	
+// TODO:
+//	/**
+//	 * Disconnect from the currently connected server.
+//	 * 
+//	 * @throws SpyException Thrown if anything goes wrong
+//	 */
+//	public void disconnect() throws SpyException
+//	{
+//		
+//	}
 
 	/**
 	 * Disconnect from the currently connected server.

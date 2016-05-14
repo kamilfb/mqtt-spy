@@ -440,13 +440,13 @@ public class ContextMenuUtils
 		ContextMenu contextMenu = new ContextMenu();
 
 		MenuItem reconnectItem = new MenuItem("Connect / reconnect");
-		reconnectItem.setOnAction(ActionUtils.createConnectAction(connectionManager, connection));
+		reconnectItem.setOnAction(MqttConnectionViewManager.createConnectAction(connectionManager, connection));
 		
 		MenuItem disconnectItem = new MenuItem("Disconnect (and keep tab)");
-		disconnectItem.setOnAction(ActionUtils.createDisconnectAction(connectionManager, connection));
+		disconnectItem.setOnAction(MqttConnectionViewManager.createDisconnectAction(connectionManager, connection));
 
 		MenuItem disconnectAndCloseItem = new MenuItem("Disconnect (and close tab)");
-		disconnectAndCloseItem.setOnAction(ActionUtils.createDisconnectAndCloseAction(connectionManager, connection));
+		disconnectAndCloseItem.setOnAction(MqttConnectionViewManager.createDisconnectAndCloseAction(connectionManager, connection));
 
 		contextMenu.getItems().add(reconnectItem);
 

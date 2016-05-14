@@ -7,23 +7,35 @@ import java.util.List;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TableCell;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.HBox;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import pl.baczkowicz.mqttspy.common.generated.ProtocolVersionEnum;
 import pl.baczkowicz.mqttspy.configuration.ConfiguredMqttConnectionDetails;
 import pl.baczkowicz.mqttspy.configuration.MqttConfigurationManager;
 import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnectionDetails;
 import pl.baczkowicz.mqttspy.ui.MqttConnectionViewManager;
 import pl.baczkowicz.mqttspy.ui.controllers.EditMqttConnectionController;
+import pl.baczkowicz.mqttspy.ui.utils.MqttStylingUtils;
 import pl.baczkowicz.mqttspy.utils.ConnectionUtils;
 import pl.baczkowicz.mqttspy.utils.MqttUtils;
 import pl.baczkowicz.spy.common.generated.ConnectionGroupReference;
 import pl.baczkowicz.spy.common.generated.ConnectionReference;
+import pl.baczkowicz.spy.connectivity.ConnectionStatus;
 import pl.baczkowicz.spy.eventbus.IKBus;
+import pl.baczkowicz.spy.exceptions.ConfigurationException;
 import pl.baczkowicz.spy.ui.configuration.ConfiguredConnectionGroupDetails;
 import pl.baczkowicz.spy.ui.configuration.IConfigurationManager;
 import pl.baczkowicz.spy.ui.connections.IConnectionFactory;
+import pl.baczkowicz.spy.ui.controllers.ControlPanelController;
 import pl.baczkowicz.spy.ui.controllers.EditConnectionsController;
 import pl.baczkowicz.spy.ui.events.CreateNewConnectionEvent;
 import pl.baczkowicz.spy.ui.panes.SpyPerspective;
@@ -34,6 +46,8 @@ import pl.baczkowicz.spy.ui.utils.ImageUtils;
 
 public class MqttConnectionFactory implements IConnectionFactory
 {
+	private final static Logger logger = LoggerFactory.getLogger(MqttConnectionFactory.class);
+
 	private EditMqttConnectionController editConnectionPaneController;
 
 	private MqttConnectionViewManager connectionManager;
@@ -184,7 +198,7 @@ public class MqttConnectionFactory implements IConnectionFactory
 		
 		for (final ConnectionReference reference : parentGroup.getConnections())			
 		{
-			final ConfiguredMqttConnectionDetails connectionDetails = (ConfiguredMqttConnectionDetails) reference.getReference();
+			final ModifiableConnection connectionDetails = (ModifiableConnection) reference.getReference();
 			connections.add(connectionDetails);
 		}		
 	}
@@ -265,5 +279,102 @@ public class MqttConnectionFactory implements IConnectionFactory
 	public void setVisible(boolean groupSelected)
 	{
 		editConnectionPane.setVisible(!groupSelected);		
+	}
+	
+
+	@Override
+	public Button createConnectionButton(final ModifiableConnection connectionDetails)
+	{
+		if (connectionDetails instanceof UserInterfaceMqttConnectionDetails)
+		{
+			return createMqttConnectionButton(connectionDetails, connectionManager);
+		}	
+		
+		return null;
+	}
+	
+	private static Button createMqttConnectionButton(final ModifiableConnection connectionDetails, final MqttConnectionViewManager connectionManager)
+	{
+		MqttAsyncConnection connection = null; 
+		for (final MqttAsyncConnection openedConnection : connectionManager.getMqttConnections())
+		{					
+			if (connectionDetails.getID().equals(openedConnection.getId()))
+			{
+				connection = openedConnection;
+				break;
+			}
+		}
+		
+		final Button connectionButton = new Button();
+		connectionButton.setFocusTraversable(false);
+		
+		final String connectionName = connectionDetails.getName();
+		
+		if (connection != null)
+		{
+			logger.trace("Button for " + connectionName + " " 
+				+ connection.getConnectionStatus() + "/" + connection.isOpening() + "/" + connection.isOpened());
+		}
+		
+		if (connection == null || (!connection.isOpened() && !connection.isOpening()))
+		{
+			final String buttonText = "Open " + connectionName; 
+			connectionButton.getStyleClass().add(MqttStylingUtils.getStyleForMqttConnectionStatus(null));	
+			connectionButton.setOnAction(new EventHandler<ActionEvent>()
+			{						
+				@Override
+				public void handle(ActionEvent event)
+				{
+					try
+					{				
+						connectionManager.openConnection(connectionDetails);						
+						event.consume();
+					}
+					catch (ConfigurationException e)
+					{
+						logger.error("Cannot open connection", e);
+					}							
+				}
+			});
+			
+			connectionButton.setText(buttonText);
+		}		
+		else if (connection.isOpening())
+		{
+			showPending("Opening", null, connectionButton, connectionName, MqttConnectionViewManager.createNextAction(null, connection, connectionManager));
+		}
+		else if (connection.getConnectionStatus() == ConnectionStatus.CONNECTING)
+		{
+			showPending("Connecting to", connection.getConnectionStatus(), connectionButton, connectionName, MqttConnectionViewManager.createNextAction(connection.getConnectionStatus(), connection, connectionManager));
+		}
+		else if (connection.getConnectionStatus() != null)
+		{
+			final String buttonText = ControlPanelController.nextActionTitle.get(connection.getConnectionStatus()) + " " + connectionName; 
+			connectionButton.getStyleClass().add(MqttStylingUtils.getStyleForMqttConnectionStatus(connection.getConnectionStatus()));	
+			connectionButton.setOnAction(MqttConnectionViewManager.createNextAction(connection.getConnectionStatus(), connection, connectionManager));
+			
+			connectionButton.setGraphic(null);
+			connectionButton.setText(buttonText);
+		}		
+				
+		return connectionButton;
+	}
+	
+	public static void showPending(final String statusText, final ConnectionStatus status, 
+			final Button connectionButton, final String connectionName,
+			final EventHandler<ActionEvent> action)
+	{			
+		connectionButton.getStyleClass().add(MqttStylingUtils.getStyleForMqttConnectionStatus(status));	
+		connectionButton.setOnAction(action);
+		
+		final HBox buttonBox = new HBox();			
+		final ProgressIndicator buttonProgress = new ProgressIndicator();
+		buttonProgress.setMaxSize(15, 15);
+					
+		buttonBox.getChildren().add(buttonProgress);
+		buttonBox.getChildren().add(new Label(" " + statusText + " " + connectionName));
+
+		connectionButton.setGraphic(buttonBox);
+		connectionButton.setText(null);
 	}
 }

@@ -567,7 +567,7 @@ public class EditMqttConnectionController extends AnchorPane implements Initiali
 	public void checkIfOpened(final String id)
 	{
 		openNewMode = true;
-		for (final MqttAsyncConnection mqttConnection : connectionManager.getConnections())
+		for (final MqttAsyncConnection mqttConnection : connectionManager.getMqttConnections())
 		{
 			if (id.equals(mqttConnection.getProperties().getConfiguredProperties().getID()) && mqttConnection.isOpened())
 			{

@@ -19,24 +19,14 @@
  */
 package pl.baczkowicz.mqttspy.configuration;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import pl.baczkowicz.mqttspy.Main;
 import pl.baczkowicz.mqttspy.common.generated.MessageLog;
 import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnectionDetails;
 import pl.baczkowicz.mqttspy.utils.MqttConfigurationUtils;
 import pl.baczkowicz.spy.storage.MessageList;
-import pl.baczkowicz.spy.ui.configuration.BaseConfigurationManager;
 
 public class ConfigurationUtils
 {
-	private final static Logger logger = LoggerFactory.getLogger(ConfigurationUtils.class);
+	// private final static Logger logger = LoggerFactory.getLogger(ConfigurationUtils.class);
 	
 	public final static int DEFAULT_RECONNECTION_INTERVAL = 5000;
 		
@@ -78,44 +68,5 @@ public class ConfigurationUtils
 		{
 			connection.setAutoSubscribe(false);
 		}
-	}
-
-	
-	public static boolean createDefaultConfigFromFile(final File orig)
-	{
-		try
-		{ 
-			final File dest = MqttConfigurationManager.getDefaultConfigurationFileObject();
-		
-			dest.mkdirs();
-			Files.copy(orig.toPath(), dest.toPath(), StandardCopyOption.REPLACE_EXISTING);			
-			
-			return true;
-			
-		}
-		catch (IOException e)
-		{
-			// TODO: show warning dialog for invalid
-			logger.error("Cannot copy configuration file", e);
-		}
-		
-		return false;
-	}
-
-	public static boolean createDefaultConfigFromClassPath(final String name)
-	{
-		final String origin = "/samples" + "/" + name + "-mqtt-spy-configuration.xml";
-		try
-		{			
-			return BaseConfigurationManager.copyFileFromClassPath(Main.class.getResourceAsStream(origin), 
-					MqttConfigurationManager.getDefaultConfigurationFileObject());
-		}
-		catch (IllegalArgumentException | IOException e)
-		{
-			// TODO: show warning dialog for invalid
-			logger.error("Cannot copy configuration file from {}", origin, e);
-		}
-		
-		return false;
 	}
 }

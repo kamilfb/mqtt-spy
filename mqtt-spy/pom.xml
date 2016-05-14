@@ -30,7 +30,7 @@
 		<dependency>
 			<groupId>pl.baczkowicz.spy</groupId>
 			<artifactId>spy-common</artifactId>
-			<version>0.3.0</version>
+			<version>0.4.0</version>
 			<exclusions>
 				<exclusion>
 					<artifactId>maven-jaxb2-plugin</artifactId>
@@ -216,7 +216,14 @@
 			                <schemaDirectory>src/main/resources/</schemaDirectory>
 			                <schemaIncludes>
 			                    <include>mqtt-spy-configuration.xsd</include>
-			                </schemaIncludes>			                 
+			                </schemaIncludes>			
+			                
+			                <!-- Default to the schemaDirectory -->
+							<bindingDirectory>src/main/resources</bindingDirectory>
+							<bindingIncludes>
+								<include>**/mqtt-spy-configuration-bindings.xjb</include>
+							</bindingIncludes>
+			                
 			                <generateDirectory>src/main/java/</generateDirectory>			                
 			                <generatePackage>pl.baczkowicz.mqttspy.configuration.generated</generatePackage>
 			                <removeOldOutput>false</removeOldOutput>
@@ -240,7 +247,10 @@
 			                </catalogs>
 			                
 			                <episode>true</episode>
-			                
+			                <!-- 
+			                <episodeFile>src/main/java/META-INF/mqtt-spy-configuration.episode</episodeFile>
+			                 -->
+			                 
 			                <episodes>
 			                	<episode>
 			                		<groupId>pl.baczkowicz.mqttspy</groupId>
@@ -280,10 +290,24 @@
 			                <schemaDirectory>src/main/resources/</schemaDirectory>
 			                <schemaIncludes>
 			                    <include>mqtt-spy-stats.xsd</include>
-			                </schemaIncludes>			                 
+			               
+			                </schemaIncludes>
+
+							<!-- Default to the schemaDirectory -->
+							<bindingDirectory>src/main/resources</bindingDirectory>
+							<bindingIncludes>
+								<include>**/mqtt-spy-stats-bindings.xjb</include>
+							</bindingIncludes>
+           
 			                <generateDirectory>src/main/java/</generateDirectory>			                
 			                <generatePackage>pl.baczkowicz.mqttspy.stats.generated</generatePackage>
 			                <removeOldOutput>false</removeOldOutput>
+			                
+			                <episode>false</episode>
+			                <!-- 
+			                <episodeFile>src/main/java/META-INF/mqtt-spy-stats.episode</episodeFile>
+			                 -->
+			                 
 			                <args>			                
 						        <arg>-XtoString</arg>
 						        <arg>-Xequals</arg>

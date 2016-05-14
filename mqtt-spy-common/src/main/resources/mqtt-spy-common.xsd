@@ -45,18 +45,11 @@
 	<!-- === CONNECTIVITY === -->
 	<!-- ==================== -->
 	
-	<xs:complexType name="ConnectionDetails">
-		<xs:sequence>
-				<xs:element name="ID" 					type="xs:ID" 						minOccurs="0" maxOccurs="1" />
-				<xs:element name="Name" 				type="xs:string" 					minOccurs="0" maxOccurs="1" />
-				<xs:element name="Protocol" 			type="mqttspycommon:ProtocolVersionEnum" 	minOccurs="0" maxOccurs="1" />
-   		</xs:sequence>
-	</xs:complexType>	
-		
 	<xs:complexType name="MqttConnectionDetails">
 		<xs:complexContent>
-			<xs:extension base="mqttspycommon:ConnectionDetails">
+			<xs:extension base="spycommon:ConnectionDetails">
 				<xs:sequence>
+					<xs:element name="Protocol" 			type="mqttspycommon:ProtocolVersionEnum" 	minOccurs="0" maxOccurs="1" />
 					<xs:element name="ServerURI" 			type="xs:string" 					minOccurs="1" maxOccurs="unbounded" />
 					<xs:element name="WebSocket" 			type="xs:boolean" 					minOccurs="0" maxOccurs="1" />
 					<xs:element name="ClientID" 			type="xs:string" />

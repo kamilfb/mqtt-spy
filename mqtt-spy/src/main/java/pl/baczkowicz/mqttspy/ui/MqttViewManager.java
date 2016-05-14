@@ -50,6 +50,7 @@ import pl.baczkowicz.mqttspy.common.generated.PublicationDetails;
 import pl.baczkowicz.mqttspy.configuration.generated.TabbedSubscriptionDetails;
 import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnectionDetails;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
+import pl.baczkowicz.mqttspy.connectivity.MqttConnectionFactory;
 import pl.baczkowicz.mqttspy.connectivity.MqttRuntimeConnectionProperties;
 import pl.baczkowicz.mqttspy.messages.BaseMqttMessage;
 import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
@@ -132,6 +133,7 @@ public class MqttViewManager extends BaseViewManager
 		mqttSpyMainController.setConnectionManager(mqttConnectionViewManager);
 		mqttSpyMainController.setStatisticsManager(statisticsManager);
 		mqttSpyMainController.setVersionManager(versionManager);
+		mqttSpyMainController.setConnectionFactory(connectionFactory);
 		mqttSpyMainController.setViewManager(this);
 		mqttSpyMainController.setConfigurationManager(configurationManager);
 		mqttSpyMainController.updateUiProperties(configurationManager.getUiPropertyFile());

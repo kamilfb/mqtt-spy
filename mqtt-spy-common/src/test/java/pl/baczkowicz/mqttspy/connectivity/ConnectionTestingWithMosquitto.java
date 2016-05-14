@@ -98,8 +98,6 @@ public class ConnectionTestingWithMosquitto
 	private MqttConnectionDetails createMqttConnectionDetails(final String brokerAddress, final UserCredentials uc, final SecureSocketSettings ssl)
 	{
 		return new MqttConnectionDetails(
-				"id",
-				"test", 
 				ProtocolVersionEnum.MQTT_DEFAULT, 
 				Arrays.asList(brokerAddress), 
 				false,
