@@ -164,6 +164,9 @@ public class LineChartPaneController<T extends FormattedMessage> implements Init
 	private Button addSeriesButton;
 	
 	@FXML
+	private Button duplicateSeriesButton;
+	
+	@FXML
 	private Button removeSeriesButton;
 	
 	@FXML
@@ -234,6 +237,9 @@ public class LineChartPaneController<T extends FormattedMessage> implements Init
 
 	public void initialize(URL location, ResourceBundle resources)
 	{
+		duplicateSeriesButton.setDisable(true);
+		removeSeriesButton.setDisable(true);
+		
 		autoRefreshCheckBox.selectedProperty().addListener(new ChangeListener<Boolean>()
 		{
 			@Override
@@ -380,7 +386,7 @@ public class LineChartPaneController<T extends FormattedMessage> implements Init
 						
 		                if (!isEmpty() && properties != null) 
 		                {
-		                	currentRow.getStyleClass().clear();
+		                	currentRow.getStyleClass().removeAll("seriesNoMessages", "seriesOK", "seriesError");
 		                	currentRow.setTooltip(null);
 		                	
 		                    if(ChartSeriesStatusEnum.NO_MESSAGES.equals(properties.getSeriesStatus()))
@@ -403,7 +409,7 @@ public class LineChartPaneController<T extends FormattedMessage> implements Init
 		                }
 		                else
 		                {
-		                	currentRow.getStyleClass().clear();
+		                	currentRow.getStyleClass().removeAll("seriesNoMessages", "seriesOK", "seriesError");
 		                	currentRow.setTooltip(null);
 		                	this.setText(null);
 		                }
@@ -452,6 +458,24 @@ public class LineChartPaneController<T extends FormattedMessage> implements Init
 				cell.setAlignment(Pos.TOP_CENTER);
 				
 				return cell;
+			}
+		});
+		
+		seriesTable.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<ChartSeriesProperties>()
+		{
+			@Override
+			public void changed(ObservableValue<? extends ChartSeriesProperties> observable, ChartSeriesProperties oldValue, ChartSeriesProperties newValue)
+			{
+				if (newValue != null)
+				{
+					duplicateSeriesButton.setDisable(false);
+					removeSeriesButton.setDisable(false);
+				}
+				else
+				{
+					duplicateSeriesButton.setDisable(true);
+					removeSeriesButton.setDisable(true);
+				}
 			}
 		});
 		
@@ -732,7 +756,16 @@ public class LineChartPaneController<T extends FormattedMessage> implements Init
 	@FXML
 	private void removeSeries()
 	{
-		// TODO:
+		final ChartSeriesProperties itemToDelete = seriesTable.getSelectionModel().getSelectedItem();
+		
+		if (itemToDelete != null)
+		{
+			seriesTable.getItems().remove(itemToDelete);
+		}
+		else
+		{
+			// Make sure the button is disabled when none selected
+		}
 	}
 	
 	@FXML
@@ -752,7 +785,7 @@ public class LineChartPaneController<T extends FormattedMessage> implements Init
 		}
 		else
 		{
-			// TODO: make sure the button is disabled when none selected
+			// Make sure the button is disabled when none selected
 		}
 	}
 	
