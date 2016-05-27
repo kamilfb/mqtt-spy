@@ -53,6 +53,7 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
 
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.fxmisc.richtext.StyleClassedTextArea;
 import org.slf4j.Logger;
@@ -748,7 +749,7 @@ public class NewPublicationController implements Initializable, TitledPaneContro
 					}
 				}
 				
-				createScriptFromMessage(scriptFile , configuredDirectory, message);
+				createScriptFromMessage(scriptFile, configuredDirectory, message);
 				break;
 			}
 			else
@@ -765,8 +766,7 @@ public class NewPublicationController implements Initializable, TitledPaneContro
 		scriptText.append("mqttspy.publish(\"");
 		scriptText.append(message.getTopic());
 		scriptText.append("\", \"");
-		// TODO: any conversions needed here if this is not plain text?
-		scriptText.append(message.getPayload());
+		scriptText.append(StringEscapeUtils.escapeEcmaScript(message.getPayload()));
 		scriptText.append("\", ");
 		scriptText.append(message.getQoS());
 		scriptText.append(", ");
