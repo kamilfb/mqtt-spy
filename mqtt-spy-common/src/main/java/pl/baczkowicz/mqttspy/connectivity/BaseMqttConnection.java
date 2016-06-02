@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.connectivity.topicmatching.TopicMatcher;
 import pl.baczkowicz.mqttspy.utils.ConnectionUtils;
+import pl.baczkowicz.spy.common.generated.ReconnectionSettings;
 import pl.baczkowicz.spy.common.generated.ScriptDetails;
 import pl.baczkowicz.spy.connectivity.ConnectionStatus;
 import pl.baczkowicz.spy.exceptions.ExceptionUtils;
@@ -482,6 +483,16 @@ public abstract class BaseMqttConnection implements IMqttConnection
 	public MqttConnectionDetailsWithOptions getMqttConnectionDetails()
 	{
 		return connectionDetails;
+	}
+	
+	public ReconnectionSettings getReconnectionSettings()
+	{
+		return connectionDetails.getReconnectionSettings();
+	}
+	
+	public String getName()
+	{
+		return connectionDetails.getName();
 	}
 
 	/**

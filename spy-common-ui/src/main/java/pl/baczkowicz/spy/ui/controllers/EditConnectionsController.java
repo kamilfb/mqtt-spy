@@ -203,9 +203,10 @@ public class EditConnectionsController extends AnchorPane implements Initializab
 	
 	public void init()
 	{
-		connections.clear();
-		connections.addAll(configurationManager.getConnections());
-		
+//		connections.clear();
+//		connections.addAll(configurationManager.getConnections());
+		connections = (List<ModifiableConnection>) configurationManager.getConnections();
+
 		newConnectionButton.getItems().addAll(0, connectionFactory.createMenuItems());
 		
 		groups = configurationManager.getConnectionGrops();

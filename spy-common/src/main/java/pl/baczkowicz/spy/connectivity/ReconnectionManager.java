@@ -17,7 +17,7 @@
  *    Kamil Baczkowicz - initial API and implementation and/or initial documentation
  *    
  */
-package pl.baczkowicz.mqttspy.connectivity.reconnection;
+package pl.baczkowicz.spy.connectivity;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -25,9 +25,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import pl.baczkowicz.mqttspy.common.generated.ReconnectionSettings;
-import pl.baczkowicz.mqttspy.connectivity.BaseMqttConnection;
-import pl.baczkowicz.spy.connectivity.ConnectionStatus;
+import pl.baczkowicz.spy.common.generated.ReconnectionSettings;
 import pl.baczkowicz.spy.utils.ThreadingUtils;
 import pl.baczkowicz.spy.utils.TimeUtils;
 
@@ -40,7 +38,7 @@ public class ReconnectionManager implements Runnable
 	private final static Logger logger = LoggerFactory.getLogger(ReconnectionManager.class);
 	
 	/** Mapping between connections and connectors implemented as runnables. */
-	private final Map<BaseMqttConnection, Runnable> connections = new HashMap<BaseMqttConnection, Runnable>();
+	private final Map<IConnectionWithReconnect, Runnable> connections = new HashMap<>();
 	
 	/** Sleep between reconnection cycles. */
 	private final static int SLEEP = 100;
@@ -54,7 +52,7 @@ public class ReconnectionManager implements Runnable
 	 * @param connection The connection to add
 	 * @param connector The connector runnable
 	 */
-	public void addConnection(final BaseMqttConnection connection, final Runnable connector)
+	public void addConnection(final IConnectionWithReconnect connection, final Runnable connector)
 	{
 		synchronized (connections)
 		{
@@ -67,7 +65,7 @@ public class ReconnectionManager implements Runnable
 	 * 
 	 * @param connection The connection to remove
 	 */
-	public void removeConnection(final BaseMqttConnection connection)
+	public void removeConnection(final IConnectionWithReconnect connection)
 	{
 		synchronized (connections)
 		{
@@ -80,7 +78,7 @@ public class ReconnectionManager implements Runnable
 	 */
 	public void oneCycle()
 	{
-		for (final BaseMqttConnection connection : connections.keySet())
+		for (final IConnectionWithReconnect connection : connections.keySet())
 		{
 			if (connection.getConnectionStatus().equals(ConnectionStatus.CONNECTING))
 			{
@@ -88,7 +86,7 @@ public class ReconnectionManager implements Runnable
 				continue;
 			}
 			
-			final ReconnectionSettings reconnectionSettings = connection.getMqttConnectionDetails().getReconnectionSettings();				
+			final ReconnectionSettings reconnectionSettings = connection.getReconnectionSettings();				
 			if (connection.getLastConnectionAttemptTimestamp() + reconnectionSettings.getRetryInterval() > TimeUtils.getMonotonicTime())
 			{
 				// If we're not due to reconnect yet
@@ -98,7 +96,7 @@ public class ReconnectionManager implements Runnable
 			if (connection.getConnectionStatus().equals(ConnectionStatus.DISCONNECTED) 
 					|| connection.getConnectionStatus().equals(ConnectionStatus.NOT_CONNECTED))
 			{
-				logger.info("Starting connection {}", connection.getMqttConnectionDetails().getName());
+				logger.info("Starting connection {}", connection.getName());
 				new Thread(connections.get(connection)).start();
 			}
 		}			

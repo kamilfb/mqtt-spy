@@ -1,7 +1,6 @@
 package pl.baczkowicz.spy.ui.configuration;
 
 import java.io.File;
-import java.util.Collection;
 import java.util.List;
 
 import pl.baczkowicz.spy.common.generated.FormatterDetails;
@@ -22,9 +21,9 @@ public interface IConfigurationManager
 
 	List<ConfiguredConnectionGroupDetails> getConnectionGrops();
 
-	Collection<? extends ModifiableConnection> getConnections();
+	List<? extends ModifiableConnection> getConnections();
 
-	Collection<? extends ModifiableConnection> getConnections(ConfiguredConnectionGroupDetails group);
+	List<? extends ModifiableConnection> getConnections(ConfiguredConnectionGroupDetails group);
 	
 	List<FormatterDetails> getFormatters();
 	

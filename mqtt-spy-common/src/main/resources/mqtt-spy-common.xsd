@@ -63,17 +63,10 @@
 					
 					<xs:element name="SSL" 					type="mqttspycommon:SecureSocketSettings" 	minOccurs="0" maxOccurs="1" />
 					
-					<xs:element name="ReconnectionSettings" type="mqttspycommon:ReconnectionSettings" 	minOccurs="0" maxOccurs="1" />														
+					<xs:element name="ReconnectionSettings" type="spycommon:ReconnectionSettings" 	minOccurs="0" maxOccurs="1" />														
 				</xs:sequence>
 			 </xs:extension>		
         </xs:complexContent>
-	</xs:complexType>
-	
-	<xs:complexType name="ReconnectionSettings">
-		<xs:sequence>
-       		<xs:element name="RetryInterval" 		type="xs:int" 	/>
-       		<xs:element name="Resubscribe" 			type="xs:boolean" 	/>
-   		</xs:sequence>
 	</xs:complexType>
 	
 	<xs:complexType name="SecureSocketSettings">

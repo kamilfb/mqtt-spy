@@ -24,8 +24,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.mqttspy.common.generated.MqttConnectionDetails;
-import pl.baczkowicz.mqttspy.connectivity.reconnection.ReconnectionManager;
 import pl.baczkowicz.spy.connectivity.ConnectionStatus;
+import pl.baczkowicz.spy.connectivity.ReconnectionManager;
 import pl.baczkowicz.spy.exceptions.ConfigurationException;
 import pl.baczkowicz.spy.exceptions.SpyException;
 import pl.baczkowicz.spy.utils.ConversionUtils;

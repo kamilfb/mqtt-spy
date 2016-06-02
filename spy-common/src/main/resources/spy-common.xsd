@@ -48,6 +48,13 @@
 			<xs:element name="Formatting" 	type="spycommon:Formatting"	minOccurs="0" maxOccurs="1"/>
 		</xs:sequence>
 	</xs:complexType>
+
+	<xs:complexType name="ReconnectionSettings">
+		<xs:sequence>
+       		<xs:element name="RetryInterval" 		type="xs:int" 	/>
+       		<xs:element name="Resubscribe" 			type="xs:boolean" 	/>
+   		</xs:sequence>
+	</xs:complexType>
 	
 	<xs:complexType name="UserCredentials">
 		<xs:sequence>

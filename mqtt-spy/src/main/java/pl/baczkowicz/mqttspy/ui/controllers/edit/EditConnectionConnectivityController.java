@@ -24,6 +24,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.ResourceBundle;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
@@ -39,18 +42,14 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import pl.baczkowicz.mqttspy.common.generated.ProtocolVersionEnum;
-import pl.baczkowicz.mqttspy.common.generated.ReconnectionSettings;
 import pl.baczkowicz.mqttspy.configuration.ConfigurationUtils;
 import pl.baczkowicz.mqttspy.configuration.ConfiguredMqttConnectionDetails;
 import pl.baczkowicz.mqttspy.configuration.generated.UserInterfaceMqttConnectionDetails;
 import pl.baczkowicz.mqttspy.ui.controllers.EditMqttConnectionController;
 import pl.baczkowicz.mqttspy.utils.ConnectionUtils;
 import pl.baczkowicz.mqttspy.utils.MqttUtils;
+import pl.baczkowicz.spy.common.generated.ReconnectionSettings;
 import pl.baczkowicz.spy.ui.keyboard.KeyboardUtils;
 import pl.baczkowicz.spy.ui.panes.SpyPerspective;
 

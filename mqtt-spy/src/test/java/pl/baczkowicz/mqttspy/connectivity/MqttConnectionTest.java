@@ -32,12 +32,12 @@ import org.junit.Before;
 import org.junit.Test;
 
 import pl.baczkowicz.mqttspy.configuration.ConfiguredMqttConnectionDetails;
-import pl.baczkowicz.mqttspy.connectivity.reconnection.ReconnectionManager;
 import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.ui.events.SubscriptionStatusChangeEvent;
 import pl.baczkowicz.mqttspy.ui.stats.MqttStatsFileIO;
 import pl.baczkowicz.spy.common.generated.FormatterDetails;
 import pl.baczkowicz.spy.connectivity.ConnectionStatus;
+import pl.baczkowicz.spy.connectivity.ReconnectionManager;
 import pl.baczkowicz.spy.eventbus.IKBus;
 import pl.baczkowicz.spy.exceptions.ConfigurationException;
 import pl.baczkowicz.spy.exceptions.XMLException;

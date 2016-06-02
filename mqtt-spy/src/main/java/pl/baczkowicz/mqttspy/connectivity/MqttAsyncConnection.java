@@ -30,12 +30,12 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import pl.baczkowicz.mqttspy.connectivity.reconnection.ReconnectionManager;
 import pl.baczkowicz.mqttspy.logger.MqttMessageLogger;
 import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.ui.scripts.InteractiveScriptManager;
 import pl.baczkowicz.spy.common.generated.ScriptDetails;
 import pl.baczkowicz.spy.connectivity.ConnectionStatus;
+import pl.baczkowicz.spy.connectivity.ReconnectionManager;
 import pl.baczkowicz.spy.eventbus.IKBus;
 import pl.baczkowicz.spy.formatting.FormattingManager;
 import pl.baczkowicz.spy.scripts.Script;
