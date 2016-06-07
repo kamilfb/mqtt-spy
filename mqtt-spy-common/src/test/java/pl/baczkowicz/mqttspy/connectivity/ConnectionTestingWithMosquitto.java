@@ -54,7 +54,10 @@ public class ConnectionTestingWithMosquitto
 	private Process startMosquitto(final String configurationFile) throws IOException
 	{
 		String execStr = "mosquitto -c " + configurationFile;
+		
+		System.out.println("Calling: " + execStr);
         Process proc = Runtime.getRuntime().exec(execStr);
+		
         System.out.println("Proc: " + proc);
         
         return proc;
@@ -62,9 +65,9 @@ public class ConnectionTestingWithMosquitto
 	
 	private void stopProcess(final Process mosquitto)
 	{
-		System.out.println("Destroying");
+		System.out.println("Destroying mosquitto");
         mosquitto.destroy();
-        System.out.println("Destroyed");
+        System.out.println("Mosquitto destroyed");
 	}
 	
 	private MqttCallback createTestCallback(final String connection)
@@ -278,7 +281,7 @@ public class ConnectionTestingWithMosquitto
 						"src/test/resources/mosquitto/ssl/ca.crt", 
 						"src/test/resources/mosquitto/ssl/bouncy_castle/client.crt", 
 						"src/test/resources/mosquitto/ssl/bouncy_castle/client.key", 
-						"", null, null, null, null, null, null));
+						"", true, null, null, null, null, null));
 		
 		final SimpleMqttConnection connection = new SimpleMqttConnection(reconnectionManager, "0", connectionDetails);
 		connection.createClient(createTestCallback("ssl://localhost:10011"));
