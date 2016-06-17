@@ -105,8 +105,6 @@ public class FormattersController implements Initializable
 	private IConfigurationManager configurationManager;
 	
 	private ScriptBasedFormatter scriptBasedFormatter;
-
-	// private BaseMqttConnection connection;
 	
 	private final ChangeListener basicOnChangeListener = new ChangeListener()
 	{
@@ -140,8 +138,8 @@ public class FormattersController implements Initializable
 			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue)
 			{				
 				final FormattedMessage message = new FormattedMessage(0, "");
-				message.setRawPayload(sampleInput.getText().getBytes());
-				// new FormattedMqttMessage(0, "", new MqttMessage(sampleInput.getText().getBytes()), null);							
+				message.setRawPayload(sampleInput.getText().getBytes());			
+				message.setPayload(sampleInput.getText());
 				
 				formatInput(message);
 			}
@@ -422,12 +420,14 @@ public class FormattersController implements Initializable
 	}
 	
 	private void formatInput(final FormattedMessage message)
-	{		
+	{				
 		if (FormattingUtils.isScriptBased(selectedFormatter))
 		{
-			// logger.debug("Formatting using {}", formatter.getName());
+			logger.debug("Formatting using {} with content {}", selectedFormatter.getName(), message.getPayload());
 			message.setFormattedPayload(scriptBasedFormatter.formatMessage(selectedFormatter, message, false));
+			logger.debug("Value set = {}", message.getFormattedPayload());
 			message.setPrettyPayload(scriptBasedFormatter.formatMessage(selectedFormatter, message, true));
+			logger.debug("Pretty value set = {}", message.getPrettyPayload());
 		}
 		else
 		{
@@ -495,14 +495,18 @@ public class FormattersController implements Initializable
 					sampleInput.setText("hello from mqtt-spy!");
 				}				
 				
-				final FormattedMessage message = new FormattedMessage(0, "");
-				message.setRawPayload(sampleInput.getText().getBytes());
+				final FormattedMessage message = new FormattedMessage(0, "");				
 				
 				if (selectedFormatter.getName().startsWith("Eclipse Kura"))
 				{
 					final String base64encoded = "H4sIAAAAAAAAAHWR227TQBCGoSU9bB0aSkFNA8JIXLSAjZ0DQeKqpEGINk6V0qJeWZv1Jiz1HrQ+tOHJuObJmHUSkSDwjUf7zcw/889ObfPO7HswD6rz4NfPlX1UJlIISlImRchUpfRh/SI4CfpfA6AHaON7zkOBOQWw/xnn2P4k03Ml04MvvUO7EzMqUvuyB7lltCITyCqdMpHdwoODtrFSMSN42jsydK/TDz46l/7rTu/Y/I67Z6f9K4ig4D3aMmpKyxGLjeBLI1gInXftQSZSxqndFTnTUnAj7LvvXM8Z+o06lFcRkkmYU52AHFRvNl3fbTt5+xXACloHiDX5BmQVa14UbGNCqEpDKoiMmBgDuzf+wRTAZ6icUM1wHIqMD6kGZA1woiDUE+eMFd5tcBnRGFb7B62iyohpfoM1XRhqNXhzBHAHWRFLVIwnc3PNMR4ha8iWdpilv5g68+f9Yb1lFm97Nme3NLLNHEWDtUwZl8z6vve23va9lgfgOdpdPLNIqR5hQpevXUO74DeL8TCm5gqEJonU5mp3m0WPxzIZs3CkYeIbqa8X5imB064R2kNWKlNwjVMu9QTQWr3VaDYNe4LQ1K/Zyn879hRtKazT/xteQ/eXJzDzd0nMVEKL/tZ1pvHCWOjkYnAU+m7D9X4DdrXTyAkDAAA=";
 					sampleInput.setText(ConversionUtils.base64ToString(base64encoded));		
 					message.setRawPayload(ConversionUtils.base64ToArray(base64encoded));
+				}
+				else
+				{
+					message.setRawPayload(sampleInput.getText().getBytes());
+					message.setPayload(sampleInput.getText());
 				}
 				
 				formatInput(message);
@@ -532,6 +536,7 @@ public class FormattersController implements Initializable
 								
 				final FormattedMessage message = new FormattedMessage(0, "");
 				message.setRawPayload(sampleInput.getText().getBytes());
+				message.setPayload(sampleInput.getText());
 				
 				formatInput(message);		
 			} 
