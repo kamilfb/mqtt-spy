@@ -35,7 +35,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane fx:id="formattersWindow" minWidth="334.0" prefHeight="442.0" prefWidth="774.0" xmlns="http://javafx.com/javafx/8.0.66" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.baczkowicz.mqttspy.ui.FormattersController">
+<AnchorPane fx:id="formattersWindow" minWidth="334.0" prefHeight="442.0" prefWidth="774.0" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.baczkowicz.spy.ui.controllers.FormattersController">
    <children>
       <Label layoutX="14.0" layoutY="14.0" text="Available formatters:" />
       <ListView fx:id="formattersList" layoutX="14.0" layoutY="37.0" prefHeight="217.0" prefWidth="233.0" AnchorPane.bottomAnchor="148.0" AnchorPane.leftAnchor="14.0" AnchorPane.topAnchor="37.0" />
