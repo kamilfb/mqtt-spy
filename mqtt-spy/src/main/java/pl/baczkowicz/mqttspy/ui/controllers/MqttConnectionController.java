@@ -95,7 +95,11 @@ public class MqttConnectionController implements Initializable, TabController, P
 	
 	private static final int SCRIPTED_PUBLICATION_PANE_MIN_EXPANDED_HEIGHT = 136;	
 
-	final static Logger logger = LoggerFactory.getLogger(MqttConnectionController.class);
+	private static final double MIN_WINDOW_HIGHT = SUBSCRIPTION_PANE_MIN_EXPANDED_HEIGHT;
+	
+	private static final double MIN_WINDOW_WIDTH = 300;
+
+	private final static Logger logger = LoggerFactory.getLogger(MqttConnectionController.class);
 
 	@FXML
 	private AnchorPane connectionPane;
@@ -747,8 +751,10 @@ public class MqttConnectionController implements Initializable, TabController, P
 				status.getController().getTitledPane().setCollapsible(false);
 				updateMinHeights();
 				
-				stage.setMinHeight(status.getController().getTitledPane().getMinHeight());
-				stage.setMinWidth(300);
+				final double paneMinHeight = status.getController().getTitledPane().getMinHeight(); 
+				
+				stage.setMinHeight(paneMinHeight > MIN_WINDOW_HIGHT ? paneMinHeight : MIN_WINDOW_HIGHT);
+				stage.setMinWidth(MIN_WINDOW_WIDTH);
 				stage.show();								
 			}
 			// If set to be shown
