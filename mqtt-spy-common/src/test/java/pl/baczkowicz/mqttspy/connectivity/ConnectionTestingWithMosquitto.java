@@ -305,6 +305,41 @@ public class ConnectionTestingWithMosquitto
 	}
 	
 	@Test
+	public void testServerAndClientAuthenticationWithLocalMosquittoIssue82() throws SpyException, InterruptedException, IOException
+	{			
+		final Process mosquitto = startMosquitto("src/test/resources/mosquitto/mosquitto_ssl_server_and_client_issue82.conf");
+				
+		final MqttConnectionDetails connectionDetails = createMqttConnectionDetails(
+				"ssl://localhost:10011", 
+				new UserCredentials("nopassword", ""),
+				new SecureSocketSettings(SecureSocketModeEnum.SERVER_AND_CLIENT, "TLSv1.2", 
+						"src/test/resources/mosquitto/issue82/ca-brix.crt", 
+						"src/test/resources/mosquitto/issue82/client2.crt", 
+						"src/test/resources/mosquitto/issue82/client2-pkcs8.key", 
+						"", false, null, null, null, null, null));
+		
+		final SimpleMqttConnection connection = new SimpleMqttConnection(reconnectionManager, "0", connectionDetails);
+		connection.createClient(createTestCallback("ssl://localhost:10011"));
+		assertTrue(connection.connect());
+		System.out.println("Connected...");
+		
+		assertTrue(connection.subscribe("/mqtt-spy/test/", 0));
+		System.out.println("Subscribed...");
+		
+		connection.publish("/mqtt-spy/test/", "message over SSL", 0, false);
+		System.out.println("Published...");
+		
+		// Waiting for message to be received now...
+		Thread.sleep(1000);
+		
+		connection.disconnect();
+		System.out.println("Disconnected");
+		
+		stopProcess(mosquitto);
+		Thread.sleep(2000);
+	}
+	
+	@Test
 	public void testServerOnlyAuthenticationWithLiveMosquitto() throws SpyException, InterruptedException
 	{				
 		testServerOnlyAuthentication("ssl://test.mosquitto.org", "/certificates/certificate_authority_files/mosquitto.org.crt");

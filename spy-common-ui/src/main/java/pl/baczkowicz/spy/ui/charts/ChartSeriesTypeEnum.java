@@ -3,10 +3,13 @@ package pl.baczkowicz.spy.ui.charts;
 public enum ChartSeriesTypeEnum
 {
 	PAYLOAD_PLAIN("Payload"),
-	// TODO: xpath
-	// PAYLOAD_XML("XPath"), 
-	PAYLOAD_JSON("JSONPath"), 
-	// PAYLOAD_JAVASCRIPT("JavaScript"), 
+	
+	PAYLOAD_XML("XPath"),
+	
+	PAYLOAD_JSON("JSONPath"),
+	
+	// PAYLOAD_JAVASCRIPT("JavaScript"),
+	
 	SIZE("Message size");
 
 	private final String value;

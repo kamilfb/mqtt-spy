@@ -40,7 +40,10 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.TrustManagerFactory;
 
+import org.bouncycastle.util.io.pem.PemObject;
 import org.bouncycastle.util.io.pem.PemReader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import pl.baczkowicz.spy.common.generated.KeyStoreTypeEnum;
 import pl.baczkowicz.spy.files.FileUtils;
@@ -50,6 +53,8 @@ import pl.baczkowicz.spy.files.FileUtils;
  */
 public class SecureSocketUtils
 {
+	private final static Logger logger = LoggerFactory.getLogger(SecureSocketUtils.class);
+			
 	private final static String ALGORITHM = "RSA";
 	
 	/**
@@ -61,10 +66,12 @@ public class SecureSocketUtils
 	 * 
 	 * @throws IOException Thrown when cannot read the file
 	 */
-    public static byte[] loadPemFile(final String file) throws IOException 
+    public static byte[] loadPemFileAsBytes(final String file) throws IOException 
     {
         final PemReader pemReader = new PemReader(new FileReader(file));
-        final byte[] content = pemReader.readPemObject().getContent();
+        final PemObject pemObject = pemReader.readPemObject();
+        final byte[] content = pemObject.getContent();
+        logger.debug("Reading PEM file {}, type = {}", file, pemObject.getType());
         pemReader.close();
         return content;        
     }
@@ -78,7 +85,7 @@ public class SecureSocketUtils
 	 * 
 	 * @throws IOException Thrown when cannot read the file
 	 */
-    public static byte[] loadBinaryFile(final String file) throws IOException 
+    public static byte[] loadBinaryFileAsBytes(final String file) throws IOException 
     {
         final FileInputStream inputStream = new FileInputStream(file);
         final byte[] data = new byte[inputStream.available()];
@@ -92,7 +99,7 @@ public class SecureSocketUtils
      */
     public static PrivateKey loadPrivateKeyFromPemFile(final String keyFile) throws IOException, InvalidKeySpecException, NoSuchAlgorithmException 
     {
-        final PKCS8EncodedKeySpec privateKeySpec = new PKCS8EncodedKeySpec(loadPemFile(keyFile));
+        final PKCS8EncodedKeySpec privateKeySpec = new PKCS8EncodedKeySpec(loadPemFileAsBytes(keyFile));
         final PrivateKey privateKey = KeyFactory.getInstance(ALGORITHM).generatePrivate(privateKeySpec);
         return privateKey;
     }
@@ -102,7 +109,7 @@ public class SecureSocketUtils
      */
     public static PrivateKey loadPrivateKeyFromBinaryFile(final String keyFile) throws IOException, InvalidKeySpecException, NoSuchAlgorithmException 
     {
-        final PKCS8EncodedKeySpec privateKeySpec = new PKCS8EncodedKeySpec(loadBinaryFile(keyFile));
+        final PKCS8EncodedKeySpec privateKeySpec = new PKCS8EncodedKeySpec(loadBinaryFileAsBytes(keyFile));
         final PrivateKey privateKey = KeyFactory.getInstance(ALGORITHM).generatePrivate(privateKeySpec);
         return privateKey;
     }

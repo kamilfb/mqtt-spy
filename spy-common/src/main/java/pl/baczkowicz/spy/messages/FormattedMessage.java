@@ -76,8 +76,6 @@ public class FormattedMessage extends BaseMessage
 	{
 		this.lastUsedFormatter = formatter;		
 	}
-	
-	// public abstract byte[] getRawPayload();
 
 	public void setPrettyPayload(final String prettyPayload)
 	{

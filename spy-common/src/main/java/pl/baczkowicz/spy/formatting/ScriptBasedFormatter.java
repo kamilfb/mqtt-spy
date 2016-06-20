@@ -102,22 +102,41 @@ public class ScriptBasedFormatter
 		logger.debug("Adding formatter {} took {} ms", formatter.getName(), (end - start));
 	}
 	
+	private String formatMessageWithFunction(final FormatterDetails formatter, final FormattedMessage message, final String functionName) 
+			throws ScriptException, NoSuchMethodException
+	{
+		Script script = formattingScripts.get(formatter);
+		
+		if (script == null)
+		{
+			logger.debug("Formatting script not found");
+			addFormatter(formatter);
+			script = formattingScripts.get(formatter);
+		}
+		
+		logger.trace("Setting variable {} on {} with {}", BaseScriptManager.RECEIVED_MESSAGE_PARAMETER, script, message);
+		scriptManager.setVariable(script, BaseScriptManager.RECEIVED_MESSAGE_PARAMETER, message);		
+	
+		return (String) scriptManager.invokeFunction(script, functionName);
+	}
+	
 	public String formatMessage(final FormatterDetails formatter, final FormattedMessage message)
 	{
 		try
 		{
-			Script script = formattingScripts.get(formatter);
-			
-			if (script == null)
-			{
-				addFormatter(formatter);
-				script = formattingScripts.get(formatter);
-			}
-			
-			scriptManager.setVariable(script, BaseScriptManager.RECEIVED_MESSAGE_PARAMETER, message);		
-		
-			final String functionName = FORMAT_FUNCTION_NAME;
-			return (String) scriptManager.invokeFunction(script, functionName);
+//			Script script = formattingScripts.get(formatter);
+//			
+//			if (script == null)
+//			{
+//				addFormatter(formatter);
+//				script = formattingScripts.get(formatter);
+//			}
+//			
+//			scriptManager.setVariable(script, BaseScriptManager.RECEIVED_MESSAGE_PARAMETER, message);		
+//		
+//			final String functionName = FORMAT_FUNCTION_NAME;
+//			return (String) scriptManager.invokeFunction(script, functionName);
+			return formatMessageWithFunction(formatter, message, FORMAT_FUNCTION_NAME);
 		}
 		catch (NoSuchMethodException | ScriptException e)
 		{
@@ -130,20 +149,23 @@ public class ScriptBasedFormatter
 	{
 		if (pretty && !Boolean.FALSE.equals(prettyFormattingAvailable.get(formatter)))
 		{
+			logger.debug("Pretty formatting...");
 			try
 			{
-				Script script = formattingScripts.get(formatter);
-				
-				if (script == null)
-				{
-					addFormatter(formatter);
-					script = formattingScripts.get(formatter);
-				}
-				
-				scriptManager.setVariable(script, BaseScriptManager.RECEIVED_MESSAGE_PARAMETER, message);		
-			
-				final String functionName = PRETTY_FUNCTION_NAME;
-				return (String) scriptManager.invokeFunction(script, functionName);
+//				Script script = formattingScripts.get(formatter);
+//				
+//				if (script == null)
+//				{
+//					logger.debug("Formatting script not found");
+//					addFormatter(formatter);
+//					script = formattingScripts.get(formatter);
+//				}
+//				
+//				scriptManager.setVariable(script, BaseScriptManager.RECEIVED_MESSAGE_PARAMETER, message);		
+//			
+//				final String functionName = PRETTY_FUNCTION_NAME;
+//				return (String) scriptManager.invokeFunction(script, functionName);
+				return formatMessageWithFunction(formatter, message, PRETTY_FUNCTION_NAME);
 			}
 			catch (NoSuchMethodException e)
 			{
