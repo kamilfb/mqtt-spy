@@ -25,6 +25,7 @@ package pl.baczkowicz.spy.ui.controllers;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.StringReader;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -84,13 +85,18 @@ import javafx.util.Callback;
 import javafx.util.StringConverter;
 
 import javax.imageio.ImageIO;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 
 import org.gillius.jfxutils.chart.ChartPanManager;
 import org.gillius.jfxutils.chart.JFXChartUtil;
 import org.gillius.jfxutils.chart.StableTicksAxis;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xml.sax.InputSource;
 
 import pl.baczkowicz.spy.eventbus.IKBus;
 import pl.baczkowicz.spy.messages.FormattedMessage;
@@ -377,6 +383,7 @@ public class LineChartPaneController<T extends FormattedMessage> implements Init
 				final TableCell<ChartSeriesProperties, String> cell = new TableCell<ChartSeriesProperties, String>()
 				{
 					@Override
+					@SuppressWarnings("unchecked")
 					public void updateItem(final String item, boolean empty)
 					{
 						super.updateItem(item, empty);			
@@ -423,16 +430,6 @@ public class LineChartPaneController<T extends FormattedMessage> implements Init
 		
 		expressionColumn.setCellValueFactory(new PropertyValueFactory<ChartSeriesProperties, String>("valueExpression"));
 		expressionColumn.setCellFactory(TextFieldTableCell.<ChartSeriesProperties>forTableColumn());
-		expressionColumn.setOnEditCommit(new EventHandler<TableColumn.CellEditEvent<ChartSeriesProperties, String>>()
-				{
-					@Override
-					public void handle(CellEditEvent<ChartSeriesProperties, String> event)
-					{						
-			            final String newValue = event.getNewValue();
-			            			            
-						// TODO	
-					}		
-				});
 		
 		visibleColumn.setCellValueFactory(new PropertyValueFactory<ChartSeriesProperties, Boolean>("visible"));
 		visibleColumn.setCellFactory(new Callback<TableColumn<ChartSeriesProperties, Boolean>, TableCell<ChartSeriesProperties, Boolean>>()
@@ -624,11 +621,6 @@ public class LineChartPaneController<T extends FormattedMessage> implements Init
 			autoRefreshCheckBox.setSelected(lastAutoRefresh);
 			displaySymbolsCheckBox.setSelected(lastDisplaySymbols);
 		}
-//		else if (ChartMode.STATS.equals(chartMode))
-//		{
-//			showRangeBox.setVisible(false);
-//			showRangeLabel.setVisible(false);
-//		}
 		
 		eventBus.subscribeWithFilterOnly(this, this::onMessageAdded, MessageAddedEvent.class, store.getMessageList());
 		
@@ -810,19 +802,17 @@ public class LineChartPaneController<T extends FormattedMessage> implements Init
 			final Double value = Double.valueOf(jsonValue);							
 			return new XYChart.Data<Number, Number>(message.getDate().getTime(), value);	
 		}
-//		else if (ChartSeriesTypeEnum.PAYLOAD_XML.equals(seriesProperties.typeProperty().get()))
-//		{
-//			final XPath xpath = XPathFactory.newInstance().newXPath();
-//			
-//			final String xpathValue = String.valueOf(
-//					xpath.evaluate(seriesProperties.valueExpressionProperty().get(), 
-//							IOUtils.toInputStream(message.getFormattedPayload(), "UTF-8"), XPathConstants.NUMBER));
-//			
-//			logger.debug("XPath value = {}", xpathValue);
-//			
-//			final Double value = Double.valueOf(xpathValue);							
-//			return new XYChart.Data<Number, Number>(message.getDate().getTime(), value);				
-//		}
+		else if (ChartSeriesTypeEnum.PAYLOAD_XML.equals(seriesProperties.typeProperty().get()))
+		{
+			final XPath xpath = XPathFactory.newInstance().newXPath();
+			
+			final XPathExpression exp = xpath.compile(seriesProperties.valueExpressionProperty().get());
+			double value = (Double) exp.evaluate(new InputSource(new StringReader(message.getFormattedPayload())), XPathConstants.NUMBER);
+			
+			logger.debug("XPath value = {}", value);
+								
+			return new XYChart.Data<Number, Number>(message.getDate().getTime(), value);				
+		}
 		else if (ChartSeriesTypeEnum.SIZE.equals(seriesProperties.typeProperty().get()))
 		{
 			final Integer value = Integer.valueOf(message.getPayload().length());
@@ -838,10 +828,6 @@ public class LineChartPaneController<T extends FormattedMessage> implements Init
 	
 	private void addMessageToSeries(final ChartSeriesProperties seriesProperties, final FormattedMessage message)
 	{
-		//final List<ChartSeriesProperties> topicSeries = topicToSeries.get(message.getTopic());
-		
-		//for (final ChartSeriesProperties seriesProperties : topicSeries)
-		//{		
 		final Series<Number, Number> series = seriesIdToSeriesData.get(seriesProperties.getId());
 		
 		if (series != null)
@@ -866,7 +852,6 @@ public class LineChartPaneController<T extends FormattedMessage> implements Init
 	    		}
 	    	}
 		}
-		//}
 	}
 	
 	@FXML
