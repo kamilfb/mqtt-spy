@@ -207,8 +207,7 @@ public class AboutController implements Initializable
 		statusIcon.setVisible(true);	
 		
 		final VersionInfoProperties properties = versionManager.getVersionInfoProperties(propertyFileLoader);			
-		final String imageName = ControlPanelItemController.getStatusIconName(properties.getStatus());
-		// statusIcon.setImage(new Image(ControlPanelItemController.class.getResource(imageLocation).toString()));		
+		final String imageName = ControlPanelItemController.getStatusIconName(properties.getStatus());	
 		statusIcon.setImage(ImageUtils.createIcon(imageName).getImage());
 		statusLabel.setText(properties.getTitle() + System.getProperty("line.separator") + properties.getDetails());
 	}
