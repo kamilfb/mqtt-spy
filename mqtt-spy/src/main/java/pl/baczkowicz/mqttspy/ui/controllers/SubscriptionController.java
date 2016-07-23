@@ -94,6 +94,7 @@ import pl.baczkowicz.spy.ui.threading.SimpleRunLaterExecutor;
 import pl.baczkowicz.spy.ui.utils.FxmlUtils;
 import pl.baczkowicz.spy.ui.utils.UiUtils;
 import pl.baczkowicz.spy.utils.ConversionUtils;
+import pl.baczkowicz.spy.utils.TimeUtils;
 
 /**
  * Controller for the subscription tab.
@@ -207,6 +208,8 @@ public class SubscriptionController implements Initializable, TabController
 	private IConfigurationManager configurationManager;
 
 	private FormattingManager formattingManager;
+	
+	private long messageIndexLastChangedWithScrollBar;
 
 	public void initialize(URL location, ResourceBundle resources)
 	{			
@@ -235,15 +238,18 @@ public class SubscriptionController implements Initializable, TabController
 			}
 		});
 		
-		final Object controller = this;
+		final Object controller = this;		
+		
 		messageIndexScrollBar.valueProperty().addListener(new ChangeListener<Number>()
-		{
+		{			
 			@Override
 			public void changed(final ObservableValue<? extends Number> observable, Number oldValue, Number newValue)
 			{
-				if (store.getMessages().size() > 0)
-				{
+				if (store.getMessages().size() > 0 && (TimeUtils.getMonotonicTime() > messageIndexLastChangedWithScrollBar + 100))
+				{					
+					// logger.debug("Setting message index from {} to {}", oldValue, newValue);
 					eventBus.publish(new MessageIndexChangeEvent(newValue.intValue(), store, controller));
+					messageIndexLastChangedWithScrollBar = TimeUtils.getMonotonicTime();
 				}
 			}
 		});
