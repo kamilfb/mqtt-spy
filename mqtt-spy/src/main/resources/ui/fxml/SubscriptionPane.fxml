@@ -56,10 +56,6 @@
 				      </ImageView>
 		      	</graphic>
         		<items>
-        			<!-- 
-        			<Menu fx:id="formatterMenu" mnemonicParsing="false" text="Convert whole message">
-		               <items>
-		                -->
 		                  <RadioMenuItem mnemonicParsing="false" selected="true" text="Plain">
 		                     <toggleGroup>
 		                        <ToggleGroup fx:id="wholeMessageFormat" />
@@ -78,30 +74,21 @@
 		                  <SeparatorMenuItem />
 		                  <Menu fx:id="customFormatterMenu" disable="true" mnemonicParsing="false" text="Custom" />
 		                  <MenuItem mnemonicParsing="false" text="Formatters..." onAction="#editFormatters" />
-		                  <!--  
-		               </items>
-		            </Menu>
-		             -->
-		            <!-- 
-		            <Menu mnemonicParsing="false" text="Convert selection only">
-		               <items>
-		                  <RadioMenuItem mnemonicParsing="false" selected="true" text="Off">
-		                     <toggleGroup>
-		                        <ToggleGroup fx:id="selectionFormat" />
-		                     </toggleGroup>
-		                  </RadioMenuItem>
-		                  <SeparatorMenuItem mnemonicParsing="false" />
-		                  <RadioMenuItem mnemonicParsing="false" text="Plain" toggleGroup="$selectionFormat" />
-		                  <RadioMenuItem mnemonicParsing="false" text="Hex decoder" toggleGroup="$selectionFormat" />
-		                  <RadioMenuItem mnemonicParsing="false" text="Hex encoder" toggleGroup="$selectionFormat" />
-		                  <RadioMenuItem mnemonicParsing="false" text="Base64 decoder" toggleGroup="$selectionFormat" />
-		                  <RadioMenuItem mnemonicParsing="false" text="Base64 encoder" toggleGroup="$selectionFormat" />
-		                  <Menu fx:id="customFormatterMenu1" disable="true" mnemonicParsing="false" text="Custom" />
-		               </items>
-		            </Menu>
-		             -->		            
         		</items>
-        	</Menu>        
+        	</Menu>            	
+        	
+        	<Menu fx:id="filterMenu" mnemonicParsing="false" text="Filter">
+		      	<graphic>
+		      		<ImageView fitHeight="18" fitWidth="18" pickOnBounds="true">
+				         <image>
+				            <Image url="/ui/images/filter.png" />
+				         </image>
+				      </ImageView>
+		      	</graphic>
+		         <items>
+		            <CheckMenuItem fx:id="uniqueOnlyMenu" mnemonicParsing="false" text="Show only latest if the same" />
+		        </items>
+      		</Menu>    
         	
         	<Menu fx:id="exportMenu" mnemonicParsing="false" text="Export">
         		<graphic>

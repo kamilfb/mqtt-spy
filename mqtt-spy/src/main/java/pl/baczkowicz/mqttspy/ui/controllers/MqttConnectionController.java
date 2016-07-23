@@ -358,10 +358,10 @@ public class MqttConnectionController implements Initializable, TabController, P
 			// testCasesPaneController.setConnection(connection);
 			testCasesPaneController.setScriptManager(new InteractiveScriptManager(eventBus, connection));
 			// testCasesPaneController.setConnectionController(this);
-			testCasesPaneController.setSettingsButton(MqttViewManager.createTitleButtons(testCasesPaneController, new AnchorPane(), this));
 			
 			testCasesPaneController.setTitledPane(testCasesTitledPane);
 			testCasesPaneController.init();
+			testCasesPaneController.setSettingsButton(MqttViewManager.createTitleButtons(testCasesPaneController, new AnchorPane(), this));
 			
 			testCasesTitledStatus.setController(testCasesPaneController);
 						

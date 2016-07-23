@@ -35,10 +35,12 @@ import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuButton;
 import javafx.scene.control.RadioMenuItem;
+import javafx.scene.control.ScrollBar;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TextField;
@@ -152,17 +154,17 @@ public class SubscriptionController implements Initializable, TabController
 	@FXML
 	private MenuButton formattingMenuButton;
 
-//	@FXML
-//	private Menu formatterMenu;
+	@FXML
+	private CheckMenuItem uniqueOnlyMenu;
 	
 	@FXML
 	private Menu customFormatterMenu;
-
-//	@FXML
-//	private ToggleGroup selectionFormat;
 	
 	@FXML
 	private ToggleButton searchButton;
+	
+	@FXML
+	private ScrollBar messageIndexScrollBar;
 
 	private ManagedMessageStoreWithFiltering<FormattedMqttMessage> store; 
 	
@@ -229,6 +231,19 @@ public class SubscriptionController implements Initializable, TabController
 				if (wholeMessageFormat.getSelectedToggle() != null)
 				{
 					formatWholeMessage();
+				}
+			}
+		});
+		
+		final Object controller = this;
+		messageIndexScrollBar.valueProperty().addListener(new ChangeListener<Number>()
+		{
+			@Override
+			public void changed(final ObservableValue<? extends Number> observable, Number oldValue, Number newValue)
+			{
+				if (store.getMessages().size() > 0)
+				{
+					eventBus.publish(new MessageIndexChangeEvent(newValue.intValue(), store, controller));
 				}
 			}
 		});
@@ -326,7 +341,9 @@ public class SubscriptionController implements Initializable, TabController
 		messageNavigationPaneController.setEventBus(eventBus);
 		messageNavigationPaneController.init();		
 		
-		// The subscription pane's message browser wants to know about show first, index change and update index events 
+		// The subscription pane's message browser wants to know about show first, index change and update index events
+		eventBus.subscribe(this, this::onMessageIndexChange, MessageIndexChangeEvent.class, new SimpleRunLaterExecutor(), store);
+		
 		eventBus.subscribe(messageNavigationPaneController, messageNavigationPaneController::onMessageIndexChange, 
 				MessageIndexChangeEvent.class, new SimpleRunLaterExecutor(), store);
 		eventBus.subscribe(messageNavigationPaneController, messageNavigationPaneController::onNavigateToFirst, 
@@ -394,19 +411,53 @@ public class SubscriptionController implements Initializable, TabController
 		
 		// Filtering
 		uniqueContentOnlyFilter = new UniqueContentOnlyFilter<FormattedMqttMessage>(store, store.getUiEventQueue());
-		uniqueContentOnlyFilter.setUniqueContentOnly(messageNavigationPaneController.getUniqueOnlyMenu().isSelected());
+		uniqueContentOnlyFilter.setUniqueContentOnly(uniqueOnlyMenu.isSelected());
 		store.getFilteredMessageStore().addMessageFilter(uniqueContentOnlyFilter);
-		messageNavigationPaneController.getUniqueOnlyMenu().setOnAction(new EventHandler<ActionEvent>()
+		uniqueOnlyMenu.setOnAction(new EventHandler<ActionEvent>()
 		{			
 			@Override
 			public void handle(ActionEvent event)
 			{
-				uniqueContentOnlyFilter.setUniqueContentOnly(messageNavigationPaneController.getUniqueOnlyMenu().isSelected());
+				uniqueContentOnlyFilter.setUniqueContentOnly(uniqueOnlyMenu.isSelected());
 				store.getFilteredMessageStore().runFilter(uniqueContentOnlyFilter);
 				eventBus.publish(new MessageListChangedEvent(store.getMessageList()));
 				eventBus.publish(new MessageIndexToFirstEvent(store));
 			}
 		});	
+		
+		resetScrollBar();
+	}
+	
+	private void resetScrollBar()
+	{
+		messageIndexScrollBar.setMin(1);
+		messageIndexScrollBar.setValue(1);
+		messageIndexScrollBar.setMax(1);
+		// TODO: this will need to be adjusted once multiple messages are displayed
+		messageIndexScrollBar.setVisibleAmount(1);		
+		messageIndexScrollBar.setDisable(true);
+	}
+	
+	public void onMessageIndexChange(final MessageIndexChangeEvent event)
+	{
+		// Make sure this is not from itself
+		if (event.getDispatcher() == this)
+		{
+			return;
+		}
+		
+		if (event.getIndex() > 0)
+		{
+			messageIndexScrollBar.setValue(event.getIndex());
+			messageIndexScrollBar.setMax(store.getMessages().size());
+			messageIndexScrollBar.setDisable(false);
+			
+			// logger.debug("Setting max to {}", store.getMessages().size());
+		}
+		else
+		{
+			resetScrollBar();
+		}
 	}
 	
 	public void onClose()
@@ -461,6 +512,7 @@ public class SubscriptionController implements Initializable, TabController
 	
 	public void setViewVisibility(final boolean detailedView, final boolean basicView)
 	{
+		// TODO: add toggle menu to layout settings - or make the perspective change that
 		messagePaneController.setViewVisibility(detailedView);
 		messageNavigationPaneController.setViewVisibility(detailedView);
 		
@@ -484,6 +536,8 @@ public class SubscriptionController implements Initializable, TabController
 	{	
 		messagePaneController.clear();
 		messageNavigationPaneController.clear();
+		
+		resetScrollBar();
 		
 		// TODO: need to check this
 		store.setAllShowValues(false);		
@@ -851,4 +905,14 @@ public class SubscriptionController implements Initializable, TabController
 	{
 		this.eventBus = eventBus;
 	}
+	
+//	/**
+//	 * Get the 'unique only' menu item.
+//	 * 
+//	 * @return the uniqueOnlyMenu
+//	 */
+//	public CheckMenuItem getUniqueOnlyMenu()
+//	{
+//		return uniqueOnlyMenu;
+//	}
 }

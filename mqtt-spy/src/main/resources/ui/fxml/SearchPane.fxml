@@ -84,6 +84,20 @@
 			      </ImageView>
 	      	</graphic>
 	        <items>
+	        	
+	        	<Menu fx:id="filterMenu" mnemonicParsing="false" text="Filter">
+			      	<graphic>
+			      		<ImageView fitHeight="18" fitWidth="18" pickOnBounds="true">
+					         <image>
+					            <Image url="/ui/images/filter.png" />
+					         </image>
+					      </ImageView>
+			      	</graphic>
+			         <items>
+			            <CheckMenuItem fx:id="uniqueOnlyMenu" mnemonicParsing="false" text="Show only latest if the same" />
+			        </items>
+	      		</Menu>    
+	      		
 	        	<Menu fx:id="exportMenu" mnemonicParsing="false" text="Export">
 	            	<items>
 	            		<Menu text="Clipboard">

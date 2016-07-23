@@ -33,6 +33,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.ProgressIndicator;
@@ -127,6 +128,9 @@ public class SearchPaneController implements Initializable
 	private RadioMenuItem inlineScriptSearch;
 	
 	@FXML
+	private CheckMenuItem uniqueOnlyMenu;
+	
+	@FXML
 	private Label textLabel;
 	
 	@FXML
@@ -186,14 +190,14 @@ public class SearchPaneController implements Initializable
 				formattingManager, UiProperties.getSummaryMaxPayloadLength(configurationManager.getUiPropertyFile()));
 		
 		uniqueContentOnlyFilter = new UniqueContentOnlyFilter<FormattedMqttMessage>(store, store.getUiEventQueue());
-		uniqueContentOnlyFilter.setUniqueContentOnly(messageNavigationPaneController.getUniqueOnlyMenu().isSelected());
+		uniqueContentOnlyFilter.setUniqueContentOnly(uniqueOnlyMenu.isSelected());
 		foundMessageStore.addMessageFilter(uniqueContentOnlyFilter);
-		messageNavigationPaneController.getUniqueOnlyMenu().setOnAction(new EventHandler<ActionEvent>()
+		uniqueOnlyMenu.setOnAction(new EventHandler<ActionEvent>()
 		{			
 			@Override
 			public void handle(ActionEvent event)
 			{
-				uniqueContentOnlyFilter.setUniqueContentOnly(messageNavigationPaneController.getUniqueOnlyMenu().isSelected());
+				uniqueContentOnlyFilter.setUniqueContentOnly(uniqueOnlyMenu.isSelected());
 				search();
 				eventBus.publish(new MessageIndexToFirstEvent(foundMessageStore));			
 			}

@@ -180,7 +180,7 @@ public class MqttSubscriptionViewManager
 			final MqttAsyncConnection connection, final MqttConnectionController connectionController)
 	{
 		// Load a new tab and connection pane
-		final FXMLLoader loader = FxmlUtils.createFxmlLoaderForProjectFile("SubscriptionPane.fxml");
+		final FXMLLoader loader = FxmlUtils.createFxmlLoaderForProjectFile("SubscriptionMessageListPane.fxml");
 
 		final AnchorPane subscriptionPane = FxmlUtils.loadAnchorPane(loader);
 		final SubscriptionController subscriptionController = ((SubscriptionController) loader.getController());

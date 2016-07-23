@@ -31,7 +31,6 @@ import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
-import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuButton;
@@ -90,10 +89,7 @@ public class MessageNavigationController implements Initializable
 	private Menu formatterMenu;
 	
 	@FXML
-	private Menu customFormatterMenu;
-	
-	@FXML
-	private CheckMenuItem uniqueOnlyMenu;
+	private Menu customFormatterMenu;	
 
 	@FXML
 	private ToggleGroup selectionFormat;
@@ -113,9 +109,6 @@ public class MessageNavigationController implements Initializable
 	@FXML
 	private HBox messageIndexBox; 
 	
-	@FXML
-	private MenuButton filterButton;
-
 	private int selectedMessage;
 
 	private BasicMessageStoreWithSummary<FormattedMqttMessage> store; 
@@ -552,24 +545,14 @@ public class MessageNavigationController implements Initializable
 		return selectedMessage;
 	}
 	
-	/**
-	 * Get the 'unique only' menu item.
-	 * 
-	 * @return the uniqueOnlyMenu
-	 */
-	public CheckMenuItem getUniqueOnlyMenu()
-	{
-		return uniqueOnlyMenu;
-	}
-
 	public void setViewVisibility(final boolean detailedView)
 	{
-		filterButton.setVisible(detailedView);
+		// Nothing to do here
 	}
 
 	public void toggleDetaileledViewVisibility()
 	{
-		filterButton.setVisible(!filterButton.isVisible());
+		// Nothing to do here
 	}
 	
 	public void setEventBus(final IKBus eventBus)

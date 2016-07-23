@@ -71,13 +71,7 @@
                      <padding><Insets bottom="3" left="6" right="6" top="6" /></padding>
                      <children> 
    						<TabPane fx:id="subscriptionTabs" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-   							<tabs>
-   							<!-- 
-   								<Tab fx:id="newSubTab" disable="true" text="">   									
-   								</Tab>
-   								 -->
-   							</tabs>
-   							
+   							<tabs />
    						</TabPane>
                         <Button fx:id="newSubButton" focusTraversable="false" maxHeight="27" maxWidth="80" minHeight="27" minWidth="80" mnemonicParsing="false" prefHeight="27" prefWidth="80" text="New" AnchorPane.leftAnchor="5.0" AnchorPane.topAnchor="5.0">
                         	<graphic>
