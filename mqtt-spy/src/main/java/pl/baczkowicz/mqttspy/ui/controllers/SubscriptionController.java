@@ -245,6 +245,7 @@ public class SubscriptionController implements Initializable, TabController
 			@Override
 			public void changed(final ObservableValue<? extends Number> observable, Number oldValue, Number newValue)
 			{
+				// Check and store the time to avoid cyclic updates
 				if (store.getMessages().size() > 0 && (TimeUtils.getMonotonicTime() > messageIndexLastChangedWithScrollBar + 100))
 				{					
 					// logger.debug("Setting message index from {} to {}", oldValue, newValue);
