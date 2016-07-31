@@ -118,6 +118,8 @@ public class MessageNavigationController implements Initializable
 	private Label totalMessagesValueLabel;
 	
 	private IKBus eventBus;
+	
+	private int messagesShown = 1;
 
 	public void initialize(URL location, ResourceBundle resources)
 	{				
@@ -191,22 +193,22 @@ public class MessageNavigationController implements Initializable
 		        	}
 		        	case PAGE_UP:
 		        	{
-		        		changeSelectedMessageIndex(5);
+		        		changeSelectedMessageIndexDelta(5);
 		        		break;
 		        	}
 		        	case PAGE_DOWN:
 		        	{
-		        		changeSelectedMessageIndex(-5);
+		        		changeSelectedMessageIndexDelta(-5);
 		        		break;
 		        	}
 		        	case UP:
 		        	{
-		        		changeSelectedMessageIndex(1);
+		        		changeSelectedMessageIndexDelta(1);
 		        		break;
 		        	}
 		        	case DOWN:
 		        	{
-		        		changeSelectedMessageIndex(-1);
+		        		changeSelectedMessageIndexDelta(-1);
 		        		break;
 		        	}
 		        	default:
@@ -214,6 +216,13 @@ public class MessageNavigationController implements Initializable
 	        	}
 	        }
 	    });		
+	}
+	
+	public void updateRange(final int newValue)
+	{
+		messagesShown = newValue;
+		
+		updateIndex(false);
 	}
 
 	public void init()
@@ -243,13 +252,13 @@ public class MessageNavigationController implements Initializable
 	@FXML
 	private void showMoreRecent()
 	{
-		changeSelectedMessageIndex(-1);
+		changeSelectedMessageIndexDelta(-1);
 	}	
 	
 	@FXML
 	private void showLessRecent()
 	{
-		changeSelectedMessageIndex(1);
+		changeSelectedMessageIndexDelta(1);
 	}
 
 	// ====================
@@ -280,8 +289,9 @@ public class MessageNavigationController implements Initializable
 		// logger.info("{} Index change = " + newSelectedMessage, store.getName()); 
 		if (selectedMessage != event.getIndex())
 		{
-			selectedMessage = event.getIndex();
-			updateIndex();
+			//selectedMessage = event.getIndex();
+			//updateIndex();
+			changeSelectedMessageIndexAbsolute(event.getIndex());
 		}		
 	}
 	
@@ -329,31 +339,41 @@ public class MessageNavigationController implements Initializable
 			updateIndex();
 		}
 	}
+	
+	private int getMaxMessageIndex()
+	{
+		return store.getMessages().size() - messagesShown + 1;
+	}
 
 	private void showLastMessage()
 	{
-		if (store.getMessages().size() > 0)
+		if (getMaxMessageIndex() > 0)
 		{
-			selectedMessage = store.getMessages().size();
+			selectedMessage = getMaxMessageIndex();			
 			updateIndex();
 		}
 	}
 	
-	private void changeSelectedMessageIndex(final int count)
+	private void changeSelectedMessageIndexDelta(final int count)
+	{	
+		changeSelectedMessageIndexAbsolute(selectedMessage + count);
+	}
+	
+	private void changeSelectedMessageIndexAbsolute(final int absolute)
 	{
-		if (store.getMessages().size() > 0)
+		if (getMaxMessageIndex() > 0)
 		{
-			if (selectedMessage + count <= 1)
+			if (absolute <= 1)
 			{
 				showFirstMessage();
 			}
-			else if (selectedMessage + count >= store.getMessages().size())
+			else if (absolute >= getMaxMessageIndex())
 			{
 				showLastMessage();
 			}
 			else
 			{
-				selectedMessage = selectedMessage + count;
+				selectedMessage = absolute;
 				updateIndex();
 			}
 		}		
@@ -366,7 +386,20 @@ public class MessageNavigationController implements Initializable
 	
 	private void updateIndex(final boolean refreshMessageDetails)
 	{
-		final String selectedIndexValue = selectedMessage > 0 ? String.valueOf(selectedMessage) : "-";
+		String selectedIndexValue = "-";
+		
+		if (selectedMessage > 0)
+		{
+			if (messagesShown == 1)
+			{
+				selectedIndexValue = String.valueOf(selectedMessage);
+			}
+			else
+			{
+				selectedIndexValue = String.valueOf(selectedMessage) + "-" + String.valueOf(selectedMessage + messagesShown - 1); 
+			}
+		}
+		
 		final String totalMessagesValue = "/ " + store.getMessages().size(); 		
 		
 		if (messageIndexBox.getChildren().size() == 1)
@@ -385,7 +418,6 @@ public class MessageNavigationController implements Initializable
 		if (refreshMessageDetails)
 		{
 			eventBus.publish(new MessageIndexChangeEvent(selectedMessage, store, this));
-			// eventManager.changeMessageIndex(store, this, selectedMessage);
 		}
 	}
 	
@@ -427,11 +459,11 @@ public class MessageNavigationController implements Initializable
 	{
 		if (scroll > 0)
     	{
-    		changeSelectedMessageIndex(1);
+    		changeSelectedMessageIndexDelta(1);
     	}
     	else
     	{
-    		changeSelectedMessageIndex(-1);
+    		changeSelectedMessageIndexDelta(-1);
     	}
 	}	
 

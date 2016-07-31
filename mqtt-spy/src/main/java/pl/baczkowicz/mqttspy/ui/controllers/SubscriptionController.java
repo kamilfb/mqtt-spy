@@ -20,8 +20,11 @@
 package pl.baczkowicz.mqttspy.ui.controllers;
 
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 import javafx.application.Platform;
@@ -33,6 +36,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.CheckMenuItem;
@@ -41,6 +45,7 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuButton;
 import javafx.scene.control.RadioMenuItem;
 import javafx.scene.control.ScrollBar;
+import javafx.scene.control.Slider;
 import javafx.scene.control.SplitPane;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TextField;
@@ -51,6 +56,8 @@ import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.VBox;
 import javafx.scene.text.TextAlignment;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -67,6 +74,7 @@ import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
 import pl.baczkowicz.mqttspy.ui.MqttSubscriptionViewManager;
 import pl.baczkowicz.mqttspy.ui.MqttViewManager;
 import pl.baczkowicz.mqttspy.ui.events.SubscriptionStatusChangeEvent;
+import pl.baczkowicz.mqttspy.ui.layout.MessageBrowserLayout;
 import pl.baczkowicz.mqttspy.ui.messagelog.MessageLogUtils;
 import pl.baczkowicz.spy.common.generated.FormatterDetails;
 import pl.baczkowicz.spy.eventbus.IKBus;
@@ -151,6 +159,9 @@ public class SubscriptionController implements Initializable, TabController
 
 	@FXML
 	private ToggleGroup wholeMessageFormat;
+	
+	@FXML
+	private ToggleGroup messageBrowserLayout;
 
 	@FXML
 	private MenuButton formattingMenuButton;
@@ -166,6 +177,14 @@ public class SubscriptionController implements Initializable, TabController
 	
 	@FXML
 	private ScrollBar messageIndexScrollBar;
+	
+	@FXML
+	private VBox messagesPane;
+	
+	@FXML
+	private Slider messageCountSlider;
+	
+	private final List<MessageController> messageControllers = new ArrayList<>();
 
 	private ManagedMessageStoreWithFiltering<FormattedMqttMessage> store; 
 	
@@ -210,6 +229,14 @@ public class SubscriptionController implements Initializable, TabController
 	private FormattingManager formattingManager;
 	
 	private long messageIndexLastChangedWithScrollBar;
+	
+	private int maxMessagesDisplayed = 1;
+	
+	private int messagesDisplayed = 1;
+
+	private Map<MessageController, AnchorPane> messagePanes = new HashMap<>();
+
+	private boolean detailedView;
 
 	public void initialize(URL location, ResourceBundle resources)
 	{			
@@ -217,6 +244,7 @@ public class SubscriptionController implements Initializable, TabController
 		topicFilterBox = new HBox();
 		topicFilterBox.setPadding(new Insets(0, 0, 0, 0));
 		
+		// Set up formatters toggle
 		final List<FormatterDetails> formatters = FormattingUtils.createBaseFormatters();
 		formatters.addAll(FormattingManager.createDefaultScriptFormatters());
 		
@@ -238,6 +266,26 @@ public class SubscriptionController implements Initializable, TabController
 			}
 		});
 		
+		// Set up layout toggle
+		messageBrowserLayout.getToggles().get(0).setUserData(MessageBrowserLayout.SINGLE_TOP);
+		messageBrowserLayout.getToggles().get(1).setUserData(MessageBrowserLayout.SINGLE_BOTTOM);
+		messageBrowserLayout.getToggles().get(2).setUserData(MessageBrowserLayout.SINGLE_RIGHT);
+		messageBrowserLayout.getToggles().get(3).setUserData(MessageBrowserLayout.MULTI_TOP);
+		messageBrowserLayout.getToggles().get(4).setUserData(MessageBrowserLayout.MULTI_BOTTOM);
+		messageBrowserLayout.getToggles().get(5).setUserData(MessageBrowserLayout.MULTI_RIGHT);
+		
+		messageBrowserLayout.selectedToggleProperty().addListener(new ChangeListener<Toggle>()
+		{
+			@Override
+			public void changed(ObservableValue<? extends Toggle> observable, Toggle oldValue, Toggle newValue)
+			{
+				if (messageBrowserLayout.getSelectedToggle() != null)
+				{
+					updateLayout((MessageBrowserLayout) newValue.getUserData());
+				}
+			}
+		});
+		
 		final Object controller = this;		
 		
 		messageIndexScrollBar.valueProperty().addListener(new ChangeListener<Number>()
@@ -246,12 +294,41 @@ public class SubscriptionController implements Initializable, TabController
 			public void changed(final ObservableValue<? extends Number> observable, Number oldValue, Number newValue)
 			{
 				// Check and store the time to avoid cyclic updates
-				if (store.getMessages().size() > 0 && (TimeUtils.getMonotonicTime() > messageIndexLastChangedWithScrollBar + 100))
+				if (store.getMessages().size() > 0 && (TimeUtils.getMonotonicTime() > messageIndexLastChangedWithScrollBar + 50))
 				{					
 					// logger.debug("Setting message index from {} to {}", oldValue, newValue);
 					eventBus.publish(new MessageIndexChangeEvent(newValue.intValue(), store, controller));
 					messageIndexLastChangedWithScrollBar = TimeUtils.getMonotonicTime();
 				}
+			}
+		});
+		
+		messageCountSlider.valueProperty().addListener(new ChangeListener<Number>()
+		{
+			@Override
+			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue)
+			{		
+				int newNumber = newValue.intValue();
+				// messagesDisplayed = newValue.intValue();
+				messageCountSlider.setValue(newNumber);
+				
+				updateMessagesDisplayed(newNumber);
+				
+				// TODO: update scroll bar
+				
+				// Update message index field range
+				messageNavigationPaneController.updateRange(messagesDisplayed);
+			}
+		});
+		
+		messagesPane.heightProperty().addListener(new ChangeListener<Number>()
+		{
+			@Override
+			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue)
+			{
+				logger.debug("Height = " + newValue.intValue());
+				maxMessagesDisplayed = (int) Math.floor(newValue.intValue() / 85);
+				messageCountSlider.setMax(maxMessagesDisplayed);
 			}
 		});
 		
@@ -283,36 +360,11 @@ public class SubscriptionController implements Initializable, TabController
 
 			}
 		});
+		
+		messageControllers.add(messagePaneController);
+		messagePanes.put(messagePaneController, messagePane);	
 
 		updateMinHeights();		
-	}
-	
-	private ChangeListener<Number> createPaneTitleWidthListener()
-	{
-		return new ChangeListener<Number>()
-		{
-			@Override
-			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue)
-			{				 										
-				Platform.runLater(new Runnable()
-				{					
-					@Override
-					public void run()
-					{
-						//logger.debug("pane W={}, title X={}, W={}", summaryTitledPane.getWidth(), paneTitle.getLayoutX(), paneTitle.getWidth());
-						
-						final double absoluteSearchBoxX = searchBox.getLayoutX() + topicFilterBox.getLayoutX() + titleBox.getLayoutX();
-						final double titledPaneWidth = MqttViewManager.updateTitleWidth(summaryTitledPane, paneTitle, MqttViewManager.TITLE_MARGIN);
-						
-						//logger.trace("New width = {}", titledPaneWidth);
-												
-						searchBox.setPrefWidth(titledPaneWidth - absoluteSearchBoxX - statsLabel.getWidth() - 100);
-						
-						//logger.debug("pane W={}, title X={}, W={}", summaryTitledPane.getWidth(), paneTitle.getLayoutX(), paneTitle.getWidth());
-					}
-				});
-			}
-		};
 	}
 	
 	public void init()
@@ -333,16 +385,7 @@ public class SubscriptionController implements Initializable, TabController
 		getSummaryTablePaneController().setEventBus(eventBus);
 		getSummaryTablePaneController().init();
 		
-		messagePaneController.setStore(store);
-		messagePaneController.setConfingurationManager(configurationManager);
-		messagePaneController.setFormattingManager(formattingManager);
-		messagePaneController.init();
-		
-		// The search pane's message browser wants to know about changing indices and format
-		eventBus.subscribe(messagePaneController, messagePaneController::onMessageIndexChange, 
-				MessageIndexChangeEvent.class, new SimpleRunLaterExecutor(), store);
-		eventBus.subscribe(messagePaneController, messagePaneController::onFormatChange, MessageFormatChangeEvent.class, 
-				new SimpleRunLaterExecutor(), store);
+		initialiseMessagePaneController(messagePaneController);
 		
 		messageNavigationPaneController.setStore(store);
 		messageNavigationPaneController.setEventBus(eventBus);
@@ -435,6 +478,137 @@ public class SubscriptionController implements Initializable, TabController
 		resetScrollBar();
 	}
 	
+	private void initialiseMessagePaneController(final MessageController controller)
+	{
+		controller.setStore(store);
+		controller.setConfingurationManager(configurationManager);
+		controller.setFormattingManager(formattingManager);
+		controller.init();
+		controller.setViewVisibility(detailedView);
+		
+		// The search pane's message browser wants to know about changing indices and format
+		eventBus.subscribe(controller, controller::onMessageIndexChange, 
+				MessageIndexChangeEvent.class, new SimpleRunLaterExecutor(), store);
+		eventBus.subscribe(controller, controller::onFormatChange, MessageFormatChangeEvent.class, 
+				new SimpleRunLaterExecutor(), store);
+	}
+
+	private void updateMessagesDisplayed(int newValue)
+	{
+		while (newValue > messageControllers.size())
+		{
+			final FXMLLoader loader = FxmlUtils.createFxmlLoaderForProjectFile("MessagePane.fxml");
+			final AnchorPane messagePane = FxmlUtils.loadAnchorPane(loader);
+			
+			final MessageController controller = (MessageController) loader.getController();
+			initialiseMessagePaneController(controller); 
+			
+			// Add X to displayed message index
+			controller.setMessageIndexOfset(messageControllers.size());
+			
+			messageControllers.add(controller);
+			messagePanes.put(controller, messagePane);			
+			VBox.setVgrow(messagePane, Priority.ALWAYS);
+		}
+		
+		while (messagesDisplayed > newValue)
+		{
+			messagesPane.getChildren().remove(messagesPane.getChildren().size() - 1);
+			messagesDisplayed--;
+		}		
+		
+		while (messagesDisplayed < newValue)
+		{
+			final MessageController mc = messageControllers.get(messagesDisplayed);
+			
+			if (mc != null)
+			{
+				messagesPane.getChildren().add(messagePanes.get(mc));
+				messagesDisplayed++;
+			}			
+		}
+	}
+	
+	private void updateLayout(final MessageBrowserLayout layout)
+	{
+		boolean summaryPaneFirst = true;
+		boolean multi = true;
+		Orientation orientation = Orientation.VERTICAL;
+		
+		switch (layout)
+		{
+			case MULTI_BOTTOM:
+				break;
+			case MULTI_RIGHT:
+				orientation = Orientation.HORIZONTAL;
+				break;
+			case MULTI_TOP:
+				summaryPaneFirst = false;
+				break;
+			case SINGLE_BOTTOM:
+				multi = false;
+				break;
+			case SINGLE_RIGHT:
+				orientation = Orientation.HORIZONTAL;
+				multi = false;
+				break;
+			case SINGLE_TOP:
+				summaryPaneFirst = false;
+				multi = false;
+				break;
+			default:
+				break;		
+		}		
+
+		splitPane.setOrientation(orientation);
+		
+		messageCountSlider.setVisible(multi);
+		
+		// TODO: resize summaryTitledPane quicker
+		
+		if (splitPane.getItems().size() > 0)
+		{
+			if (summaryPaneFirst && splitPane.getItems().get(1).equals(summaryTitledPane))
+			{
+				splitPane.getItems().remove(summaryTitledPane);
+				splitPane.getItems().add(0, summaryTitledPane);
+			}
+			else if (!summaryPaneFirst && splitPane.getItems().get(0).equals(summaryTitledPane))
+			{
+				splitPane.getItems().remove(summaryTitledPane);
+				splitPane.getItems().add(1, summaryTitledPane);
+			}
+		}
+	}
+	
+	private ChangeListener<Number> createPaneTitleWidthListener()
+	{
+		return new ChangeListener<Number>()
+		{
+			@Override
+			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue)
+			{				 										
+				Platform.runLater(new Runnable()
+				{					
+					@Override
+					public void run()
+					{
+						//logger.debug("pane W={}, title X={}, W={}", summaryTitledPane.getWidth(), paneTitle.getLayoutX(), paneTitle.getWidth());
+						
+						final double absoluteSearchBoxX = searchBox.getLayoutX() + topicFilterBox.getLayoutX() + titleBox.getLayoutX();
+						final double titledPaneWidth = MqttViewManager.updateTitleWidth(summaryTitledPane, paneTitle, MqttViewManager.TITLE_MARGIN);
+						
+						//logger.trace("New width = {}", titledPaneWidth);
+												
+						searchBox.setPrefWidth(titledPaneWidth - absoluteSearchBoxX - statsLabel.getWidth() - 100);
+						
+						//logger.debug("pane W={}, title X={}, W={}", summaryTitledPane.getWidth(), paneTitle.getLayoutX(), paneTitle.getWidth());
+					}
+				});
+			}
+		};
+	}
+	
 	private void resetScrollBar()
 	{
 		messageIndexScrollBar.setMin(1);
@@ -519,8 +693,14 @@ public class SubscriptionController implements Initializable, TabController
 	
 	public void setViewVisibility(final boolean detailedView, final boolean basicView)
 	{
+		this.detailedView = detailedView;
+		
 		// TODO: add toggle menu to layout settings - or make the perspective change that
-		messagePaneController.setViewVisibility(detailedView);
+		for (final MessageController controller : messageControllers)
+		{
+			controller.setViewVisibility(detailedView);
+		}
+
 		messageNavigationPaneController.setViewVisibility(detailedView);
 		
 		if (basicView && splitPane.getItems().contains(summaryTitledPane))
@@ -535,7 +715,13 @@ public class SubscriptionController implements Initializable, TabController
 	
 	public void toggleDetailedViewVisibility()
 	{
-		messagePaneController.toggleDetailedViewVisibility();
+		detailedView = !detailedView;
+		
+		for (final MessageController controller : messageControllers)
+		{
+			controller.toggleDetailedViewVisibility();
+		}
+		
 		messageNavigationPaneController.toggleDetaileledViewVisibility();
 	}
 	

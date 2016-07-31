@@ -460,7 +460,7 @@ public abstract class BaseViewManager
 		
 		final MenuButton settingsButton = createTitleButton("Pane settings", "settings", -5, paneVisibilityManager, pane);
 			      
-		HBox titleBox = new HBox();
+		final HBox titleBox = new HBox();
 		titleBox.setPadding(new Insets(0, 0, 0, 0));	
 		logger.trace(pane + ", " + paneTitle + ", " + paneVisibilityManager);
 		titleBox.getChildren().addAll(controller.getTitleLabel());

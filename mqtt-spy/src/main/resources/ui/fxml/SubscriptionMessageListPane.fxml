@@ -30,6 +30,7 @@
 <?import javafx.scene.control.RadioMenuItem?>
 <?import javafx.scene.control.ScrollBar?>
 <?import javafx.scene.control.SeparatorMenuItem?>
+<?import javafx.scene.control.Slider?>
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.TitledPane?>
 <?import javafx.scene.control.ToggleButton?>
@@ -42,7 +43,7 @@
 
 <AnchorPane prefHeight="485.0" prefWidth="1075.0" xmlns="http://javafx.com/javafx/8.0.66" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pl.baczkowicz.mqttspy.ui.controllers.SubscriptionController">
 	<children>
-      <SplitPane fx:id="splitPane" layoutX="11.0" layoutY="45.0" orientation="VERTICAL" prefHeight="229.0" AnchorPane.bottomAnchor="-1.0" AnchorPane.leftAnchor="-1.0" AnchorPane.rightAnchor="-1.0" AnchorPane.topAnchor="40.0">
+      <SplitPane fx:id="splitPane" dividerPositions="0.5" layoutX="11.0" layoutY="45.0" orientation="VERTICAL" prefHeight="229.0" AnchorPane.bottomAnchor="-1.0" AnchorPane.leftAnchor="-1.0" AnchorPane.rightAnchor="-1.0" AnchorPane.topAnchor="40.0">
         <items>
            <!-- Warning: adding a titled pane makes the fields blurry
             <TitledPane animated="false" collapsible="false" text="Messages" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
@@ -52,7 +53,7 @@
                 <children>
                    <ScrollBar fx:id="messageIndexScrollBar" orientation="VERTICAL" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
 
-                   <VBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="18.0" AnchorPane.topAnchor="0.0">
+                   <VBox fx:id="messagesPane" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="18.0" AnchorPane.topAnchor="0.0">
                       <children>
 	                     <fx:include fx:id="messagePane" source="MessagePane.fxml" AnchorPane.bottomAnchor="-10.0" AnchorPane.leftAnchor="-10" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="-10" VBox.vgrow="ALWAYS" />
                       </children>
@@ -65,7 +66,7 @@
             </TitledPane>
              -->
 
-            <TitledPane fx:id="summaryTitledPane" prefHeight="800.0" alignment="TOP_LEFT" animated="false" minHeight="26.0" text="Received messages summary">
+            <TitledPane fx:id="summaryTitledPane" alignment="TOP_LEFT" animated="false" minHeight="26.0" prefHeight="800.0" text="Received messages summary">
                     <content>
                     		<fx:include fx:id="summaryTablePane" minHeight="100.0" source="SubscriptionSummaryTablePane.fxml" />
                     </content>
@@ -76,6 +77,7 @@
       <AnchorPane prefHeight="30.0" prefWidth="860.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="215.0" AnchorPane.topAnchor="5.0">
       		<children>
       			<fx:include fx:id="messageNavigationPane" source="MessageNavigationPane.fxml" />
+            <Slider fx:id="messageCountSlider" blockIncrement="1.0" layoutX="513.0" layoutY="3.0" majorTickUnit="1.0" max="5.0" min="1.0" minorTickCount="1" prefHeight="16.0" prefWidth="75.0" showTickLabels="true" value="1.0" visible="false" AnchorPane.rightAnchor="272.0" />
     		</children>
       </AnchorPane>
       
@@ -129,11 +131,16 @@
 	            </ImageView>
 	         </graphic>
 	         <items>            
-	             <MenuItem text="Single message (original; top)" />
-	             <MenuItem disable="true" text="Single message (bottom)" />
-	             <MenuItem disable="true" text="Single message (right)" />
-	             <MenuItem disable="true" text="Message list (bottom)" />
-	             <MenuItem disable="true" text="Message list (right)" />
+	             <RadioMenuItem selected="true" text="Single message (original; top)">
+	             	<toggleGroup>
+		                        <ToggleGroup fx:id="messageBrowserLayout" />
+		            </toggleGroup>
+	             </RadioMenuItem>
+	             <RadioMenuItem text="Single message (bottom)" toggleGroup="$messageBrowserLayout" />
+	             <RadioMenuItem text="Single message (right)" toggleGroup="$messageBrowserLayout" />
+	             <RadioMenuItem text="Message list (top)" toggleGroup="$messageBrowserLayout" />
+	             <RadioMenuItem text="Message list (bottom)" toggleGroup="$messageBrowserLayout" />
+	             <RadioMenuItem text="Message list (right)" toggleGroup="$messageBrowserLayout" />
 	         </items>
 
 	      </Menu>    

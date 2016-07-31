@@ -36,11 +36,13 @@ import javafx.scene.control.ToggleButton;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.paint.Color;
 
 import org.fxmisc.richtext.StyleClassedTextArea;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import pl.baczkowicz.mqttspy.connectivity.MqttSubscription;
 import pl.baczkowicz.mqttspy.messages.FormattedMqttMessage;
 import pl.baczkowicz.spy.common.generated.FormatterDetails;
 import pl.baczkowicz.spy.formatting.FormattingManager;
@@ -54,6 +56,7 @@ import pl.baczkowicz.spy.ui.events.MessageFormatChangeEvent;
 import pl.baczkowicz.spy.ui.events.MessageIndexChangeEvent;
 import pl.baczkowicz.spy.ui.search.SearchOptions;
 import pl.baczkowicz.spy.ui.storage.BasicMessageStoreWithSummary;
+import pl.baczkowicz.spy.ui.utils.StylingUtils;
 import pl.baczkowicz.spy.utils.TimeUtils;
 
 /**
@@ -118,6 +121,8 @@ public class MessageController implements Initializable
 	private FormattingManager formattingManager;
 
 	private boolean styled;
+
+	private int offset = 0;
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources)
@@ -215,6 +220,11 @@ public class MessageController implements Initializable
 		// TODO: basic perspective
 	}
 	
+	public void setMessageIndexOfset(final int offset)
+	{
+		this.offset = offset;
+	}
+	
 	public void setViewVisibility(final boolean detailedView)
 	{
 		this.detailedView = detailedView;
@@ -229,7 +239,7 @@ public class MessageController implements Initializable
 	
 	public void onMessageIndexChange(final MessageIndexChangeEvent event)
 	{
-		updateMessage(event.getIndex());
+		updateMessage(event.getIndex() + offset);
 	}
 	
 	public void onFormatChange(final MessageFormatChangeEvent event)
@@ -265,11 +275,16 @@ public class MessageController implements Initializable
 						populate(message);
 					}
 				}				
-			}			
+			}		
+			
+			final double opacity = 0.02 * ((messageIndex - 1) % 2);
+			
+			this.parentPane.setStyle("-fx-background-color: " + StylingUtils.createRGBAString(Color.BLACK, opacity));
 		}
 		else
 		{
 			clear();
+			this.parentPane.setStyle(null);
 		}
 	}
 
