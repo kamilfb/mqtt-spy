@@ -89,7 +89,7 @@ public class TopicMatcher
 	{
 		final ClientTopicCouple subscription = new ClientTopicCouple(clientId, topic);
 		
-		if (!topics.contains(subscription))
+		if (!topics.contains(topic))
 		{
 			logger.debug("Added subscription " + topic + " (" + clientId + ") to store");
 			// Store the subscription topic for further matching
