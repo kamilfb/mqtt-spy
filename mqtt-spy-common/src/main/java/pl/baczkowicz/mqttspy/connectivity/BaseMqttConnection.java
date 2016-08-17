@@ -328,6 +328,7 @@ public abstract class BaseMqttConnection implements IMqttConnection
 	
 	public void addSubscription(final BaseMqttSubscription subscription)
 	{
+		// TODO: note sure we should be overriding here...
 		// Add it to the store if it hasn't been created before
 		if (subscriptions.put(subscription.getTopic(), subscription) == null)
 		{
