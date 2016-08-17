@@ -47,6 +47,7 @@ import org.slf4j.LoggerFactory;
 import pl.baczkowicz.mqttspy.configuration.generated.TabbedSubscriptionDetails;
 import pl.baczkowicz.mqttspy.connectivity.MqttAsyncConnection;
 import pl.baczkowicz.mqttspy.ui.MqttConnectionViewManager;
+import pl.baczkowicz.mqttspy.ui.MqttSubscriptionViewManager;
 import pl.baczkowicz.mqttspy.ui.MqttViewManager;
 import pl.baczkowicz.mqttspy.ui.events.ShowNewMqttSubscriptionWindowEvent;
 import pl.baczkowicz.mqttspy.utils.MqttUtils;
@@ -286,7 +287,11 @@ public class NewSubscriptionController implements Initializable, TitledPaneContr
 	public void subscribe(final TabbedSubscriptionDetails subscriptionDetails, final boolean subscribe)
 	{
 		logger.info("Subscribing to " + subscriptionDetails.getTopic());
-		if (!connection.getSubscriptions().keySet().contains(subscriptionDetails.getTopic()))		
+		
+		final MqttSubscriptionViewManager subscriptionManager = connectionManager.getSubscriptionManager(connectionController);
+
+		// Note: check the subscription controllers as opposed to active subscriptions - there might be already a script-based subscription - this is OK	
+		if (!subscriptionManager.getSubscriptionControllersMap().keySet().contains(subscriptionDetails.getTopic()))
 		{
 			recordSubscriptionTopic(subscriptionDetails.getTopic());
 			
