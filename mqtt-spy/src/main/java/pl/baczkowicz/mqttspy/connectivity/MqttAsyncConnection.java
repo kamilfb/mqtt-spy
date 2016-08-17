@@ -87,13 +87,12 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection implemen
 				properties.getConfiguredProperties().getMinMessagesStoredPerTopic(), 
 				properties.getMaxMessagesStored(), 
 				properties.getMaxMessagesStored() * 2, 
-				uiEventQueue, //eventManager,
+				uiEventQueue,
 				formattingManager,
 				summaryMaxPayloadLength);
 		
 		this.setPreferredStoreSize(properties.getMaxMessagesStored());
 		this.properties = properties;
-		// this.eventManager = eventManager;
 		this.eventBus = eventBus;
 		this.scriptManager = scriptManager;
 		setConnectionStatus(status);
@@ -103,15 +102,17 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection implemen
 	{		
 		// TODO: we should only delete from the topic matcher when a subscription is closed for good, not when just unsubscribed
 		final List<String> matchingSubscriptionTopics = getTopicMatcher().getMatchingSubscriptions(receivedMessage.getTopic());
-		logger.trace("Matching subscriptions = " + matchingSubscriptionTopics);
-		
-		final FormattedMqttMessage message = new FormattedMqttMessage(receivedMessage);		
+		logger.trace("Matching subscriptions = " + matchingSubscriptionTopics);		
 		
 		final List<String> matchingActiveSubscriptions = new ArrayList<String>();
 		
+		// This will modify the message if there is an onMessage
 		final BaseMqttSubscription lastMatchingSubscription = 
 				matchMessageToSubscriptions(matchingSubscriptionTopics, receivedMessage, matchingActiveSubscriptions);
 		
+		// TODO: should the copy be created after the subscription processing?
+		final FormattedMqttMessage message = new FormattedMqttMessage(receivedMessage);		
+				
 		// If logging is enabled
 		if (messageLogger != null && messageLogger.isRunning())
 		{
@@ -160,6 +161,7 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection implemen
 		for (final String matchingSubscriptionTopic : matchingSubscriptionTopics)
 		{					
 			logger.trace("Message on topic " + receivedMessage.getTopic() + " matched to " + matchingSubscriptionTopic);
+			
 			// Get the mqtt-spy's subscription object
 			final BaseMqttSubscription mqttSubscription = getMqttSubscriptionForTopic(matchingSubscriptionTopic);
 
@@ -167,19 +169,20 @@ public class MqttAsyncConnection extends MqttConnectionWithReconnection implemen
 			if (mqttSubscription != null && (anySubscription || mqttSubscription.isSubscribing() || mqttSubscription.isActive()))
 			{
 				matchingSubscriptions.add(matchingSubscriptionTopic);
-
-				// Create a copy of the message for each subscription
-				final FormattedMqttMessage message = new FormattedMqttMessage(receivedMessage);
 				
 				// Set subscription reference on the message
-				message.setSubscription(mqttSubscription.getTopic());
+				receivedMessage.setSubscription(mqttSubscription.getTopic());
 				foundMqttSubscription = mqttSubscription;
 				
+				// Run the script first, modify the source object
 				if (mqttSubscription.isScriptActive())
 				{
-					scriptManager.runScriptWithReceivedMessage(mqttSubscription.getScript(), message);
+					scriptManager.runScriptWithReceivedMessage(mqttSubscription.getScript(), receivedMessage);
 				}
 				
+				// Create a copy of the message for each subscription
+				final FormattedMqttMessage message = new FormattedMqttMessage(receivedMessage);
+								
 				// Pass the message for subscription handling
 				mqttSubscription.getStore().messageReceived(message);
 				
