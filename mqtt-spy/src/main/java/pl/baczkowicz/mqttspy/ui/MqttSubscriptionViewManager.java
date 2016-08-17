@@ -189,7 +189,6 @@ public class MqttSubscriptionViewManager
 		if (subscription != null)
 		{
 			eventBus.subscribeWithFilterOnly(subscriptionController, subscriptionController::onSubscriptionStatusChanged, SubscriptionStatusChangeEvent.class, subscription);
-			// eventManager.registerSubscriptionStatusObserver(subscriptionController, subscription);
 		}
 		
 		subscriptionController.setStore(observableMessageStore);
