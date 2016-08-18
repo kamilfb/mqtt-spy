@@ -214,8 +214,6 @@ public class SubscriptionController implements Initializable, TabController
 
 	private boolean replayMode;
 
-	// private Formatting formatting;
-	
 	private List<FormatterDetails> formatters;
 
 	private UniqueContentOnlyFilter<FormattedMqttMessage> uniqueContentOnlyFilter;
@@ -331,25 +329,6 @@ public class SubscriptionController implements Initializable, TabController
 				messageCountSlider.setMax(maxMessagesDisplayed);
 			}
 		});
-		
-//		selectionFormat.getToggles().get(0).setUserData(null);		
-//		for (int i = 0; i < 5; i++)
-//		{
-//			selectionFormat.getToggles().get(i+1).setUserData(baseFormatters.get(i));
-//		}		
-//		
-//		selectionFormat.selectedToggleProperty().addListener(new ChangeListener<Toggle>()
-//		{
-//			@Override
-//			public void changed(ObservableValue<? extends Toggle> observable, Toggle oldValue,
-//					Toggle newValue)
-//			{
-//				if (selectionFormat.getSelectedToggle() != null)
-//				{
-//					formatSelection();
-//				}
-//			}
-//		});
 
 		summaryTitledPane.expandedProperty().addListener(new ChangeListener<Boolean>()
 		{
@@ -727,7 +706,11 @@ public class SubscriptionController implements Initializable, TabController
 	
 	public void onClearTab(final ClearTabEvent event)
 	{	
-		messagePaneController.clear();
+		for (final MessageController controller : messageControllers)
+		{
+			controller.clear();
+		}
+		
 		messageNavigationPaneController.clear();
 		
 		resetScrollBar();
@@ -749,16 +732,7 @@ public class SubscriptionController implements Initializable, TabController
 	
 		logger.debug("Format changed to {}", store.getFormatter().getName());
 		eventBus.publish(new MessageFormatChangeEvent(store));
-		// eventManager.notifyFormatChanged(store);
 	}
-	
-//	@FXML
-//	public void formatSelection()
-//	{
-//		final FormatterDetails messageFormat = (FormatterDetails) selectionFormat.getSelectedToggle().getUserData();
-//		
-//		messagePaneController.formatSelection(messageFormat);
-//	}
 	
 	@FXML
 	public void editFormatters()
@@ -1098,14 +1072,4 @@ public class SubscriptionController implements Initializable, TabController
 	{
 		this.eventBus = eventBus;
 	}
-	
-//	/**
-//	 * Get the 'unique only' menu item.
-//	 * 
-//	 * @return the uniqueOnlyMenu
-//	 */
-//	public CheckMenuItem getUniqueOnlyMenu()
-//	{
-//		return uniqueOnlyMenu;
-//	}
 }
