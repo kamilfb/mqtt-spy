@@ -307,7 +307,7 @@ public class SubscriptionController implements Initializable, TabController
 			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue)
 			{		
 				int newNumber = newValue.intValue();
-				// messagesDisplayed = newValue.intValue();
+				
 				messageCountSlider.setValue(newNumber);
 				
 				updateMessagesDisplayed(newNumber);
@@ -506,6 +506,9 @@ public class SubscriptionController implements Initializable, TabController
 				messagesDisplayed++;
 			}			
 		}
+		
+		// Refresh all messages to populate all panes
+		eventBus.publish(new MessageIndexChangeEvent((int) messageIndexScrollBar.getValue(), store, this));
 	}
 	
 	private void updateLayout(final MessageBrowserLayout layout)
@@ -593,6 +596,7 @@ public class SubscriptionController implements Initializable, TabController
 		messageIndexScrollBar.setMin(1);
 		messageIndexScrollBar.setValue(1);
 		messageIndexScrollBar.setMax(1);
+		
 		// TODO: this will need to be adjusted once multiple messages are displayed
 		messageIndexScrollBar.setVisibleAmount(1);		
 		messageIndexScrollBar.setDisable(true);
