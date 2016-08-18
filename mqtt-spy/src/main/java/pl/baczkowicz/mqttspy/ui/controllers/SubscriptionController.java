@@ -236,6 +236,10 @@ public class SubscriptionController implements Initializable, TabController
 
 	private boolean detailedView;
 
+	private Orientation orientation = Orientation.VERTICAL;
+
+	private double summaryTitledPaneTargetWidth;
+
 	public void initialize(URL location, ResourceBundle resources)
 	{			
 		statsLabel = new Label();
@@ -336,7 +340,6 @@ public class SubscriptionController implements Initializable, TabController
 			public void changed(ObservableValue<? extends Boolean> arg0, Boolean arg1, Boolean arg2)
 			{
 				updateMinHeights();
-
 			}
 		});
 		
@@ -391,7 +394,6 @@ public class SubscriptionController implements Initializable, TabController
 		paneTitle.setMaxWidth(Double.MAX_VALUE);
 				
 		searchBox = new TextField();
-		//searchBox.setFont(new Font("System", 11));
 		searchBox.getStyleClass().add("small-font");
 		searchBox.setPadding(new Insets(2, 5, 2, 5));
 		searchBox.setMaxWidth(400);
@@ -404,9 +406,6 @@ public class SubscriptionController implements Initializable, TabController
 			}
 		});
 		
-		//paneTitle = new AnchorPane();
-		//paneTitle.setPadding(new Insets(0, 0, 0, 0));
-		
 		topicFilterBox.getChildren().addAll(new Label(" [search topics: "), searchBox, new Label("] "));
 		titleBox = new HBox();
 		titleBox.setPadding(new Insets(0, 0, 0, 0));				
@@ -417,7 +416,6 @@ public class SubscriptionController implements Initializable, TabController
 		statsLabel.widthProperty().addListener(createPaneTitleWidthListener());
 		
 		paneTitle.getChildren().addAll(titleBox, statsLabel);
-		// paneTitle.getChildren().addAll(titleBox);
 		
 		summaryTitledPane.setText(null);
 		summaryTitledPane.setGraphic(paneTitle);
@@ -514,15 +512,15 @@ public class SubscriptionController implements Initializable, TabController
 	private void updateLayout(final MessageBrowserLayout layout)
 	{
 		boolean summaryPaneFirst = true;
-		boolean multi = true;
-		Orientation orientation = Orientation.VERTICAL;
+		boolean multi = true;		
+		Orientation newOrientation = Orientation.VERTICAL;
 		
 		switch (layout)
 		{
 			case MULTI_BOTTOM:
 				break;
 			case MULTI_RIGHT:
-				orientation = Orientation.HORIZONTAL;
+				newOrientation = Orientation.HORIZONTAL;
 				break;
 			case MULTI_TOP:
 				summaryPaneFirst = false;
@@ -531,7 +529,7 @@ public class SubscriptionController implements Initializable, TabController
 				multi = false;
 				break;
 			case SINGLE_RIGHT:
-				orientation = Orientation.HORIZONTAL;
+				newOrientation = Orientation.HORIZONTAL;
 				multi = false;
 				break;
 			case SINGLE_TOP:
@@ -541,9 +539,24 @@ public class SubscriptionController implements Initializable, TabController
 			default:
 				break;		
 		}		
-
-		splitPane.setOrientation(orientation);
 		
+		if (!newOrientation.equals(orientation) && newOrientation.equals(Orientation.HORIZONTAL))
+		{
+			summaryTitledPaneTargetWidth = summaryTitledPane.getWidth() * 0.65;
+			splitPane.setDividerPositions(0.65);
+		}
+		
+		splitPane.setOrientation(newOrientation);
+		
+		if (!newOrientation.equals(orientation) && newOrientation.equals(Orientation.HORIZONTAL))
+		{
+			Platform.runLater(() -> 
+			{
+				updateWidth(summaryTitledPaneTargetWidth);
+			});
+		}
+		
+		orientation = newOrientation;
 		messageCountSlider.setVisible(multi);
 		
 		// TODO: resize summaryTitledPane quicker
@@ -569,26 +582,36 @@ public class SubscriptionController implements Initializable, TabController
 		{
 			@Override
 			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue)
-			{				 										
-				Platform.runLater(new Runnable()
-				{					
-					@Override
-					public void run()
-					{
-						//logger.debug("pane W={}, title X={}, W={}", summaryTitledPane.getWidth(), paneTitle.getLayoutX(), paneTitle.getWidth());
-						
-						final double absoluteSearchBoxX = searchBox.getLayoutX() + topicFilterBox.getLayoutX() + titleBox.getLayoutX();
-						final double titledPaneWidth = MqttViewManager.updateTitleWidth(summaryTitledPane, paneTitle, MqttViewManager.TITLE_MARGIN);
-						
-						//logger.trace("New width = {}", titledPaneWidth);
-												
-						searchBox.setPrefWidth(titledPaneWidth - absoluteSearchBoxX - statsLabel.getWidth() - 100);
-						
-						//logger.debug("pane W={}, title X={}, W={}", summaryTitledPane.getWidth(), paneTitle.getLayoutX(), paneTitle.getWidth());
-					}
+			{		
+				final double oldV = (double) oldValue;
+				final double newV = (double) newValue;
+				
+				final Double diff = oldV - newV;
+				final Double target = (diff < 20 && diff > 0) ? newV - 20 : newV; 
+				
+				logger.debug("Using target width of {}; requested {}; previously {}", target, newValue, oldValue);				
+								
+				Platform.runLater(() -> 
+				{
+					updateWidth(target);
 				});
+				
 			}
 		};
+	}
+	
+	private void updateWidth(final Double target)
+	{
+		// logger.debug("pane W={}, title X={}, W={}", summaryTitledPane.getWidth(), paneTitle.getLayoutX(), paneTitle.getWidth());
+		
+		final double absoluteSearchBoxX = searchBox.getLayoutX() + topicFilterBox.getLayoutX() + titleBox.getLayoutX();
+		final double titledPaneWidth = MqttViewManager.updateTitleWidth(summaryTitledPane, paneTitle, MqttViewManager.TITLE_MARGIN, target);
+		
+		//logger.trace("New width = {}", titledPaneWidth);
+								
+		searchBox.setPrefWidth(titledPaneWidth - absoluteSearchBoxX - statsLabel.getWidth() - 100);
+		
+		//logger.debug("pane W={}, title X={}, W={}", summaryTitledPane.getWidth(), paneTitle.getLayoutX(), paneTitle.getWidth());
 	}
 	
 	private void resetScrollBar()
