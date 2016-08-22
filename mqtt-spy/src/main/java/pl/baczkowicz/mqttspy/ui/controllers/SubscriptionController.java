@@ -587,7 +587,8 @@ public class SubscriptionController implements Initializable, TabController
 				final double newV = (double) newValue;
 				
 				final Double diff = oldV - newV;
-				final Double target = (diff < 20 && diff > 0) ? newV - 20 : newV; 
+				// If resizing down, jump at least by 10; otherwise no target
+				final Double target = (diff < 10 && diff > 0) ? newV - 10 : null; 
 				
 				logger.debug("Using target width of {}; requested {}; previously {}", target, newValue, oldValue);				
 								

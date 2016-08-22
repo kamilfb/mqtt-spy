@@ -249,7 +249,7 @@ public class MessageController implements Initializable
 	
 	private void updateMessage(final int messageIndex)
 	{
-		if (messageIndex > 0)
+		if (messageIndex > 0 && store.getMessages().size() > 0)
 		{
 			FormattedMqttMessage message = null; 
 		
