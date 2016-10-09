@@ -202,12 +202,10 @@ public class CommandLinksDialog
         Label messageLabel = new Label(commandLink.getLongText() );
         messageLabel.setMinHeight(longMessageMinHeight);
         messageLabel.setPrefHeight(longMessageMinHeight + 10);
-        //messageLabel.setMaxHeight(longMessageMaxHeight);
         messageLabel.getStyleClass().addAll("line-2");
         messageLabel.setWrapText(true);
         messageLabel.setAlignment(Pos.TOP_LEFT);
         messageLabel.setMaxHeight(Double.MAX_VALUE);
-        // GridPane.setVgrow(messageLabel, Priority.SOMETIMES);
         GridPane.setVgrow(messageLabel, Priority.ALWAYS);
         
         Pane graphicContainer = new Pane(ImageUtils.createIcon("go-next-green", 20));

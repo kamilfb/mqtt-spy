@@ -119,8 +119,6 @@ public abstract class BaseViewManager
 
 	protected EditConnectionsController editConnectionsController;
 
-	// protected MainController mainController;
-
 	protected Stage chartSeriesStage;
 
 	protected EditChartSeriesController editChartSeriesController;
@@ -132,11 +130,7 @@ public abstract class BaseViewManager
 		eventBus.subscribe(this, this::showAbout, ShowAboutWindowEvent.class);
 		eventBus.subscribe(this, this::showFormatters, ShowFormattersWindowEvent.class);
 		eventBus.subscribe(this, this::showTestCases, ShowTestCasesWindowEvent.class);
-		// eventBus.subscribe(this, this::loadConfigurationFile, LoadConfigurationFileEvent.class, new SimpleRunLaterExecutor());
 		eventBus.subscribe(this, this::showEditConnectionsWindow, ShowEditConnectionsWindowEvent.class);
-		// eventBus.subscribe(this, this::onNewSelectedPerspective, NewPerspectiveSelectedEvent.class);
-		// eventBus.subscribe(this, this::openMessageLog, ShowMessageLogEvent.class);
-		//eventBus.subscribe(this, this::showNewSubscriptionWindow, ShowNewSubscriptionWindowEvent.class);
 		eventBus.subscribe(this, this::showEditChartSeries, ShowEditChartSeriesWindowEvent.class);
 		eventBus.subscribe(this, this::showExternalWebPage, ShowExternalWebPageEvent.class);
 		
@@ -235,8 +229,6 @@ public abstract class BaseViewManager
 		editConnectionsController.setConfigurationManager(configurationManager);
 		editConnectionsController.init();
 		
-		// TODO: set the connection factory
-		
 		Scene scene = new Scene(connectionWindow);
 		scene.getStylesheets().addAll(stylesheets);		
 
@@ -312,7 +304,6 @@ public abstract class BaseViewManager
 		
 		if (event.isCreateNew())
 		{
-			// TODO: pass the protocol in
 			editConnectionsController.newConnection(IConnectionFactory.MQTT);
 		}
 
@@ -394,7 +385,7 @@ public abstract class BaseViewManager
 					@Override
 					public void run()
 					{
-						BaseViewManager.updateTitleWidth(pane, paneTitle, TITLE_MARGIN);
+						BaseViewManager.updateTitleWidth(pane, paneTitle, TITLE_MARGIN, null);
 					}
 				});
 			}
@@ -415,7 +406,6 @@ public abstract class BaseViewManager
 		button.setGraphic(ImageUtils.createIcon(iconLocation, 14));
 		button.setStyle("-fx-background-color: transparent;");
 		
-		// TODO: actions
 		final MenuItem detach = new MenuItem("Detach to a separate window", ImageUtils.createIcon("tab-detach", 14, "pane-settings-menu-graphic"));
 		detach.setOnAction(new EventHandler<ActionEvent>()
 		{
@@ -477,24 +467,37 @@ public abstract class BaseViewManager
 		return settingsButton;
 	}
 	
-	public static double updateTitleWidth(final TitledPane titledPane, final AnchorPane paneTitle, final double margin)
+	public static double updateTitleWidth(final TitledPane titledPane, final AnchorPane paneTitle, final double margin, Double target)
 	{
 		final double marginWithPositionOfset = margin + paneTitle.getLayoutX();
 				
 		double titledPaneWidth = titledPane.getWidth();
-		//logger.debug("{} titledPane.getWidth() = {}", titledPane, titledPaneWidth);
+		// logger.debug("{} titledPane.getWidth() = {}", titledPane, titledPaneWidth);
 		
 		if (titledPane.getScene() != null)			
 		{
 			if (titledPane.getScene().getWidth() < titledPaneWidth)
 			{
 				titledPaneWidth = titledPane.getScene().getWidth();
-				//logger.debug("{} titledPane.getScene().getWidth() = {}", titledPane, titledPaneWidth);				
+				logger.trace("Scene is smaller; {} titledPane.getScene().getWidth() = {}", titledPane, titledPaneWidth);				
 			}
 		}
 		
-		paneTitle.setPrefWidth(titledPaneWidth - marginWithPositionOfset);				
-		paneTitle.setMaxWidth(titledPaneWidth - marginWithPositionOfset);
+		double width = 0;
+		
+		if (target != null)
+		{
+			width = target - marginWithPositionOfset;
+		}
+		else
+		{
+			width = titledPaneWidth - marginWithPositionOfset;
+		}
+		
+		logger.debug("Setting title pane width to {}", width);
+		
+		paneTitle.setPrefWidth(width);				
+		paneTitle.setMaxWidth(width);
 		
 		return titledPaneWidth;
 	}

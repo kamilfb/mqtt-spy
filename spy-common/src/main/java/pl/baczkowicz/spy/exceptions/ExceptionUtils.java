@@ -28,15 +28,15 @@ public class ExceptionUtils
 	
 	public static String getCauses(final Throwable throwable)	
 	{
-		String causes = throwable.toString();// + "(" + throwable.getMessage() + ")";
+		String causes = throwable.toString();
 		
 		Throwable cause = throwable.getCause();
-		causes = causes + " / " + cause.toString();// + "(" + cause.getMessage() + ")";
+		causes = causes + " / " + cause.toString();
 		
 		while (cause.getCause() != null)
 		{
 			cause = cause.getCause();
-			causes = causes + " / " + cause.toString();// + "(" + cause.getMessage() + ")";
+			causes = causes + " / " + cause.toString();
 		}
 		
 		return causes;

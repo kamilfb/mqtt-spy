@@ -28,19 +28,11 @@ public class BaseSubscription
 	
 	private String topic;
 
-	// private Integer qos;
-
 	private boolean subscribing;
-	
-	// private boolean subscriptionRequested;
 
 	private boolean active;
 	
-	//private BaseMqttConnection connection;
-	
 	private ScriptedSubscriptionDetails details;
-	
-	//private BasicMessageStore<FormattedMqttMessage> store;
 
 	private Script script;
 
@@ -49,11 +41,7 @@ public class BaseSubscription
 	public BaseSubscription(final String topic)
 	{
 		this.topic = topic;
-		//this.qos = qos;
 		this.active = false;
-		//this.subscriptionRequested = false;
-		
-		//this.store = null;
 	}
 
 	public String getTopic()
@@ -66,16 +54,6 @@ public class BaseSubscription
 		this.topic = topic;
 	}
 
-//	public Integer getQos()
-//	{
-//		return qos;
-//	}
-//
-//	public void setQos(Integer qos)
-//	{
-//		this.qos = qos;
-//	}
-
 	public boolean isActive()
 	{
 		return active;
@@ -85,16 +63,6 @@ public class BaseSubscription
 	{
 		this.active = active;
 	}
-
-//	public void setConnection(final BaseMqttConnection connection)
-//	{
-//		this.connection = connection;		
-//	}
-//	
-//	public BaseMqttConnection getConnection()	
-//	{
-//		return connection;
-//	}
 
 	public int getId()
 	{
@@ -116,16 +84,6 @@ public class BaseSubscription
 		subscribing = value;
 	}
 
-//	public boolean getSubscriptionRequested()
-//	{
-//		return subscriptionRequested;
-//	}
-//
-//	public void setSubscriptionRequested(final boolean subscriptionRequested)
-//	{
-//		this.subscriptionRequested = subscriptionRequested;
-//	}
-
 	public ScriptedSubscriptionDetails getDetails()
 	{
 		return details;
@@ -135,11 +93,6 @@ public class BaseSubscription
 	{
 		this.details = details;
 	}
-
-//	public BasicMessageStore<FormattedMqttMessage> getStore()
-//	{
-//		return store;
-//	}
 
 	public void setScript(final Script script)
 	{

@@ -316,27 +316,6 @@ public abstract class BaseScriptManager
 				script.setScriptEngine(scriptEngine);		
 				
 				populateEngineVariables(script);
-			
-//			final MqttScriptIO scriptIO = new MqttScriptIO(connection, eventManager, script, executor); 
-//			//script.setScriptIO(scriptIO);
-//			
-//			final Map<String, Object> scriptVariables = new HashMap<String, Object>();
-//			
-//			// This should be considered deprecated
-//			scriptVariables.put("mqttspy", scriptIO);
-//			// This should be used for general script-related actions
-//			scriptVariables.put("spy", scriptIO);
-//			// Going forward, this should only have mqtt-specific elements, e.g. pub/sub
-//			scriptVariables.put("mqtt", scriptIO);
-//			
-//			scriptVariables.put("logger", LoggerFactory.getLogger(ScriptRunner.class));
-//			
-//			final IMqttMessageLogIO mqttMessageLog = new MqttMessageLogIO();
-//			// Add it to the script IO so that it gets stopped when requested
-//			script.addTask(mqttMessageLog);			
-//			scriptVariables.put("messageLog", mqttMessageLog);
-//			
-//			putJavaVariablesIntoEngine(scriptEngine, scriptVariables);
 			}
 			else
 			{

@@ -237,11 +237,6 @@ public class ControlPanelController extends AnchorPane implements Initializable
 		this.configurationManager = configurationManager;
 	}
 
-//	public void setConnectionManager(final IConnectionViewManager connectionManager)
-//	{
-//		this.connectionManager = connectionManager;		
-//	}
-
 	public void onVersionInfoReceived(final VersionInfoReceivedEvent event)
 	{
 		showUpdateInfo(controlPanelItem3Controller, button3);							

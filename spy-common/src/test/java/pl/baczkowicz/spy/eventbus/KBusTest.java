@@ -79,24 +79,4 @@ public class KBusTest extends TestCase
 		
 		assertEquals(1, subscriber.getMessageCount());
 	}
-	
-//	@Test
-//	public void testInvalidType()
-//	{
-//		final IKBus eventBus = new KBus();
-//		
-//		// Subscription and removal of subscriptions or consumers could be also done in the subscriber class - see commented out code
-//		final SampleSubscriber subscriber = new SampleSubscriber();
-//		
-//		eventBus.subscribe(subscriber, (Consumer<SampleCountChangeEvent>) subscriber::onCountChange, Object.class);
-//		
-//		// Valid
-//		eventBus.publish(new SampleCountChangeEvent("hello", 42));
-//		
-//		// Invalid
-//		eventBus.publish(new Integer(42));
-//		eventBus.publish("hello");
-//		
-//		assertEquals(1, subscriber.getMessageCount());
-//	}
 }

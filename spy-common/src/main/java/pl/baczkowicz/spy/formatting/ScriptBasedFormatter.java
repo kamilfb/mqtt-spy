@@ -124,18 +124,6 @@ public class ScriptBasedFormatter
 	{
 		try
 		{
-//			Script script = formattingScripts.get(formatter);
-//			
-//			if (script == null)
-//			{
-//				addFormatter(formatter);
-//				script = formattingScripts.get(formatter);
-//			}
-//			
-//			scriptManager.setVariable(script, BaseScriptManager.RECEIVED_MESSAGE_PARAMETER, message);		
-//		
-//			final String functionName = FORMAT_FUNCTION_NAME;
-//			return (String) scriptManager.invokeFunction(script, functionName);
 			return formatMessageWithFunction(formatter, message, FORMAT_FUNCTION_NAME);
 		}
 		catch (NoSuchMethodException | ScriptException e)
@@ -152,19 +140,6 @@ public class ScriptBasedFormatter
 			logger.debug("Pretty formatting...");
 			try
 			{
-//				Script script = formattingScripts.get(formatter);
-//				
-//				if (script == null)
-//				{
-//					logger.debug("Formatting script not found");
-//					addFormatter(formatter);
-//					script = formattingScripts.get(formatter);
-//				}
-//				
-//				scriptManager.setVariable(script, BaseScriptManager.RECEIVED_MESSAGE_PARAMETER, message);		
-//			
-//				final String functionName = PRETTY_FUNCTION_NAME;
-//				return (String) scriptManager.invokeFunction(script, functionName);
 				return formatMessageWithFunction(formatter, message, PRETTY_FUNCTION_NAME);
 			}
 			catch (NoSuchMethodException e)

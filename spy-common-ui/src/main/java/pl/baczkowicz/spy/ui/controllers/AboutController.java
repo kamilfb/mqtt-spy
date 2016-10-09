@@ -190,11 +190,6 @@ public class AboutController implements Initializable
 	{
 		this.propertyFileLoader = propertyFileLoader;
 	}
-
-//	public void setConfigurationManager(final ConfigurationManager configurationManager)
-//	{
-//		this.configurationManager = configurationManager;		
-//	}	
 	
 	public void setVersionManager(final VersionManager versionManager)
 	{

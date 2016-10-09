@@ -72,8 +72,6 @@ public class TestCasesExecutionController extends AnchorPane implements Initiali
 
 	private TitledPane pane;
 	
-	// private AnchorPane paneTitle;
-	
 	@FXML
 	private TreeTableView<TestCaseProperties> scriptTree;
 	

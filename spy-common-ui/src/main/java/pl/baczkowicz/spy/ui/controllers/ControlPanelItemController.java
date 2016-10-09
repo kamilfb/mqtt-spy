@@ -73,15 +73,12 @@ public class ControlPanelItemController extends AnchorPane implements Initializa
 	private ProgressIndicator progressIndicator;
 	
 	private ItemStatus status = ItemStatus.ERROR;
-
-	// private ConfigurationManager configurationManager;
 	
 	private boolean showProgress;
 		
 	// ===============================
 	// === Initialisation ============
 	// ===============================
-
 
 	public void initialize(URL location, ResourceBundle resources)
 	{		
@@ -159,8 +156,7 @@ public class ControlPanelItemController extends AnchorPane implements Initializa
 			progressIndicator.setVisible(false);
 			statusIcon.setVisible(true);
 			
-			statusIcon.setImage(ImageUtils.createIcon(imageName).getImage());
-			// statusIcon.setImage(new Image(ControlPanelItemController.class.getResource(imageLocation).toString()));		
+			statusIcon.setImage(ImageUtils.createIcon(imageName).getImage());		
 			if (status == ItemStatus.OK)
 			{
 				statusIcon.setLayoutY(5);
@@ -168,13 +164,6 @@ public class ControlPanelItemController extends AnchorPane implements Initializa
 				statusIcon.setFitHeight(64);
 				statusIcon.setFitWidth(64);
 			}
-//			else if (status == ItemStatus.STATS)
-//			{
-//				statusIcon.setLayoutY(10);
-//				statusIcon.setLayoutX(10);
-//				statusIcon.setFitHeight(64);
-//				statusIcon.setFitWidth(64);
-//			}
 			else
 			{
 				statusIcon.setLayoutY(10);
@@ -233,11 +222,6 @@ public class ControlPanelItemController extends AnchorPane implements Initializa
 	{
 		return this.itemsBox;
 	}	
-	
-//	public void setConfigurationMananger(final ConfigurationManager configurationManager)
-//	{
-//		this.configurationManager = configurationManager;
-//	}
 	
 	public FlowPane getDetails()
 	{

@@ -31,6 +31,4 @@ public interface TitledPaneController
 	void updatePane(PaneVisibilityStatus attached);
 	
 	Label getTitleLabel();
-	
-	//void setTitle(final String title);
 }

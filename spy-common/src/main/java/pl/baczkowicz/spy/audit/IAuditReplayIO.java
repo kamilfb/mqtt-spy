@@ -48,10 +48,6 @@ public interface IAuditReplayIO extends StoppableTask
 	 */
 	void start();
 	
-	//	TODO: to be added in the future
-	// void pause();	
-	// void resume();
-	
 	/**
 	 * Stops the time checker - see the start method.
 	 */
