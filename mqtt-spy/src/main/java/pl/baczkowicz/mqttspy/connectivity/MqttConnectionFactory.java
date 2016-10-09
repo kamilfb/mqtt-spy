@@ -62,17 +62,7 @@ public class MqttConnectionFactory implements IConnectionFactory
 	{
 		return protocol.toLowerCase() + "-icon";
 	}
-//	
-//	public static String getIconNameForProtocol()
-//	{
-////		if (MQTT.equals(protocol))
-////		{
-////			return "mqtt-icon";
-////		}
-//		
-//		return "mqtt-icon";
-//	}
-
+	
 	@Override
 	public void populateProtocolCell(TableCell<ConnectionListItemProperties, String> cell, String item)
 	{

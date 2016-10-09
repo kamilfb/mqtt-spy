@@ -26,10 +26,6 @@ import pl.baczkowicz.spy.storage.MessageList;
 
 public class BaseMqttSubscription extends BaseSubscription
 {
-	//private int id;
-	
-	//private String topic;
-
 	private Integer qos;
 
 	private boolean subscribing;
@@ -40,20 +36,12 @@ public class BaseMqttSubscription extends BaseSubscription
 	
 	private BaseMqttConnection connection;
 	
-	//private SubscriptionDetails details;
-	
 	private BasicMessageStore<FormattedMqttMessage> store;
-
-	//private Script script;
-
-	//private boolean scriptActive;
 
 	public BaseMqttSubscription(final String topic, final Integer qos)
 	{
 		super(topic);
-		//this.topic = topic;
 		this.qos = qos;
-		//this.active = false;
 		this.subscriptionRequested = false;
 		
 		this.store = null;
@@ -67,16 +55,6 @@ public class BaseMqttSubscription extends BaseSubscription
 		this.store = new BasicMessageStore<FormattedMqttMessage>(
 				new MessageList<FormattedMqttMessage>(minMessagesPerTopic, preferredStoreSize, topic));
 	}
-
-//	public String getTopic()
-//	{
-//		return topic;
-//	}
-//
-//	public void setTopic(String topic)
-//	{
-//		this.topic = topic;
-//	}
 
 	public Integer getQos()
 	{
@@ -107,17 +85,7 @@ public class BaseMqttSubscription extends BaseSubscription
 	{
 		return connection;
 	}
-
-//	public int getId()
-//	{
-//		return id;
-//	}
-//
-//	public void setId(final int id)
-//	{
-//		this.id = id;		
-//	}
-
+	
 	public boolean isSubscribing()
 	{
 		return subscribing;
@@ -138,38 +106,8 @@ public class BaseMqttSubscription extends BaseSubscription
 		this.subscriptionRequested = subscriptionRequested;
 	}
 
-//	public SubscriptionDetails getDetails()
-//	{
-//		return details;
-//	}
-//
-//	public void setDetails(final SubscriptionDetails details)
-//	{
-//		this.details = details;
-//	}
-
 	public BasicMessageStore<FormattedMqttMessage> getStore()
 	{
 		return store;
 	}
-
-//	public void setScript(final Script script)
-//	{
-//		this.script = script;		
-//	}
-//
-//	public void setScriptActive(final boolean scriptActive)
-//	{
-//		this.scriptActive = scriptActive;		
-//	}
-//	
-//	public boolean isScriptActive()
-//	{
-//		return scriptActive;
-//	}
-//
-//	public Script getScript()
-//	{
-//		return script;
-//	}
 }

@@ -1,3 +1,22 @@
+/***********************************************************************************
+ * 
+ * Copyright (c) 2016 Kamil Baczkowicz
+ * 
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * and Eclipse Distribution License v1.0 which accompany this distribution.
+ *
+ * The Eclipse Public License is available at
+ *    http://www.eclipse.org/legal/epl-v10.html
+ *    
+ * The Eclipse Distribution License is available at
+ *   http://www.eclipse.org/org/documents/edl-v10.php.
+ *
+ * Contributors:
+ * 
+ *    Kamil Baczkowicz - initial API and implementation and/or initial documentation
+ *    
+ */
 package pl.baczkowicz.mqttspy.kura;
 
 import java.io.IOException;
@@ -23,24 +42,11 @@ public class KuraPayloadFormatter
 			return e.getLocalizedMessage();
 		} 
 	}
-	
-//	public static String positionToString(final KuraPosition position)
-//	{
-//		return "position: {longitude: " + position.getLongitude()
-//				+ ", latitude: " + position.getLatitude() + ", altitude: "
-//				+ position.getAltitude() + ", precision: " + position.getPrecision()
-//				+ ", heading: " + position.getHeading() + ", speed: "
-//				+ position.getSpeed() + ", timestamp=" + position.getTimestamp()
-//				+ ", satellites: " + position.getSatellites() + ", status: "
-//				+ position.getStatus() + "}";
-//	}
 
 	public static String payloadToString(final KuraPayload payload)
 	{
-		// final String body = payload.getBody() != null ? (", body: " + new String(payload.getBody())) : "";
 		final String body = payload.getBody() != null ? (", body: " + new JSONObject(payload.getBody()).toString()) : "";
 		
-		// final String position = payload.getPosition() != null ? (", position: " + positionToString(payload.getPosition())) : "";
 		final String position = payload.getPosition() != null ? (", position: " + new JSONObject(payload.getPosition()).toString()) : "";
 		
 		return "{kuraPayload: {timestamp: " + payload.getTimestamp()

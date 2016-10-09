@@ -38,13 +38,10 @@ public class MqttSubscription extends BaseMqttSubscription
 	
 	private final ManagedMessageStoreWithFiltering<FormattedMqttMessage> store;
 
-	// private EventManager<FormattedMqttMessage> eventManager;
-	
 	private IKBus eventBus;
 
 	public MqttSubscription(final String topic, final Integer qos, final Color color, 
 			final int minMessagesPerTopic, final int preferredStoreSize, final EventQueueManager<FormattedMqttMessage> uiEventQueue,
-			// final EventManager<FormattedMqttMessage> eventManager, 
 			final IKBus eventBus,
 			final FormattingManager formattingManager, final int summaryMaxPayloadLength)
 	{
@@ -53,12 +50,11 @@ public class MqttSubscription extends BaseMqttSubscription
 		// Max size is double the preferred size
 		store = new ManagedMessageStoreWithFiltering<FormattedMqttMessage>(topic, minMessagesPerTopic, 
 				preferredStoreSize, preferredStoreSize * 2, 
-				uiEventQueue, //eventManager, 
+				uiEventQueue,
 				formattingManager,
 				summaryMaxPayloadLength);
 		
 		this.color = color;
-		// this.eventManager = eventManager;
 		this.eventBus = eventBus;
 	}
 
@@ -82,7 +78,6 @@ public class MqttSubscription extends BaseMqttSubscription
 	public void subscriptionStatusChanged()
 	{
 		eventBus.publish(new SubscriptionStatusChangeEvent(this));
-		// eventManager.notifySubscriptionStatusChanged(this);
 	}
 
 	public void setSubscriptionController(final SubscriptionController subscriptionController)
