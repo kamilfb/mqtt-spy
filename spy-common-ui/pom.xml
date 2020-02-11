@@ -25,7 +25,7 @@
 		<repository>
 			<id>gillius-org</id>
 			<name>Gillius.org Maven Repository</name>
-			<url>http://www.gillius.org/maven2</url>
+			<url>https://www.gillius.org/maven2</url>
 		</repository>
 	</repositories>
 
